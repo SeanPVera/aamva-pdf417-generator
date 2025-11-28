@@ -12,7 +12,6 @@ index 9c9a123..b02ac4b 100644
 +"DC": null 
  };
 diff --git a/app.js b/app.js
-index 21bbbd1..dd2fd31 100644
 --- a/app.js
 +++ b/app.js
 @@ -30,7 +30,7 @@ function populateStateList() {
