@@ -1,166 +1,216 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta http-equiv="Content-Style-Type" content="text/css">
-  <title></title>
-  <meta name="Generator" content="Cocoa HTML Writer">
-  <meta name="CocoaVersion" content="2575.7">
-  <style type="text/css">
-    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Times; -webkit-text-stroke: #000000}
-    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Times; -webkit-text-stroke: #000000; min-height: 14.0px}
-    span.s1 {font-kerning: none}
+  <meta charset="UTF-8" />
+  <title>AAMVA PDF417 Generator — Deluxe Edition</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    /* ========== GLOBAL ========== */
+    :root {
+      --bg: #ffffff;
+      --fg: #111111;
+      --panel: #f3f3f3;
+      --accent: #276ef1;
+      --border: #dadada;
+      --error: #b00020;
+      --success: #0a7d00;
+    }
+
+    [data-theme="dark"] {
+      --bg: #000000;
+      --fg: #e6e6e6;
+      --panel: #1a1a1a;
+      --accent: #4d94ff;
+      --border: #333333;
+    }
+
+    [data-theme="dmv"] {
+      --bg: #eaf3ff;
+      --fg: #112233;
+      --panel: #d5e7ff;
+      --accent: #0047b3;
+      --border: #b3d1ff;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: system-ui, sans-serif;
+      height: 100vh;
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* ========== LAYOUT ========== */
+    #sidebar {
+      width: 420px;
+      background: var(--panel);
+      border-right: 2px solid var(--border);
+      overflow-y: auto;
+      padding: 20px;
+    }
+
+    #main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    #main-top {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border-bottom: 2px solid var(--border);
+    }
+
+    .pane {
+      padding: 15px;
+      overflow-y: auto;
+      border-right: 1px solid var(--border);
+    }
+
+    .pane:last-child {
+      border-right: none;
+    }
+
+    #main-bottom {
+      height: 240px;
+      background: var(--panel);
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      border-top: 2px solid var(--border);
+    }
+
+    .tool-pane {
+      padding: 15px;
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+    }
+
+    .tool-pane:last-child {
+      border-right: none;
+    }
+
+    h2, h3 {
+      margin-top: 0;
+    }
+
+    input, select, button, textarea {
+      width: 100%;
+      padding: 8px;
+      margin-top: 8px;
+      margin-bottom: 12px;
+      background: var(--bg);
+      color: var(--fg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+    }
+
+    button {
+      background: var(--accent);
+      color: #fff;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    canvas {
+      width: 100%;
+      height: auto;
+      background: white;
+      border: 1px solid var(--border);
+    }
+
+    #errorBox {
+      background: var(--error);
+      color: #fff;
+      padding: 8px;
+      display: none;
+      margin-bottom: 12px;
+      border-radius: 4px;
+    }
   </style>
 </head>
+
 <body>
-<p class="p1"><span class="s1">&lt;!DOCTYPE html&gt;</span></p>
-<p class="p1"><span class="s1">&lt;html lang="en"&gt;</span></p>
-<p class="p1"><span class="s1">&lt;head&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;meta charset="UTF-8" /&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;title&gt;AAMVA PDF417 Generator&lt;/title&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0" /&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;!-- PDF export library --&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"&gt;&lt;/script&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;style&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>body {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>background: #0d0d0f;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>color: #e9e9ee;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>font-family: Inter, Arial, sans-serif;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>padding: 20px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>h1 {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>text-align: center;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>margin-bottom: 30px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>color: #ff8ee6;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>letter-spacing: 1px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>.container {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>display: flex;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>gap: 25px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>flex-wrap: wrap;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>form {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>width: 360px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>background: #18181c;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>padding: 20px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>border-radius: 10px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>border: 1px solid #2a2a2e;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>form label {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>font-size: 13px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>color: #bbb;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>input, select {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>width: 100%;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>padding: 9px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>margin: 5px 0 15px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>border-radius: 6px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>border: 1px solid #444;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>background: #101014;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>color: #fff;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>font-size: 14px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>input.invalid {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>border-color: #ff5a82;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>background: #3a0f19;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>button {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>width: 100%;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>padding: 12px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>background: #ff50bf;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>color: black;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>border: none;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>border-radius: 8px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>cursor: pointer;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>margin-bottom: 10px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>font-weight: bold;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>transition: 0.2s;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>button:hover {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>background: #ff7ad7;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>#output {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>flex-grow: 1;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>background: #18181c;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>padding: 20px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>border-radius: 10px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>border: 1px solid #2a2a2e;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>canvas {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>background: white;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>padding: 10px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>border-radius: 5px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>margin-bottom: 20px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>max-width: 100%;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>pre {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>background: #101014;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>padding: 12px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>border-radius: 8px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>white-space: pre-wrap;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>color: #9cff9c;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>font-size: 14px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>max-height: 350px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>overflow: auto;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>/* Mobile responsive */</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>@media (max-width: 900px) {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>.container {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>flex-direction: column;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>form, #output {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>width: 100%;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>#dropZone {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>border: 1px dashed #555;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>border-radius: 8px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>padding: 10px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>margin-bottom: 15px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>text-align: center;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>font-size: 13px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>color: #aaa;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>transition: 0.2s;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;/style&gt;</span></p>
-<p class="p1"><span class="s1">&lt;/head&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">&lt;body&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;h1&gt;AAMVA PDF417 Generator&lt;/h1&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;div class="container"&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;form id="dlForm"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;label&gt;State&lt;/label&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;select id="state"&gt;&lt;/select&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;label&gt;Version&lt;/label&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;select id="version"&gt;&lt;/select&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;div id="fieldContainer"&gt;&lt;/div&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;div id="dropZone"&gt;Drop JSON file here to load data&lt;/div&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;button type="button" id="generateBtn"&gt;Generate&lt;/button&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;button type="button" id="exportPNG"&gt;Export PNG&lt;/button&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;button type="button" id="exportPDF"&gt;Export PDF&lt;/button&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;/form&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;div id="output"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;canvas id="barcode"&gt;&lt;/canvas&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;h3&gt;Payload&lt;/h3&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;pre id="payloadBox"&gt;&lt;/pre&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;script src="lib/pdf417.js"&gt;&lt;/script&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;script type="module" src="app.js"&gt;&lt;/script&gt;</span></p>
-<p class="p1"><span class="s1">&lt;/body&gt;</span></p>
-<p class="p1"><span class="s1">&lt;/html&gt;</span></p>
+  <!-- ========== SIDEBAR ========== -->
+  <div id="sidebar">
+    <h2>AAMVA Fields</h2>
+
+    <div id="errorBox"></div>
+
+    <label>State</label>
+    <select id="state"></select>
+
+    <label>AAMVA Version</label>
+    <select id="version"></select>
+
+    <div id="fields"></div>
+
+    <h3>Import JSON</h3>
+    <input type="file" id="jsonFileInput" accept=".json" />
+
+    <button id="undoBtn">Undo</button>
+    <button id="redoBtn">Redo</button>
+
+    <h3>Theme</h3>
+    <select id="themeMode">
+      <option value="light">Light</option>
+      <option value="dark">Dark</option>
+      <option value="dmv">DMV Blue</option>
+    </select>
+  </div>
+
+  <!-- ========== MAIN ========== -->
+  <div id="main">
+    <div id="main-top">
+      <!-- Barcode pane -->
+      <div class="pane">
+        <h2>PDF417 Preview</h2>
+        <canvas id="barcode"></canvas>
+
+        <button id="exportPNG">Export PNG</button>
+        <button id="exportPDF">Export PDF</button>
+        <button id="exportSVG">Export SVG</button>
+      </div>
+
+      <!-- Decoder pane -->
+      <div class="pane">
+        <h2>Decoded Output</h2>
+        <textarea id="decodedOutput" rows="16" readonly></textarea>
+      </div>
+    </div>
+
+    <!-- Bottom Developer Tools -->
+    <div id="main-bottom">
+      <div class="tool-pane">
+        <h3>Raw Codewords</h3>
+        <textarea id="rawCodewords" readonly rows="10"></textarea>
+      </div>
+
+      <div class="tool-pane">
+        <h3>Payload Inspector</h3>
+        <textarea id="payloadInspector" readonly rows="10"></textarea>
+      </div>
+
+      <div class="tool-pane">
+        <h3>Version Browser</h3>
+        <select id="versionBrowser"></select>
+        <textarea id="versionFields" readonly rows="10"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <script src="aamva.js"></script>
+  <script src="pdf417.js"></script>
+  <script src="decoder.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
