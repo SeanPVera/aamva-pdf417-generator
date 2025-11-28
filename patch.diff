@@ -4,6 +4,8 @@ index b02ac4b..d7ce901 100644
 +++ b/aamva.js
 @@ -13,6 +13,18 @@ export const AAMVA_STATES = {
    "AL": { IIN: "636000", jurisdictionVersion: 8 },
+   "AK": { IIN: "636001", jurisdictionVersion: 8 },
+   "AZ": { IIN: "636002", jurisdictionVersion: 8 },
    ...
    "WY": { IIN: "636490", jurisdictionVersion: 8 },
 +
@@ -15,7 +17,7 @@ index b02ac4b..d7ce901 100644
 +  "PR": null
  };
  
-+// List of disallowed keys for extra schema verification
++// Unknown-field handling policy
 +export const AAMVA_UNKNOWN_FIELD_POLICY = "reject";
 +
 +
@@ -23,7 +25,7 @@ diff --git a/app.js b/app.js
 index c01c4aa..ebd52df 100644
 --- a/app.js
 +++ b/app.js
-@@ -25,7 +25,14 @@ function populateStateList() {
+@@ -25,7 +25,17 @@ function populateStateList() {
    const stateSelect = document.getElementById("state");
 -  Object.keys(AAMVA_STATES).sort().forEach(code => {
 +  Object.keys(AAMVA_STATES).sort().forEach(code => {
@@ -35,30 +37,34 @@ index c01c4aa..ebd52df 100644
 +      stateSelect.appendChild(op);
 +      return;
 +    }
++
      if (!AAMVA_STATES[code]) return;
      const op = document.createElement("option");
      op.value = code;
-@@ -96,6 +103,41 @@ function validateFields() {
+@@ -96,6 +106,43 @@ function validateFields() {
    return valid;
  }
  
-+// Reject unknown JSON keys entered by user schemas
++// Reject unknown JSON keys
 +function validateUnknownFields(json) {
 +  if (!json) return true;
 +  if (AAMVA_UNKNOWN_FIELD_POLICY !== "reject") return true;
 +
-+  const allowed = new Set(currentFields.map(f => f.code)
-+    .concat(["state", "version"]));
++  const allowed = new Set(
++    currentFields.map(f => f.code).concat(["state", "version"])
++  );
 +
-+  for (const k of Object.keys(json)) {
-+    if (!allowed.has(k)) {
-+      showError("Unknown field in JSON: " + k);
++  for (const key of Object.keys(json)) {
++    if (!allowed.has(key)) {
++      showError("Unknown field in JSON: " + key);
 +      return false;
 +    }
 +  }
++
 +  return true;
 +}
 +
++// Enforce ECC bounds
 +function enforceECCBounds() {
 +  const ecc = parseInt(document.getElementById("eccLevel")?.value || "5", 10);
 +  if (ecc < 2 || ecc > 8) {
@@ -68,7 +74,7 @@ index c01c4aa..ebd52df 100644
 +  return true;
 +}
 +
-@@ -141,9 +183,15 @@ function liveUpdate() {
+@@ -141,7 +188,12 @@ function liveUpdate() {
 -  if (!validateFields() || !validateRequiredFields()) {
 +  if (!validateFields() ||
 +      !validateRequiredFields() ||
@@ -76,22 +82,21 @@ index c01c4aa..ebd52df 100644
      showError("Some required fields are missing or invalid.");
      return;
    }
- 
++
 +  if (!validateUnknownFields(collectInput())) return;
-+
-+
+ 
    try {
      const payload = buildAAMVAPayload(
-       collectInput(),
-@@ -176,14 +224,29 @@ function renderPDF417(payload) {
+@@ -176,14 +228,30 @@ function renderPDF417(payload) {
    const canvas = document.getElementById("barcode");
    const ctx = canvas.getContext("2d");
  
 -  const ecc = parseInt(document.getElementById("eccLevel")?.value || "5", 10);
-+  const ecc = Math.min(8, Math.max(2,
-+    parseInt(document.getElementById("eccLevel")?.value || "5", 10)
-+  ));
-+
++  const ecc = Math.min(
++    8,
++    Math.max(2, parseInt(document.getElementById("eccLevel")?.value || "5", 10))
++  );
+ 
    const barcode = PDF417.generate(payload, { errorCorrectionLevel: ecc });
  
    // HiDPI scaling
@@ -101,11 +106,14 @@ index c01c4aa..ebd52df 100644
  
    canvas.width = barcode[0].length * scale;
    canvas.height = barcode.length * scale;
- 
-@@ -213,10 +276,34 @@ function exportPDF() {
+@@ -213,10 +281,36 @@ function exportPDF() {
    const { jsPDF } = window.jspdf;
 -  const doc = new jsPDF({ unit: "pt", compress: true });
-+  const doc = new jsPDF({ unit: "pt", compress: true, hotfixes: ["px_scaling"] });
++  const doc = new jsPDF({
++    unit: "pt",
++    compress: true,
++    hotfixes: ["px_scaling"]
++  });
  
    const canvas = document.getElementById("barcode");
    const img = canvas.toDataURL("image/png", 1.0);
@@ -116,9 +124,9 @@ index c01c4aa..ebd52df 100644
    doc.save("barcode.pdf");
 +
 +  console.log("PDF exported with enforced DPI scaling");
- }
- 
-+// Export SVG endpoint
++}
++
++// Export SVG
 +export function exportSVG() {
 +  const payload = buildAAMVAPayload(collectInput());
 +  const { svg } = PDF417.generateSVG(payload);
@@ -130,15 +138,15 @@ index c01c4aa..ebd52df 100644
 +  a.click();
 +}
 +
-+// Export raw codewords for debugging
++// Export raw codewords
 +export function exportCodewords() {
 +  const payload = buildAAMVAPayload(collectInput());
 +  const cw = PDF417.generate(payload, { raw: true });
 +  console.log("RAW CODEWORDS:", cw);
 +  alert("Raw codewords printed to console.");
-+}
-+
-@@ -250,11 +337,40 @@ function setupDropZone() {
+ }
+ 
+@@ -250,11 +344,41 @@ function setupDropZone() {
    dz.addEventListener("drop", async e => {
      const file = e.dataTransfer.files[0];
      if (!file) return;
@@ -147,12 +155,11 @@ index c01c4aa..ebd52df 100644
 +      alert("This file is not a .json file.");
 +      return;
 +    }
- 
++
      try {
        const text = await file.text();
        const json = JSON.parse(text);
  
-+      // Reject unknown keys
 +      if (!validateUnknownFields(json)) return;
 +
 +      if (json.state && !AAMVA_STATES[json.state]) {
@@ -164,8 +171,8 @@ index c01c4aa..ebd52df 100644
 +        alert("Invalid AAMVA version.");
 +        return;
 +      }
-+      applyJsonToForm(json);
 +
++      applyJsonToForm(json);
 +      snapshotHistory();
 +
      } catch (err) {
@@ -174,7 +181,7 @@ index c01c4aa..ebd52df 100644
    });
  }
  
-@@ -305,6 +421,31 @@ function applyJsonToForm(json) {
+@@ -305,6 +429,33 @@ function applyJsonToForm(json) {
      currentFields.forEach(field => {
        if (json[field.code] !== undefined) {
          document.getElementById(field.code).value = json[field.code];
@@ -186,8 +193,7 @@ index c01c4aa..ebd52df 100644
 +  snapshotHistory();
 +}
 +
-+
-+/* Undo/Redo History System */
++// Undo / Redo system
 +let historyStack = [];
 +let historyIndex = -1;
 +
@@ -253,17 +259,16 @@ index c01c4aa..ed42dce 100644
 @@ -24,6 +24,18 @@ function createWindow() {
    win.loadFile("index.html");
  
-   // Prevent navigation injection or external navigation
+   // Prevent navigation injection
    win.webContents.on("will-navigate", e => e.preventDefault());
    win.webContents.setWindowOpenHandler(() => ({ action: "deny" }));
 +
-+  // Harden drag/drop to avoid path leak
++  // Harden drag/drop
 +  win.webContents.on("will-attach-webview", e => {
 +    e.preventDefault();
 +  });
 +
 +  win.webContents.session.setPermissionRequestHandler((wc, permission, cb) => {
-+    // deny file system access
 +    if (permission === "filesystem") return cb(false);
 +    cb(false);
 +  });
@@ -284,8 +289,8 @@ index b01c01c..c50987f 100644
 +- Schema-level validation  
 +- Rejection of unknown fields  
 +- Enforcement of valid ECC bounds  
-+- Strict state/version sanity
- 
++- Strict state/version sanity  
++
 +### Developer Tools
 +- Export SVG  
 +- Export raw codewords  
