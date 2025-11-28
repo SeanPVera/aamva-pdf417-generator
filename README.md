@@ -1,7 +1,7 @@
 # AAMVA PDF417 Generator
 
-A full client-side, standards-compliant PDF417 barcode generator for U.S. driver's licenses and identification cards (AAMVA DL/ID Specification Versions 01–10).  
-Supports all 50 U.S. states through official IIN mappings.
+A full client-side, standards-compliant PDF417 barcode generator for U.S. driver's licenses and identification cards (covering implemented AAMVA DL/ID Specification versions 01, 04, and 07–10; versions 02, 03, 05, and 06 are not implemented).
+Supports all 50 U.S. states through official IIN mappings (District of Columbia and U.S. territories are not included).
 
 Runs entirely in the browser.  
 No server. No dependencies. No data leaves your machine.
@@ -10,8 +10,8 @@ No server. No dependencies. No data leaves your machine.
 
 ## Features
 
-- Supports **AAMVA Versions 01 through 10**
-- Supports **all 50 U.S. states**
+- Supports **AAMVA Versions 01, 04, and 07–10** (02, 03, 05, and 06 are not implemented)
+- Supports **all 50 U.S. states** (excludes District of Columbia and U.S. territories)
 - Fully implemented **IIN table**
 - Real-time PDF417 barcode preview
 - Automatic field validators

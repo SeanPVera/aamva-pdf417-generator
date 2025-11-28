@@ -1,7 +1,8 @@
 /*
   AAMVA MASTER SCHEMA – Versioned Payload Generator
-  Supports AAMVA DL/ID barcode versions 01 through 10
-  Supports all 50 U.S. states + DC via standardized IIN table
+  Supports AAMVA DL/ID barcode versions 01, 04, 07, 08, 09, and 10
+  Does not implement versions 02, 03, 05, or 06
+  Supports all 50 U.S. states via standardized IIN table (District of Columbia and U.S. territories not included)
   Exports:
     - AAMVA_VERSIONS
     - AAMVA_STATES
