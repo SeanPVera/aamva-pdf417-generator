@@ -1,0 +1,197 @@
+diff --git a/aamva.js b/aamva.js
+index 9c9a123..b02ac4b 100644
+--- a/aamva.js
++++ b/aamva.js
+@@ -13,6 +13,10 @@
+ export const AAMVA_STATES = {
+ "AL": { IIN: "636000", jurisdictionVersion: 8 },
+ ...
++"WY": { IIN: "636490", jurisdictionVersion: 8 },
++
++// Explicitly unsupported to avoid confusion and regressions
++"DC": null 
+ };
+
+diff --git a/app.js b/app.js
+index 21bbbd1..dd2fd31 100644
+--- a/app.js
++++ b/app.js
+@@ -30,7 +30,7 @@ function populateStateList() {
+ const stateSelect = document.getElementById("state");
+-Object.keys(AAMVA_STATES).forEach(code => {
++Object.keys(AAMVA_STATES).sort().forEach(code => {
+   if (!AAMVA_STATES[code]) return; 
+   const op = document.createElement("option");
+   op.value = code;
+@@ -41,7 +41,7 @@ function populateVersionList() {
+ const versionSelect = document.getElementById("version");
+-Object.keys(AAMVA_VERSIONS).forEach(v => {
++Object.keys(AAMVA_VERSIONS).sort().forEach(v => {
+   const op = document.createElement("option");
+   op.value = v;
+   op.textContent = v;
+@@ -96,6 +96,36 @@ function validateFields() {
+ return valid;
+ }
+
++// Additional required-field validator for AAMVA schema
++function validateRequiredFields() {
++  let ok = true;
++  currentFields.forEach(field => {
++    if (field.required) {
++      const el = document.getElementById(field.code);
++      if (!el || !el.value.trim()) {
++        el.classList.add("invalid");
++        ok = false;
++      }
++    }
++  });
++  return ok;
++}
++
++function showError(msg) {
++  const box = document.getElementById("payloadBox");
++  if (box) box.textContent = "⚠️ " + msg;
++}
++
+@@ -141,9 +171,13 @@ function liveUpdate() {
+-if (!validateFields()) return;
++if (!validateFields() || !validateRequiredFields()) {
++  showError("Some required fields are missing or invalid.");
++  return;
++}
+
+ try {
+   const payload = buildAAMVAPayload(
+     collectInput(),
+@@ -176,14 +210,28 @@ function renderPDF417(payload) {
+ const canvas = document.getElementById("barcode");
+ const ctx = canvas.getContext("2d");
+-const barcode = PDF417.generate(payload, { errorCorrectionLevel: 5 });
+-const scale = 2;
++const ecc = parseInt(document.getElementById("eccLevel")?.value || "5", 10);
++const barcode = PDF417.generate(payload, { errorCorrectionLevel: ecc });
++
++// HiDPI scaling
++const px = window.devicePixelRatio || 1;
++const scale = 3 * px;
+
+ canvas.width = barcode[0].length * scale;
+ canvas.height = barcode.length * scale;
+
+ ctx.fillStyle = "white";
+ ctx.fillRect(0, 0, canvas.width, canvas.height);
+ ctx.fillStyle = "black";
+
+@@ -213,10 +263,15 @@ function exportPDF() {
+ const { jsPDF } = window.jspdf;
+-const doc = new jsPDF();
++const doc = new jsPDF({ unit: "pt", compress: true });
+
+ const canvas = document.getElementById("barcode");
+-const img = canvas.toDataURL("image/png");
+-doc.addImage(img, "PNG", 15, 15, 180, 60);
++// Higher DPI by scaling down on export
++const img = canvas.toDataURL("image/png", 1.0);
++
++const w = 500;
++const h = (canvas.height / canvas.width) * w;
++
++doc.addImage(img, "PNG", 20, 20, w, h);
+
+ doc.save("barcode.pdf");
+@@ -250,11 +307,30 @@ function setupDropZone() {
+ dz.addEventListener("drop", async e => {
+   const file = e.dataTransfer.files[0];
+   if (!file) return;
++
++  if (!file.name.endsWith(".json")) {
++    alert("This file is not a .json file.");
++    return;
++  }
+
+   try {
+     const text = await file.text();
+     const json = JSON.parse(text);
+
++    // schema sanity check
++    if (json.state && !AAMVA_STATES[json.state]) {
++      alert("Invalid state in JSON.");
++      return;
++    }
++    if (json.version && !AAMVA_VERSIONS[json.version]) {
++      alert("Invalid AAMVA version in JSON.");
++      return;
++    }
++
+     applyJsonToForm(json);
+   } catch (err) {
+     alert("Invalid JSON file.");
+@@ -305,6 +381,8 @@ function applyJsonToForm(json) {
+   currentFields.forEach(field => {
+     if (json[field.code] !== undefined) {
+       document.getElementById(field.code).value = json[field.code];
++    } else {
++      document.getElementById(field.code).value = "";
+     }
+   });
+
+diff --git a/index.html b/index.html
+index b392210..f7466dd 100644
+--- a/index.html
++++ b/index.html
+@@ -85,6 +85,16 @@
+   <div id="dropZone" class="drop-zone">Drag & Drop JSON here</div>
+
++  <label for="eccLevel">ECC Level (2–8)</label>
++  <select id="eccLevel">
++    <option value="2">2 – Low</option>
++    <option value="5" selected>5 – Recommended</option>
++    <option value="8">8 – Max</option>
++  </select>
+
+diff --git a/main.js b/main.js
+index bfbb6ab..c01c4aa 100644
+--- a/main.js
++++ b/main.js
+@@ -24,6 +24,18 @@ function createWindow() {
+
+   win.loadFile("index.html");
++
++  // Prevent navigation injection or external navigation
++  win.webContents.on("will-navigate", e => e.preventDefault());
++  win.webContents.setWindowOpenHandler(() => ({ action: "deny" }));
+
+   win.on("ready-to-show", () => {
+     win.show();
+   });
+
+diff --git a/README.md b/README.md
+index d8af1b9..b01c01c 100644
+--- a/README.md
++++ b/README.md
+@@ -29,6 +29,10 @@ Supports all 50 U.S. states (excludes District of Columbia)
++### Notes on Unsupported Jurisdictions
++DC and US territories are intentionally excluded because:
++- No consistent IIN assignment across AAMVA versions  
++- Multiple conflicting jurisdictionVersion mappings  
+
+@@ -110,6 +116,11 @@ Example JSON:
++### Validation Behavior
++The UI performs:
++- Required-field validation  
++- Date/ZIP validation  
++- Schema-level validation before generating payload  
+
+
+diff --git a/package.json b/package.json
+index b69f1a1..e24e0e0 100644
+--- a/package.json
++++ b/package.json
+@@ -15,6 +15,7 @@
+   "scripts": {
+     "start": "electron .",
+     "build": "electron-builder",
++    "test": "echo \"no tests yet\""
+   },
+
