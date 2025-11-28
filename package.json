@@ -1,20 +1,13 @@
 {
   "name": "aamva-pdf417-generator",
   "version": "1.0.0",
-  "description": "A full client-side AAMVA-compliant PDF417 barcode generator for U.S. driver's licenses and ID cards.",
   "main": "main.js",
-  "author": "Sean Vera",
-  "license": "MIT",
-
   "scripts": {
     "start": "electron .",
-    "dev": "electron .",
-    "build": "echo \"Add electron-builder or forge config if you want installers\""
+    "build": "electron-builder"
   },
-
-  "dependencies": {},
-
   "devDependencies": {
-    "electron": "^29.0.0"
+    "electron": "^33.0.0",
+    "electron-builder": "^24.9.3"
   }
 }
