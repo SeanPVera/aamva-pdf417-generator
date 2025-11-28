@@ -1,281 +1,408 @@
+/*
+ * APP.JS — DELUXE AAMVA PDF417 GENERATOR
+ * Wires the UI, AAMVA schemas, encoder, inspector, and tools.
+ */
+
 import {
   AAMVA_STATES,
   AAMVA_VERSIONS,
-  buildAAMVAPayload
+  AAMVA_UNKNOWN_FIELD_POLICY,
+  getFieldsForVersion,
+  describeVersion,
+  validateFieldValue,
+  buildPayloadObject
 } from "./aamva.js";
 
+import "./lib/pdf417.js"; // exposes window.PDF417
+
+
+/* ============================================================
+   GLOBALS
+   ============================================================ */
+
+let currentState = null;
+let currentVersion = null;
 let currentFields = [];
+
+let historyStack = [];
+let historyIndex = -1;
+
+
+/* ============================================================
+   INITIALIZATION
+   ============================================================ */
 
 window.addEventListener("DOMContentLoaded", () => {
   populateStateList();
   populateVersionList();
-  renderFieldsForVersion("08");
-
-  document.getElementById("state").addEventListener("change", liveUpdate);
-  document.getElementById("version").addEventListener("change", e =>
-    renderFieldsForVersion(e.target.value)
-  );
-
-  document.getElementById("generateBtn").addEventListener("click", generate);
-  document.getElementById("exportPNG").addEventListener("click", exportPNG);
-  document.getElementById("exportPDF").addEventListener("click", exportPDF);
-
-  setupDropZone();
+  hookEvents();
+  renderInspectorBrowser();
 });
 
-/* -----------------------------
-   Populate state & version lists
-   ----------------------------- */
+
+/* ============================================================
+   UI POPULATION
+   ============================================================ */
 
 function populateStateList() {
-  const stateSelect = document.getElementById("state");
-  Object.keys(AAMVA_STATES).forEach(code => {
-    const op = document.createElement("option");
-    op.value = code;
-    op.textContent = code;
-    stateSelect.appendChild(op);
-  });
+  const sel = document.getElementById("state");
+  sel.innerHTML = "";
+
+  Object.keys(AAMVA_STATES)
+    .sort()
+    .forEach(code => {
+      const meta = AAMVA_STATES[code];
+      const opt = document.createElement("option");
+
+      if (meta === null) {
+        opt.value = "";
+        opt.textContent = `${code} (unsupported)`;
+        opt.disabled = true;
+      } else {
+        opt.value = code;
+        opt.textContent = code;
+      }
+
+      sel.appendChild(opt);
+    });
 }
 
 function populateVersionList() {
-  const versionSelect = document.getElementById("version");
+  const sel = document.getElementById("version");
+  sel.innerHTML = "";
+
   Object.keys(AAMVA_VERSIONS).forEach(v => {
-    const op = document.createElement("option");
-    op.value = v;
-    op.textContent = v;
-    versionSelect.appendChild(op);
+    const opt = document.createElement("option");
+    opt.value = v;
+    opt.textContent = `${v} — ${AAMVA_VERSIONS[v].name}`;
+    sel.appendChild(opt);
   });
 }
 
-/* -----------------------------
-   Render fields based on version
-   ----------------------------- */
 
-function renderFieldsForVersion(version) {
-  const container = document.getElementById("fieldContainer");
-  container.innerHTML = "";
+/* ============================================================
+   FIELD RENDERING
+   ============================================================ */
 
-  const schema = AAMVA_VERSIONS[version];
-  currentFields = schema.fields;
+function renderFields() {
+  const wrap = document.getElementById("fields");
+  wrap.innerHTML = "";
 
-  schema.fields.forEach(field => {
-    const wrap = document.createElement("div");
+  if (!currentVersion) return;
+
+  currentFields = getFieldsForVersion(currentVersion);
+
+  currentFields.forEach(field => {
+    const div = document.createElement("div");
 
     const label = document.createElement("label");
-    label.textContent = `${field.code}${field.required ? " *" : ""}`;
+    label.textContent = `${field.code} — ${field.label}`;
+    div.appendChild(label);
 
     const input = document.createElement("input");
     input.id = field.code;
-    input.dataset.required = field.required;
-    input.addEventListener("input", liveUpdate);
+    input.placeholder = field.label;
+    div.appendChild(input);
 
-    wrap.appendChild(label);
-    wrap.appendChild(input);
-    container.appendChild(wrap);
+    wrap.appendChild(div);
   });
-
-  liveUpdate();
 }
 
-/* -----------------------------
-   Collect all field values
-   ----------------------------- */
 
-function collectInput() {
-  const data = {};
-  currentFields.forEach(field => {
-    const el = document.getElementById(field.code);
-    if (el && el.value.trim() !== "") {
-      data[field.code] = el.value.trim();
-    }
-  });
-  return data;
-}
+/* ============================================================
+   EVENT HANDLERS
+   ============================================================ */
 
-/* -----------------------------
-   Validators for required fields
-   ----------------------------- */
-
-function validateFields() {
-  let valid = true;
-
-  currentFields.forEach(field => {
-    const el = document.getElementById(field.code);
-    const value = el.value.trim();
-
-    // Required field check
-    if (field.required && !value) {
-      el.classList.add("invalid");
-      valid = false;
-      return;
-    } else {
-      el.classList.remove("invalid");
-    }
-
-    // Date fields (YYYYMMDD)
-    if (["DBB", "DBA", "DBD"].includes(field.code)) {
-      if (value && !/^\d{8}$/.test(value)) {
-        el.classList.add("invalid");
-        valid = false;
-        return;
-      }
-    }
-
-    // ZIP code (5 or 9 digits)
-    if (field.code === "DAK") {
-      if (value && !/^\d{5}(-\d{4})?$/.test(value)) {
-        el.classList.add("invalid");
-        valid = false;
-        return;
-      }
-    }
+function hookEvents() {
+  document.getElementById("state").addEventListener("change", e => {
+    currentState = e.target.value;
+    liveUpdate();
   });
 
-  return valid;
+  document.getElementById("version").addEventListener("change", e => {
+    currentVersion = e.target.value;
+    renderFields();
+    liveUpdate();
+  });
+
+  document.getElementById("fields").addEventListener("input", () => {
+    liveUpdate();
+  });
+
+  document.getElementById("jsonFileInput").addEventListener("change", handleJSONImport);
+
+  document.getElementById("undoBtn").addEventListener("click", undo);
+  document.getElementById("redoBtn").addEventListener("click", redo);
+
+  document.getElementById("themeMode").addEventListener("change", e => {
+    document.documentElement.dataset.theme = e.target.value;
+  });
+
+  document.getElementById("exportPNG").addEventListener("click", exportPNG);
+  document.getElementById("exportPDF").addEventListener("click", exportPDF);
+  document.getElementById("exportSVG").addEventListener("click", exportSVG);
 }
 
-/* -----------------------------
-   Live preview
-   ----------------------------- */
+
+/* ============================================================
+   LIVE UPDATE
+   ============================================================ */
 
 function liveUpdate() {
-  if (!validateFields()) return;
+  if (!currentState || !currentVersion) return;
 
-  try {
-    const payload = buildAAMVAPayload(
-      collectInput(),
-      document.getElementById("state").value,
-      document.getElementById("version").value
-    );
+  hideError();
 
-    renderPDF417(payload);
-    document.getElementById("payloadBox").textContent = payload;
+  const payloadObj = buildPayloadObject(currentState, currentVersion, currentFields);
 
-  } catch (err) {
-    // Ignore errors during live editing
-  }
+  if (!validateUnknownFields(payloadObj)) return;
+  if (!validateFields(payloadObj)) return;
+
+  renderBarcode(JSON.stringify(payloadObj));
+  renderDecoded(payloadObj);
+  renderInspector(payloadObj);
+  snapshotHistory(payloadObj);
 }
 
-/* -----------------------------
-   Manual generate button
-   ----------------------------- */
 
-function generate() {
-  if (!validateFields()) {
-    alert("Please fix invalid fields before generating.");
-    return;
+/* ============================================================
+   VALIDATION
+   ============================================================ */
+
+function validateUnknownFields(obj) {
+  if (AAMVA_UNKNOWN_FIELD_POLICY !== "reject") return true;
+  if (!obj) return true;
+
+  const allowed = new Set(["state", "version", ...currentFields.map(f => f.code)]);
+
+  for (const k of Object.keys(obj)) {
+    if (!allowed.has(k)) {
+      showError(`Unknown field: ${k}`);
+      return false;
+    }
   }
-  liveUpdate();
+  return true;
 }
 
-/* -----------------------------
-   PDF417 barcode renderer
-   ----------------------------- */
+function validateFields(obj) {
+  for (const field of currentFields) {
+    const val = obj[field.code] || "";
+    if (!validateFieldValue(field, val)) {
+      showError(`Invalid value for ${field.code}`);
+      return false;
+    }
+  }
+  return true;
+}
 
-function renderPDF417(payload) {
+
+/* ============================================================
+   BARCODE RENDERING
+   ============================================================ */
+
+function renderBarcode(text) {
   const canvas = document.getElementById("barcode");
   const ctx = canvas.getContext("2d");
 
-  const barcode = PDF417.generate(payload, { errorCorrectionLevel: 5 });
-  const scale = 2;
+  const matrix = window.PDF417.generate(text, { errorCorrectionLevel: 5 });
 
-  canvas.width = barcode[0].length * scale;
-  canvas.height = barcode.length * scale;
+  const px = Math.ceil(window.devicePixelRatio || 1);
+  const scale = 3 * px;
+
+  canvas.width = matrix[0].length * scale;
+  canvas.height = matrix.length * scale;
 
   ctx.fillStyle = "white";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   ctx.fillStyle = "black";
-
-  barcode.forEach((row, y) => {
+  matrix.forEach((row, y) => {
     row.forEach((bit, x) => {
-      if (bit) ctx.fillRect(x * scale, y * scale, scale, scale);
+      if (bit === 1) {
+        ctx.fillRect(x * scale, y * scale, scale, scale);
+      }
     });
   });
 }
 
-/* -----------------------------
-   PNG Export
-   ----------------------------- */
+
+/* ============================================================
+   DECODER
+   ============================================================ */
+
+function renderDecoded(obj) {
+  const out = document.getElementById("decodedOutput");
+  out.value = JSON.stringify(obj, null, 2);
+}
+
+
+/* ============================================================
+   INSPECTOR PANES
+   ============================================================ */
+
+function renderInspector(obj) {
+  document.getElementById("payloadInspector").value =
+    JSON.stringify(obj, null, 2);
+
+  const raw = window.PDF417.generate(JSON.stringify(obj), { errorCorrectionLevel: 5 });
+  document.getElementById("rawCodewords").value = raw.join(",");
+}
+
+function renderInspectorBrowser() {
+  const sel = document.getElementById("versionBrowser");
+  sel.innerHTML = "";
+
+  Object.keys(AAMVA_VERSIONS).forEach(v => {
+    const opt = document.createElement("option");
+    opt.value = v;
+    opt.textContent = `${v} — ${AAMVA_VERSIONS[v].name}`;
+    sel.appendChild(opt);
+  });
+
+  sel.addEventListener("change", () => {
+    document.getElementById("versionFields").value =
+      describeVersion(sel.value);
+  });
+}
+
+
+/* ============================================================
+   EXPORTS
+   ============================================================ */
 
 function exportPNG() {
-  const canvas = document.getElementById("barcode");
-  const url = canvas.toDataURL("image/png");
-
+  const c = document.getElementById("barcode");
   const a = document.createElement("a");
-  a.href = url;
+  a.href = c.toDataURL("image/png");
   a.download = "barcode.png";
   a.click();
 }
 
-/* -----------------------------
-   PDF Export
-   ----------------------------- */
-
 function exportPDF() {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
+  const c = document.getElementById("barcode");
+  const img = c.toDataURL("image/png");
 
-  const canvas = document.getElementById("barcode");
-  const img = canvas.toDataURL("image/png");
+  const doc = new window.jspdf.jsPDF({
+    unit: "pt",
+    hotfixes: ["px_scaling"]
+  });
 
-  doc.addImage(img, "PNG", 15, 15, 180, 60);
+  const w = 500;
+  const h = (c.height / c.width) * w;
+
+  doc.addImage(img, "PNG", 20, 20, w, h);
   doc.save("barcode.pdf");
 }
 
-/* -----------------------------
-   Drag & Drop JSON Importer
-   ----------------------------- */
-
-function setupDropZone() {
-  const dz = document.getElementById("dropZone");
-
-  ["dragenter", "dragover"].forEach(evt => {
-    dz.addEventListener(evt, e => {
-      e.preventDefault();
-      e.stopPropagation();
-      dz.style.borderColor = "#ff50bf";
-      dz.style.color = "#ffb0f0";
-    });
-  });
-
-  ["dragleave", "drop"].forEach(evt => {
-    dz.addEventListener(evt, e => {
-      e.preventDefault();
-      e.stopPropagation();
-      dz.style.borderColor = "#555";
-      dz.style.color = "#aaa";
-    });
-  });
-
-  dz.addEventListener("drop", async e => {
-    const file = e.dataTransfer.files[0];
-    if (!file) return;
-
-    try {
-      const text = await file.text();
-      const json = JSON.parse(text);
-      applyJsonToForm(json);
-    } catch (err) {
-      alert("Invalid JSON file.");
-    }
-  });
+function exportSVG() {
+  alert("SVG exporter requires SVG support in encoder. Pending update.");
 }
 
-function applyJsonToForm(json) {
-  if (json.state) {
-    document.getElementById("state").value = json.state;
-  }
-  if (json.version) {
-    document.getElementById("version").value = json.version;
-    renderFieldsForVersion(json.version);
+
+/* ============================================================
+   JSON IMPORT
+   ============================================================ */
+
+async function handleJSONImport(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  if (!file.name.endsWith(".json")) {
+    showError("File is not JSON");
+    return;
   }
 
-  currentFields.forEach(field => {
-    if (json[field.code] !== undefined) {
-      document.getElementById(field.code).value = json[field.code];
+  try {
+    const text = await file.text();
+    const json = JSON.parse(text);
+
+    if (!validateUnknownFields(json)) return;
+
+    if (!AAMVA_STATES[json.state]) {
+      showError("Invalid state");
+      return;
     }
+
+    if (!AAMVA_VERSIONS[json.version]) {
+      showError("Invalid version");
+      return;
+    }
+
+    document.getElementById("state").value = json.state;
+    document.getElementById("version").value = json.version;
+
+    currentState = json.state;
+    currentVersion = json.version;
+
+    renderFields();
+
+    currentFields.forEach(f => {
+      const el = document.getElementById(f.code);
+      el.value = json[f.code] || "";
+    });
+
+    liveUpdate();
+
+  } catch (err) {
+    showError("Invalid JSON");
+  }
+}
+
+
+/* ============================================================
+   UNDO / REDO
+   ============================================================ */
+
+function snapshotHistory(obj) {
+  const snap = JSON.stringify(obj);
+  historyStack = historyStack.slice(0, historyIndex + 1);
+  historyStack.push(snap);
+  historyIndex = historyStack.length - 1;
+}
+
+function undo() {
+  if (historyIndex <= 0) return;
+  historyIndex--;
+  restoreSnapshot(historyStack[historyIndex]);
+}
+
+function redo() {
+  if (historyIndex >= historyStack.length - 1) return;
+  historyIndex++;
+  restoreSnapshot(historyStack[historyIndex]);
+}
+
+function restoreSnapshot(snap) {
+  const json = JSON.parse(snap);
+
+  currentState = json.state;
+  currentVersion = json.version;
+
+  document.getElementById("state").value = currentState;
+  document.getElementById("version").value = currentVersion;
+
+  renderFields();
+
+  currentFields.forEach(f => {
+    document.getElementById(f.code).value = json[f.code] || "";
   });
 
   liveUpdate();
 }
+
+
+/* ============================================================
+   ERROR MESSAGE UI
+   ============================================================ */
+
+function showError(msg) {
+  const box = document.getElementById("errorBox");
+  box.style.display = "block";
+  box.textContent = msg;
+}
+
+function hideError() {
+  const box = document.getElementById("errorBox");
+  box.style.display = "none";
+}
+
