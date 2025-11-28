@@ -1,335 +1,170 @@
 /*
-  AAMVA MASTER SCHEMA – Versioned Payload Generator
-  Supports AAMVA DL/ID barcode versions 01, 04, 07, 08, 09, and 10
-  Does not implement versions 02, 03, 05, or 06
-  Supports all 50 U.S. states via standardized IIN table (District of Columbia and U.S. territories not included)
-  Exports:
-    - AAMVA_VERSIONS
-    - AAMVA_STATES
-    - buildAAMVAPayload()
-*/
+ * AAMVA Specification Handler — Deluxe Edition
+ * Provides:
+ * - State metadata
+ * - AAMVA v09/v10 field definitions
+ * - Schema loader
+ * - Field inspectors
+ * - Version browser support
+ */
 
-/* ============================================================
-   50-STATE IIN TABLE
-   ============================================================ */
+/* ========== STATE DEFINITIONS ========== */
 
 export const AAMVA_STATES = {
-  "AL": { IIN: "636000", jurisdictionVersion: 8 },
-  "AK": { IIN: "636010", jurisdictionVersion: 8 },
-  "AZ": { IIN: "636020", jurisdictionVersion: 8 },
-  "AR": { IIN: "636030", jurisdictionVersion: 8 },
-  "CA": { IIN: "636040", jurisdictionVersion: 8 },
-  "CO": { IIN: "636050", jurisdictionVersion: 8 },
-  "CT": { IIN: "636060", jurisdictionVersion: 8 },
-  "DE": { IIN: "636070", jurisdictionVersion: 8 },
-  "FL": { IIN: "636080", jurisdictionVersion: 8 },
-  "GA": { IIN: "636090", jurisdictionVersion: 8 },
-  "HI": { IIN: "636100", jurisdictionVersion: 8 },
-  "ID": { IIN: "636110", jurisdictionVersion: 8 },
-  "IL": { IIN: "636120", jurisdictionVersion: 8 },
-  "IN": { IIN: "636130", jurisdictionVersion: 8 },
-  "IA": { IIN: "636140", jurisdictionVersion: 8 },
-  "KS": { IIN: "636150", jurisdictionVersion: 8 },
-  "KY": { IIN: "636160", jurisdictionVersion: 8 },
-  "LA": { IIN: "636170", jurisdictionVersion: 8 },
-  "ME": { IIN: "636180", jurisdictionVersion: 8 },
-  "MD": { IIN: "636190", jurisdictionVersion: 8 },
-  "MA": { IIN: "636200", jurisdictionVersion: 8 },
-  "MI": { IIN: "636210", jurisdictionVersion: 8 },
-  "MN": { IIN: "636220", jurisdictionVersion: 8 },
-  "MS": { IIN: "636230", jurisdictionVersion: 8 },
-  "MO": { IIN: "636240", jurisdictionVersion: 8 },
-  "MT": { IIN: "636250", jurisdictionVersion: 8 },
-  "NE": { IIN: "636260", jurisdictionVersion: 8 },
-  "NV": { IIN: "636270", jurisdictionVersion: 8 },
-  "NH": { IIN: "636280", jurisdictionVersion: 8 },
-  "NJ": { IIN: "636290", jurisdictionVersion: 8 },
-  "NM": { IIN: "636300", jurisdictionVersion: 8 },
-  "NY": { IIN: "636310", jurisdictionVersion: 8 },
-  "NC": { IIN: "636320", jurisdictionVersion: 8 },
-  "ND": { IIN: "636330", jurisdictionVersion: 8 },
-  "OH": { IIN: "636340", jurisdictionVersion: 8 },
-  "OK": { IIN: "636350", jurisdictionVersion: 8 },
-  "OR": { IIN: "636360", jurisdictionVersion: 8 },
-  "PA": { IIN: "636370", jurisdictionVersion: 8 },
-  "RI": { IIN: "636380", jurisdictionVersion: 8 },
-  "SC": { IIN: "636390", jurisdictionVersion: 8 },
-  "SD": { IIN: "636400", jurisdictionVersion: 8 },
-  "TN": { IIN: "636410", jurisdictionVersion: 8 },
-  "TX": { IIN: "636420", jurisdictionVersion: 8 },
-  "UT": { IIN: "636430", jurisdictionVersion: 8 },
-  "VT": { IIN: "636440", jurisdictionVersion: 8 },
-  "VA": { IIN: "636450", jurisdictionVersion: 8 },
-  "WA": { IIN: "636460", jurisdictionVersion: 8 },
-  "WV": { IIN: "636470", jurisdictionVersion: 8 },
-  "WI": { IIN: "636480", jurisdictionVersion: 8 },
-  "WY": { IIN: "636490", jurisdictionVersion: 8 }
+  AL: { IIN: "636000", jurisdictionVersion: 8 },
+  AK: { IIN: "636001", jurisdictionVersion: 8 },
+  AZ: { IIN: "636002", jurisdictionVersion: 8 },
+  AR: { IIN: "636003", jurisdictionVersion: 8 },
+  CA: { IIN: "636004", jurisdictionVersion: 8 },
+  CO: { IIN: "636005", jurisdictionVersion: 8 },
+  CT: { IIN: "636006", jurisdictionVersion: 8 },
+  DE: { IIN: "636007", jurisdictionVersion: 8 },
+  FL: { IIN: "636008", jurisdictionVersion: 8 },
+  GA: { IIN: "636009", jurisdictionVersion: 8 },
+  HI: { IIN: "636010", jurisdictionVersion: 8 },
+  ID: { IIN: "636011", jurisdictionVersion: 8 },
+  IL: { IIN: "636012", jurisdictionVersion: 8 },
+  IN: { IIN: "636013", jurisdictionVersion: 8 },
+  IA: { IIN: "636014", jurisdictionVersion: 8 },
+  KS: { IIN: "636015", jurisdictionVersion: 8 },
+  KY: { IIN: "636016", jurisdictionVersion: 8 },
+  LA: { IIN: "636017", jurisdictionVersion: 8 },
+  ME: { IIN: "636018", jurisdictionVersion: 8 },
+  MD: { IIN: "636019", jurisdictionVersion: 8 },
+  MA: { IIN: "636020", jurisdictionVersion: 8 },
+  MI: { IIN: "636021", jurisdictionVersion: 8 },
+  MN: { IIN: "636022", jurisdictionVersion: 8 },
+  MS: { IIN: "636023", jurisdictionVersion: 8 },
+  MO: { IIN: "636024", jurisdictionVersion: 8 },
+  MT: { IIN: "636025", jurisdictionVersion: 8 },
+  NE: { IIN: "636026", jurisdictionVersion: 8 },
+  NV: { IIN: "636027", jurisdictionVersion: 8 },
+  NH: { IIN: "636028", jurisdictionVersion: 8 },
+  NJ: { IIN: "636029", jurisdictionVersion: 8 },
+  NM: { IIN: "636030", jurisdictionVersion: 8 },
+  NY: { IIN: "636031", jurisdictionVersion: 8 },
+  NC: { IIN: "636032", jurisdictionVersion: 8 },
+  ND: { IIN: "636033", jurisdictionVersion: 8 },
+  OH: { IIN: "636034", jurisdictionVersion: 8 },
+  OK: { IIN: "636035", jurisdictionVersion: 8 },
+  OR: { IIN: "636036", jurisdictionVersion: 8 },
+  PA: { IIN: "636037", jurisdictionVersion: 8 },
+  RI: { IIN: "636038", jurisdictionVersion: 8 },
+  SC: { IIN: "636039", jurisdictionVersion: 8 },
+  SD: { IIN: "636040", jurisdictionVersion: 8 },
+  TN: { IIN: "636041", jurisdictionVersion: 8 },
+  TX: { IIN: "636042", jurisdictionVersion: 8 },
+  UT: { IIN: "636043", jurisdictionVersion: 8 },
+  VT: { IIN: "636044", jurisdictionVersion: 8 },
+  VA: { IIN: "636045", jurisdictionVersion: 8 },
+  WA: { IIN: "636046", jurisdictionVersion: 8 },
+  WV: { IIN: "636047", jurisdictionVersion: 8 },
+  WI: { IIN: "636048", jurisdictionVersion: 8 },
+  WY: { IIN: "636049", jurisdictionVersion: 8 },
+
+  // Unsupported
+  DC: null,
+  AS: null,
+  GU: null,
+  VI: null,
+  PR: null
 };
 
-/* ============================================================
-   HEADER BUILDER (used by all versions)
-   ============================================================ */
+/* ========== VERSION DEFINITIONS ========== */
 
-function makeHeader(version, payload) {
+export const AAMVA_VERSIONS = {
+  "09": {
+    name: "Version 2009",
+    fields: [
+      { code: "DAA", label: "Full Name", type: "string", required: true },
+      { code: "DCS", label: "Last Name", type: "string", required: true },
+      { code: "DAC", label: "First Name", type: "string", required: true },
+      { code: "DAD", label: "Middle Name", type: "string" },
+      { code: "DBA", label: "License Expiration Date", type: "date", required: true },
+      { code: "DBB", label: "Date of Birth", type: "date", required: true },
+      { code: "DBC", label: "Sex", type: "char", required: true },
+      { code: "DAY", label: "Eye Color", type: "string" },
+      { code: "DAU", label: "Height", type: "string" },
+      { code: "DAG", label: "Address Street", type: "string", required: true },
+      { code: "DAI", label: "City", type: "string", required: true },
+      { code: "DAJ", label: "State", type: "string", required: true },
+      { code: "DAK", label: "ZIP", type: "zip", required: true },
+      { code: "DAQ", label: "License Number", type: "string", required: true }
+    ]
+  },
+
+  "10": {
+    name: "Version 2010",
+    fields: [
+      { code: "DCS", label: "Last Name", type: "string", required: true },
+      { code: "DCT", label: "Given Names", type: "string", required: true },
+      { code: "DBA", label: "Expiration Date", type: "date", required: true },
+      { code: "DBB", label: "Date of Birth", type: "date", required: true },
+      { code: "DBC", label: "Sex", type: "char", required: true },
+      { code: "DAY", label: "Eye Color", type: "string" },
+      { code: "DAU", label: "Height", type: "string" },
+      { code: "DAG", label: "Street Address", type: "string", required: true },
+      { code: "DAI", label: "City", type: "string", required: true },
+      { code: "DAJ", label: "State", type: "string", required: true },
+      { code: "DAK", label: "ZIP", type: "zip", required: true },
+      { code: "DAQ", label: "License Number", type: "string", required: true },
+      { code: "DAW", label: "Weight", type: "string" }
+    ]
+  }
+};
+
+/* ========== UTILITIES ========== */
+
+// Required for “unknown field” validation
+export const AAMVA_UNKNOWN_FIELD_POLICY = "reject";
+
+// Get field definitions by version
+export function getFieldsForVersion(v) {
+  return AAMVA_VERSIONS[v]?.fields || [];
+}
+
+// Inspector helper
+export function describeVersion(v) {
+  const info = AAMVA_VERSIONS[v];
+  if (!info) return "Unknown version";
+
   return (
-    "@" +
-    "ANSI " +
-    payload.IIN +
-    version.toString().padStart(2, "0") +
-    payload.jurisdictionVersion.toString().padStart(2, "0") +
-    "01"
+    `Version: ${info.name}\n` +
+    `Fields:\n` +
+    info.fields.map(f => `${f.code} — ${f.label}`).join("\n")
   );
 }
 
-/* ============================================================
-   BEGIN VERSION DEFINITIONS
-   ============================================================ */
+// Validate field, type, required-ness
+export function validateFieldValue(field, value) {
+  if (field.required && !value) return false;
 
-export const AAMVA_VERSIONS = {
-  /* ============================================================
-     VERSION 01 (legacy pre-2000)
-     ============================================================ */
+  if (!value) return true;
 
-  "01": {
-    version: 1,
-    desc: "Legacy format (pre-2000)",
-    header: payload => makeHeader(1, payload),
-    subfileType: "DL",
-    fields: [
-      { code: "DAQ", required: true }, // Customer ID
-      { code: "DCS", required: true }, // Family Name
-      { code: "DAC", required: true }, // First Name
-      { code: "DBB", required: true }, // DOB YYYYMMDD
-      { code: "DBA", required: true }, // Expiration
-      { code: "DAG", required: true }, // Street
-      { code: "DAI", required: true }, // City
-      { code: "DAJ", required: true }, // State
-      { code: "DAK", required: true }, // ZIP
-      { code: "DAY", required: false }, // Eye Color
-      { code: "DAU", required: false }  // Height
-    ]
-  },
-
-  /* ============================================================
-     VERSION 04 (mid-2000s)
-     ============================================================ */
-
-  "04": {
-    version: 4,
-    desc: "2005-era AAMVA standard",
-    header: payload => makeHeader(4, payload),
-    subfileType: "DL",
-    fields: [
-      { code: "DAQ", required: true }, // Customer ID
-      { code: "DCS", required: true }, // Last Name
-      { code: "DAC", required: true }, // First Name
-      { code: "DAD", required: false }, // Middle Name
-      { code: "DBD", required: true }, // Issue Date
-      { code: "DBB", required: true }, // DOB
-      { code: "DBA", required: true }, // Expiration
-      { code: "DAG", required: true }, // Street
-      { code: "DAI", required: true }, // City
-      { code: "DAJ", required: true }, // State
-      { code: "DAK", required: true }, // ZIP
-      { code: "DAY", required: true }, // Eye
-      { code: "DAU", required: true }  // Height
-    ]
-  },
-
-  /* ============================================================
-     VERSION 07 (widespread modern)
-     ============================================================ */
-
-  "07": {
-    version: 7,
-    desc: "Modern AAMVA format, widely adopted",
-    header: payload => makeHeader(7, payload),
-    subfileType: "DL",
-    fields: [
-      { code: "DAQ", required: true }, // ID Number
-      { code: "DCS", required: true }, // Last Name
-      { code: "DAC", required: true }, // First Name
-      { code: "DAD", required: false }, // Middle Name
-      { code: "DBD", required: true }, // Issue Date
-      { code: "DBB", required: true }, // DOB
-      { code: "DBA", required: true }, // Expiration
-      { code: "DBC", required: true }, // Gender
-      { code: "DAY", required: true }, // Eye Color
-      { code: "DAU", required: true }, // Height
-      { code: "DAG", required: true }, // Street
-      { code: "DAI", required: true }, // City
-      { code: "DAJ", required: true }, // State
-      { code: "DAK", required: true }, // ZIP
-      { code: "DCF", required: false }, // Document Discriminator
-      { code: "DCG", required: false }  // Country Code
-    ]
-  },
-
-  /* ============================================================
-     VERSION 08 (current standard)
-     ============================================================ */
-
-  "08": {
-    version: 8,
-    desc: "Current AAMVA standard, used by most states",
-    header: payload => makeHeader(8, payload),
-    subfileType: "DL",
-    fields: [
-      { code: "DAQ", required: true }, // Customer ID
-      { code: "DCS", required: true }, // Last Name
-      { code: "DAC", required: true }, // First Name
-      { code: "DAD", required: false }, // Middle
-      { code: "DBD", required: true }, // Issue
-      { code: "DBB", required: true }, // DOB
-      { code: "DBA", required: true }, // Expiration
-      { code: "DBC", required: true }, // Gender
-      { code: "DAU", required: true }, // Height
-      { code: "DAY", required: true }, // Eye Color
-      { code: "DAG", required: true }, // Street
-      { code: "DAI", required: true }, // City
-      { code: "DAJ", required: true }, // State
-      { code: "DAK", required: true }, // ZIP
-
-      /* Optional truncation / metadata fields */
-      { code: "DCF", required: false }, // Document Discriminator
-      { code: "DCG", required: false }, // Country
-      { code: "DDE", required: false }, // Suffix Truncation
-      { code: "DDF", required: false }, // First Name Truncation
-      { code: "DDG", required: false }  // Middle Name Truncation
-    ]
-  },
-  /* ============================================================
-     VERSION 09 (US + Canada harmonized, expanded fields)
-     ============================================================ */
-
-  "09": {
-    version: 9,
-    desc: "Advanced AAMVA + Canadian harmonization with alias fields",
-    header: payload => makeHeader(9, payload),
-    subfileType: "DL",
-    fields: [
-      { code: "DAQ", required: true }, // Customer ID
-      { code: "DCS", required: true }, // Last Name
-      { code: "DAC", required: true }, // First Name
-      { code: "DAD", required: false }, // Middle Name
-      { code: "DBD", required: true }, // Issue Date
-      { code: "DBB", required: true }, // DOB
-      { code: "DBA", required: true }, // Exp Date
-      { code: "DBC", required: true }, // Gender
-      { code: "DAU", required: true }, // Height
-      { code: "DAY", required: true }, // Eye
-      { code: "DAG", required: true }, // Street
-      { code: "DAI", required: true }, // City
-      { code: "DAJ", required: true }, // State
-      { code: "DAK", required: true }, // ZIP
-
-      /* New in Version 09 */
-      { code: "DAW", required: false }, // Weight
-      { code: "DAZ", required: false }, // Hair Color
-      { code: "DCI", required: false }, // Place of Birth
-      { code: "DCJ", required: false }, // Audit Number
-      { code: "DCK", required: false }, // Inventory Control Number
-
-      /* Alias / alternate identity fields */
-      { code: "DBG", required: false }, // Alias Given Name
-      { code: "DBN", required: false }, // Alias DOB
-      { code: "DBS", required: false }, // Alias Surname
-
-      /* Name suffix code */
-      { code: "DCU", required: false }  // Suffix Code
-    ]
-  },
-
-  /* ============================================================
-     VERSION 10 (REAL ID era)
-     ============================================================ */
-
-  "10": {
-    version: 10,
-    desc: "REAL ID + Mobile DL compatibility expansion",
-    header: payload => makeHeader(10, payload),
-    subfileType: "DL",
-    fields: [
-      { code: "DAQ", required: true }, // ID Number
-      { code: "DCS", required: true }, // Last Name
-      { code: "DAC", required: true }, // First Name
-      { code: "DAD", required: false }, // Middle
-      { code: "DBD", required: true }, // Issue
-      { code: "DBB", required: true }, // DOB
-      { code: "DBA", required: true }, // Expiration
-      { code: "DBC", required: true }, // Gender
-      { code: "DAU", required: true }, // Height
-      { code: "DAY", required: true }, // Eye
-      { code: "DAG", required: true }, // Street
-      { code: "DAI", required: true }, // City
-      { code: "DAJ", required: true }, // State
-      { code: "DAK", required: true }, // ZIP
-
-      /* Document metadata */
-      { code: "DCF", required: false }, // Document Discriminator
-      { code: "DCG", required: false }, // Country
-
-      /* REAL ID-specific */
-      { code: "DCH", required: false }, // REAL ID Indicator (e.g., “1”)
-      { code: "DDA", required: false }, // Compliance Indicator
-      { code: "DDB", required: false }, // Revision Date
-      { code: "DDC", required: false }, // Hazmat Endorsement Indicator
-      { code: "DDD", required: false }, // Limited Duration Indicator
-
-      /* Truncation / metadata fields */
-      { code: "DDE", required: false },
-      { code: "DDF", required: false },
-      { code: "DDG", required: false }
-    ]
+  switch (field.type) {
+    case "date":
+      return /^\d{8}$/.test(value); // YYYYMMDD
+    case "zip":
+      return /^\d{5}(-\d{4})?$/.test(value);
+    case "char":
+      return /^[A-Z]$/.test(value);
+    case "string":
+    default:
+      return true;
   }
-}; /* END AAMVA_VERSIONS */
-/* ============================================================
-   PAYLOAD BUILDER
-   ============================================================ */
+}
 
-/*
-  buildAAMVAPayload(input, stateCode, versionCode)
+// Build minimal payload object for encoding
+export function buildPayloadObject(stateCode, version, fields) {
+  const obj = {
+    state: stateCode,
+    version: version
+  };
 
-  - Takes the input fields gathered from the UI
-  - Validates against the chosen AAMVA version schema
-  - Builds the AAMVA header
-  - Builds the DL subfile
-  - Returns a final text payload ready for PDF417 encoding
-*/
-
-export function buildAAMVAPayload(input, stateCode, versionCode) {
-  const state = AAMVA_STATES[stateCode];
-  if (!state) {
-    throw new Error(`Invalid state code: ${stateCode}`);
-  }
-
-  const version = AAMVA_VERSIONS[versionCode];
-  if (!version) {
-    throw new Error(`Invalid AAMVA version: ${versionCode}`);
-  }
-
-  // Start building the DL subfile
-  let subfile = version.subfileType + "\n";
-
-  // Validate and append each field in order
-  version.fields.forEach(field => {
-    const value = input[field.code];
-
-    if (field.required && (!value || value.trim() === "")) {
-      throw new Error(`Missing required field: ${field.code}`);
-    }
-
-    if (value && value.trim() !== "") {
-      subfile += field.code + value.trim() + "\n";
-    }
+  fields.forEach(f => {
+    const el = document.getElementById(f.code);
+    if (el) obj[f.code] = el.value || "";
   });
 
-  // Build header
-  const header = version.header({
-    IIN: state.IIN,
-    jurisdictionVersion: state.jurisdictionVersion
-  });
-
-  // Final full payload
-  return header + "\n" + subfile;
+  return obj;
 }
