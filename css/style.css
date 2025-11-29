@@ -1,0 +1,120 @@
+/*
+ * Basic CSS for AAMVA PDF417 Generator
+ */
+
+:root {
+  --bg-color: #ffffff;
+  --text-color: #000000;
+  --sidebar-bg: #f0f0f0;
+  --border-color: #cccccc;
+}
+
+[data-theme="dark"] {
+  --bg-color: #1e1e1e;
+  --text-color: #ffffff;
+  --sidebar-bg: #252526;
+  --border-color: #3e3e3e;
+}
+
+[data-theme="dmv"] {
+  --bg-color: #e0f0ff;
+  --text-color: #003366;
+  --sidebar-bg: #b3d9ff;
+  --border-color: #00509e;
+}
+
+body {
+  font-family: sans-serif;
+  margin: 0;
+  display: flex;
+  height: 100vh;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+.app {
+  display: flex;
+  width: 100%;
+}
+
+#sidebar {
+  width: 300px;
+  background-color: var(--sidebar-bg);
+  padding: 20px;
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+}
+
+#content {
+  flex-grow: 1;
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+h1, h2 {
+  margin-top: 0;
+}
+
+label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+select, input[type="text"], input[type="file"], textarea, button {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  box-sizing: border-box;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 100px;
+  font-family: monospace;
+}
+
+button {
+  cursor: pointer;
+}
+
+.export-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+#barcodeCanvas {
+  border: 1px solid var(--border-color);
+  display: block;
+  margin-bottom: 10px;
+}
+
+.error-box {
+  background-color: #ffcccc;
+  color: #cc0000;
+  padding: 10px;
+  border: 1px solid #cc0000;
+  display: none;
+  margin-bottom: 10px;
+}
+
+#fields {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.undo-redo {
+    display: flex;
+    gap: 10px;
+}
+
+.undo-redo button {
+    flex: 1;
+}

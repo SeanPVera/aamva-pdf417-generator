@@ -9,12 +9,15 @@
 <body>
   <div class="app">
     <aside id="sidebar">
+      <div id="errorBox" class="error-box"></div>
       <h1>AAMVA Fields</h1>
       <label for="stateSelect">State</label>
       <select id="stateSelect"></select>
 
       <label for="versionSelect">AAMVA Version</label>
       <select id="versionSelect"></select>
+
+      <div id="fields"></div>
 
       <section class="json-import">
         <h2>Import JSON</h2>
@@ -63,6 +66,7 @@
       <section id="versionBrowserSection">
         <h2>Version Browser</h2>
         <select id="versionBrowser"></select>
+        <textarea id="versionFields" readonly></textarea>
       </section>
     </main>
   </div>
