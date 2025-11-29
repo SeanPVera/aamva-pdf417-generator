@@ -4,20 +4,16 @@
   "description": "Full client-side AAMVA PDF417 generator for DL/ID standards.",
   "author": "Sean Vera",
   "license": "MIT",
-
   "main": "main.js",
-
   "scripts": {
     "start": "electron .",
     "dev": "electron .",
     "build": "electron-builder"
   },
-
   "devDependencies": {
     "electron": "^33.0.0",
     "electron-builder": "^24.9.3"
   },
-
   "build": {
     "appId": "com.seanvera.aamva.pdf417",
     "productName": "AAMVA PDF417 Generator",
@@ -37,5 +33,8 @@
     "extraMetadata": {
       "version": "1.0.0"
     }
+  },
+  "dependencies": {
+    "jspdf": "^3.0.4"
   }
 }
