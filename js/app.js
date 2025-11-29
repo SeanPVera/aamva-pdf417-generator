@@ -35,10 +35,29 @@ let historyIndex = -1;
    ============================================================ */
 
 window.addEventListener("DOMContentLoaded", () => {
-  populateStateList();
-  populateVersionList();
-  hookEvents();
-  renderInspectorBrowser();
+  try {
+    console.log("App initialization started.");
+
+    // Diagnostic checks
+    const missing = [];
+    if (!window.AAMVA_STATES) missing.push("AAMVA_STATES (aamva.js)");
+    if (!window.PDF417) missing.push("PDF417 (lib/pdf417.js)");
+    if (!window.jspdf) missing.push("jspdf (lib/jspdf.umd.min.js)");
+
+    if (missing.length > 0) {
+      throw new Error("Missing dependencies: " + missing.join(", "));
+    }
+
+    populateStateList();
+    populateVersionList();
+    hookEvents();
+    renderInspectorBrowser();
+
+    console.log("App initialization complete.");
+  } catch (err) {
+    console.error("Initialization Error:", err);
+    showError("Startup Error: " + err.message);
+  }
 });
 
 
@@ -160,8 +179,8 @@ function liveUpdate() {
 
   const payloadObj = window.buildPayloadObject(currentState, currentVersion, currentFields);
 
-  if (!validateUnknownFields(payloadObj)) return;
-  if (!validateFields(payloadObj)) return;
+    if (!validateUnknownFields(payloadObj)) return;
+    if (!validateFields(payloadObj)) return;
 
   const aamvaData = generateAAMVAPayload(currentState, currentVersion, currentFields, payloadObj);
 
