@@ -172,6 +172,19 @@ function liveUpdate() {
 
   hideError();
 
+  try {
+    const payloadObj = window.buildPayloadObject(currentState, currentVersion, currentFields);
+
+    if (!validateUnknownFields(payloadObj)) return;
+    if (!validateFields(payloadObj)) return;
+
+    renderBarcode(JSON.stringify(payloadObj));
+    renderDecoded(payloadObj);
+    renderInspector(payloadObj);
+    snapshotHistory(payloadObj);
+  } catch (err) {
+    showError("Update Error: " + err.message);
+  }
   const payloadObj = window.buildPayloadObject(currentState, currentVersion, currentFields);
 
     if (!validateUnknownFields(payloadObj)) return;
