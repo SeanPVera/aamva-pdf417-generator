@@ -1,27 +1,27 @@
 # AAMVA PDF417 Generator
 
-A full client-side, standards-compliant PDF417 barcode generator for U.S. driver's licenses and identification cards (covering implemented AAMVA DL/ID Specification versions 01, 04, and 07–10; versions 02, 03, 05, and 06 are not implemented).
-Supports all 50 U.S. states through official IIN mappings (District of Columbia and U.S. territories are not included).
+A full client-side, standards-compliant PDF417 barcode generator for U.S. driver's licenses and identification cards.
 
-Runs entirely in the browser.  
-No server. No dependencies. No data leaves your machine.
+This application runs entirely in your browser using vanilla JavaScript. It requires **no server, no backend, and no installation** to use. It supports all 50 U.S. states and implements AAMVA DL/ID Card Design Standards (Versions 01, 04, and 07–10).
+
+> **Note**: This tool is for educational, research, and testing purposes only. You are responsible for complying with all applicable laws.
 
 ---
 
 ## Features
 
-- Supports **AAMVA Versions 01, 04, and 07–10** (02, 03, 05, and 06 are not implemented)
-- Supports **all 50 U.S. states** (excludes District of Columbia and U.S. territories)
-- Fully implemented **IIN table**
-- Real-time PDF417 barcode preview
-- Automatic field validators
-- Dark mode UI
-- Drag-and-drop JSON import
-- Export to **PNG**
-- Export to **PDF**
-- 100% browser-based; no backend needed
-- Optional **Electron desktop app**
-- Clean, modular architecture
+- **No Installation Required**: Just open `index.html`.
+- **100% Client-Side**: No data leaves your computer.
+- **AAMVA Standard Support**: Implements versions 01, 04, 07, 08, 09, and 10.
+- **State Mappings**: Includes IIN mappings for all 50 U.S. states.
+- **Barcode Generation**: Real-time PDF417 generation using a custom byte-mode encoder.
+- **Export Options**: Save barcodes as PNG images or PDF documents.
+- **Developer Tools**:
+  - **Payload Inspector**: View the raw JSON data structure.
+  - **Raw Codewords**: Inspect the encoded PDF417 codewords.
+  - **Decoder**: Built-in logic to decode and describe payload fields.
+- **JSON Import**: Drag and drop JSON files to pre-fill the form.
+- **Desktop App**: Optional Electron wrapper for a native desktop experience.
 
 ---
 
@@ -30,16 +30,21 @@ No server. No dependencies. No data leaves your machine.
 ```
 aamva-pdf417-app/
 │
-├── index.html        # Application UI
-├── app.js            # Live preview, validation, JSON import
-├── aamva.js          # AAMVA schema + payload generator
-├── main.js           # Electron desktop wrapper (optional)
+├── index.html        # Main entry point (UI)
+├── main.js           # Electron entry point (desktop app)
+├── preload.js        # Electron preload script
 ├── package.json      # NPM/Electron metadata
-├── .gitignore
 ├── README.md
 │
+├── js/
+│   └── app.js        # Main UI logic (wires inputs to generator)
+│
+├── aamva.js          # AAMVA schema definitions (Versions, Fields, States)
+├── decoder.js        # Payload decoder and field describer
+│
 ├── lib/
-│   └── pdf417.js     # Full PDF417 encoder implementation
+│   ├── pdf417.js     # PDF417 encoder implementation
+│   └── jspdf.umd.min.js # PDF generation library
 │
 └── assets/
     └── sample.json   # Example JSON import file
@@ -47,111 +52,91 @@ aamva-pdf417-app/
 
 ---
 
-## Running in a Browser (Recommended)
+## Getting Started
 
-Simply open:
+### Option 1: Run in Browser (Recommended)
 
-```
-index.html
-```
+1.  Download or clone this repository.
+2.  Open `index.html` in any modern web browser (Chrome, Firefox, Edge, Safari).
+3.  That's it. No build step required.
 
-Everything works locally. No installation, no dev server, nothing else required.
+### Option 2: Run as Desktop App (Electron)
 
----
+If you prefer a standalone application window:
 
-## Running as a Desktop App (Electron)
-
-Install dependencies:
-
-```bash
-npm install
-```
-
-Start the Electron app:
-
-```bash
-npm start
-```
+1.  Install [Node.js](https://nodejs.org/).
+2.  Install dependencies:
+    ```bash
+    npm install
+    ```
+3.  Start the app:
+    ```bash
+    npm start
+    ```
 
 ---
 
-## JSON Import Format
+## Developer Guide
 
-Drag a `.json` file onto the drop zone in the UI.
+The project is built with modularity in mind, separating the UI logic from the AAMVA schema definitions and the barcode encoding.
 
-Example:
+### Architecture
 
-```json
-{
-  "state": "NY",
-  "version": "08",
-  "DAQ": "V12345678",
-  "DCS": "VERA",
-  "DAC": "SEAN",
-  "DAD": "CNB",
-  "DBB": "19900101",
-  "DBA": "20300101",
-  "DBD": "20200101",
-  "DBC": "1",
-  "DAU": "070",
-  "DAY": "BRN",
-  "DAG": "123 FAKE STREET",
-  "DAI": "NEW YORK",
-  "DAJ": "NY",
-  "DAK": "10001"
+1.  **`aamva.js`**: This is the core logic file. It contains:
+    *   `AAMVA_STATES`: A map of state codes (e.g., "NY") to their IIN (Issuer Identification Number).
+    *   `AAMVA_VERSIONS`: Definitions for AAMVA versions (e.g., "08", "10"), specifying which fields are required.
+    *   `generateAAMVAPayload()`: The function that constructs the compliant string (header, subfile directory, data elements).
+2.  **`lib/pdf417.js`**: A standalone PDF417 encoder. It accepts a string and returns a matrix of 1s and 0s (bars and spaces).
+3.  **`js/app.js`**: The controller. It listens to UI events, calls `generateAAMVAPayload()`, and then passes the result to `PDF417.generate()`.
+4.  **`decoder.js`**: Contains logic to parse a raw JSON payload and "describe" it (map codes like "DCS" to "Last Name"). Accessible via the console or internal tools.
+
+### Modifying the Schema
+
+To add support for a new AAMVA version or modify an existing one, edit `aamva.js`.
+
+#### Adding a New Version
+
+Find the `AAMVA_VERSIONS` object in `aamva.js` and add a new entry:
+
+```javascript
+"11": {
+  name: "Version 2025 (Hypothetical)",
+  fields: [
+    { code: "DCS", label: "Last Name", type: "string", required: true },
+    { code: "DAC", label: "First Name", type: "string", required: true },
+    // ... add other fields
+  ]
 }
 ```
 
-Any fields present that match the chosen AAMVA version will automatically populate the form.
+#### Adding/Modifying States
 
----
+Find the `AAMVA_STATES` object in `aamva.js`:
 
-## Exporting PNG or PDF
+```javascript
+TX: { IIN: "636042", jurisdictionVersion: 8 },
+```
 
-- **Export PNG:** Saves the barcode as a PNG image.
-- **Export PDF:** Generates a PDF with the barcode embedded (via jsPDF).
+*   **IIN**: The 6-digit Issuer Identification Number.
+*   **jurisdictionVersion**: The version number specific to that jurisdiction (often encoded in the header).
 
----
+### Manual Verification
 
-## Technologies Used
+You can verify the output using the built-in tools in the UI:
 
-- Vanilla JavaScript
-- PDF417 Encoder (MIT-licensed standalone JavaScript)
-- jsPDF (PDF export)
-- Electron (optional desktop app)
-
----
-
-## Disclaimer
-
-This project is provided for:
-
-- Development  
-- Research  
-- Machine-readable standards testing  
-- Educational use  
-
-You are responsible for complying with all applicable laws related to identification documents in your jurisdiction.
-
-Misuse may be illegal. Use responsibly.
+1.  **Decoded Output**: Shows the JSON representation of the current form data.
+2.  **Payload Inspector**: Shows the exact string being sent to the barcode encoder.
+3.  **Console Debugging**: You can access the `AAMVA_DECODER` tool in the browser console:
+    ```javascript
+    // In DevTools Console
+    const payload = document.getElementById("decodedOutput").value;
+    console.log(window.AAMVA_DECODER.decode(payload));
+    ```
 
 ---
 
 ## License
 
-MIT License  
+MIT License. See `LICENSE` (if available) or `package.json` for details.
+
 © 2025 Sean Vera
-
----
-
-## Contributing
-
-Pull requests are welcome.  
-Open an issue to propose new features or report bugs.
-
----
-
-## Notes
-
-This project was built with an unhealthy level of attention to bureaucratic detail and a slightly unhinged dedication to the AAMVA spec.  
-Enjoy responsibly.

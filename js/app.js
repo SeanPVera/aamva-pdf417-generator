@@ -3,20 +3,15 @@
  * Wires the UI, AAMVA schemas, encoder, inspector, and tools.
  */
 
-import {
-  AAMVA_STATES,
-  AAMVA_VERSIONS,
-  AAMVA_UNKNOWN_FIELD_POLICY,
-  getFieldsForVersion,
-  describeVersion,
-  validateFieldValue,
-  buildPayloadObject,
-  generateAAMVAPayload
-} from "../aamva.js";
-
-import { PDF417 } from "../lib/pdf417.js";
-window.PDF417 = PDF417;
-
+// Helper to safely get globals
+const AAMVA_STATES = window.AAMVA_STATES;
+const AAMVA_VERSIONS = window.AAMVA_VERSIONS;
+const AAMVA_UNKNOWN_FIELD_POLICY = window.AAMVA_UNKNOWN_FIELD_POLICY;
+const getFieldsForVersion = window.getFieldsForVersion;
+const describeVersion = window.describeVersion;
+const validateFieldValue = window.validateFieldValue;
+const buildPayloadObject = window.buildPayloadObject;
+const generateAAMVAPayload = window.generateAAMVAPayload;
 
 /* ============================================================
    GLOBALS

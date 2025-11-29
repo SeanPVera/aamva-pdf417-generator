@@ -11,7 +11,7 @@
 
 /* ========== STATE DEFINITIONS ========== */
 
-const AAMVA_STATES = {
+window.AAMVA_STATES = {
   AL: { IIN: "636000", jurisdictionVersion: 8 },
   AK: { IIN: "636001", jurisdictionVersion: 8 },
   AZ: { IIN: "636002", jurisdictionVersion: 8 },
@@ -73,7 +73,7 @@ const AAMVA_STATES = {
 
 /* ========== VERSION DEFINITIONS ========== */
 
-const AAMVA_VERSIONS = {
+window.AAMVA_VERSIONS = {
   "09": {
     name: "Version 2009",
     fields: [
@@ -117,16 +117,16 @@ const AAMVA_VERSIONS = {
 /* ========== UTILITIES ========== */
 
 // Required for “unknown field” validation
-const AAMVA_UNKNOWN_FIELD_POLICY = "reject";
+window.AAMVA_UNKNOWN_FIELD_POLICY = "reject";
 
 // Get field definitions by version
-function getFieldsForVersion(v) {
-  return AAMVA_VERSIONS[v]?.fields || [];
+window.getFieldsForVersion = function(v) {
+  return window.AAMVA_VERSIONS[v]?.fields || [];
 }
 
 // Inspector helper
-function describeVersion(v) {
-  const info = AAMVA_VERSIONS[v];
+window.describeVersion = function(v) {
+  const info = window.AAMVA_VERSIONS[v];
   if (!info) return "Unknown version";
 
   return (
@@ -137,9 +137,8 @@ function describeVersion(v) {
 }
 
 // Validate field, type, required-ness
-function validateFieldValue(field, value) {
+window.validateFieldValue = function(field, value) {
   if (field.required && !value) return false;
-
   if (!value) return true;
 
   switch (field.type) {
@@ -156,7 +155,7 @@ function validateFieldValue(field, value) {
 }
 
 // Build minimal payload object for encoding
-function buildPayloadObject(stateCode, version, fields) {
+window.buildPayloadObject = function(stateCode, version, fields) {
   const obj = {
     state: stateCode,
     version: version
@@ -170,17 +169,9 @@ function buildPayloadObject(stateCode, version, fields) {
   return obj;
 }
 
-// Expose to window for non-module usage
-window.AAMVA_STATES = AAMVA_STATES;
-window.AAMVA_VERSIONS = AAMVA_VERSIONS;
-window.AAMVA_UNKNOWN_FIELD_POLICY = AAMVA_UNKNOWN_FIELD_POLICY;
-window.getFieldsForVersion = getFieldsForVersion;
-window.describeVersion = describeVersion;
-window.validateFieldValue = validateFieldValue;
-window.buildPayloadObject = buildPayloadObject;
 // Generate AAMVA compliant payload string
-export function generateAAMVAPayload(stateCode, version, fields, dataObj) {
-  const stateDef = AAMVA_STATES[stateCode];
+window.generateAAMVAPayload = function(stateCode, version, fields, dataObj) {
+  const stateDef = window.AAMVA_STATES[stateCode];
   const iin = stateDef.IIN;
   const jurisVersion = stateDef.jurisdictionVersion.toString().padStart(2, '0');
 
