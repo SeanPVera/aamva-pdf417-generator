@@ -178,24 +178,15 @@ function liveUpdate() {
     if (!validateUnknownFields(payloadObj)) return;
     if (!validateFields(payloadObj)) return;
 
-    renderBarcode(JSON.stringify(payloadObj));
+    const aamvaData = generateAAMVAPayload(currentState, currentVersion, currentFields, payloadObj);
+
+    renderBarcode(aamvaData);
     renderDecoded(payloadObj);
-    renderInspector(payloadObj);
+    renderInspector(payloadObj, aamvaData);
     snapshotHistory(payloadObj);
   } catch (err) {
     showError("Update Error: " + err.message);
   }
-  const payloadObj = window.buildPayloadObject(currentState, currentVersion, currentFields);
-
-    if (!validateUnknownFields(payloadObj)) return;
-    if (!validateFields(payloadObj)) return;
-
-  const aamvaData = generateAAMVAPayload(currentState, currentVersion, currentFields, payloadObj);
-
-  renderBarcode(aamvaData);
-  renderDecoded(payloadObj);
-  renderInspector(payloadObj, aamvaData);
-  snapshotHistory(payloadObj);
 }
 
 
