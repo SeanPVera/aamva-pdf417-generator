@@ -3,6 +3,16 @@
  * Wires the UI, AAMVA schemas, encoder, inspector, and tools.
  */
 
+// Helper to safely get globals
+const AAMVA_STATES = window.AAMVA_STATES;
+const AAMVA_VERSIONS = window.AAMVA_VERSIONS;
+const AAMVA_UNKNOWN_FIELD_POLICY = window.AAMVA_UNKNOWN_FIELD_POLICY;
+const getFieldsForVersion = window.getFieldsForVersion;
+const describeVersion = window.describeVersion;
+const validateFieldValue = window.validateFieldValue;
+const buildPayloadObject = window.buildPayloadObject;
+const generateAAMVAPayload = window.generateAAMVAPayload;
+
 /* ============================================================
    GLOBALS
    ============================================================ */
@@ -175,6 +185,17 @@ function liveUpdate() {
   } catch (err) {
     showError("Update Error: " + err.message);
   }
+  const payloadObj = window.buildPayloadObject(currentState, currentVersion, currentFields);
+
+    if (!validateUnknownFields(payloadObj)) return;
+    if (!validateFields(payloadObj)) return;
+
+  const aamvaData = generateAAMVAPayload(currentState, currentVersion, currentFields, payloadObj);
+
+  renderBarcode(aamvaData);
+  renderDecoded(payloadObj);
+  renderInspector(payloadObj, aamvaData);
+  snapshotHistory(payloadObj);
 }
 
 
@@ -253,11 +274,12 @@ function renderDecoded(obj) {
    INSPECTOR PANES
    ============================================================ */
 
-function renderInspector(obj) {
+function renderInspector(obj, rawText) {
   document.getElementById("payloadInspector").value =
     JSON.stringify(obj, null, 2);
 
-  const raw = window.PDF417.generate(JSON.stringify(obj), { errorCorrectionLevel: 5 });
+  const textToEncode = rawText || JSON.stringify(obj);
+  const raw = window.PDF417.generate(textToEncode, { errorCorrectionLevel: 5 });
   document.getElementById("rawCodewords").value = raw.join(",");
 }
 

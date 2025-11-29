@@ -24,7 +24,7 @@
       "index.html",
       "main.js",
       "preload.js",
-      "app.js",
+      "js/app.js",
       "aamva.js",
       "decoder.js",
       "lib/**",
