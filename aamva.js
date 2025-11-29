@@ -62,9 +62,9 @@ window.AAMVA_STATES = {
   WV: { IIN: "636047", jurisdictionVersion: 8 },
   WI: { IIN: "636048", jurisdictionVersion: 8 },
   WY: { IIN: "636049", jurisdictionVersion: 8 },
+  DC: { IIN: "636043", jurisdictionVersion: 8 }, // Added DC support
 
-  // Unsupported
-  DC: null,
+  // Unsupported Territories
   AS: null,
   GU: null,
   VI: null,
@@ -74,8 +74,13 @@ window.AAMVA_STATES = {
 /* ========== VERSION DEFINITIONS ========== */
 
 window.AAMVA_VERSIONS = {
+  // Keeping older definitions for backward compatibility if needed,
+  // but note that "09" usually means AAMVA 2009 (v04) and "10" usually means AAMVA 2010 (v05) in loose terms,
+  // or it might refer to the literal version number.
+  // We will add the explicit standard versions below.
+
   "09": {
-    name: "Version 2009",
+    name: "Version 2009 (Legacy)",
     fields: [
       { code: "DAA", label: "Full Name", type: "string", required: true },
       { code: "DCS", label: "Last Name", type: "string", required: true },
@@ -95,7 +100,7 @@ window.AAMVA_VERSIONS = {
   },
 
   "10": {
-    name: "Version 2010",
+    name: "Version 2010 (Legacy)",
     fields: [
       { code: "DCS", label: "Last Name", type: "string", required: true },
       { code: "DCT", label: "Given Names", type: "string", required: true },
@@ -111,6 +116,60 @@ window.AAMVA_VERSIONS = {
       { code: "DAQ", label: "License Number", type: "string", required: true },
       { code: "DAW", label: "Weight", type: "string" }
     ]
+  },
+
+  "08": {
+    name: "AAMVA 2016 (Version 08)",
+    fields: [
+      { code: "DCA", label: "Jurisdiction-specific vehicle class", type: "string", required: true },
+      { code: "DCB", label: "Jurisdiction-specific restriction codes", type: "string", required: true },
+      { code: "DCD", label: "Jurisdiction-specific endorsement codes", type: "string", required: true },
+      { code: "DBA", label: "Expiration Date", type: "date", required: true },
+      { code: "DCS", label: "Customer Family Name", type: "string", required: true },
+      { code: "DAC", label: "Customer First Name", type: "string", required: true },
+      { code: "DAD", label: "Customer Middle Name", type: "string" }, // Optional
+      { code: "DBB", label: "Date of Birth", type: "date", required: true },
+      { code: "DBC", label: "Sex", type: "char", required: true }, // 1=M, 2=F
+      { code: "DAY", label: "Eye Color", type: "string", required: true },
+      { code: "DAU", label: "Height", type: "string", required: true },
+      { code: "DAG", label: "Address Street 1", type: "string", required: true },
+      { code: "DAI", label: "City", type: "string", required: true },
+      { code: "DAJ", label: "Jurisdiction Code", type: "string", required: true },
+      { code: "DAK", label: "Postal Code", type: "zip", required: true },
+      { code: "DAQ", label: "Customer ID Number", type: "string", required: true },
+      { code: "DCF", label: "Document Discriminator", type: "string", required: true },
+      { code: "DCG", label: "Country Identification", type: "string", required: true },
+      { code: "DDE", label: "Family Name Truncation", type: "string" },
+      { code: "DDF", label: "First Name Truncation", type: "string" },
+      { code: "DDG", label: "Middle Name Truncation", type: "string" }
+    ]
+  },
+
+  "2020": { // AAMVA 2020 uses Version 10 in the header usually, but we key it clearly here or alias
+    name: "AAMVA 2020 (Version 10)",
+    fields: [
+      { code: "DCA", label: "Jurisdiction-specific vehicle class", type: "string", required: true },
+      { code: "DCB", label: "Jurisdiction-specific restriction codes", type: "string", required: true },
+      { code: "DCD", label: "Jurisdiction-specific endorsement codes", type: "string", required: true },
+      { code: "DBA", label: "Expiration Date", type: "date", required: true },
+      { code: "DCS", label: "Customer Family Name", type: "string", required: true },
+      { code: "DAC", label: "Customer First Name", type: "string", required: true },
+      { code: "DAD", label: "Customer Middle Name", type: "string" },
+      { code: "DBB", label: "Date of Birth", type: "date", required: true },
+      { code: "DBC", label: "Sex", type: "char", required: true },
+      { code: "DAY", label: "Eye Color", type: "string", required: true },
+      { code: "DAU", label: "Height", type: "string", required: true },
+      { code: "DAG", label: "Address Street 1", type: "string", required: true },
+      { code: "DAI", label: "City", type: "string", required: true },
+      { code: "DAJ", label: "Jurisdiction Code", type: "string", required: true },
+      { code: "DAK", label: "Postal Code", type: "zip", required: true },
+      { code: "DAQ", label: "Customer ID Number", type: "string", required: true },
+      { code: "DCF", label: "Document Discriminator", type: "string", required: true },
+      { code: "DCG", label: "Country Identification", type: "string", required: true },
+      { code: "DDE", label: "Family Name Truncation", type: "string" },
+      { code: "DDF", label: "First Name Truncation", type: "string" },
+      { code: "DDG", label: "Middle Name Truncation", type: "string" }
+    ]
   }
 };
 
@@ -122,6 +181,27 @@ window.AAMVA_UNKNOWN_FIELD_POLICY = "reject";
 // Get field definitions by version
 window.getFieldsForVersion = function(v) {
   return window.AAMVA_VERSIONS[v]?.fields || [];
+};
+
+// Get mandatory fields for a specific state and version
+window.getMandatoryFields = function(stateCode, version) {
+  const versionDef = window.AAMVA_VERSIONS[version];
+  if (!versionDef) return [];
+
+  // Start with version-level mandatory fields
+  let fields = versionDef.fields.filter(f => f.required);
+
+  const stateDef = window.AAMVA_STATES[stateCode];
+  if (stateDef && stateDef.mandatoryFields) {
+    // Add state-specific mandatory fields
+    // Implementation: we assume stateDef.mandatoryFields is an array of field codes
+    // or objects that we need to merge.
+    // For now, let's assume it's just codes that MUST be present.
+    // If we need to ADD fields that are not in the version spec, we'd need full definitions.
+    // Simpler approach: check if state has 'extraRequired' list.
+  }
+
+  return fields;
 };
 
 // Inspector helper
@@ -171,6 +251,19 @@ window.buildPayloadObject = function(stateCode, version, fields) {
 
 // Generate AAMVA compliant payload string
 window.generateAAMVAPayload = function(stateCode, version, fields, dataObj) {
+  // VALIDATION: Check mandatory fields
+  const mandatoryFields = window.getMandatoryFields(stateCode, version);
+  const missing = [];
+  mandatoryFields.forEach(f => {
+    if (!dataObj[f.code]) {
+      missing.push(f.code);
+    }
+  });
+
+  if (missing.length > 0) {
+    throw new Error(`Missing mandatory fields for ${stateCode} (v${version}): ${missing.join(", ")}`);
+  }
+
   const stateDef = window.AAMVA_STATES[stateCode];
   const iin = stateDef.IIN;
   const jurisVersion = stateDef.jurisdictionVersion.toString().padStart(2, '0');
