@@ -6,6 +6,7 @@
  * - Schema loader
  * - Field inspectors
  * - Version browser support
+ * - Payload generator (AAMVA compliant)
  */
 
 /* ========== STATE DEFINITIONS ========== */
@@ -177,3 +178,65 @@ window.getFieldsForVersion = getFieldsForVersion;
 window.describeVersion = describeVersion;
 window.validateFieldValue = validateFieldValue;
 window.buildPayloadObject = buildPayloadObject;
+// Generate AAMVA compliant payload string
+export function generateAAMVAPayload(stateCode, version, fields, dataObj) {
+  const stateDef = AAMVA_STATES[stateCode];
+  const iin = stateDef.IIN;
+  const jurisVersion = stateDef.jurisdictionVersion.toString().padStart(2, '0');
+
+  // Header
+  const compliance = "@";
+  const dataElementSeparator = "\n";
+  const recordSeparator = "\x1e";
+  const segmentTerminator = "\r";
+  const fileType = "ANSI ";
+
+  // Header Part 1
+  let header = compliance + dataElementSeparator + recordSeparator + segmentTerminator + fileType + iin + version + jurisVersion;
+
+  // Subfiles
+  // We only support "DL" (Driver License)
+  const subfileType = "DL";
+
+  // Build Subfile Data first to calculate length
+  let subfileData = subfileType;
+
+  // Fields
+  for (const field of fields) {
+    const val = dataObj[field.code];
+    if (val !== undefined && val !== "") {
+      // Ensure uppercase for string/char? Standard usually requires it.
+      // But we will respect input for now, assuming validation/input handles it.
+      subfileData += field.code + val + dataElementSeparator;
+    }
+  }
+
+  // AAMVA typically puts the segment terminator at the end of the subfile data (replacing last separator? or in addition?)
+  // Standards say: "The data elements shall be separated by the Data Element Separator."
+  // And "The subfile shall be terminated by the Segment Terminator".
+  // So: elem1 \n elem2 \n \r
+  // Or: elem1 \n elem2 \r
+  // Usually it is: elem1 \n elem2 \n \r
+
+  subfileData += segmentTerminator;
+
+  // Calculate offsets
+  const numEntries = "01"; // We only have DL
+
+  // Header fixed part:
+  // @(1) + \n(1) + \x1e(1) + \r(1) + ANSI (5) + IIN(6) + Ver(2) + JVer(2) + NumEntries(2) = 21 bytes.
+
+  // Subfile Directory Entry: Type(2) + Offset(4) + Length(4) = 10 bytes.
+
+  const headerLength = 21 + (1 * 10);
+  const offset = headerLength;
+
+  const length = subfileData.length;
+
+  const offsetStr = offset.toString().padStart(4, '0');
+  const lengthStr = length.toString().padStart(4, '0');
+
+  const subfileDir = subfileType + offsetStr + lengthStr;
+
+  return header + numEntries + subfileDir + subfileData;
+}
