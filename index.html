@@ -1,216 +1,72 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>AAMVA PDF417 Generator — Deluxe Edition</title>
-
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <style>
-    /* ========== GLOBAL ========== */
-    :root {
-      --bg: #ffffff;
-      --fg: #111111;
-      --panel: #f3f3f3;
-      --accent: #276ef1;
-      --border: #dadada;
-      --error: #b00020;
-      --success: #0a7d00;
-    }
-
-    [data-theme="dark"] {
-      --bg: #000000;
-      --fg: #e6e6e6;
-      --panel: #1a1a1a;
-      --accent: #4d94ff;
-      --border: #333333;
-    }
-
-    [data-theme="dmv"] {
-      --bg: #eaf3ff;
-      --fg: #112233;
-      --panel: #d5e7ff;
-      --accent: #0047b3;
-      --border: #b3d1ff;
-    }
-
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--fg);
-      font-family: system-ui, sans-serif;
-      height: 100vh;
-      display: flex;
-      overflow: hidden;
-    }
-
-    /* ========== LAYOUT ========== */
-    #sidebar {
-      width: 420px;
-      background: var(--panel);
-      border-right: 2px solid var(--border);
-      overflow-y: auto;
-      padding: 20px;
-    }
-
-    #main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-
-    #main-top {
-      flex: 1;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      border-bottom: 2px solid var(--border);
-    }
-
-    .pane {
-      padding: 15px;
-      overflow-y: auto;
-      border-right: 1px solid var(--border);
-    }
-
-    .pane:last-child {
-      border-right: none;
-    }
-
-    #main-bottom {
-      height: 240px;
-      background: var(--panel);
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      border-top: 2px solid var(--border);
-    }
-
-    .tool-pane {
-      padding: 15px;
-      border-right: 1px solid var(--border);
-      overflow-y: auto;
-    }
-
-    .tool-pane:last-child {
-      border-right: none;
-    }
-
-    h2, h3 {
-      margin-top: 0;
-    }
-
-    input, select, button, textarea {
-      width: 100%;
-      padding: 8px;
-      margin-top: 8px;
-      margin-bottom: 12px;
-      background: var(--bg);
-      color: var(--fg);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-    }
-
-    button {
-      background: var(--accent);
-      color: #fff;
-      cursor: pointer;
-      font-weight: bold;
-    }
-
-    button:hover {
-      opacity: 0.9;
-    }
-
-    canvas {
-      width: 100%;
-      height: auto;
-      background: white;
-      border: 1px solid var(--border);
-    }
-
-    #errorBox {
-      background: var(--error);
-      color: #fff;
-      padding: 8px;
-      display: none;
-      margin-bottom: 12px;
-      border-radius: 4px;
-    }
-  </style>
+  <meta charset="UTF-8">
+  <title>AAMVA PDF417 Generator – Deluxe Edition</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/themes.css">
 </head>
-
 <body>
-  <!-- ========== SIDEBAR ========== -->
-  <div id="sidebar">
-    <h2>AAMVA Fields</h2>
+  <div class="app">
+    <aside id="sidebar">
+      <h1>AAMVA Fields</h1>
+      <label for="stateSelect">State</label>
+      <select id="stateSelect"></select>
 
-    <div id="errorBox"></div>
+      <label for="versionSelect">AAMVA Version</label>
+      <select id="versionSelect"></select>
 
-    <label>State</label>
-    <select id="state"></select>
+      <section class="json-import">
+        <h2>Import JSON</h2>
+        <input type="file" id="jsonFileInput" accept=".json">
+      </section>
 
-    <label>AAMVA Version</label>
-    <select id="version"></select>
+      <div class="undo-redo">
+        <button id="undoBtn">Undo</button>
+        <button id="redoBtn">Redo</button>
+      </div>
 
-    <div id="fields"></div>
+      <label for="themeSelect">Theme</label>
+      <select id="themeSelect">
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+        <option value="dmv">DMV Blue</option>
+      </select>
+    </aside>
 
-    <h3>Import JSON</h3>
-    <input type="file" id="jsonFileInput" accept=".json" />
-
-    <button id="undoBtn">Undo</button>
-    <button id="redoBtn">Redo</button>
-
-    <h3>Theme</h3>
-    <select id="themeMode">
-      <option value="light">Light</option>
-      <option value="dark">Dark</option>
-      <option value="dmv">DMV Blue</option>
-    </select>
-  </div>
-
-  <!-- ========== MAIN ========== -->
-  <div id="main">
-    <div id="main-top">
-      <!-- Barcode pane -->
-      <div class="pane">
+    <main id="content">
+      <section id="previewSection">
         <h2>PDF417 Preview</h2>
-        <canvas id="barcode"></canvas>
+        <canvas id="barcodeCanvas" width="400" height="200"></canvas>
+        <div class="export-buttons">
+          <button id="exportPngBtn">Export PNG</button>
+          <button id="exportPdfBtn">Export PDF</button>
+          <button id="exportSvgBtn">Export SVG</button>
+        </div>
+      </section>
 
-        <button id="exportPNG">Export PNG</button>
-        <button id="exportPDF">Export PDF</button>
-        <button id="exportSVG">Export SVG</button>
-      </div>
-
-      <!-- Decoder pane -->
-      <div class="pane">
+      <section id="decodedOutputSection">
         <h2>Decoded Output</h2>
-        <textarea id="decodedOutput" rows="16" readonly></textarea>
-      </div>
-    </div>
+        <textarea id="decodedOutput" readonly></textarea>
+      </section>
 
-    <!-- Bottom Developer Tools -->
-    <div id="main-bottom">
-      <div class="tool-pane">
-        <h3>Raw Codewords</h3>
-        <textarea id="rawCodewords" readonly rows="10"></textarea>
-      </div>
+      <section id="rawCodewordsSection">
+        <h2>Raw Codewords</h2>
+        <textarea id="rawCodewords" readonly></textarea>
+      </section>
 
-      <div class="tool-pane">
-        <h3>Payload Inspector</h3>
-        <textarea id="payloadInspector" readonly rows="10"></textarea>
-      </div>
+      <section id="payloadInspectorSection">
+        <h2>Payload Inspector</h2>
+        <textarea id="payloadInspector" readonly></textarea>
+      </section>
 
-      <div class="tool-pane">
-        <h3>Version Browser</h3>
+      <section id="versionBrowserSection">
+        <h2>Version Browser</h2>
         <select id="versionBrowser"></select>
-        <textarea id="versionFields" readonly rows="10"></textarea>
-      </div>
-    </div>
+      </section>
+    </main>
   </div>
 
-  <script src="aamva.js"></script>
-  <script src="pdf417.js"></script>
-  <script src="decoder.js"></script>
-  <script src="app.js"></script>
+  <script type="module" src="js/app.js"></script>
 </body>
 </html>
