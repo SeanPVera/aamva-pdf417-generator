@@ -11,7 +11,6 @@
 
 /* ========== STATE DEFINITIONS ========== */
 
-const AAMVA_STATES = {
 window.AAMVA_STATES = {
   AL: { IIN: "636000", jurisdictionVersion: 8 },
   AK: { IIN: "636001", jurisdictionVersion: 8 },
@@ -74,7 +73,6 @@ window.AAMVA_STATES = {
 
 /* ========== VERSION DEFINITIONS ========== */
 
-const AAMVA_VERSIONS = {
 window.AAMVA_VERSIONS = {
   "09": {
     name: "Version 2009",
@@ -119,22 +117,12 @@ window.AAMVA_VERSIONS = {
 /* ========== UTILITIES ========== */
 
 // Required for “unknown field” validation
-const AAMVA_UNKNOWN_FIELD_POLICY = "reject";
-
-// Get field definitions by version
-function getFieldsForVersion(v) {
-  return AAMVA_VERSIONS[v]?.fields || [];
-}
-
-// Inspector helper
-function describeVersion(v) {
-  const info = AAMVA_VERSIONS[v];
 window.AAMVA_UNKNOWN_FIELD_POLICY = "reject";
 
 // Get field definitions by version
 window.getFieldsForVersion = function(v) {
   return window.AAMVA_VERSIONS[v]?.fields || [];
-}
+};
 
 // Inspector helper
 window.describeVersion = function(v) {
@@ -146,10 +134,9 @@ window.describeVersion = function(v) {
     `Fields:\n` +
     info.fields.map(f => `${f.code} — ${f.label}`).join("\n")
   );
-}
+};
 
 // Validate field, type, required-ness
-function validateFieldValue(field, value) {
 window.validateFieldValue = function(field, value) {
   if (field.required && !value) return false;
   if (!value) return true;
@@ -165,10 +152,9 @@ window.validateFieldValue = function(field, value) {
     default:
       return true;
   }
-}
+};
 
 // Build minimal payload object for encoding
-function buildPayloadObject(stateCode, version, fields) {
 window.buildPayloadObject = function(stateCode, version, fields) {
   const obj = {
     state: stateCode,
@@ -181,16 +167,8 @@ window.buildPayloadObject = function(stateCode, version, fields) {
   });
 
   return obj;
-}
+};
 
-// Expose to window for non-module usage
-window.AAMVA_STATES = AAMVA_STATES;
-window.AAMVA_VERSIONS = AAMVA_VERSIONS;
-window.AAMVA_UNKNOWN_FIELD_POLICY = AAMVA_UNKNOWN_FIELD_POLICY;
-window.getFieldsForVersion = getFieldsForVersion;
-window.describeVersion = describeVersion;
-window.validateFieldValue = validateFieldValue;
-window.buildPayloadObject = buildPayloadObject;
 // Generate AAMVA compliant payload string
 window.generateAAMVAPayload = function(stateCode, version, fields, dataObj) {
   const stateDef = window.AAMVA_STATES[stateCode];
@@ -227,10 +205,6 @@ window.generateAAMVAPayload = function(stateCode, version, fields, dataObj) {
   // AAMVA typically puts the segment terminator at the end of the subfile data (replacing last separator? or in addition?)
   // Standards say: "The data elements shall be separated by the Data Element Separator."
   // And "The subfile shall be terminated by the Segment Terminator".
-  // So: elem1 \n elem2 \n \r
-  // Or: elem1 \n elem2 \r
-  // Usually it is: elem1 \n elem2 \n \r
-
   subfileData += segmentTerminator;
 
   // Calculate offsets
@@ -252,4 +226,4 @@ window.generateAAMVAPayload = function(stateCode, version, fields, dataObj) {
   const subfileDir = subfileType + offsetStr + lengthStr;
 
   return header + numEntries + subfileDir + subfileData;
-}
+};
