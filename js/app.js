@@ -11,9 +11,10 @@ import {
   describeVersion,
   validateFieldValue,
   buildPayloadObject
-} from "./aamva.js";
+} from "../aamva.js";
 
-import "./lib/pdf417.js"; // exposes window.PDF417
+import { PDF417 } from "../lib/pdf417.js";
+window.PDF417 = PDF417;
 
 
 /* ============================================================
@@ -45,7 +46,7 @@ window.addEventListener("DOMContentLoaded", () => {
    ============================================================ */
 
 function populateStateList() {
-  const sel = document.getElementById("state");
+  const sel = document.getElementById("stateSelect");
   sel.innerHTML = "";
 
   Object.keys(AAMVA_STATES)
@@ -68,7 +69,7 @@ function populateStateList() {
 }
 
 function populateVersionList() {
-  const sel = document.getElementById("version");
+  const sel = document.getElementById("versionSelect");
   sel.innerHTML = "";
 
   Object.keys(AAMVA_VERSIONS).forEach(v => {
@@ -114,33 +115,36 @@ function renderFields() {
    ============================================================ */
 
 function hookEvents() {
-  document.getElementById("state").addEventListener("change", e => {
+  document.getElementById("stateSelect").addEventListener("change", e => {
     currentState = e.target.value;
     liveUpdate();
   });
 
-  document.getElementById("version").addEventListener("change", e => {
+  document.getElementById("versionSelect").addEventListener("change", e => {
     currentVersion = e.target.value;
     renderFields();
     liveUpdate();
   });
 
-  document.getElementById("fields").addEventListener("input", () => {
-    liveUpdate();
-  });
+  const fieldsContainer = document.getElementById("fields");
+  if (fieldsContainer) {
+    fieldsContainer.addEventListener("input", () => {
+      liveUpdate();
+    });
+  }
 
   document.getElementById("jsonFileInput").addEventListener("change", handleJSONImport);
 
   document.getElementById("undoBtn").addEventListener("click", undo);
   document.getElementById("redoBtn").addEventListener("click", redo);
 
-  document.getElementById("themeMode").addEventListener("change", e => {
+  document.getElementById("themeSelect").addEventListener("change", e => {
     document.documentElement.dataset.theme = e.target.value;
   });
 
-  document.getElementById("exportPNG").addEventListener("click", exportPNG);
-  document.getElementById("exportPDF").addEventListener("click", exportPDF);
-  document.getElementById("exportSVG").addEventListener("click", exportSVG);
+  document.getElementById("exportPngBtn").addEventListener("click", exportPNG);
+  document.getElementById("exportPdfBtn").addEventListener("click", exportPDF);
+  document.getElementById("exportSvgBtn").addEventListener("click", exportSVG);
 }
 
 
@@ -201,7 +205,7 @@ function validateFields(obj) {
    ============================================================ */
 
 function renderBarcode(text) {
-  const canvas = document.getElementById("barcode");
+  const canvas = document.getElementById("barcodeCanvas");
   const ctx = canvas.getContext("2d");
 
   const matrix = window.PDF417.generate(text, { errorCorrectionLevel: 5 });
@@ -271,7 +275,7 @@ function renderInspectorBrowser() {
    ============================================================ */
 
 function exportPNG() {
-  const c = document.getElementById("barcode");
+  const c = document.getElementById("barcodeCanvas");
   const a = document.createElement("a");
   a.href = c.toDataURL("image/png");
   a.download = "barcode.png";
@@ -279,7 +283,7 @@ function exportPNG() {
 }
 
 function exportPDF() {
-  const c = document.getElementById("barcode");
+  const c = document.getElementById("barcodeCanvas");
   const img = c.toDataURL("image/png");
 
   const doc = new window.jspdf.jsPDF({
@@ -328,8 +332,8 @@ async function handleJSONImport(e) {
       return;
     }
 
-    document.getElementById("state").value = json.state;
-    document.getElementById("version").value = json.version;
+    document.getElementById("stateSelect").value = json.state;
+    document.getElementById("versionSelect").value = json.version;
 
     currentState = json.state;
     currentVersion = json.version;
@@ -378,13 +382,14 @@ function restoreSnapshot(snap) {
   currentState = json.state;
   currentVersion = json.version;
 
-  document.getElementById("state").value = currentState;
-  document.getElementById("version").value = currentVersion;
+  document.getElementById("stateSelect").value = currentState;
+  document.getElementById("versionSelect").value = currentVersion;
 
   renderFields();
 
   currentFields.forEach(f => {
-    document.getElementById(f.code).value = json[f.code] || "";
+    const el = document.getElementById(f.code);
+    if(el) el.value = json[f.code] || "";
   });
 
   liveUpdate();
