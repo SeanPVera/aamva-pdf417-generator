@@ -12,9 +12,7 @@
  * MIT License
  */
 
-import { AAMVA_VERSIONS } from "./aamva.js";
-
-export const AAMVA_DECODER = (() => {
+window.AAMVA_DECODER = (() => {
 
   function decodePayload(text) {
     try {
@@ -29,12 +27,12 @@ export const AAMVA_DECODER = (() => {
   }
 
   function describeFields(obj) {
-    if (!obj.version || !AAMVA_VERSIONS[obj.version]) {
+    if (!obj.version || !window.AAMVA_VERSIONS[obj.version]) {
       return "Unknown version — cannot map fields.\n" +
              JSON.stringify(obj, null, 2);
     }
 
-    const def = AAMVA_VERSIONS[obj.version];
+    const def = window.AAMVA_VERSIONS[obj.version];
     const lines = [];
     lines.push(`AAMVA ${def.name}`);
     lines.push("");
