@@ -3,6 +3,21 @@
  * Wires the UI, AAMVA schemas, encoder, inspector, and tools.
  */
 
+import {
+  AAMVA_STATES,
+  AAMVA_VERSIONS,
+  AAMVA_UNKNOWN_FIELD_POLICY,
+  getFieldsForVersion,
+  describeVersion,
+  validateFieldValue,
+  buildPayloadObject,
+  generateAAMVAPayload
+} from "../aamva.js";
+
+import { PDF417 } from "../lib/pdf417.js";
+window.PDF417 = PDF417;
+
+
 /* ============================================================
    GLOBALS
    ============================================================ */
@@ -148,9 +163,11 @@ function liveUpdate() {
   if (!validateUnknownFields(payloadObj)) return;
   if (!validateFields(payloadObj)) return;
 
-  renderBarcode(JSON.stringify(payloadObj));
+  const aamvaData = generateAAMVAPayload(currentState, currentVersion, currentFields, payloadObj);
+
+  renderBarcode(aamvaData);
   renderDecoded(payloadObj);
-  renderInspector(payloadObj);
+  renderInspector(payloadObj, aamvaData);
   snapshotHistory(payloadObj);
 }
 
@@ -230,11 +247,12 @@ function renderDecoded(obj) {
    INSPECTOR PANES
    ============================================================ */
 
-function renderInspector(obj) {
+function renderInspector(obj, rawText) {
   document.getElementById("payloadInspector").value =
     JSON.stringify(obj, null, 2);
 
-  const raw = window.PDF417.generate(JSON.stringify(obj), { errorCorrectionLevel: 5 });
+  const textToEncode = rawText || JSON.stringify(obj);
+  const raw = window.PDF417.generate(textToEncode, { errorCorrectionLevel: 5 });
   document.getElementById("rawCodewords").value = raw.join(",");
 }
 
