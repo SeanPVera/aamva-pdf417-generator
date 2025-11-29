@@ -3,20 +3,6 @@
  * Wires the UI, AAMVA schemas, encoder, inspector, and tools.
  */
 
-import {
-  AAMVA_STATES,
-  AAMVA_VERSIONS,
-  AAMVA_UNKNOWN_FIELD_POLICY,
-  getFieldsForVersion,
-  describeVersion,
-  validateFieldValue,
-  buildPayloadObject
-} from "../aamva.js";
-
-import { PDF417 } from "../lib/pdf417.js";
-window.PDF417 = PDF417;
-
-
 /* ============================================================
    GLOBALS
    ============================================================ */
@@ -34,10 +20,29 @@ let historyIndex = -1;
    ============================================================ */
 
 window.addEventListener("DOMContentLoaded", () => {
-  populateStateList();
-  populateVersionList();
-  hookEvents();
-  renderInspectorBrowser();
+  try {
+    console.log("App initialization started.");
+
+    // Diagnostic checks
+    const missing = [];
+    if (!window.AAMVA_STATES) missing.push("AAMVA_STATES (aamva.js)");
+    if (!window.PDF417) missing.push("PDF417 (lib/pdf417.js)");
+    if (!window.jspdf) missing.push("jspdf (lib/jspdf.umd.min.js)");
+
+    if (missing.length > 0) {
+      throw new Error("Missing dependencies: " + missing.join(", "));
+    }
+
+    populateStateList();
+    populateVersionList();
+    hookEvents();
+    renderInspectorBrowser();
+
+    console.log("App initialization complete.");
+  } catch (err) {
+    console.error("Initialization Error:", err);
+    showError("Startup Error: " + err.message);
+  }
 });
 
 
@@ -49,10 +54,10 @@ function populateStateList() {
   const sel = document.getElementById("stateSelect");
   sel.innerHTML = "";
 
-  Object.keys(AAMVA_STATES)
+  Object.keys(window.AAMVA_STATES)
     .sort()
     .forEach(code => {
-      const meta = AAMVA_STATES[code];
+      const meta = window.AAMVA_STATES[code];
       const opt = document.createElement("option");
 
       if (meta === null) {
@@ -72,10 +77,10 @@ function populateVersionList() {
   const sel = document.getElementById("versionSelect");
   sel.innerHTML = "";
 
-  Object.keys(AAMVA_VERSIONS).forEach(v => {
+  Object.keys(window.AAMVA_VERSIONS).forEach(v => {
     const opt = document.createElement("option");
     opt.value = v;
-    opt.textContent = `${v} — ${AAMVA_VERSIONS[v].name}`;
+    opt.textContent = `${v} — ${window.AAMVA_VERSIONS[v].name}`;
     sel.appendChild(opt);
   });
 }
@@ -91,7 +96,7 @@ function renderFields() {
 
   if (!currentVersion) return;
 
-  currentFields = getFieldsForVersion(currentVersion);
+  currentFields = window.getFieldsForVersion(currentVersion);
 
   currentFields.forEach(field => {
     const div = document.createElement("div");
@@ -157,15 +162,19 @@ function liveUpdate() {
 
   hideError();
 
-  const payloadObj = buildPayloadObject(currentState, currentVersion, currentFields);
+  try {
+    const payloadObj = window.buildPayloadObject(currentState, currentVersion, currentFields);
 
-  if (!validateUnknownFields(payloadObj)) return;
-  if (!validateFields(payloadObj)) return;
+    if (!validateUnknownFields(payloadObj)) return;
+    if (!validateFields(payloadObj)) return;
 
-  renderBarcode(JSON.stringify(payloadObj));
-  renderDecoded(payloadObj);
-  renderInspector(payloadObj);
-  snapshotHistory(payloadObj);
+    renderBarcode(JSON.stringify(payloadObj));
+    renderDecoded(payloadObj);
+    renderInspector(payloadObj);
+    snapshotHistory(payloadObj);
+  } catch (err) {
+    showError("Update Error: " + err.message);
+  }
 }
 
 
@@ -174,7 +183,7 @@ function liveUpdate() {
    ============================================================ */
 
 function validateUnknownFields(obj) {
-  if (AAMVA_UNKNOWN_FIELD_POLICY !== "reject") return true;
+  if (window.AAMVA_UNKNOWN_FIELD_POLICY !== "reject") return true;
   if (!obj) return true;
 
   const allowed = new Set(["state", "version", ...currentFields.map(f => f.code)]);
@@ -191,7 +200,7 @@ function validateUnknownFields(obj) {
 function validateFields(obj) {
   for (const field of currentFields) {
     const val = obj[field.code] || "";
-    if (!validateFieldValue(field, val)) {
+    if (!window.validateFieldValue(field, val)) {
       showError(`Invalid value for ${field.code}`);
       return false;
     }
@@ -256,16 +265,16 @@ function renderInspectorBrowser() {
   const sel = document.getElementById("versionBrowser");
   sel.innerHTML = "";
 
-  Object.keys(AAMVA_VERSIONS).forEach(v => {
+  Object.keys(window.AAMVA_VERSIONS).forEach(v => {
     const opt = document.createElement("option");
     opt.value = v;
-    opt.textContent = `${v} — ${AAMVA_VERSIONS[v].name}`;
+    opt.textContent = `${v} — ${window.AAMVA_VERSIONS[v].name}`;
     sel.appendChild(opt);
   });
 
   sel.addEventListener("change", () => {
     document.getElementById("versionFields").value =
-      describeVersion(sel.value);
+      window.describeVersion(sel.value);
   });
 }
 
@@ -322,12 +331,12 @@ async function handleJSONImport(e) {
 
     if (!validateUnknownFields(json)) return;
 
-    if (!AAMVA_STATES[json.state]) {
+    if (!window.AAMVA_STATES[json.state]) {
       showError("Invalid state");
       return;
     }
 
-    if (!AAMVA_VERSIONS[json.version]) {
+    if (!window.AAMVA_VERSIONS[json.version]) {
       showError("Invalid version");
       return;
     }
@@ -410,4 +419,3 @@ function hideError() {
   const box = document.getElementById("errorBox");
   box.style.display = "none";
 }
-
