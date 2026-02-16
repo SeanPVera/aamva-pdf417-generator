@@ -62,7 +62,7 @@ window.AAMVA_STATES = {
   WV: { IIN: "636047", jurisdictionVersion: 8 },
   WI: { IIN: "636048", jurisdictionVersion: 8 },
   WY: { IIN: "636049", jurisdictionVersion: 8 },
-  DC: { IIN: "636043", jurisdictionVersion: 8 }, // Added DC support
+  DC: { IIN: "636050", jurisdictionVersion: 8 },
 
   // Unsupported Territories
   AS: null,
@@ -227,7 +227,7 @@ window.validateFieldValue = function(field, value) {
     case "zip":
       return /^\d{5}(-\d{4})?$/.test(value);
     case "char":
-      return /^[A-Z]$/.test(value);
+      return /^[A-Z0-9]$/.test(value);
     case "string":
     default:
       return true;

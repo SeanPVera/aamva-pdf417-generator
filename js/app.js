@@ -23,6 +23,7 @@ let currentFields = [];
 
 let historyStack = [];
 let historyIndex = -1;
+let isRestoringSnapshot = false;
 
 
 /* ============================================================
@@ -270,8 +271,8 @@ function renderInspector(obj, rawText) {
     JSON.stringify(obj, null, 2);
 
   const textToEncode = rawText || JSON.stringify(obj);
-  const raw = window.PDF417.generate(textToEncode, { errorCorrectionLevel: 5 });
-  document.getElementById("rawCodewords").value = raw.join(",");
+  const rawBytes = window.PDF417.raw(textToEncode);
+  document.getElementById("rawCodewords").value = rawBytes.join(",");
 }
 
 function renderInspectorBrowser() {
@@ -321,7 +322,23 @@ function exportPDF() {
 }
 
 function exportSVG() {
-  alert("SVG exporter requires SVG support in encoder. Pending update.");
+  if (!currentState || !currentVersion) return;
+
+  try {
+    const payloadObj = window.buildPayloadObject(currentState, currentVersion, currentFields);
+    const aamvaData = generateAAMVAPayload(currentState, currentVersion, currentFields, payloadObj);
+    const { svg } = window.PDF417.generateSVG(aamvaData, { errorCorrectionLevel: 5, scale: 3 });
+
+    const blob = new Blob([svg], { type: "image/svg+xml" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "barcode.svg";
+    a.click();
+    URL.revokeObjectURL(url);
+  } catch (err) {
+    showError("SVG Export Error: " + err.message);
+  }
 }
 
 
@@ -380,6 +397,7 @@ async function handleJSONImport(e) {
    ============================================================ */
 
 function snapshotHistory(obj) {
+  if (isRestoringSnapshot) return;
   const snap = JSON.stringify(obj);
   historyStack = historyStack.slice(0, historyIndex + 1);
   historyStack.push(snap);
@@ -399,22 +417,27 @@ function redo() {
 }
 
 function restoreSnapshot(snap) {
-  const json = JSON.parse(snap);
+  isRestoringSnapshot = true;
+  try {
+    const json = JSON.parse(snap);
 
-  currentState = json.state;
-  currentVersion = json.version;
+    currentState = json.state;
+    currentVersion = json.version;
 
-  document.getElementById("stateSelect").value = currentState;
-  document.getElementById("versionSelect").value = currentVersion;
+    document.getElementById("stateSelect").value = currentState;
+    document.getElementById("versionSelect").value = currentVersion;
 
-  renderFields();
+    renderFields();
 
-  currentFields.forEach(f => {
-    const el = document.getElementById(f.code);
-    if(el) el.value = json[f.code] || "";
-  });
+    currentFields.forEach(f => {
+      const el = document.getElementById(f.code);
+      if(el) el.value = json[f.code] || "";
+    });
 
-  liveUpdate();
+    liveUpdate();
+  } finally {
+    isRestoringSnapshot = false;
+  }
 }
 
 
