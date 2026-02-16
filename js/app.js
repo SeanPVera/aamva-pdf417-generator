@@ -24,6 +24,7 @@ let currentFields = [];
 let historyStack = [];
 let historyIndex = -1;
 let isRestoringSnapshot = false;
+let snapshotTimer = null;
 
 
 /* ============================================================
@@ -48,6 +49,15 @@ window.addEventListener("DOMContentLoaded", () => {
     populateVersionList();
     hookEvents();
     renderInspectorBrowser();
+
+    // Initialize from default dropdown selections
+    const stateSelect = document.getElementById("stateSelect");
+    const versionSelect = document.getElementById("versionSelect");
+    if (stateSelect.value) currentState = stateSelect.value;
+    if (versionSelect.value) {
+      currentVersion = versionSelect.value;
+      renderFields();
+    }
 
     console.log("App initialization complete.");
   } catch (err) {
@@ -117,6 +127,7 @@ function renderFields() {
     div.appendChild(label);
 
     const input = document.createElement("input");
+    input.type = "text";
     input.id = field.code;
     input.placeholder = field.label;
     div.appendChild(input);
@@ -290,6 +301,12 @@ function renderInspectorBrowser() {
     document.getElementById("versionFields").value =
       window.describeVersion(sel.value);
   });
+
+  // Show initial version description
+  if (sel.value) {
+    document.getElementById("versionFields").value =
+      window.describeVersion(sel.value);
+  }
 }
 
 
@@ -298,6 +315,7 @@ function renderInspectorBrowser() {
    ============================================================ */
 
 function exportPNG() {
+  if (!currentState || !currentVersion) return;
   const c = document.getElementById("barcodeCanvas");
   const a = document.createElement("a");
   a.href = c.toDataURL("image/png");
@@ -306,6 +324,7 @@ function exportPNG() {
 }
 
 function exportPDF() {
+  if (!currentState || !currentVersion) return;
   const c = document.getElementById("barcodeCanvas");
   const img = c.toDataURL("image/png");
 
@@ -359,8 +378,6 @@ async function handleJSONImport(e) {
     const text = await file.text();
     const json = JSON.parse(text);
 
-    if (!validateUnknownFields(json)) return;
-
     if (!window.AAMVA_STATES[json.state]) {
       showError("Invalid state");
       return;
@@ -371,6 +388,7 @@ async function handleJSONImport(e) {
       return;
     }
 
+    // Set version first so currentFields is correct for unknown field validation
     document.getElementById("stateSelect").value = json.state;
     document.getElementById("versionSelect").value = json.version;
 
@@ -379,9 +397,11 @@ async function handleJSONImport(e) {
 
     renderFields();
 
+    if (!validateUnknownFields(json)) return;
+
     currentFields.forEach(f => {
       const el = document.getElementById(f.code);
-      el.value = json[f.code] || "";
+      if (el) el.value = json[f.code] || "";
     });
 
     liveUpdate();
@@ -398,10 +418,15 @@ async function handleJSONImport(e) {
 
 function snapshotHistory(obj) {
   if (isRestoringSnapshot) return;
-  const snap = JSON.stringify(obj);
-  historyStack = historyStack.slice(0, historyIndex + 1);
-  historyStack.push(snap);
-  historyIndex = historyStack.length - 1;
+  clearTimeout(snapshotTimer);
+  snapshotTimer = setTimeout(() => {
+    const snap = JSON.stringify(obj);
+    // Avoid duplicate consecutive snapshots
+    if (historyStack[historyIndex] === snap) return;
+    historyStack = historyStack.slice(0, historyIndex + 1);
+    historyStack.push(snap);
+    historyIndex = historyStack.length - 1;
+  }, 500);
 }
 
 function undo() {

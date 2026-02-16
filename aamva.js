@@ -145,8 +145,9 @@ window.AAMVA_VERSIONS = {
     ]
   },
 
-  "2020": { // AAMVA 2020 uses Version 10 in the header usually, but we key it clearly here or alias
+  "2020": {
     name: "AAMVA 2020 (Version 10)",
+    headerVersion: "10", // AAMVA 2020 uses version number 10 in the header per spec
     fields: [
       { code: "DCA", label: "Jurisdiction-specific vehicle class", type: "string", required: true },
       { code: "DCB", label: "Jurisdiction-specific restriction codes", type: "string", required: true },
@@ -265,8 +266,10 @@ window.generateAAMVAPayload = function(stateCode, version, fields, dataObj) {
   }
 
   const stateDef = window.AAMVA_STATES[stateCode];
+  const versionDef = window.AAMVA_VERSIONS[version];
   const iin = stateDef.IIN;
   const jurisVersion = stateDef.jurisdictionVersion.toString().padStart(2, '0');
+  const headerVersion = (versionDef && versionDef.headerVersion) || version;
 
   // Header
   const compliance = "@";
@@ -276,7 +279,7 @@ window.generateAAMVAPayload = function(stateCode, version, fields, dataObj) {
   const fileType = "ANSI ";
 
   // Header Part 1
-  let header = compliance + dataElementSeparator + recordSeparator + segmentTerminator + fileType + iin + version + jurisVersion;
+  let header = compliance + dataElementSeparator + recordSeparator + segmentTerminator + fileType + iin + headerVersion + jurisVersion;
 
   // Subfiles
   // We only support "DL" (Driver License)

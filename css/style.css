@@ -7,6 +7,9 @@
   --text-color: #000000;
   --sidebar-bg: #f0f0f0;
   --border-color: #cccccc;
+  --error-bg: #ffcccc;
+  --error-text: #cc0000;
+  --error-border: #cc0000;
 }
 
 [data-theme="dark"] {
@@ -14,6 +17,9 @@
   --text-color: #ffffff;
   --sidebar-bg: #252526;
   --border-color: #3e3e3e;
+  --error-bg: #4a1c1c;
+  --error-text: #ff6b6b;
+  --error-border: #ff4444;
 }
 
 [data-theme="dmv"] {
@@ -21,6 +27,9 @@
   --text-color: #003366;
   --sidebar-bg: #b3d9ff;
   --border-color: #00509e;
+  --error-bg: #ffe0e0;
+  --error-text: #990000;
+  --error-border: #cc3333;
 }
 
 body {
@@ -96,10 +105,10 @@ button {
 }
 
 .error-box {
-  background-color: #ffcccc;
-  color: #cc0000;
+  background-color: var(--error-bg);
+  color: var(--error-text);
   padding: 10px;
-  border: 1px solid #cc0000;
+  border: 1px solid var(--error-border);
   display: none;
   margin-bottom: 10px;
 }

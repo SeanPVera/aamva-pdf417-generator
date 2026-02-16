@@ -280,3 +280,112 @@ test("describeVersion returns message for unknown version", () => {
   const desc = window.describeVersion("99");
   assert.equal(desc, "Unknown version");
 });
+
+/* ============================================================
+   VERSION 2020 HEADER ENCODING
+   ============================================================ */
+
+test("version 2020 has headerVersion property set to '10'", () => {
+  const def = window.AAMVA_VERSIONS["2020"];
+  assert.ok(def, "Version 2020 should exist");
+  assert.equal(def.headerVersion, "10", "Should use version 10 in header");
+});
+
+test("generateAAMVAPayload emits 2-char version for version 2020", () => {
+  const fields = window.getFieldsForVersion("2020");
+  const dataObj = { state: "CA", version: "2020" };
+  fields.forEach(f => { dataObj[f.code] = ""; });
+  dataObj.DCA = "C";
+  dataObj.DCB = "NONE";
+  dataObj.DCD = "NONE";
+  dataObj.DBA = "20301231";
+  dataObj.DCS = "DOE";
+  dataObj.DAC = "JOHN";
+  dataObj.DBB = "19850515";
+  dataObj.DBC = "1";
+  dataObj.DAY = "BRO";
+  dataObj.DAU = "510";
+  dataObj.DAG = "456 OAK AVE";
+  dataObj.DAI = "LOS ANGELES";
+  dataObj.DAJ = "CA";
+  dataObj.DAK = "90001";
+  dataObj.DAQ = "D1234567";
+  dataObj.DCF = "00000000";
+  dataObj.DCG = "USA";
+
+  const payload = window.generateAAMVAPayload("CA", "2020", fields, dataObj);
+
+  // Header: @\n\x1e\rANSI  + IIN(6) + version(2) + jurisVersion(2)
+  // Version in header should be "10" (2 chars), not "2020" (4 chars)
+  const headerVersion = payload.substring(15, 17);
+  assert.equal(headerVersion, "10", "Header should contain version '10', not '2020'");
+
+  // Total header before numEntries should be exactly 19 chars
+  // @(1) + \n(1) + \x1e(1) + \r(1) + "ANSI "(5) + IIN(6) + ver(2) + jver(2) = 19
+  const fileType = payload.substring(4, 9);
+  assert.equal(fileType, "ANSI ", "File type should be 'ANSI '");
+});
+
+test("decoder round-trips version 2020 payloads", () => {
+  const fields = window.getFieldsForVersion("2020");
+  const dataObj = { state: "NY", version: "2020" };
+  fields.forEach(f => { dataObj[f.code] = ""; });
+  dataObj.DCA = "D";
+  dataObj.DCB = "NONE";
+  dataObj.DCD = "NONE";
+  dataObj.DBA = "20301231";
+  dataObj.DCS = "SMITH";
+  dataObj.DAC = "JANE";
+  dataObj.DBB = "19900101";
+  dataObj.DBC = "2";
+  dataObj.DAY = "BLU";
+  dataObj.DAU = "504";
+  dataObj.DAG = "789 ELM ST";
+  dataObj.DAI = "BUFFALO";
+  dataObj.DAJ = "NY";
+  dataObj.DAK = "14201";
+  dataObj.DAQ = "S9876543";
+  dataObj.DCF = "11111111";
+  dataObj.DCG = "USA";
+
+  const payload = window.generateAAMVAPayload("NY", "2020", fields, dataObj);
+  const result = window.AAMVA_DECODER.decode(payload);
+
+  assert.ok(result.ok, "Should decode successfully");
+  assert.equal(result.json.DCS, "SMITH");
+  assert.equal(result.json.DAC, "JANE");
+  // Decoder extracts the header version "10", not the key "2020"
+  assert.equal(result.json.version, "10");
+});
+
+/* ============================================================
+   PAYLOAD HEADER STRUCTURE
+   ============================================================ */
+
+test("payload header has correct fixed-length structure", () => {
+  const fields = window.getFieldsForVersion("09");
+  const dataObj = { state: "NY", version: "09" };
+  fields.forEach(f => { dataObj[f.code] = ""; });
+  dataObj.DAA = "TEST";
+  dataObj.DCS = "TEST";
+  dataObj.DAC = "TEST";
+  dataObj.DBA = "20301231";
+  dataObj.DBB = "19900101";
+  dataObj.DBC = "1";
+  dataObj.DAG = "123 MAIN";
+  dataObj.DAI = "CITY";
+  dataObj.DAJ = "NY";
+  dataObj.DAK = "10001";
+  dataObj.DAQ = "L12345";
+
+  const payload = window.generateAAMVAPayload("NY", "09", fields, dataObj);
+
+  // Verify header offsets
+  assert.equal(payload.charAt(0), "@", "Byte 0: compliance indicator");
+  assert.equal(payload.charAt(1), "\n", "Byte 1: data element separator");
+  assert.equal(payload.charAt(2), "\x1e", "Byte 2: record separator");
+  assert.equal(payload.charAt(3), "\r", "Byte 3: segment terminator");
+  assert.equal(payload.substring(4, 9), "ANSI ", "Bytes 4-8: file type");
+  assert.equal(payload.substring(9, 15), "636031", "Bytes 9-14: NY IIN");
+  assert.equal(payload.substring(15, 17), "09", "Bytes 15-16: version");
+});
