@@ -257,12 +257,19 @@ window.generateAAMVAPayload = function(stateCode, version, fields, dataObj) {
   const missing = [];
   mandatoryFields.forEach(f => {
     if (!dataObj[f.code]) {
-      missing.push(f.code);
+      missing.push(`${f.label} (${f.code})`);
     }
   });
 
   if (missing.length > 0) {
     throw new Error(`Missing mandatory fields for ${stateCode} (v${version}): ${missing.join(", ")}`);
+  }
+
+  // Sanitize: strip control characters from all field values before encoding
+  for (const field of fields) {
+    if (dataObj[field.code]) {
+      dataObj[field.code] = dataObj[field.code].replace(/[\x00-\x1f\x7f]/g, "");
+    }
   }
 
   const stateDef = window.AAMVA_STATES[stateCode];

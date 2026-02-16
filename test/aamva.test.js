@@ -389,3 +389,62 @@ test("payload header has correct fixed-length structure", () => {
   assert.equal(payload.substring(9, 15), "636031", "Bytes 9-14: NY IIN");
   assert.equal(payload.substring(15, 17), "09", "Bytes 15-16: version");
 });
+
+/* ============================================================
+   INPUT SANITIZATION
+   ============================================================ */
+
+test("generateAAMVAPayload strips control characters from field values", () => {
+  const fields = window.getFieldsForVersion("09");
+  const dataObj = { state: "CA", version: "09" };
+  fields.forEach(f => { dataObj[f.code] = ""; });
+  dataObj.DAA = "DOE\x00,JOHN\x1F";
+  dataObj.DCS = "DOE\x0D";
+  dataObj.DAC = "JOHN";
+  dataObj.DBA = "20301231";
+  dataObj.DBB = "19850515";
+  dataObj.DBC = "1";
+  dataObj.DAG = "456 OAK AVE";
+  dataObj.DAI = "LOS ANGELES";
+  dataObj.DAJ = "CA";
+  dataObj.DAK = "90001";
+  dataObj.DAQ = "D1234567";
+
+  const payload = window.generateAAMVAPayload("CA", "09", fields, dataObj);
+
+  // Control chars should be stripped — verify the field values don't contain them
+  assert.ok(!payload.includes("\x00"), "Should not contain null byte");
+  // \x0D (\r) is used as segment terminator but should be stripped from field data
+  assert.ok(payload.includes("DAADOE,JOHN"), "Should contain sanitized name without control chars");
+  assert.ok(payload.includes("DCSDOE"), "Should contain sanitized last name");
+});
+
+test("error messages include field labels", () => {
+  const fields = window.getFieldsForVersion("09");
+  const dataObj = { state: "NY", version: "09" };
+  // Leave all required fields empty
+  fields.forEach(f => { dataObj[f.code] = ""; });
+
+  try {
+    window.generateAAMVAPayload("NY", "09", fields, dataObj);
+    assert.fail("Should have thrown");
+  } catch (err) {
+    // Error should contain human-readable labels like "Full Name (DAA)"
+    assert.ok(err.message.includes("Full Name (DAA)"), "Should include field label and code");
+    assert.ok(err.message.includes("Last Name (DCS)"), "Should include Last Name label");
+  }
+});
+
+/* ============================================================
+   FIELD VALIDATION EDGE CASES
+   ============================================================ */
+
+test("validateFieldValue rejects multi-char for char type", () => {
+  const field = { code: "DBC", type: "char", required: true };
+  assert.equal(window.validateFieldValue(field, "MF"), false, "Should reject multi-char");
+});
+
+test("validateFieldValue rejects lowercase for char type", () => {
+  const field = { code: "DBC", type: "char", required: true };
+  assert.equal(window.validateFieldValue(field, "m"), false, "Should reject lowercase");
+});
