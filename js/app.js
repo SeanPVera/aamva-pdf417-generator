@@ -93,7 +93,7 @@ function populateStateList() {
         opt.disabled = true;
       } else {
         opt.value = code;
-        opt.textContent = code;
+        opt.textContent = `${code} (v${meta.aamvaVersion})`;
       }
 
       sel.appendChild(opt);
@@ -166,6 +166,15 @@ function renderFields() {
 function hookEvents() {
   document.getElementById("stateSelect").addEventListener("change", e => {
     currentState = e.target.value;
+
+    // Auto-select the AAMVA version for this state
+    const stateVersion = window.getVersionForState(currentState);
+    if (stateVersion && window.AAMVA_VERSIONS[stateVersion]) {
+      document.getElementById("versionSelect").value = stateVersion;
+      currentVersion = stateVersion;
+      renderFields();
+    }
+
     liveUpdate();
     saveToLocalStorage();
   });
@@ -736,9 +745,16 @@ function restoreFromLocalStorage() {
       // No saved data — initialize from dropdown defaults
       const stateSelect = document.getElementById("stateSelect");
       const versionSelect = document.getElementById("versionSelect");
-      if (stateSelect.value) currentState = stateSelect.value;
-      if (versionSelect.value) {
-        currentVersion = versionSelect.value;
+      if (stateSelect.value) {
+        currentState = stateSelect.value;
+        // Auto-select version for the default state
+        const stateVersion = window.getVersionForState(currentState);
+        if (stateVersion && window.AAMVA_VERSIONS[stateVersion]) {
+          versionSelect.value = stateVersion;
+          currentVersion = stateVersion;
+        }
+      }
+      if (currentVersion) {
         renderFields();
       }
       return;
@@ -772,9 +788,15 @@ function restoreFromLocalStorage() {
     // If restore fails, initialize from defaults
     const stateSelect = document.getElementById("stateSelect");
     const versionSelect = document.getElementById("versionSelect");
-    if (stateSelect.value) currentState = stateSelect.value;
-    if (versionSelect.value) {
-      currentVersion = versionSelect.value;
+    if (stateSelect.value) {
+      currentState = stateSelect.value;
+      const stateVersion = window.getVersionForState(currentState);
+      if (stateVersion && window.AAMVA_VERSIONS[stateVersion]) {
+        versionSelect.value = stateVersion;
+        currentVersion = stateVersion;
+      }
+    }
+    if (currentVersion) {
       renderFields();
     }
   }

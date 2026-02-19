@@ -30,17 +30,40 @@ test("all 50 states + DC have valid IIN definitions", () => {
   }
 });
 
+test("states have correct official AAMVA IINs", () => {
+  // Spot-check against official AAMVA IIN registry
+  assert.equal(window.AAMVA_STATES.VA.IIN, "636000", "Virginia = 636000");
+  assert.equal(window.AAMVA_STATES.NY.IIN, "636001", "New York = 636001");
+  assert.equal(window.AAMVA_STATES.CA.IIN, "636014", "California = 636014");
+  assert.equal(window.AAMVA_STATES.TX.IIN, "636015", "Texas = 636015");
+  assert.equal(window.AAMVA_STATES.FL.IIN, "636010", "Florida = 636010");
+  assert.equal(window.AAMVA_STATES.IL.IIN, "636035", "Illinois = 636035");
+  assert.equal(window.AAMVA_STATES.OH.IIN, "636023", "Ohio = 636023");
+  assert.equal(window.AAMVA_STATES.PA.IIN, "636025", "Pennsylvania = 636025");
+  assert.equal(window.AAMVA_STATES.GA.IIN, "636055", "Georgia = 636055");
+  assert.equal(window.AAMVA_STATES.DC.IIN, "636043", "DC = 636043");
+});
+
+test("all states have an aamvaVersion property", () => {
+  for (const [code, def] of Object.entries(window.AAMVA_STATES)) {
+    if (!def) continue;
+    assert.ok(def.aamvaVersion, `State ${code} should have aamvaVersion`);
+    assert.ok(window.AAMVA_VERSIONS[def.aamvaVersion],
+      `State ${code} aamvaVersion "${def.aamvaVersion}" should be a valid version`);
+  }
+});
+
 test("DC and UT have different IINs", () => {
   const dc = window.AAMVA_STATES.DC;
   const ut = window.AAMVA_STATES.UT;
   assert.notEqual(dc.IIN, ut.IIN, "DC and UT must have different IINs");
 });
 
-test("unsupported territories are null", () => {
-  assert.equal(window.AAMVA_STATES.AS, null);
-  assert.equal(window.AAMVA_STATES.GU, null);
-  assert.equal(window.AAMVA_STATES.VI, null);
-  assert.equal(window.AAMVA_STATES.PR, null);
+test("territories have IINs", () => {
+  assert.ok(window.AAMVA_STATES.AS.IIN, "American Samoa should have IIN");
+  assert.ok(window.AAMVA_STATES.GU.IIN, "Guam should have IIN");
+  assert.ok(window.AAMVA_STATES.VI.IIN, "Virgin Islands should have IIN");
+  assert.ok(window.AAMVA_STATES.PR.IIN, "Puerto Rico should have IIN");
 });
 
 test("no duplicate IINs across states", () => {
@@ -57,6 +80,13 @@ test("no duplicate IINs across states", () => {
 /* ============================================================
    AAMVA VERSION DEFINITIONS
    ============================================================ */
+
+test("versions 01 through 10 are defined", () => {
+  for (let i = 1; i <= 10; i++) {
+    const key = i.toString().padStart(2, "0");
+    assert.ok(window.AAMVA_VERSIONS[key], `Version ${key} should be defined`);
+  }
+});
 
 test("all versions have fields defined", () => {
   for (const [ver, def] of Object.entries(window.AAMVA_VERSIONS)) {
@@ -75,6 +105,44 @@ test("all fields have required properties", () => {
       assert.match(field.code, /^[A-Z]{2}[A-Z0-9]$/, `Field code ${field.code} should be 3 uppercase chars`);
     }
   }
+});
+
+test("version 01 uses DAA (full name) instead of split names", () => {
+  const fields = window.getFieldsForVersion("01");
+  assert.ok(fields.some(f => f.code === "DAA"), "Version 01 should have DAA (Full Name)");
+  assert.ok(!fields.some(f => f.code === "DCS"), "Version 01 should NOT have DCS");
+});
+
+test("versions 04+ have truncation indicators", () => {
+  for (const ver of ["04", "05", "06", "07", "08", "09", "10"]) {
+    const fields = window.getFieldsForVersion(ver);
+    assert.ok(fields.some(f => f.code === "DDE"), `Version ${ver} should have DDE`);
+    assert.ok(fields.some(f => f.code === "DDF"), `Version ${ver} should have DDF`);
+    assert.ok(fields.some(f => f.code === "DDG"), `Version ${ver} should have DDG`);
+  }
+});
+
+test("versions 08+ have organ donor and veteran indicators", () => {
+  for (const ver of ["08", "09", "10"]) {
+    const fields = window.getFieldsForVersion(ver);
+    assert.ok(fields.some(f => f.code === "DDK"), `Version ${ver} should have DDK (Organ Donor)`);
+    assert.ok(fields.some(f => f.code === "DDL"), `Version ${ver} should have DDL (Veteran)`);
+  }
+});
+
+/* ============================================================
+   STATE-TO-VERSION AUTO-SELECTION
+   ============================================================ */
+
+test("getVersionForState returns correct version", () => {
+  assert.equal(window.getVersionForState("VA"), "10", "VA should use version 10");
+  assert.equal(window.getVersionForState("CA"), "10", "CA should use version 10");
+  assert.equal(window.getVersionForState("AL"), "09", "AL should use version 09");
+  assert.equal(window.getVersionForState("MT"), "09", "MT should use version 09");
+});
+
+test("getVersionForState returns null for unknown state", () => {
+  assert.equal(window.getVersionForState("XX"), null);
 });
 
 /* ============================================================
@@ -165,53 +233,74 @@ test("PDF417.generateSVG returns SVG string and matrix", () => {
    AAMVA PAYLOAD GENERATION
    ============================================================ */
 
-test("generateAAMVAPayload produces valid AAMVA header", () => {
-  // Stub document.getElementById for buildPayloadObject
-  const fields = window.getFieldsForVersion("09");
-  const dataObj = { state: "NY", version: "09" };
+function makeTestData(state, version) {
+  const fields = window.getFieldsForVersion(version);
+  const dataObj = { state: state, version: version };
   fields.forEach(f => { dataObj[f.code] = ""; });
-  // Fill required fields with test data
-  dataObj.DAA = "VERA,SEAN";
+  return { fields, dataObj };
+}
+
+function fillV09TestData(dataObj) {
+  dataObj.DCA = "D";
+  dataObj.DCB = "NONE";
+  dataObj.DCD = "NONE";
+  dataObj.DBA = "20301231";
   dataObj.DCS = "VERA";
   dataObj.DAC = "SEAN";
-  dataObj.DBA = "20301231";
+  dataObj.DAD = "M";
+  dataObj.DBD = "20200101";
   dataObj.DBB = "19900101";
   dataObj.DBC = "1";
+  dataObj.DAY = "BRO";
+  dataObj.DAU = "510";
   dataObj.DAG = "123 MAIN ST";
   dataObj.DAI = "NEW YORK";
   dataObj.DAJ = "NY";
   dataObj.DAK = "10001";
   dataObj.DAQ = "V12345678";
+  dataObj.DCF = "00000000";
+  dataObj.DCG = "USA";
+  dataObj.DDE = "N";
+  dataObj.DDF = "N";
+  dataObj.DDG = "N";
+}
 
-  const payload = window.generateAAMVAPayload("NY", "09", fields, dataObj);
+test("generateAAMVAPayload produces valid AAMVA header", () => {
+  const { fields, dataObj } = makeTestData("NY", "10");
+  fillV09TestData(dataObj);
+
+  const payload = window.generateAAMVAPayload("NY", "10", fields, dataObj);
 
   assert.ok(payload.startsWith("@"), "Should start with @ compliance indicator");
   assert.ok(payload.includes("ANSI "), "Should contain ANSI file type");
-  assert.ok(payload.includes("636031"), "Should contain NY IIN");
+  assert.ok(payload.includes("636001"), "Should contain NY IIN (636001)");
   assert.ok(payload.includes("DL"), "Should contain DL subfile type");
 });
 
 test("generateAAMVAPayload includes field values", () => {
-  const fields = window.getFieldsForVersion("09");
-  const dataObj = { state: "CA", version: "09" };
-  fields.forEach(f => { dataObj[f.code] = ""; });
-  dataObj.DAA = "DOE,JOHN";
+  const { fields, dataObj } = makeTestData("CA", "10");
+  fillV09TestData(dataObj);
   dataObj.DCS = "DOE";
   dataObj.DAC = "JOHN";
-  dataObj.DBA = "20301231";
-  dataObj.DBB = "19850515";
-  dataObj.DBC = "1";
-  dataObj.DAG = "456 OAK AVE";
-  dataObj.DAI = "LOS ANGELES";
-  dataObj.DAJ = "CA";
-  dataObj.DAK = "90001";
   dataObj.DAQ = "D1234567";
 
-  const payload = window.generateAAMVAPayload("CA", "09", fields, dataObj);
+  const payload = window.generateAAMVAPayload("CA", "10", fields, dataObj);
 
   assert.ok(payload.includes("DCSDOE"), "Should contain last name field");
   assert.ok(payload.includes("DACJOHN"), "Should contain first name field");
-  assert.ok(payload.includes("DAQ" + "D1234567"), "Should contain license number");
+  assert.ok(payload.includes("DAQD1234567"), "Should contain license number");
+});
+
+test("generateAAMVAPayload uses correct IIN for each state", () => {
+  const { fields, dataObj } = makeTestData("VA", "10");
+  fillV09TestData(dataObj);
+  const payload = window.generateAAMVAPayload("VA", "10", fields, dataObj);
+  assert.ok(payload.includes("636000"), "VA payload should contain IIN 636000");
+
+  const { fields: fields2, dataObj: dataObj2 } = makeTestData("TX", "10");
+  fillV09TestData(dataObj2);
+  const payload2 = window.generateAAMVAPayload("TX", "10", fields2, dataObj2);
+  assert.ok(payload2.includes("636015"), "TX payload should contain IIN 636015");
 });
 
 /* ============================================================
@@ -219,28 +308,16 @@ test("generateAAMVAPayload includes field values", () => {
    ============================================================ */
 
 test("decoder handles AAMVA-format payloads", () => {
-  const fields = window.getFieldsForVersion("09");
-  const dataObj = { state: "NY", version: "09" };
-  fields.forEach(f => { dataObj[f.code] = ""; });
-  dataObj.DCS = "VERA";
-  dataObj.DAC = "SEAN";
-  dataObj.DAA = "VERA,SEAN";
-  dataObj.DBA = "20301231";
-  dataObj.DBB = "19900101";
-  dataObj.DBC = "1";
-  dataObj.DAG = "123 MAIN ST";
-  dataObj.DAI = "NEW YORK";
-  dataObj.DAJ = "NY";
-  dataObj.DAK = "10001";
-  dataObj.DAQ = "V12345678";
+  const { fields, dataObj } = makeTestData("NY", "10");
+  fillV09TestData(dataObj);
 
-  const payload = window.generateAAMVAPayload("NY", "09", fields, dataObj);
+  const payload = window.generateAAMVAPayload("NY", "10", fields, dataObj);
   const result = window.AAMVA_DECODER.decode(payload);
 
   assert.ok(result.ok, "Should decode successfully");
   assert.equal(result.json.DCS, "VERA");
   assert.equal(result.json.DAC, "SEAN");
-  assert.equal(result.json.version, "09");
+  assert.equal(result.json.version, "10");
 });
 
 test("decoder falls back to JSON for legacy format", () => {
@@ -260,7 +337,7 @@ test("decoder returns error for invalid input", () => {
    ============================================================ */
 
 test("getFieldsForVersion returns fields for valid version", () => {
-  const fields = window.getFieldsForVersion("08");
+  const fields = window.getFieldsForVersion("09");
   assert.ok(fields.length > 0);
   assert.ok(fields.some(f => f.code === "DCS"));
 });
@@ -272,8 +349,8 @@ test("getFieldsForVersion returns empty for unknown version", () => {
 
 test("describeVersion returns formatted string", () => {
   const desc = window.describeVersion("09");
-  assert.ok(desc.includes("2009"));
-  assert.ok(desc.includes("DAA"));
+  assert.ok(desc.includes("2016"));
+  assert.ok(desc.includes("DCS"));
 });
 
 test("describeVersion returns message for unknown version", () => {
@@ -282,103 +359,14 @@ test("describeVersion returns message for unknown version", () => {
 });
 
 /* ============================================================
-   VERSION 2020 HEADER ENCODING
-   ============================================================ */
-
-test("version 2020 has headerVersion property set to '10'", () => {
-  const def = window.AAMVA_VERSIONS["2020"];
-  assert.ok(def, "Version 2020 should exist");
-  assert.equal(def.headerVersion, "10", "Should use version 10 in header");
-});
-
-test("generateAAMVAPayload emits 2-char version for version 2020", () => {
-  const fields = window.getFieldsForVersion("2020");
-  const dataObj = { state: "CA", version: "2020" };
-  fields.forEach(f => { dataObj[f.code] = ""; });
-  dataObj.DCA = "C";
-  dataObj.DCB = "NONE";
-  dataObj.DCD = "NONE";
-  dataObj.DBA = "20301231";
-  dataObj.DCS = "DOE";
-  dataObj.DAC = "JOHN";
-  dataObj.DBB = "19850515";
-  dataObj.DBC = "1";
-  dataObj.DAY = "BRO";
-  dataObj.DAU = "510";
-  dataObj.DAG = "456 OAK AVE";
-  dataObj.DAI = "LOS ANGELES";
-  dataObj.DAJ = "CA";
-  dataObj.DAK = "90001";
-  dataObj.DAQ = "D1234567";
-  dataObj.DCF = "00000000";
-  dataObj.DCG = "USA";
-
-  const payload = window.generateAAMVAPayload("CA", "2020", fields, dataObj);
-
-  // Header: @\n\x1e\rANSI  + IIN(6) + version(2) + jurisVersion(2)
-  // Version in header should be "10" (2 chars), not "2020" (4 chars)
-  const headerVersion = payload.substring(15, 17);
-  assert.equal(headerVersion, "10", "Header should contain version '10', not '2020'");
-
-  // Total header before numEntries should be exactly 19 chars
-  // @(1) + \n(1) + \x1e(1) + \r(1) + "ANSI "(5) + IIN(6) + ver(2) + jver(2) = 19
-  const fileType = payload.substring(4, 9);
-  assert.equal(fileType, "ANSI ", "File type should be 'ANSI '");
-});
-
-test("decoder round-trips version 2020 payloads", () => {
-  const fields = window.getFieldsForVersion("2020");
-  const dataObj = { state: "NY", version: "2020" };
-  fields.forEach(f => { dataObj[f.code] = ""; });
-  dataObj.DCA = "D";
-  dataObj.DCB = "NONE";
-  dataObj.DCD = "NONE";
-  dataObj.DBA = "20301231";
-  dataObj.DCS = "SMITH";
-  dataObj.DAC = "JANE";
-  dataObj.DBB = "19900101";
-  dataObj.DBC = "2";
-  dataObj.DAY = "BLU";
-  dataObj.DAU = "504";
-  dataObj.DAG = "789 ELM ST";
-  dataObj.DAI = "BUFFALO";
-  dataObj.DAJ = "NY";
-  dataObj.DAK = "14201";
-  dataObj.DAQ = "S9876543";
-  dataObj.DCF = "11111111";
-  dataObj.DCG = "USA";
-
-  const payload = window.generateAAMVAPayload("NY", "2020", fields, dataObj);
-  const result = window.AAMVA_DECODER.decode(payload);
-
-  assert.ok(result.ok, "Should decode successfully");
-  assert.equal(result.json.DCS, "SMITH");
-  assert.equal(result.json.DAC, "JANE");
-  // Decoder extracts the header version "10", not the key "2020"
-  assert.equal(result.json.version, "10");
-});
-
-/* ============================================================
    PAYLOAD HEADER STRUCTURE
    ============================================================ */
 
 test("payload header has correct fixed-length structure", () => {
-  const fields = window.getFieldsForVersion("09");
-  const dataObj = { state: "NY", version: "09" };
-  fields.forEach(f => { dataObj[f.code] = ""; });
-  dataObj.DAA = "TEST";
-  dataObj.DCS = "TEST";
-  dataObj.DAC = "TEST";
-  dataObj.DBA = "20301231";
-  dataObj.DBB = "19900101";
-  dataObj.DBC = "1";
-  dataObj.DAG = "123 MAIN";
-  dataObj.DAI = "CITY";
-  dataObj.DAJ = "NY";
-  dataObj.DAK = "10001";
-  dataObj.DAQ = "L12345";
+  const { fields, dataObj } = makeTestData("NY", "10");
+  fillV09TestData(dataObj);
 
-  const payload = window.generateAAMVAPayload("NY", "09", fields, dataObj);
+  const payload = window.generateAAMVAPayload("NY", "10", fields, dataObj);
 
   // Verify header offsets
   assert.equal(payload.charAt(0), "@", "Byte 0: compliance indicator");
@@ -386,8 +374,8 @@ test("payload header has correct fixed-length structure", () => {
   assert.equal(payload.charAt(2), "\x1e", "Byte 2: record separator");
   assert.equal(payload.charAt(3), "\r", "Byte 3: segment terminator");
   assert.equal(payload.substring(4, 9), "ANSI ", "Bytes 4-8: file type");
-  assert.equal(payload.substring(9, 15), "636031", "Bytes 9-14: NY IIN");
-  assert.equal(payload.substring(15, 17), "09", "Bytes 15-16: version");
+  assert.equal(payload.substring(9, 15), "636001", "Bytes 9-14: NY IIN");
+  assert.equal(payload.substring(15, 17), "10", "Bytes 15-16: version");
 });
 
 /* ============================================================
@@ -395,43 +383,29 @@ test("payload header has correct fixed-length structure", () => {
    ============================================================ */
 
 test("generateAAMVAPayload strips control characters from field values", () => {
-  const fields = window.getFieldsForVersion("09");
-  const dataObj = { state: "CA", version: "09" };
-  fields.forEach(f => { dataObj[f.code] = ""; });
-  dataObj.DAA = "DOE\x00,JOHN\x1F";
+  const { fields, dataObj } = makeTestData("CA", "10");
+  fillV09TestData(dataObj);
   dataObj.DCS = "DOE\x0D";
   dataObj.DAC = "JOHN";
-  dataObj.DBA = "20301231";
-  dataObj.DBB = "19850515";
-  dataObj.DBC = "1";
-  dataObj.DAG = "456 OAK AVE";
-  dataObj.DAI = "LOS ANGELES";
-  dataObj.DAJ = "CA";
-  dataObj.DAK = "90001";
   dataObj.DAQ = "D1234567";
 
-  const payload = window.generateAAMVAPayload("CA", "09", fields, dataObj);
+  const payload = window.generateAAMVAPayload("CA", "10", fields, dataObj);
 
-  // Control chars should be stripped — verify the field values don't contain them
+  // Control chars should be stripped
   assert.ok(!payload.includes("\x00"), "Should not contain null byte");
-  // \x0D (\r) is used as segment terminator but should be stripped from field data
-  assert.ok(payload.includes("DAADOE,JOHN"), "Should contain sanitized name without control chars");
   assert.ok(payload.includes("DCSDOE"), "Should contain sanitized last name");
 });
 
 test("error messages include field labels", () => {
-  const fields = window.getFieldsForVersion("09");
-  const dataObj = { state: "NY", version: "09" };
+  const { fields, dataObj } = makeTestData("NY", "10");
   // Leave all required fields empty
-  fields.forEach(f => { dataObj[f.code] = ""; });
 
   try {
-    window.generateAAMVAPayload("NY", "09", fields, dataObj);
+    window.generateAAMVAPayload("NY", "10", fields, dataObj);
     assert.fail("Should have thrown");
   } catch (err) {
-    // Error should contain human-readable labels like "Full Name (DAA)"
-    assert.ok(err.message.includes("Full Name (DAA)"), "Should include field label and code");
-    assert.ok(err.message.includes("Last Name (DCS)"), "Should include Last Name label");
+    assert.ok(err.message.includes("Vehicle Class (DCA)"), "Should include field label and code");
+    assert.ok(err.message.includes("Customer Family Name (DCS)"), "Should include family name label");
   }
 });
 
@@ -447,4 +421,22 @@ test("validateFieldValue rejects multi-char for char type", () => {
 test("validateFieldValue rejects lowercase for char type", () => {
   const field = { code: "DBC", type: "char", required: true };
   assert.equal(window.validateFieldValue(field, "m"), false, "Should reject lowercase");
+});
+
+/* ============================================================
+   VERSION-SPECIFIC FIELD COUNTS
+   ============================================================ */
+
+test("version 01 has fewer fields than version 10", () => {
+  const v01 = window.getFieldsForVersion("01");
+  const v10 = window.getFieldsForVersion("10");
+  assert.ok(v01.length < v10.length,
+    `Version 01 (${v01.length} fields) should have fewer than version 10 (${v10.length} fields)`);
+});
+
+test("mandatory field count increases across versions", () => {
+  const v01mandatory = window.getFieldsForVersion("01").filter(f => f.required).length;
+  const v10mandatory = window.getFieldsForVersion("10").filter(f => f.required).length;
+  assert.ok(v10mandatory > v01mandatory,
+    `Version 10 mandatory (${v10mandatory}) should exceed version 01 (${v01mandatory})`);
 });

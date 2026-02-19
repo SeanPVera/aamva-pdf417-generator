@@ -1,183 +1,436 @@
 /*
- * AAMVA Specification Handler — Deluxe Edition
+ * AAMVA Specification Handler
  * Provides:
- * - State metadata
- * - AAMVA v09/v10 field definitions
+ * - State metadata (official IINs from AAMVA)
+ * - AAMVA version definitions (01-10) with correct mandatory/optional fields
+ * - Auto-selection of AAMVA version by state
  * - Schema loader
  * - Field inspectors
  * - Version browser support
  * - Payload generator (AAMVA compliant)
+ *
+ * IIN data source: https://www.aamva.org/identity/issuer-identification-numbers-(iin)
+ * Version history:
+ *   01 = AAMVA DL/ID-2000
+ *   02 = AAMVA CDS 1.0, 09-2003
+ *   03 = AAMVA CDS 2.0, 03-2005
+ *   04 = AAMVA CDS 1.0, 07-2009
+ *   05 = AAMVA CDS 1.0, 07-2010
+ *   06 = AAMVA CDS 1.0, 07-2011
+ *   07 = AAMVA CDS 1.0, 06-2012
+ *   08 = AAMVA CDS 1.0, 08-2013
+ *   09 = AAMVA DL/ID-2016
+ *   10 = AAMVA DL/ID-2020
  */
 
 /* ========== STATE DEFINITIONS ========== */
+// IINs sourced from official AAMVA Issuer Identification Numbers registry.
+// aamvaVersion = the AAMVA CDS version currently used by each state for
+// newly-issued credentials. Most states now issue on version 10 (2020 CDS).
+// States known to still use version 09 (2016 CDS) are noted.
 
 window.AAMVA_STATES = {
-  AL: { IIN: "636000", jurisdictionVersion: 8 },
-  AK: { IIN: "636001", jurisdictionVersion: 8 },
-  AZ: { IIN: "636002", jurisdictionVersion: 8 },
-  AR: { IIN: "636003", jurisdictionVersion: 8 },
-  CA: { IIN: "636004", jurisdictionVersion: 8 },
-  CO: { IIN: "636005", jurisdictionVersion: 8 },
-  CT: { IIN: "636006", jurisdictionVersion: 8 },
-  DE: { IIN: "636007", jurisdictionVersion: 8 },
-  FL: { IIN: "636008", jurisdictionVersion: 8 },
-  GA: { IIN: "636009", jurisdictionVersion: 8 },
-  HI: { IIN: "636010", jurisdictionVersion: 8 },
-  ID: { IIN: "636011", jurisdictionVersion: 8 },
-  IL: { IIN: "636012", jurisdictionVersion: 8 },
-  IN: { IIN: "636013", jurisdictionVersion: 8 },
-  IA: { IIN: "636014", jurisdictionVersion: 8 },
-  KS: { IIN: "636015", jurisdictionVersion: 8 },
-  KY: { IIN: "636016", jurisdictionVersion: 8 },
-  LA: { IIN: "636017", jurisdictionVersion: 8 },
-  ME: { IIN: "636018", jurisdictionVersion: 8 },
-  MD: { IIN: "636019", jurisdictionVersion: 8 },
-  MA: { IIN: "636020", jurisdictionVersion: 8 },
-  MI: { IIN: "636021", jurisdictionVersion: 8 },
-  MN: { IIN: "636022", jurisdictionVersion: 8 },
-  MS: { IIN: "636023", jurisdictionVersion: 8 },
-  MO: { IIN: "636024", jurisdictionVersion: 8 },
-  MT: { IIN: "636025", jurisdictionVersion: 8 },
-  NE: { IIN: "636026", jurisdictionVersion: 8 },
-  NV: { IIN: "636027", jurisdictionVersion: 8 },
-  NH: { IIN: "636028", jurisdictionVersion: 8 },
-  NJ: { IIN: "636029", jurisdictionVersion: 8 },
-  NM: { IIN: "636030", jurisdictionVersion: 8 },
-  NY: { IIN: "636031", jurisdictionVersion: 8 },
-  NC: { IIN: "636032", jurisdictionVersion: 8 },
-  ND: { IIN: "636033", jurisdictionVersion: 8 },
-  OH: { IIN: "636034", jurisdictionVersion: 8 },
-  OK: { IIN: "636035", jurisdictionVersion: 8 },
-  OR: { IIN: "636036", jurisdictionVersion: 8 },
-  PA: { IIN: "636037", jurisdictionVersion: 8 },
-  RI: { IIN: "636038", jurisdictionVersion: 8 },
-  SC: { IIN: "636039", jurisdictionVersion: 8 },
-  SD: { IIN: "636040", jurisdictionVersion: 8 },
-  TN: { IIN: "636041", jurisdictionVersion: 8 },
-  TX: { IIN: "636042", jurisdictionVersion: 8 },
-  UT: { IIN: "636043", jurisdictionVersion: 8 },
-  VT: { IIN: "636044", jurisdictionVersion: 8 },
-  VA: { IIN: "636045", jurisdictionVersion: 8 },
-  WA: { IIN: "636046", jurisdictionVersion: 8 },
-  WV: { IIN: "636047", jurisdictionVersion: 8 },
-  WI: { IIN: "636048", jurisdictionVersion: 8 },
-  WY: { IIN: "636049", jurisdictionVersion: 8 },
-  DC: { IIN: "636050", jurisdictionVersion: 8 },
+  AL: { IIN: "636033", aamvaVersion: "09" },
+  AK: { IIN: "636059", aamvaVersion: "09" },
+  AZ: { IIN: "636026", aamvaVersion: "10" },
+  AR: { IIN: "636021", aamvaVersion: "09" },
+  CA: { IIN: "636014", aamvaVersion: "10" },
+  CO: { IIN: "636020", aamvaVersion: "10" },
+  CT: { IIN: "636006", aamvaVersion: "09" },
+  DE: { IIN: "636011", aamvaVersion: "09" },
+  FL: { IIN: "636010", aamvaVersion: "10" },
+  GA: { IIN: "636055", aamvaVersion: "10" },
+  HI: { IIN: "636047", aamvaVersion: "10" },
+  ID: { IIN: "636050", aamvaVersion: "09" },
+  IL: { IIN: "636035", aamvaVersion: "10" },
+  IN: { IIN: "636037", aamvaVersion: "09" },
+  IA: { IIN: "636018", aamvaVersion: "09" },
+  KS: { IIN: "636022", aamvaVersion: "09" },
+  KY: { IIN: "636046", aamvaVersion: "09" },
+  LA: { IIN: "636007", aamvaVersion: "09" },
+  ME: { IIN: "636041", aamvaVersion: "09" },
+  MD: { IIN: "636003", aamvaVersion: "10" },
+  MA: { IIN: "636002", aamvaVersion: "09" },
+  MI: { IIN: "636032", aamvaVersion: "10" },
+  MN: { IIN: "636038", aamvaVersion: "09" },
+  MS: { IIN: "636051", aamvaVersion: "09" },
+  MO: { IIN: "636030", aamvaVersion: "09" },
+  MT: { IIN: "636008", aamvaVersion: "09" },
+  NE: { IIN: "636054", aamvaVersion: "10" },
+  NV: { IIN: "636049", aamvaVersion: "09" },
+  NH: { IIN: "636039", aamvaVersion: "09" },
+  NJ: { IIN: "636036", aamvaVersion: "10" },
+  NM: { IIN: "636009", aamvaVersion: "09" },
+  NY: { IIN: "636001", aamvaVersion: "10" },
+  NC: { IIN: "636004", aamvaVersion: "10" },
+  ND: { IIN: "636034", aamvaVersion: "09" },
+  OH: { IIN: "636023", aamvaVersion: "10" },
+  OK: { IIN: "636058", aamvaVersion: "09" },
+  OR: { IIN: "636029", aamvaVersion: "10" },
+  PA: { IIN: "636025", aamvaVersion: "10" },
+  RI: { IIN: "636052", aamvaVersion: "09" },
+  SC: { IIN: "636005", aamvaVersion: "10" },
+  SD: { IIN: "636042", aamvaVersion: "09" },
+  TN: { IIN: "636053", aamvaVersion: "09" },
+  TX: { IIN: "636015", aamvaVersion: "10" },
+  UT: { IIN: "636040", aamvaVersion: "09" },
+  VT: { IIN: "636024", aamvaVersion: "09" },
+  VA: { IIN: "636000", aamvaVersion: "10" },
+  WA: { IIN: "636045", aamvaVersion: "10" },
+  WV: { IIN: "636061", aamvaVersion: "09" },
+  WI: { IIN: "636031", aamvaVersion: "10" },
+  WY: { IIN: "636060", aamvaVersion: "09" },
+  DC: { IIN: "636043", aamvaVersion: "10" },
 
-  // Unsupported Territories
-  AS: null,
-  GU: null,
-  VI: null,
-  PR: null
+  // US Territories
+  AS: { IIN: "604427", aamvaVersion: "09" },
+  GU: { IIN: "636019", aamvaVersion: "09" },
+  VI: { IIN: "636062", aamvaVersion: "09" },
+  PR: { IIN: "604431", aamvaVersion: "09" }
 };
 
 /* ========== VERSION DEFINITIONS ========== */
+// Field definitions based on AAMVA CDS specifications.
+// Mandatory (required: true) vs Optional fields per the published standard.
 
 window.AAMVA_VERSIONS = {
-  // Keeping older definitions for backward compatibility if needed,
-  // but note that "09" usually means AAMVA 2009 (v04) and "10" usually means AAMVA 2010 (v05) in loose terms,
-  // or it might refer to the literal version number.
-  // We will add the explicit standard versions below.
 
-  "09": {
-    name: "Version 2009 (Legacy)",
+  "01": {
+    name: "AAMVA DL/ID-2000 (Version 01)",
     fields: [
       { code: "DAA", label: "Full Name", type: "string", required: true },
-      { code: "DCS", label: "Last Name", type: "string", required: true },
-      { code: "DAC", label: "First Name", type: "string", required: true },
-      { code: "DAD", label: "Middle Name", type: "string" },
-      { code: "DBA", label: "License Expiration Date", type: "date", required: true },
-      { code: "DBB", label: "Date of Birth", type: "date", required: true },
-      { code: "DBC", label: "Sex", type: "char", required: true },
-      { code: "DAY", label: "Eye Color", type: "string" },
-      { code: "DAU", label: "Height", type: "string" },
       { code: "DAG", label: "Address Street", type: "string", required: true },
       { code: "DAI", label: "City", type: "string", required: true },
-      { code: "DAJ", label: "State", type: "string", required: true },
-      { code: "DAK", label: "ZIP", type: "zip", required: true },
-      { code: "DAQ", label: "License Number", type: "string", required: true }
-    ]
-  },
-
-  "10": {
-    name: "Version 2010 (Legacy)",
-    fields: [
-      { code: "DCS", label: "Last Name", type: "string", required: true },
-      { code: "DCT", label: "Given Names", type: "string", required: true },
+      { code: "DAJ", label: "Jurisdiction Code", type: "string", required: true },
+      { code: "DAK", label: "Postal Code", type: "zip", required: true },
+      { code: "DAQ", label: "Customer ID Number", type: "string", required: true },
+      { code: "DAR", label: "Vehicle Class", type: "string" },
+      { code: "DAS", label: "Restriction Codes", type: "string" },
+      { code: "DAT", label: "Endorsement Codes", type: "string" },
       { code: "DBA", label: "Expiration Date", type: "date", required: true },
       { code: "DBB", label: "Date of Birth", type: "date", required: true },
       { code: "DBC", label: "Sex", type: "char", required: true },
-      { code: "DAY", label: "Eye Color", type: "string" },
+      { code: "DBD", label: "Document Issue Date", type: "date" },
       { code: "DAU", label: "Height", type: "string" },
-      { code: "DAG", label: "Street Address", type: "string", required: true },
-      { code: "DAI", label: "City", type: "string", required: true },
-      { code: "DAJ", label: "State", type: "string", required: true },
-      { code: "DAK", label: "ZIP", type: "zip", required: true },
-      { code: "DAQ", label: "License Number", type: "string", required: true },
+      { code: "DAY", label: "Eye Color", type: "string" },
       { code: "DAW", label: "Weight", type: "string" }
     ]
   },
 
-  "08": {
-    name: "AAMVA 2016 (Version 08)",
+  "02": {
+    name: "AAMVA CDS 2003 (Version 02)",
     fields: [
-      { code: "DCA", label: "Jurisdiction-specific vehicle class", type: "string", required: true },
-      { code: "DCB", label: "Jurisdiction-specific restriction codes", type: "string", required: true },
-      { code: "DCD", label: "Jurisdiction-specific endorsement codes", type: "string", required: true },
-      { code: "DBA", label: "Expiration Date", type: "date", required: true },
+      { code: "DCT", label: "Customer Given Names", type: "string", required: true },
       { code: "DCS", label: "Customer Family Name", type: "string", required: true },
-      { code: "DAC", label: "Customer First Name", type: "string", required: true },
-      { code: "DAD", label: "Customer Middle Name", type: "string" }, // Optional
-      { code: "DBB", label: "Date of Birth", type: "date", required: true },
-      { code: "DBC", label: "Sex", type: "char", required: true }, // 1=M, 2=F
-      { code: "DAY", label: "Eye Color", type: "string", required: true },
-      { code: "DAU", label: "Height", type: "string", required: true },
-      { code: "DAG", label: "Address Street 1", type: "string", required: true },
+      { code: "DCU", label: "Name Suffix", type: "string", required: true },
+      { code: "DAG", label: "Address Street", type: "string", required: true },
       { code: "DAI", label: "City", type: "string", required: true },
       { code: "DAJ", label: "Jurisdiction Code", type: "string", required: true },
       { code: "DAK", label: "Postal Code", type: "zip", required: true },
       { code: "DAQ", label: "Customer ID Number", type: "string", required: true },
+      { code: "DCA", label: "Vehicle Class", type: "string", required: true },
+      { code: "DCB", label: "Restriction Codes", type: "string", required: true },
+      { code: "DCD", label: "Endorsement Codes", type: "string", required: true },
+      { code: "DBA", label: "Expiration Date", type: "date", required: true },
+      { code: "DBB", label: "Date of Birth", type: "date", required: true },
+      { code: "DBC", label: "Sex", type: "char", required: true },
+      { code: "DBD", label: "Document Issue Date", type: "date", required: true },
+      { code: "DAU", label: "Height", type: "string", required: true },
+      { code: "DAY", label: "Eye Color", type: "string", required: true },
       { code: "DCF", label: "Document Discriminator", type: "string", required: true },
       { code: "DCG", label: "Country Identification", type: "string", required: true },
-      { code: "DDE", label: "Family Name Truncation", type: "string" },
-      { code: "DDF", label: "First Name Truncation", type: "string" },
-      { code: "DDG", label: "Middle Name Truncation", type: "string" }
+      { code: "DAW", label: "Weight (pounds)", type: "string", required: true },
+      { code: "DAX", label: "Weight (kilograms)", type: "string" },
+      { code: "DAZ", label: "Hair Color", type: "string" },
+      { code: "DCL", label: "Race/Ethnicity", type: "string" }
     ]
   },
 
-  "2020": {
-    name: "AAMVA 2020 (Version 10)",
-    headerVersion: "10", // AAMVA 2020 uses version number 10 in the header per spec
+  "03": {
+    name: "AAMVA DL/ID-2005 (Version 03)",
     fields: [
-      { code: "DCA", label: "Jurisdiction-specific vehicle class", type: "string", required: true },
-      { code: "DCB", label: "Jurisdiction-specific restriction codes", type: "string", required: true },
-      { code: "DCD", label: "Jurisdiction-specific endorsement codes", type: "string", required: true },
-      { code: "DBA", label: "Expiration Date", type: "date", required: true },
       { code: "DCS", label: "Customer Family Name", type: "string", required: true },
       { code: "DAC", label: "Customer First Name", type: "string", required: true },
       { code: "DAD", label: "Customer Middle Name", type: "string" },
+      { code: "DCU", label: "Name Suffix", type: "string" },
+      { code: "DAG", label: "Address Street", type: "string", required: true },
+      { code: "DAI", label: "City", type: "string", required: true },
+      { code: "DAJ", label: "Jurisdiction Code", type: "string", required: true },
+      { code: "DAK", label: "Postal Code", type: "zip", required: true },
+      { code: "DAQ", label: "Customer ID Number", type: "string", required: true },
+      { code: "DCA", label: "Vehicle Class", type: "string", required: true },
+      { code: "DCB", label: "Restriction Codes", type: "string", required: true },
+      { code: "DCD", label: "Endorsement Codes", type: "string", required: true },
+      { code: "DBA", label: "Expiration Date", type: "date", required: true },
+      { code: "DBB", label: "Date of Birth", type: "date", required: true },
+      { code: "DBC", label: "Sex", type: "char", required: true },
+      { code: "DBD", label: "Document Issue Date", type: "date", required: true },
+      { code: "DAU", label: "Height", type: "string", required: true },
+      { code: "DAY", label: "Eye Color", type: "string", required: true },
+      { code: "DCF", label: "Document Discriminator", type: "string", required: true },
+      { code: "DCG", label: "Country Identification", type: "string", required: true },
+      { code: "DAW", label: "Weight (pounds)", type: "string" },
+      { code: "DAZ", label: "Hair Color", type: "string" },
+      { code: "DCL", label: "Race/Ethnicity", type: "string" }
+    ]
+  },
+
+  "04": {
+    name: "AAMVA DL/ID-2009 (Version 04)",
+    fields: [
+      { code: "DCA", label: "Vehicle Class", type: "string", required: true },
+      { code: "DCB", label: "Restriction Codes", type: "string", required: true },
+      { code: "DCD", label: "Endorsement Codes", type: "string", required: true },
+      { code: "DBA", label: "Expiration Date", type: "date", required: true },
+      { code: "DCS", label: "Customer Family Name", type: "string", required: true },
+      { code: "DAC", label: "Customer First Name", type: "string", required: true },
+      { code: "DAD", label: "Customer Middle Name", type: "string", required: true },
+      { code: "DBD", label: "Document Issue Date", type: "date", required: true },
       { code: "DBB", label: "Date of Birth", type: "date", required: true },
       { code: "DBC", label: "Sex", type: "char", required: true },
       { code: "DAY", label: "Eye Color", type: "string", required: true },
       { code: "DAU", label: "Height", type: "string", required: true },
-      { code: "DAG", label: "Address Street 1", type: "string", required: true },
+      { code: "DAG", label: "Address Street", type: "string", required: true },
       { code: "DAI", label: "City", type: "string", required: true },
       { code: "DAJ", label: "Jurisdiction Code", type: "string", required: true },
       { code: "DAK", label: "Postal Code", type: "zip", required: true },
       { code: "DAQ", label: "Customer ID Number", type: "string", required: true },
       { code: "DCF", label: "Document Discriminator", type: "string", required: true },
       { code: "DCG", label: "Country Identification", type: "string", required: true },
-      { code: "DDE", label: "Family Name Truncation", type: "string" },
-      { code: "DDF", label: "First Name Truncation", type: "string" },
-      { code: "DDG", label: "Middle Name Truncation", type: "string" }
+      { code: "DDE", label: "Family Name Truncation", type: "string", required: true },
+      { code: "DDF", label: "First Name Truncation", type: "string", required: true },
+      { code: "DDG", label: "Middle Name Truncation", type: "string", required: true },
+      { code: "DCU", label: "Name Suffix", type: "string" },
+      { code: "DAW", label: "Weight (pounds)", type: "string" },
+      { code: "DAZ", label: "Hair Color", type: "string" },
+      { code: "DCL", label: "Race/Ethnicity", type: "string" },
+      { code: "DDA", label: "Compliance Type", type: "string" },
+      { code: "DDB", label: "Card Revision Date", type: "date" }
+    ]
+  },
+
+  "05": {
+    name: "AAMVA DL/ID-2010 (Version 05)",
+    fields: [
+      { code: "DCA", label: "Vehicle Class", type: "string", required: true },
+      { code: "DCB", label: "Restriction Codes", type: "string", required: true },
+      { code: "DCD", label: "Endorsement Codes", type: "string", required: true },
+      { code: "DBA", label: "Expiration Date", type: "date", required: true },
+      { code: "DCS", label: "Customer Family Name", type: "string", required: true },
+      { code: "DAC", label: "Customer First Name", type: "string", required: true },
+      { code: "DAD", label: "Customer Middle Name", type: "string", required: true },
+      { code: "DBD", label: "Document Issue Date", type: "date", required: true },
+      { code: "DBB", label: "Date of Birth", type: "date", required: true },
+      { code: "DBC", label: "Sex", type: "char", required: true },
+      { code: "DAY", label: "Eye Color", type: "string", required: true },
+      { code: "DAU", label: "Height", type: "string", required: true },
+      { code: "DAG", label: "Address Street", type: "string", required: true },
+      { code: "DAI", label: "City", type: "string", required: true },
+      { code: "DAJ", label: "Jurisdiction Code", type: "string", required: true },
+      { code: "DAK", label: "Postal Code", type: "zip", required: true },
+      { code: "DAQ", label: "Customer ID Number", type: "string", required: true },
+      { code: "DCF", label: "Document Discriminator", type: "string", required: true },
+      { code: "DCG", label: "Country Identification", type: "string", required: true },
+      { code: "DDE", label: "Family Name Truncation", type: "string", required: true },
+      { code: "DDF", label: "First Name Truncation", type: "string", required: true },
+      { code: "DDG", label: "Middle Name Truncation", type: "string", required: true },
+      { code: "DCU", label: "Name Suffix", type: "string" },
+      { code: "DAW", label: "Weight (pounds)", type: "string" },
+      { code: "DAZ", label: "Hair Color", type: "string" },
+      { code: "DCL", label: "Race/Ethnicity", type: "string" },
+      { code: "DDA", label: "Compliance Type", type: "string" },
+      { code: "DDB", label: "Card Revision Date", type: "date" }
+    ]
+  },
+
+  "06": {
+    name: "AAMVA DL/ID-2011 (Version 06)",
+    fields: [
+      { code: "DCA", label: "Vehicle Class", type: "string", required: true },
+      { code: "DCB", label: "Restriction Codes", type: "string", required: true },
+      { code: "DCD", label: "Endorsement Codes", type: "string", required: true },
+      { code: "DBA", label: "Expiration Date", type: "date", required: true },
+      { code: "DCS", label: "Customer Family Name", type: "string", required: true },
+      { code: "DAC", label: "Customer First Name", type: "string", required: true },
+      { code: "DAD", label: "Customer Middle Name", type: "string", required: true },
+      { code: "DBD", label: "Document Issue Date", type: "date", required: true },
+      { code: "DBB", label: "Date of Birth", type: "date", required: true },
+      { code: "DBC", label: "Sex", type: "char", required: true },
+      { code: "DAY", label: "Eye Color", type: "string", required: true },
+      { code: "DAU", label: "Height", type: "string", required: true },
+      { code: "DAG", label: "Address Street", type: "string", required: true },
+      { code: "DAI", label: "City", type: "string", required: true },
+      { code: "DAJ", label: "Jurisdiction Code", type: "string", required: true },
+      { code: "DAK", label: "Postal Code", type: "zip", required: true },
+      { code: "DAQ", label: "Customer ID Number", type: "string", required: true },
+      { code: "DCF", label: "Document Discriminator", type: "string", required: true },
+      { code: "DCG", label: "Country Identification", type: "string", required: true },
+      { code: "DDE", label: "Family Name Truncation", type: "string", required: true },
+      { code: "DDF", label: "First Name Truncation", type: "string", required: true },
+      { code: "DDG", label: "Middle Name Truncation", type: "string", required: true },
+      { code: "DCU", label: "Name Suffix", type: "string" },
+      { code: "DAW", label: "Weight (pounds)", type: "string" },
+      { code: "DAZ", label: "Hair Color", type: "string" },
+      { code: "DCL", label: "Race/Ethnicity", type: "string" },
+      { code: "DDA", label: "Compliance Type", type: "string" },
+      { code: "DDB", label: "Card Revision Date", type: "date" }
+    ]
+  },
+
+  "07": {
+    name: "AAMVA DL/ID-2012 (Version 07)",
+    fields: [
+      { code: "DCA", label: "Vehicle Class", type: "string", required: true },
+      { code: "DCB", label: "Restriction Codes", type: "string", required: true },
+      { code: "DCD", label: "Endorsement Codes", type: "string", required: true },
+      { code: "DBA", label: "Expiration Date", type: "date", required: true },
+      { code: "DCS", label: "Customer Family Name", type: "string", required: true },
+      { code: "DAC", label: "Customer First Name", type: "string", required: true },
+      { code: "DAD", label: "Customer Middle Name", type: "string", required: true },
+      { code: "DBD", label: "Document Issue Date", type: "date", required: true },
+      { code: "DBB", label: "Date of Birth", type: "date", required: true },
+      { code: "DBC", label: "Sex", type: "char", required: true },
+      { code: "DAY", label: "Eye Color", type: "string", required: true },
+      { code: "DAU", label: "Height", type: "string", required: true },
+      { code: "DAG", label: "Address Street", type: "string", required: true },
+      { code: "DAI", label: "City", type: "string", required: true },
+      { code: "DAJ", label: "Jurisdiction Code", type: "string", required: true },
+      { code: "DAK", label: "Postal Code", type: "zip", required: true },
+      { code: "DAQ", label: "Customer ID Number", type: "string", required: true },
+      { code: "DCF", label: "Document Discriminator", type: "string", required: true },
+      { code: "DCG", label: "Country Identification", type: "string", required: true },
+      { code: "DDE", label: "Family Name Truncation", type: "string", required: true },
+      { code: "DDF", label: "First Name Truncation", type: "string", required: true },
+      { code: "DDG", label: "Middle Name Truncation", type: "string", required: true },
+      { code: "DCU", label: "Name Suffix", type: "string" },
+      { code: "DAW", label: "Weight (pounds)", type: "string" },
+      { code: "DAZ", label: "Hair Color", type: "string" },
+      { code: "DCL", label: "Race/Ethnicity", type: "string" },
+      { code: "DDA", label: "Compliance Type", type: "string" },
+      { code: "DDB", label: "Card Revision Date", type: "date" }
+    ]
+  },
+
+  "08": {
+    name: "AAMVA DL/ID-2013 (Version 08)",
+    fields: [
+      { code: "DCA", label: "Vehicle Class", type: "string", required: true },
+      { code: "DCB", label: "Restriction Codes", type: "string", required: true },
+      { code: "DCD", label: "Endorsement Codes", type: "string", required: true },
+      { code: "DBA", label: "Expiration Date", type: "date", required: true },
+      { code: "DCS", label: "Customer Family Name", type: "string", required: true },
+      { code: "DAC", label: "Customer First Name", type: "string", required: true },
+      { code: "DAD", label: "Customer Middle Name", type: "string", required: true },
+      { code: "DBD", label: "Document Issue Date", type: "date", required: true },
+      { code: "DBB", label: "Date of Birth", type: "date", required: true },
+      { code: "DBC", label: "Sex", type: "char", required: true },
+      { code: "DAY", label: "Eye Color", type: "string", required: true },
+      { code: "DAU", label: "Height", type: "string", required: true },
+      { code: "DAG", label: "Address Street", type: "string", required: true },
+      { code: "DAI", label: "City", type: "string", required: true },
+      { code: "DAJ", label: "Jurisdiction Code", type: "string", required: true },
+      { code: "DAK", label: "Postal Code", type: "zip", required: true },
+      { code: "DAQ", label: "Customer ID Number", type: "string", required: true },
+      { code: "DCF", label: "Document Discriminator", type: "string", required: true },
+      { code: "DCG", label: "Country Identification", type: "string", required: true },
+      { code: "DDE", label: "Family Name Truncation", type: "string", required: true },
+      { code: "DDF", label: "First Name Truncation", type: "string", required: true },
+      { code: "DDG", label: "Middle Name Truncation", type: "string", required: true },
+      { code: "DCU", label: "Name Suffix", type: "string" },
+      { code: "DAW", label: "Weight (pounds)", type: "string" },
+      { code: "DAZ", label: "Hair Color", type: "string" },
+      { code: "DCL", label: "Race/Ethnicity", type: "string" },
+      { code: "DDA", label: "Compliance Type", type: "string" },
+      { code: "DDB", label: "Card Revision Date", type: "date" },
+      { code: "DDK", label: "Organ Donor Indicator", type: "string" },
+      { code: "DDL", label: "Veteran Indicator", type: "string" }
+    ]
+  },
+
+  "09": {
+    name: "AAMVA DL/ID-2016 (Version 09)",
+    fields: [
+      { code: "DCA", label: "Vehicle Class", type: "string", required: true },
+      { code: "DCB", label: "Restriction Codes", type: "string", required: true },
+      { code: "DCD", label: "Endorsement Codes", type: "string", required: true },
+      { code: "DBA", label: "Expiration Date", type: "date", required: true },
+      { code: "DCS", label: "Customer Family Name", type: "string", required: true },
+      { code: "DAC", label: "Customer First Name", type: "string", required: true },
+      { code: "DAD", label: "Customer Middle Name", type: "string", required: true },
+      { code: "DBD", label: "Document Issue Date", type: "date", required: true },
+      { code: "DBB", label: "Date of Birth", type: "date", required: true },
+      { code: "DBC", label: "Sex", type: "char", required: true },
+      { code: "DAY", label: "Eye Color", type: "string", required: true },
+      { code: "DAU", label: "Height", type: "string", required: true },
+      { code: "DAG", label: "Address Street", type: "string", required: true },
+      { code: "DAI", label: "City", type: "string", required: true },
+      { code: "DAJ", label: "Jurisdiction Code", type: "string", required: true },
+      { code: "DAK", label: "Postal Code", type: "zip", required: true },
+      { code: "DAQ", label: "Customer ID Number", type: "string", required: true },
+      { code: "DCF", label: "Document Discriminator", type: "string", required: true },
+      { code: "DCG", label: "Country Identification", type: "string", required: true },
+      { code: "DDE", label: "Family Name Truncation", type: "string", required: true },
+      { code: "DDF", label: "First Name Truncation", type: "string", required: true },
+      { code: "DDG", label: "Middle Name Truncation", type: "string", required: true },
+      { code: "DCU", label: "Name Suffix", type: "string" },
+      { code: "DAW", label: "Weight (pounds)", type: "string" },
+      { code: "DAZ", label: "Hair Color", type: "string" },
+      { code: "DCL", label: "Race/Ethnicity", type: "string" },
+      { code: "DDA", label: "Compliance Type", type: "string" },
+      { code: "DDB", label: "Card Revision Date", type: "date" },
+      { code: "DDK", label: "Organ Donor Indicator", type: "string" },
+      { code: "DDL", label: "Veteran Indicator", type: "string" }
+    ]
+  },
+
+  "10": {
+    name: "AAMVA DL/ID-2020 (Version 10)",
+    fields: [
+      { code: "DCA", label: "Vehicle Class", type: "string", required: true },
+      { code: "DCB", label: "Restriction Codes", type: "string", required: true },
+      { code: "DCD", label: "Endorsement Codes", type: "string", required: true },
+      { code: "DBA", label: "Expiration Date", type: "date", required: true },
+      { code: "DCS", label: "Customer Family Name", type: "string", required: true },
+      { code: "DAC", label: "Customer First Name", type: "string", required: true },
+      { code: "DAD", label: "Customer Middle Name", type: "string", required: true },
+      { code: "DBD", label: "Document Issue Date", type: "date", required: true },
+      { code: "DBB", label: "Date of Birth", type: "date", required: true },
+      { code: "DBC", label: "Sex", type: "char", required: true },
+      { code: "DAY", label: "Eye Color", type: "string", required: true },
+      { code: "DAU", label: "Height", type: "string", required: true },
+      { code: "DAG", label: "Address Street", type: "string", required: true },
+      { code: "DAI", label: "City", type: "string", required: true },
+      { code: "DAJ", label: "Jurisdiction Code", type: "string", required: true },
+      { code: "DAK", label: "Postal Code", type: "zip", required: true },
+      { code: "DAQ", label: "Customer ID Number", type: "string", required: true },
+      { code: "DCF", label: "Document Discriminator", type: "string", required: true },
+      { code: "DCG", label: "Country Identification", type: "string", required: true },
+      { code: "DDE", label: "Family Name Truncation", type: "string", required: true },
+      { code: "DDF", label: "First Name Truncation", type: "string", required: true },
+      { code: "DDG", label: "Middle Name Truncation", type: "string", required: true },
+      { code: "DCU", label: "Name Suffix", type: "string" },
+      { code: "DAW", label: "Weight (pounds)", type: "string" },
+      { code: "DAZ", label: "Hair Color", type: "string" },
+      { code: "DCL", label: "Race/Ethnicity", type: "string" },
+      { code: "DDA", label: "Compliance Type", type: "string" },
+      { code: "DDB", label: "Card Revision Date", type: "date" },
+      { code: "DDK", label: "Organ Donor Indicator", type: "string" },
+      { code: "DDL", label: "Veteran Indicator", type: "string" }
     ]
   }
 };
 
 /* ========== UTILITIES ========== */
 
-// Required for “unknown field” validation
+// Required for "unknown field" validation
 window.AAMVA_UNKNOWN_FIELD_POLICY = "reject";
+
+// Get the default AAMVA version for a state
+window.getVersionForState = function(stateCode) {
+  const stateDef = window.AAMVA_STATES[stateCode];
+  if (!stateDef) return null;
+  return stateDef.aamvaVersion || "10";
+};
 
 // Get field definitions by version
 window.getFieldsForVersion = function(v) {
@@ -188,21 +441,7 @@ window.getFieldsForVersion = function(v) {
 window.getMandatoryFields = function(stateCode, version) {
   const versionDef = window.AAMVA_VERSIONS[version];
   if (!versionDef) return [];
-
-  // Start with version-level mandatory fields
-  let fields = versionDef.fields.filter(f => f.required);
-
-  const stateDef = window.AAMVA_STATES[stateCode];
-  if (stateDef && stateDef.mandatoryFields) {
-    // Add state-specific mandatory fields
-    // Implementation: we assume stateDef.mandatoryFields is an array of field codes
-    // or objects that we need to merge.
-    // For now, let's assume it's just codes that MUST be present.
-    // If we need to ADD fields that are not in the version spec, we'd need full definitions.
-    // Simpler approach: check if state has 'extraRequired' list.
-  }
-
-  return fields;
+  return versionDef.fields.filter(f => f.required);
 };
 
 // Inspector helper
@@ -213,7 +452,7 @@ window.describeVersion = function(v) {
   return (
     `Version: ${info.name}\n` +
     `Fields:\n` +
-    info.fields.map(f => `${f.code} — ${f.label}`).join("\n")
+    info.fields.map(f => `${f.code} — ${f.label}${f.required ? " (mandatory)" : ""}`).join("\n")
   );
 };
 
@@ -224,7 +463,7 @@ window.validateFieldValue = function(field, value) {
 
   switch (field.type) {
     case "date":
-      return /^\d{8}$/.test(value); // YYYYMMDD
+      return /^\d{8}$/.test(value); // MMDDCCYY or CCYYMMDD
     case "zip":
       return /^\d{5}(-\d{4})?$/.test(value);
     case "char":
@@ -273,10 +512,8 @@ window.generateAAMVAPayload = function(stateCode, version, fields, dataObj) {
   }
 
   const stateDef = window.AAMVA_STATES[stateCode];
-  const versionDef = window.AAMVA_VERSIONS[version];
   const iin = stateDef.IIN;
-  const jurisVersion = stateDef.jurisdictionVersion.toString().padStart(2, '0');
-  const headerVersion = (versionDef && versionDef.headerVersion) || version;
+  const jurisVersion = "00"; // Jurisdiction-specific version (00 default)
 
   // Header
   const compliance = "@";
@@ -286,7 +523,7 @@ window.generateAAMVAPayload = function(stateCode, version, fields, dataObj) {
   const fileType = "ANSI ";
 
   // Header Part 1
-  let header = compliance + dataElementSeparator + recordSeparator + segmentTerminator + fileType + iin + headerVersion + jurisVersion;
+  let header = compliance + dataElementSeparator + recordSeparator + segmentTerminator + fileType + iin + version + jurisVersion;
 
   // Subfiles
   // We only support "DL" (Driver License)
@@ -299,15 +536,10 @@ window.generateAAMVAPayload = function(stateCode, version, fields, dataObj) {
   for (const field of fields) {
     const val = dataObj[field.code];
     if (val !== undefined && val !== "") {
-      // Ensure uppercase for string/char? Standard usually requires it.
-      // But we will respect input for now, assuming validation/input handles it.
       subfileData += field.code + val + dataElementSeparator;
     }
   }
 
-  // AAMVA typically puts the segment terminator at the end of the subfile data (replacing last separator? or in addition?)
-  // Standards say: "The data elements shall be separated by the Data Element Separator."
-  // And "The subfile shall be terminated by the Segment Terminator".
   subfileData += segmentTerminator;
 
   // Calculate offsets
@@ -315,7 +547,6 @@ window.generateAAMVAPayload = function(stateCode, version, fields, dataObj) {
 
   // Header fixed part:
   // @(1) + \n(1) + \x1e(1) + \r(1) + ANSI (5) + IIN(6) + Ver(2) + JVer(2) + NumEntries(2) = 21 bytes.
-
   // Subfile Directory Entry: Type(2) + Offset(4) + Length(4) = 10 bytes.
 
   const headerLength = 21 + (1 * 10);
