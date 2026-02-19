@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AAMVA PDF417 Generator – Deluxe Edition</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/themes.css">
@@ -40,7 +41,52 @@
     <main id="content">
       <section id="previewSection">
         <h2>PDF417 Preview</h2>
-        <canvas id="barcodeCanvas" width="400" height="200"></canvas>
+        <div id="barcodeWrapper">
+          <canvas id="barcodeCanvas" width="400" height="200"></canvas>
+          <div id="barcodeDimensions" class="barcode-dimensions"></div>
+        </div>
+
+        <details id="barcodeSizer" class="barcode-sizer">
+          <summary>Barcode Size Settings</summary>
+
+          <div class="sizer-row">
+            <label for="sizePreset">Preset</label>
+            <select id="sizePreset">
+              <option value="custom">Custom</option>
+              <option value="standard" selected>Standard License (76 x 25 mm)</option>
+              <option value="compact">Compact License (64 x 20 mm)</option>
+              <option value="large">Large Format (89 x 32 mm)</option>
+            </select>
+          </div>
+
+          <div class="sizer-grid">
+            <div>
+              <label for="barcodeWidthMM">Width (mm)</label>
+              <input type="number" id="barcodeWidthMM" value="76" min="20" max="120" step="1">
+            </div>
+            <div>
+              <label for="barcodeHeightMM">Height (mm)</label>
+              <input type="number" id="barcodeHeightMM" value="25" min="8" max="60" step="1">
+            </div>
+            <div>
+              <label for="moduleWidthMil">Module Width (mil)</label>
+              <input type="number" id="moduleWidthMil" value="15" min="6" max="25" step="1">
+            </div>
+            <div>
+              <label for="exportDPI">Export DPI</label>
+              <input type="number" id="exportDPI" value="300" min="72" max="600" step="1">
+            </div>
+          </div>
+
+          <div class="sizer-row">
+            <label for="quietZone">Quiet Zone (modules)</label>
+            <input type="range" id="quietZone" min="0" max="10" value="2">
+            <span id="quietZoneLabel">2</span>
+          </div>
+
+          <div id="sizerInfo" class="sizer-info"></div>
+        </details>
+
         <div class="export-buttons">
           <button id="exportPngBtn">Export PNG</button>
           <button id="exportPdfBtn">Export PDF</button>

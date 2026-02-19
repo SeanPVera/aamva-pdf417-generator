@@ -7,6 +7,9 @@
   --text-color: #000000;
   --sidebar-bg: #f0f0f0;
   --border-color: #cccccc;
+  --error-bg: #ffcccc;
+  --error-text: #cc0000;
+  --error-border: #cc0000;
 }
 
 [data-theme="dark"] {
@@ -14,6 +17,9 @@
   --text-color: #ffffff;
   --sidebar-bg: #252526;
   --border-color: #3e3e3e;
+  --error-bg: #4a1c1c;
+  --error-text: #ff6b6b;
+  --error-border: #ff4444;
 }
 
 [data-theme="dmv"] {
@@ -21,6 +27,9 @@
   --text-color: #003366;
   --sidebar-bg: #b3d9ff;
   --border-color: #00509e;
+  --error-bg: #ffe0e0;
+  --error-text: #990000;
+  --error-border: #cc3333;
 }
 
 body {
@@ -89,17 +98,100 @@ button {
   gap: 10px;
 }
 
+#barcodeWrapper {
+  position: relative;
+}
+
 #barcodeCanvas {
   border: 1px solid var(--border-color);
   display: block;
+  margin-bottom: 4px;
+  max-width: 100%;
+  height: auto;
+}
+
+.barcode-dimensions {
+  font-size: 11px;
+  color: var(--text-color);
+  opacity: 0.6;
   margin-bottom: 10px;
+  font-family: monospace;
+}
+
+.barcode-sizer {
+  border: 1px solid var(--border-color);
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 4px;
+}
+
+.barcode-sizer summary {
+  cursor: pointer;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.barcode-sizer[open] summary {
+  margin-bottom: 12px;
+}
+
+.sizer-row {
+  margin-bottom: 8px;
+}
+
+.sizer-row label {
+  font-weight: normal;
+  font-size: 13px;
+  margin-bottom: 2px;
+}
+
+.sizer-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.sizer-grid label {
+  font-weight: normal;
+  font-size: 13px;
+  margin-bottom: 2px;
+}
+
+.sizer-grid input[type="number"] {
+  width: 100%;
+  padding: 6px;
+  margin-bottom: 0;
+  box-sizing: border-box;
+}
+
+.sizer-info {
+  font-size: 12px;
+  font-family: monospace;
+  padding: 6px;
+  background: var(--sidebar-bg);
+  border-radius: 3px;
+  line-height: 1.5;
+}
+
+#quietZone {
+  width: calc(100% - 40px);
+  display: inline-block;
+  vertical-align: middle;
+}
+
+#quietZoneLabel {
+  display: inline-block;
+  width: 24px;
+  text-align: right;
+  font-family: monospace;
 }
 
 .error-box {
-  background-color: #ffcccc;
-  color: #cc0000;
+  background-color: var(--error-bg);
+  color: var(--error-text);
   padding: 10px;
-  border: 1px solid #cc0000;
+  border: 1px solid var(--error-border);
   display: none;
   margin-bottom: 10px;
 }
@@ -117,4 +209,16 @@ button {
 
 .undo-redo button {
     flex: 1;
+}
+
+.field-required label::after {
+  content: " *";
+  color: var(--error-text);
+}
+
+.field-hint {
+  font-size: 11px;
+  opacity: 0.6;
+  margin-top: -6px;
+  margin-bottom: 4px;
 }
