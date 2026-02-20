@@ -53,6 +53,15 @@ test("all states have an aamvaVersion property", () => {
   }
 });
 
+test("all states have a name property", () => {
+  for (const [code, def] of Object.entries(window.AAMVA_STATES)) {
+    if (!def) continue;
+    assert.ok(def.name, `State ${code} should have a name`);
+    assert.ok(typeof def.name === "string" && def.name.length > 1,
+      `State ${code} name should be a non-empty string`);
+  }
+});
+
 test("DC and UT have different IINs", () => {
   const dc = window.AAMVA_STATES.DC;
   const ut = window.AAMVA_STATES.UT;
@@ -74,6 +83,66 @@ test("no duplicate IINs across states", () => {
       assert.fail(`Duplicate IIN ${def.IIN} shared by ${seen[def.IIN]} and ${code}`);
     }
     seen[def.IIN] = code;
+  }
+});
+
+/* ============================================================
+   CONSTRAINED FIELD OPTIONS
+   ============================================================ */
+
+test("AAMVA_FIELD_OPTIONS defines options for constrained fields", () => {
+  const opts = window.AAMVA_FIELD_OPTIONS;
+  assert.ok(opts, "AAMVA_FIELD_OPTIONS should exist");
+  assert.ok(opts.DBC, "Should have DBC (Sex) options");
+  assert.ok(opts.DAY, "Should have DAY (Eye Color) options");
+  assert.ok(opts.DAZ, "Should have DAZ (Hair Color) options");
+  assert.ok(opts.DCG, "Should have DCG (Country) options");
+  assert.ok(opts.DDE, "Should have DDE (Family Name Truncation) options");
+  assert.ok(opts.DDA, "Should have DDA (Compliance Type) options");
+  assert.ok(opts.DDK, "Should have DDK (Organ Donor) options");
+  assert.ok(opts.DDL, "Should have DDL (Veteran) options");
+  assert.ok(opts.DCL, "Should have DCL (Race/Ethnicity) options");
+});
+
+test("constrained field options have value and label properties", () => {
+  for (const [code, options] of Object.entries(window.AAMVA_FIELD_OPTIONS)) {
+    assert.ok(Array.isArray(options), `${code} options should be an array`);
+    for (const opt of options) {
+      assert.ok(opt.value, `${code} option should have a value`);
+      assert.ok(opt.label, `${code} option should have a label`);
+    }
+  }
+});
+
+/* ============================================================
+   FIELD LENGTH LIMITS
+   ============================================================ */
+
+test("AAMVA_FIELD_LIMITS defines max lengths", () => {
+  const limits = window.AAMVA_FIELD_LIMITS;
+  assert.ok(limits, "AAMVA_FIELD_LIMITS should exist");
+  assert.equal(limits.DCS, 40, "DCS max length should be 40");
+  assert.equal(limits.DAJ, 2, "DAJ max length should be 2");
+  assert.equal(limits.DBC, 1, "DBC max length should be 1");
+  assert.equal(limits.DBA, 8, "DBA max length should be 8");
+  assert.equal(limits.DAG, 35, "DAG max length should be 35");
+  assert.equal(limits.DAH, 35, "DAH max length should be 35");
+});
+
+test("validateFieldValue enforces length limits", () => {
+  const field = { code: "DAJ", type: "string", required: true };
+  assert.ok(window.validateFieldValue(field, "NY"), "NY should be valid (2 chars)");
+  assert.equal(window.validateFieldValue(field, "NYC"), false, "NYC should be invalid (3 chars, limit 2)");
+});
+
+/* ============================================================
+   DAH (ADDRESS LINE 2) FIELD
+   ============================================================ */
+
+test("all versions include DAH (Address Line 2)", () => {
+  for (const [ver, def] of Object.entries(window.AAMVA_VERSIONS)) {
+    const hasDAH = def.fields.some(f => f.code === "DAH");
+    assert.ok(hasDAH, `Version ${ver} should include DAH (Address Line 2)`);
   }
 });
 
@@ -227,6 +296,23 @@ test("PDF417.generateSVG returns SVG string and matrix", () => {
   assert.ok(result.matrix, "Should have matrix property");
   assert.ok(result.svg.startsWith("<svg"), "SVG should start with <svg tag");
   assert.ok(result.svg.endsWith("</svg>"), "SVG should end with </svg>");
+});
+
+test("PDF417.generateSVG uses run-length encoding (fewer rects than modules)", () => {
+  const result = window.PDF417.generateSVG("TEST", { scale: 1 });
+  // Count rect elements (excluding the white background rect)
+  const rectCount = (result.svg.match(/<rect /g) || []).length;
+  const matrix = result.matrix;
+  // Count total black modules
+  let blackModules = 0;
+  for (const row of matrix) {
+    for (const bit of row) {
+      if (bit === 1) blackModules++;
+    }
+  }
+  // With RLE, rect count should be less than total black modules
+  assert.ok(rectCount < blackModules,
+    `RLE should produce fewer rects (${rectCount}) than black modules (${blackModules})`);
 });
 
 /* ============================================================

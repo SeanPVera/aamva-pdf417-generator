@@ -1,11 +1,11 @@
 /*
  * AAMVA Specification Handler
  * Provides:
- * - State metadata (official IINs from AAMVA)
+ * - State metadata (official IINs from AAMVA) with full state names
  * - AAMVA version definitions (01-10) with correct mandatory/optional fields
  * - Auto-selection of AAMVA version by state
  * - Schema loader
- * - Field inspectors
+ * - Field inspectors with length limits and constrained value options
  * - Version browser support
  * - Payload generator (AAMVA compliant)
  *
@@ -30,63 +30,181 @@
 // States known to still use version 09 (2016 CDS) are noted.
 
 window.AAMVA_STATES = {
-  AL: { IIN: "636033", aamvaVersion: "09" },
-  AK: { IIN: "636059", aamvaVersion: "09" },
-  AZ: { IIN: "636026", aamvaVersion: "10" },
-  AR: { IIN: "636021", aamvaVersion: "09" },
-  CA: { IIN: "636014", aamvaVersion: "10" },
-  CO: { IIN: "636020", aamvaVersion: "10" },
-  CT: { IIN: "636006", aamvaVersion: "09" },
-  DE: { IIN: "636011", aamvaVersion: "09" },
-  FL: { IIN: "636010", aamvaVersion: "10" },
-  GA: { IIN: "636055", aamvaVersion: "10" },
-  HI: { IIN: "636047", aamvaVersion: "10" },
-  ID: { IIN: "636050", aamvaVersion: "09" },
-  IL: { IIN: "636035", aamvaVersion: "10" },
-  IN: { IIN: "636037", aamvaVersion: "09" },
-  IA: { IIN: "636018", aamvaVersion: "09" },
-  KS: { IIN: "636022", aamvaVersion: "09" },
-  KY: { IIN: "636046", aamvaVersion: "09" },
-  LA: { IIN: "636007", aamvaVersion: "09" },
-  ME: { IIN: "636041", aamvaVersion: "09" },
-  MD: { IIN: "636003", aamvaVersion: "10" },
-  MA: { IIN: "636002", aamvaVersion: "09" },
-  MI: { IIN: "636032", aamvaVersion: "10" },
-  MN: { IIN: "636038", aamvaVersion: "09" },
-  MS: { IIN: "636051", aamvaVersion: "09" },
-  MO: { IIN: "636030", aamvaVersion: "09" },
-  MT: { IIN: "636008", aamvaVersion: "09" },
-  NE: { IIN: "636054", aamvaVersion: "10" },
-  NV: { IIN: "636049", aamvaVersion: "09" },
-  NH: { IIN: "636039", aamvaVersion: "09" },
-  NJ: { IIN: "636036", aamvaVersion: "10" },
-  NM: { IIN: "636009", aamvaVersion: "09" },
-  NY: { IIN: "636001", aamvaVersion: "10" },
-  NC: { IIN: "636004", aamvaVersion: "10" },
-  ND: { IIN: "636034", aamvaVersion: "09" },
-  OH: { IIN: "636023", aamvaVersion: "10" },
-  OK: { IIN: "636058", aamvaVersion: "09" },
-  OR: { IIN: "636029", aamvaVersion: "10" },
-  PA: { IIN: "636025", aamvaVersion: "10" },
-  RI: { IIN: "636052", aamvaVersion: "09" },
-  SC: { IIN: "636005", aamvaVersion: "10" },
-  SD: { IIN: "636042", aamvaVersion: "09" },
-  TN: { IIN: "636053", aamvaVersion: "09" },
-  TX: { IIN: "636015", aamvaVersion: "10" },
-  UT: { IIN: "636040", aamvaVersion: "09" },
-  VT: { IIN: "636024", aamvaVersion: "09" },
-  VA: { IIN: "636000", aamvaVersion: "10" },
-  WA: { IIN: "636045", aamvaVersion: "10" },
-  WV: { IIN: "636061", aamvaVersion: "09" },
-  WI: { IIN: "636031", aamvaVersion: "10" },
-  WY: { IIN: "636060", aamvaVersion: "09" },
-  DC: { IIN: "636043", aamvaVersion: "10" },
+  AL: { IIN: "636033", name: "Alabama", aamvaVersion: "09" },
+  AK: { IIN: "636059", name: "Alaska", aamvaVersion: "09" },
+  AZ: { IIN: "636026", name: "Arizona", aamvaVersion: "10" },
+  AR: { IIN: "636021", name: "Arkansas", aamvaVersion: "09" },
+  CA: { IIN: "636014", name: "California", aamvaVersion: "10" },
+  CO: { IIN: "636020", name: "Colorado", aamvaVersion: "10" },
+  CT: { IIN: "636006", name: "Connecticut", aamvaVersion: "09" },
+  DE: { IIN: "636011", name: "Delaware", aamvaVersion: "09" },
+  FL: { IIN: "636010", name: "Florida", aamvaVersion: "10" },
+  GA: { IIN: "636055", name: "Georgia", aamvaVersion: "10" },
+  HI: { IIN: "636047", name: "Hawaii", aamvaVersion: "10" },
+  ID: { IIN: "636050", name: "Idaho", aamvaVersion: "09" },
+  IL: { IIN: "636035", name: "Illinois", aamvaVersion: "10" },
+  IN: { IIN: "636037", name: "Indiana", aamvaVersion: "09" },
+  IA: { IIN: "636018", name: "Iowa", aamvaVersion: "09" },
+  KS: { IIN: "636022", name: "Kansas", aamvaVersion: "09" },
+  KY: { IIN: "636046", name: "Kentucky", aamvaVersion: "09" },
+  LA: { IIN: "636007", name: "Louisiana", aamvaVersion: "09" },
+  ME: { IIN: "636041", name: "Maine", aamvaVersion: "09" },
+  MD: { IIN: "636003", name: "Maryland", aamvaVersion: "10" },
+  MA: { IIN: "636002", name: "Massachusetts", aamvaVersion: "09" },
+  MI: { IIN: "636032", name: "Michigan", aamvaVersion: "10" },
+  MN: { IIN: "636038", name: "Minnesota", aamvaVersion: "09" },
+  MS: { IIN: "636051", name: "Mississippi", aamvaVersion: "09" },
+  MO: { IIN: "636030", name: "Missouri", aamvaVersion: "09" },
+  MT: { IIN: "636008", name: "Montana", aamvaVersion: "09" },
+  NE: { IIN: "636054", name: "Nebraska", aamvaVersion: "10" },
+  NV: { IIN: "636049", name: "Nevada", aamvaVersion: "09" },
+  NH: { IIN: "636039", name: "New Hampshire", aamvaVersion: "09" },
+  NJ: { IIN: "636036", name: "New Jersey", aamvaVersion: "10" },
+  NM: { IIN: "636009", name: "New Mexico", aamvaVersion: "09" },
+  NY: { IIN: "636001", name: "New York", aamvaVersion: "10" },
+  NC: { IIN: "636004", name: "North Carolina", aamvaVersion: "10" },
+  ND: { IIN: "636034", name: "North Dakota", aamvaVersion: "09" },
+  OH: { IIN: "636023", name: "Ohio", aamvaVersion: "10" },
+  OK: { IIN: "636058", name: "Oklahoma", aamvaVersion: "09" },
+  OR: { IIN: "636029", name: "Oregon", aamvaVersion: "10" },
+  PA: { IIN: "636025", name: "Pennsylvania", aamvaVersion: "10" },
+  RI: { IIN: "636052", name: "Rhode Island", aamvaVersion: "09" },
+  SC: { IIN: "636005", name: "South Carolina", aamvaVersion: "10" },
+  SD: { IIN: "636042", name: "South Dakota", aamvaVersion: "09" },
+  TN: { IIN: "636053", name: "Tennessee", aamvaVersion: "09" },
+  TX: { IIN: "636015", name: "Texas", aamvaVersion: "10" },
+  UT: { IIN: "636040", name: "Utah", aamvaVersion: "09" },
+  VT: { IIN: "636024", name: "Vermont", aamvaVersion: "09" },
+  VA: { IIN: "636000", name: "Virginia", aamvaVersion: "10" },
+  WA: { IIN: "636045", name: "Washington", aamvaVersion: "10" },
+  WV: { IIN: "636061", name: "West Virginia", aamvaVersion: "09" },
+  WI: { IIN: "636031", name: "Wisconsin", aamvaVersion: "10" },
+  WY: { IIN: "636060", name: "Wyoming", aamvaVersion: "09" },
+  DC: { IIN: "636043", name: "District of Columbia", aamvaVersion: "10" },
 
   // US Territories
-  AS: { IIN: "604427", aamvaVersion: "09" },
-  GU: { IIN: "636019", aamvaVersion: "09" },
-  VI: { IIN: "636062", aamvaVersion: "09" },
-  PR: { IIN: "604431", aamvaVersion: "09" }
+  AS: { IIN: "604427", name: "American Samoa", aamvaVersion: "09" },
+  GU: { IIN: "636019", name: "Guam", aamvaVersion: "09" },
+  VI: { IIN: "636062", name: "US Virgin Islands", aamvaVersion: "09" },
+  PR: { IIN: "604431", name: "Puerto Rico", aamvaVersion: "09" }
+};
+
+/* ========== CONSTRAINED FIELD OPTIONS ========== */
+// AAMVA-defined value sets for fields with enumerated values.
+
+window.AAMVA_FIELD_OPTIONS = {
+  DBC: [
+    { value: "1", label: "1 — Male" },
+    { value: "2", label: "2 — Female" },
+    { value: "9", label: "9 — Not Specified" }
+  ],
+  DAY: [
+    { value: "BLK", label: "BLK — Black" },
+    { value: "BLU", label: "BLU — Blue" },
+    { value: "BRO", label: "BRO — Brown" },
+    { value: "GRY", label: "GRY — Gray" },
+    { value: "GRN", label: "GRN — Green" },
+    { value: "HAZ", label: "HAZ — Hazel" },
+    { value: "MAR", label: "MAR — Maroon" },
+    { value: "PNK", label: "PNK — Pink" },
+    { value: "DIC", label: "DIC — Dichromatic" },
+    { value: "UNK", label: "UNK — Unknown" }
+  ],
+  DAZ: [
+    { value: "BAL", label: "BAL — Bald" },
+    { value: "BLK", label: "BLK — Black" },
+    { value: "BLN", label: "BLN — Blond" },
+    { value: "BRO", label: "BRO — Brown" },
+    { value: "GRY", label: "GRY — Gray" },
+    { value: "RED", label: "RED — Red/Auburn" },
+    { value: "SDY", label: "SDY — Sandy" },
+    { value: "WHI", label: "WHI — White" },
+    { value: "UNK", label: "UNK — Unknown" }
+  ],
+  DCG: [
+    { value: "USA", label: "USA — United States" },
+    { value: "CAN", label: "CAN — Canada" },
+    { value: "MEX", label: "MEX — Mexico" }
+  ],
+  DDE: [
+    { value: "T", label: "T — Truncated" },
+    { value: "N", label: "N — Not Truncated" },
+    { value: "U", label: "U — Unknown" }
+  ],
+  DDF: [
+    { value: "T", label: "T — Truncated" },
+    { value: "N", label: "N — Not Truncated" },
+    { value: "U", label: "U — Unknown" }
+  ],
+  DDG: [
+    { value: "T", label: "T — Truncated" },
+    { value: "N", label: "N — Not Truncated" },
+    { value: "U", label: "U — Unknown" }
+  ],
+  DDA: [
+    { value: "F", label: "F — Fully Compliant" },
+    { value: "N", label: "N — Non-Compliant" }
+  ],
+  DDK: [
+    { value: "1", label: "1 — Donor" },
+    { value: "0", label: "0 — Not a Donor" }
+  ],
+  DDL: [
+    { value: "1", label: "1 — Veteran" },
+    { value: "0", label: "0 — Not a Veteran" }
+  ],
+  DCL: [
+    { value: "AI", label: "AI — Alaskan/American Indian" },
+    { value: "AP", label: "AP — Asian/Pacific Islander" },
+    { value: "BK", label: "BK — Black" },
+    { value: "H", label: "H — Hispanic Origin" },
+    { value: "O", label: "O — Non-Hispanic" },
+    { value: "U", label: "U — Unknown" },
+    { value: "W", label: "W — White" }
+  ]
+};
+
+/* ========== FIELD LENGTH LIMITS ========== */
+// Maximum lengths per the AAMVA CDS specification.
+
+window.AAMVA_FIELD_LIMITS = {
+  DCS: 40,   // Family Name
+  DAC: 40,   // First Name
+  DAD: 40,   // Middle Name
+  DAA: 125,  // Full Name (v01)
+  DCT: 80,   // Given Names (v02)
+  DCU: 5,    // Name Suffix
+  DAG: 35,   // Address Street
+  DAH: 35,   // Address Line 2
+  DAI: 20,   // City
+  DAJ: 2,    // Jurisdiction Code
+  DAK: 11,   // Postal Code (XXXXX-XXXX or XXXXXXXXXXX)
+  DAQ: 25,   // Customer ID Number
+  DCA: 6,    // Vehicle Class
+  DCB: 12,   // Restriction Codes
+  DCD: 5,    // Endorsement Codes
+  DBA: 8,    // Expiration Date
+  DBB: 8,    // Date of Birth
+  DBC: 1,    // Sex
+  DBD: 8,    // Document Issue Date
+  DAU: 6,    // Height (FT-IN or cm)
+  DAY: 3,    // Eye Color
+  DAZ: 3,    // Hair Color
+  DAW: 3,    // Weight (pounds)
+  DAX: 3,    // Weight (kilograms)
+  DCF: 25,   // Document Discriminator
+  DCG: 3,    // Country Identification
+  DCL: 2,    // Race/Ethnicity
+  DDE: 1,    // Family Name Truncation
+  DDF: 1,    // First Name Truncation
+  DDG: 1,    // Middle Name Truncation
+  DDA: 1,    // Compliance Type
+  DDB: 8,    // Card Revision Date
+  DDK: 1,    // Organ Donor Indicator
+  DDL: 1,    // Veteran Indicator
+  DAR: 4,    // Vehicle Class (v01)
+  DAS: 10,   // Restriction Codes (v01)
+  DAT: 5     // Endorsement Codes (v01)
 };
 
 /* ========== VERSION DEFINITIONS ========== */
@@ -100,6 +218,7 @@ window.AAMVA_VERSIONS = {
     fields: [
       { code: "DAA", label: "Full Name", type: "string", required: true },
       { code: "DAG", label: "Address Street", type: "string", required: true },
+      { code: "DAH", label: "Address Line 2", type: "string" },
       { code: "DAI", label: "City", type: "string", required: true },
       { code: "DAJ", label: "Jurisdiction Code", type: "string", required: true },
       { code: "DAK", label: "Postal Code", type: "zip", required: true },
@@ -124,6 +243,7 @@ window.AAMVA_VERSIONS = {
       { code: "DCS", label: "Customer Family Name", type: "string", required: true },
       { code: "DCU", label: "Name Suffix", type: "string", required: true },
       { code: "DAG", label: "Address Street", type: "string", required: true },
+      { code: "DAH", label: "Address Line 2", type: "string" },
       { code: "DAI", label: "City", type: "string", required: true },
       { code: "DAJ", label: "Jurisdiction Code", type: "string", required: true },
       { code: "DAK", label: "Postal Code", type: "zip", required: true },
@@ -154,6 +274,7 @@ window.AAMVA_VERSIONS = {
       { code: "DAD", label: "Customer Middle Name", type: "string" },
       { code: "DCU", label: "Name Suffix", type: "string" },
       { code: "DAG", label: "Address Street", type: "string", required: true },
+      { code: "DAH", label: "Address Line 2", type: "string" },
       { code: "DAI", label: "City", type: "string", required: true },
       { code: "DAJ", label: "Jurisdiction Code", type: "string", required: true },
       { code: "DAK", label: "Postal Code", type: "zip", required: true },
@@ -191,6 +312,7 @@ window.AAMVA_VERSIONS = {
       { code: "DAY", label: "Eye Color", type: "string", required: true },
       { code: "DAU", label: "Height", type: "string", required: true },
       { code: "DAG", label: "Address Street", type: "string", required: true },
+      { code: "DAH", label: "Address Line 2", type: "string" },
       { code: "DAI", label: "City", type: "string", required: true },
       { code: "DAJ", label: "Jurisdiction Code", type: "string", required: true },
       { code: "DAK", label: "Postal Code", type: "zip", required: true },
@@ -225,6 +347,7 @@ window.AAMVA_VERSIONS = {
       { code: "DAY", label: "Eye Color", type: "string", required: true },
       { code: "DAU", label: "Height", type: "string", required: true },
       { code: "DAG", label: "Address Street", type: "string", required: true },
+      { code: "DAH", label: "Address Line 2", type: "string" },
       { code: "DAI", label: "City", type: "string", required: true },
       { code: "DAJ", label: "Jurisdiction Code", type: "string", required: true },
       { code: "DAK", label: "Postal Code", type: "zip", required: true },
@@ -259,6 +382,7 @@ window.AAMVA_VERSIONS = {
       { code: "DAY", label: "Eye Color", type: "string", required: true },
       { code: "DAU", label: "Height", type: "string", required: true },
       { code: "DAG", label: "Address Street", type: "string", required: true },
+      { code: "DAH", label: "Address Line 2", type: "string" },
       { code: "DAI", label: "City", type: "string", required: true },
       { code: "DAJ", label: "Jurisdiction Code", type: "string", required: true },
       { code: "DAK", label: "Postal Code", type: "zip", required: true },
@@ -293,6 +417,7 @@ window.AAMVA_VERSIONS = {
       { code: "DAY", label: "Eye Color", type: "string", required: true },
       { code: "DAU", label: "Height", type: "string", required: true },
       { code: "DAG", label: "Address Street", type: "string", required: true },
+      { code: "DAH", label: "Address Line 2", type: "string" },
       { code: "DAI", label: "City", type: "string", required: true },
       { code: "DAJ", label: "Jurisdiction Code", type: "string", required: true },
       { code: "DAK", label: "Postal Code", type: "zip", required: true },
@@ -327,6 +452,7 @@ window.AAMVA_VERSIONS = {
       { code: "DAY", label: "Eye Color", type: "string", required: true },
       { code: "DAU", label: "Height", type: "string", required: true },
       { code: "DAG", label: "Address Street", type: "string", required: true },
+      { code: "DAH", label: "Address Line 2", type: "string" },
       { code: "DAI", label: "City", type: "string", required: true },
       { code: "DAJ", label: "Jurisdiction Code", type: "string", required: true },
       { code: "DAK", label: "Postal Code", type: "zip", required: true },
@@ -363,6 +489,7 @@ window.AAMVA_VERSIONS = {
       { code: "DAY", label: "Eye Color", type: "string", required: true },
       { code: "DAU", label: "Height", type: "string", required: true },
       { code: "DAG", label: "Address Street", type: "string", required: true },
+      { code: "DAH", label: "Address Line 2", type: "string" },
       { code: "DAI", label: "City", type: "string", required: true },
       { code: "DAJ", label: "Jurisdiction Code", type: "string", required: true },
       { code: "DAK", label: "Postal Code", type: "zip", required: true },
@@ -399,6 +526,7 @@ window.AAMVA_VERSIONS = {
       { code: "DAY", label: "Eye Color", type: "string", required: true },
       { code: "DAU", label: "Height", type: "string", required: true },
       { code: "DAG", label: "Address Street", type: "string", required: true },
+      { code: "DAH", label: "Address Line 2", type: "string" },
       { code: "DAI", label: "City", type: "string", required: true },
       { code: "DAJ", label: "Jurisdiction Code", type: "string", required: true },
       { code: "DAK", label: "Postal Code", type: "zip", required: true },
@@ -456,16 +584,20 @@ window.describeVersion = function(v) {
   );
 };
 
-// Validate field, type, required-ness
+// Validate field, type, required-ness, and length limits
 window.validateFieldValue = function(field, value) {
   if (field.required && !value) return false;
   if (!value) return true;
+
+  // Check length limit
+  const maxLen = window.AAMVA_FIELD_LIMITS[field.code];
+  if (maxLen && value.length > maxLen) return false;
 
   switch (field.type) {
     case "date":
       return /^\d{8}$/.test(value); // MMDDCCYY or CCYYMMDD
     case "zip":
-      return /^\d{5}(-\d{4})?$/.test(value);
+      return /^\d{5}(-?\d{4})?$/.test(value);
     case "char":
       return /^[A-Z0-9]$/.test(value);
     case "string":
