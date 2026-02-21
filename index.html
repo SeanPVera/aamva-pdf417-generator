@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AAMVA PDF417 Generator – Deluxe Edition</title>
   <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/themes.css">
 </head>
 <body>
   <div class="app">
@@ -100,17 +99,26 @@
       </section>
 
       <section id="decodedOutputSection" aria-label="Decoded output">
-        <h2>Decoded Output</h2>
+        <div class="section-header">
+          <h2>Decoded Output</h2>
+          <button class="copy-btn" data-target="decodedOutput" aria-label="Copy decoded output">Copy</button>
+        </div>
         <textarea id="decodedOutput" readonly aria-label="Decoded barcode output"></textarea>
       </section>
 
       <section id="rawCodewordsSection" aria-label="Raw codewords">
-        <h2>Raw Codewords</h2>
+        <div class="section-header">
+          <h2>Raw Codewords</h2>
+          <button class="copy-btn" data-target="rawCodewords" aria-label="Copy raw codewords">Copy</button>
+        </div>
         <textarea id="rawCodewords" readonly aria-label="Raw codeword values"></textarea>
       </section>
 
       <section id="payloadInspectorSection" aria-label="Payload inspector">
-        <h2>Payload Inspector</h2>
+        <div class="section-header">
+          <h2>Payload Inspector</h2>
+          <button class="copy-btn" data-target="payloadInspector" aria-label="Copy payload inspector output">Copy</button>
+        </div>
         <textarea id="payloadInspector" readonly aria-label="Payload inspector output"></textarea>
       </section>
 

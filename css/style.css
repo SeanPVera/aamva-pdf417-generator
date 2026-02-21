@@ -288,6 +288,42 @@ button:focus-visible {
   cursor: pointer;
 }
 
+/* Section headers with copy buttons */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.section-header h2 {
+  margin-bottom: 0;
+}
+
+.copy-btn {
+  width: auto;
+  padding: 4px 12px;
+  font-size: 12px;
+  margin-bottom: 0;
+}
+
+/* Drag-and-drop highlight */
+#sidebar.drag-over {
+  outline: 3px dashed #0066cc;
+  outline-offset: -3px;
+  background-color: color-mix(in srgb, var(--sidebar-bg) 85%, #0066cc);
+}
+
+/* Field validation indicators */
+.field-valid {
+  border-color: #2d8a2d !important;
+}
+
+.field-invalid {
+  border-color: var(--error-border) !important;
+  background-color: color-mix(in srgb, var(--bg-color) 92%, var(--error-bg)) !important;
+}
+
 /* Focus styling for accessibility */
 select:focus-visible,
 input:focus-visible,

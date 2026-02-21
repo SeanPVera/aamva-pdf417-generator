@@ -322,6 +322,45 @@ function hookEvents() {
   document.getElementById("exportSvgBtn").addEventListener("click", exportSVG);
   document.getElementById("exportJsonBtn").addEventListener("click", exportJSON);
   document.getElementById("clearFormBtn").addEventListener("click", clearForm);
+
+  // Copy-to-clipboard buttons
+  document.querySelectorAll(".copy-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const targetId = btn.dataset.target;
+      const el = document.getElementById(targetId);
+      if (el && el.value) {
+        navigator.clipboard.writeText(el.value).then(() => {
+          const orig = btn.textContent;
+          btn.textContent = "Copied!";
+          setTimeout(() => { btn.textContent = orig; }, 1500);
+        }).catch(() => {
+          // Fallback: select text
+          el.select();
+          document.execCommand("copy");
+        });
+      }
+    });
+  });
+
+  // Drag-and-drop JSON import on sidebar
+  const sidebar = document.getElementById("sidebar");
+  sidebar.addEventListener("dragover", e => {
+    e.preventDefault();
+    sidebar.classList.add("drag-over");
+  });
+  sidebar.addEventListener("dragleave", () => {
+    sidebar.classList.remove("drag-over");
+  });
+  sidebar.addEventListener("drop", e => {
+    e.preventDefault();
+    sidebar.classList.remove("drag-over");
+    const file = e.dataTransfer.files[0];
+    if (file) {
+      // Reuse the file import handler
+      const fakeEvent = { target: { files: [file] } };
+      handleJSONImport(fakeEvent);
+    }
+  });
 }
 
 function hookKeyboardShortcuts() {
@@ -478,6 +517,8 @@ function validateUnknownFields(obj) {
 }
 
 function validateFields(obj) {
+  let firstError = null;
+
   for (const field of currentFields) {
     const raw = obj[field.code] || "";
     const val = sanitizeFieldValue(raw);
@@ -489,15 +530,30 @@ function validateFields(obj) {
       obj[field.code] = val;
     }
 
-    if (!window.validateFieldValue(field, val)) {
+    const el = document.getElementById(field.code);
+    const isValid = window.validateFieldValue(field, val);
+
+    // Apply visual indicators
+    if (el) {
+      el.classList.remove("field-valid", "field-invalid");
+      if (val) {
+        el.classList.add(isValid ? "field-valid" : "field-invalid");
+      }
+    }
+
+    if (!isValid && !firstError) {
       const maxLen = window.AAMVA_FIELD_LIMITS && window.AAMVA_FIELD_LIMITS[field.code];
       if (maxLen && val.length > maxLen) {
-        showError(`${field.code} (${field.label}) exceeds max length of ${maxLen}`);
+        firstError = `${field.code} (${field.label}) exceeds max length of ${maxLen}`;
       } else {
-        showError(`Invalid value for ${field.code} (${field.label})`);
+        firstError = `Invalid value for ${field.code} (${field.label})`;
       }
-      return false;
     }
+  }
+
+  if (firstError) {
+    showError(firstError);
+    return false;
   }
   return true;
 }
@@ -570,6 +626,16 @@ function renderBarcode(text) {
 
 function renderDecoded(obj) {
   const out = document.getElementById("decodedOutput");
+
+  // Use the decoder's field mapper if available for human-readable output
+  if (window.AAMVA_DECODER && obj.version) {
+    const decoded = window.AAMVA_DECODER.decode(JSON.stringify(obj));
+    if (decoded.ok && decoded.mapped) {
+      out.value = decoded.mapped;
+      return;
+    }
+  }
+
   out.value = JSON.stringify(obj, null, 2);
 }
 
@@ -739,7 +805,30 @@ function clearForm() {
     const el = document.getElementById(f.code);
     if (el) el.value = "";
   });
-  liveUpdate();
+
+  // Clear canvas
+  const canvas = document.getElementById("barcodeCanvas");
+  if (canvas) {
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+
+  // Clear output panes
+  const paneIds = ["decodedOutput", "rawCodewords", "payloadInspector"];
+  paneIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = "";
+  });
+
+  // Clear dimension label
+  const dimLabel = document.getElementById("barcodeDimensions");
+  if (dimLabel) dimLabel.textContent = "";
+
+  // Reset cached state
+  lastMatrix = null;
+  lastPayloadText = null;
+
+  hideError();
   saveToLocalStorage();
 }
 
@@ -800,6 +889,8 @@ async function handleJSONImport(e) {
    UNDO / REDO
    ============================================================ */
 
+const HISTORY_MAX = 100;
+
 function snapshotHistory(obj) {
   if (isRestoringSnapshot) return;
   clearTimeout(snapshotTimer);
@@ -809,6 +900,10 @@ function snapshotHistory(obj) {
     if (historyStack[historyIndex] === snap) return;
     historyStack = historyStack.slice(0, historyIndex + 1);
     historyStack.push(snap);
+    // Cap history size to prevent unbounded memory growth
+    if (historyStack.length > HISTORY_MAX) {
+      historyStack = historyStack.slice(historyStack.length - HISTORY_MAX);
+    }
     historyIndex = historyStack.length - 1;
   }, 500);
 }

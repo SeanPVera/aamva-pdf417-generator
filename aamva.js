@@ -606,17 +606,27 @@ window.validateFieldValue = function(field, value) {
   }
 };
 
-// Build minimal payload object for encoding
-window.buildPayloadObject = function(stateCode, version, fields) {
+// Build minimal payload object for encoding.
+// If valuesMap is provided, uses it directly (for Node/test environments).
+// Otherwise reads from DOM elements (browser).
+window.buildPayloadObject = function(stateCode, version, fields, valuesMap) {
   const obj = {
     state: stateCode,
     version: version
   };
 
-  fields.forEach(f => {
-    const el = document.getElementById(f.code);
-    if (el) obj[f.code] = el.value || "";
-  });
+  if (valuesMap) {
+    // Use provided values map (Node.js / test environment)
+    fields.forEach(f => {
+      obj[f.code] = valuesMap[f.code] || "";
+    });
+  } else {
+    // Read from DOM (browser environment)
+    fields.forEach(f => {
+      const el = typeof document !== "undefined" && document.getElementById(f.code);
+      if (el) obj[f.code] = el.value || "";
+    });
+  }
 
   return obj;
 };

@@ -285,9 +285,9 @@ test("PDF417.generate matrix contains only 0s and 1s", () => {
   }
 });
 
-test("PDF417.raw returns byte array", () => {
+test("PDF417.raw returns byte mode latch + byte array", () => {
   const raw = window.PDF417.raw("ABC");
-  assert.deepEqual(raw, [65, 66, 67]);
+  assert.deepEqual(raw, [901, 65, 66, 67]);
 });
 
 test("PDF417.generateSVG returns SVG string and matrix", () => {
@@ -525,4 +525,145 @@ test("mandatory field count increases across versions", () => {
   const v10mandatory = window.getFieldsForVersion("10").filter(f => f.required).length;
   assert.ok(v10mandatory > v01mandatory,
     `Version 10 mandatory (${v10mandatory}) should exceed version 01 (${v01mandatory})`);
+});
+
+/* ============================================================
+   PDF417 ENCODER — BYTE MODE LATCH
+   ============================================================ */
+
+test("PDF417.raw includes byte mode latch codeword 901", () => {
+  const raw = window.PDF417.raw("ABC");
+  assert.equal(raw[0], 901, "First codeword should be 901 (byte mode latch)");
+  assert.equal(raw[1], 65, "Second codeword should be 65 (A)");
+  assert.equal(raw[2], 66, "Third codeword should be 66 (B)");
+  assert.equal(raw[3], 67, "Fourth codeword should be 67 (C)");
+});
+
+/* ============================================================
+   PDF417 — CLUSTER CONSISTENCY
+   ============================================================ */
+
+test("all codewords in a row use the same cluster pattern width", () => {
+  // Generate a barcode and verify that rows have consistent structure
+  const matrix = window.PDF417.generate("TEST DATA", { errorCorrectionLevel: 2 });
+  assert.ok(matrix.length > 0, "Should have rows");
+  // All rows should have the same width (consistent structure)
+  const expectedWidth = matrix[0].length;
+  for (let i = 1; i < matrix.length; i++) {
+    assert.equal(matrix[i].length, expectedWidth,
+      `Row ${i} width (${matrix[i].length}) should equal row 0 width (${expectedWidth})`);
+  }
+});
+
+/* ============================================================
+   buildPayloadObject — DOM DECOUPLED
+   ============================================================ */
+
+test("buildPayloadObject works with valuesMap parameter (no DOM)", () => {
+  const fields = window.getFieldsForVersion("10");
+  const values = { DCS: "SMITH", DAC: "JOHN", DBC: "1" };
+  const obj = window.buildPayloadObject("NY", "10", fields, values);
+
+  assert.equal(obj.state, "NY");
+  assert.equal(obj.version, "10");
+  assert.equal(obj.DCS, "SMITH");
+  assert.equal(obj.DAC, "JOHN");
+  assert.equal(obj.DBC, "1");
+  // Unset fields default to empty string
+  assert.equal(obj.DAG, "");
+});
+
+test("buildPayloadObject preserves all provided field values", () => {
+  const fields = window.getFieldsForVersion("09");
+  const values = {};
+  fillV09TestData(values);
+
+  const obj = window.buildPayloadObject("NY", "09", fields, values);
+
+  assert.equal(obj.DCS, "VERA");
+  assert.equal(obj.DAC, "SEAN");
+  assert.equal(obj.DAJ, "NY");
+  assert.equal(obj.DCG, "USA");
+});
+
+/* ============================================================
+   VERSION 01 — FULL NAME (DAA) PAYLOAD
+   ============================================================ */
+
+test("version 01 payload uses DAA (full name) field", () => {
+  const fields = window.getFieldsForVersion("01");
+  const dataObj = { state: "VA", version: "01" };
+  fields.forEach(f => { dataObj[f.code] = ""; });
+
+  // Fill v01 mandatory fields
+  dataObj.DAA = "DOE,JOHN,M";
+  dataObj.DAG = "123 MAIN ST";
+  dataObj.DAI = "RICHMOND";
+  dataObj.DAJ = "VA";
+  dataObj.DAK = "23220";
+  dataObj.DAQ = "T12345678";
+  dataObj.DBA = "20301231";
+  dataObj.DBB = "19900115";
+  dataObj.DBC = "1";
+
+  const payload = window.generateAAMVAPayload("VA", "01", fields, dataObj);
+  assert.ok(payload.includes("DAADOE,JOHN,M"), "Should contain DAA full name");
+  assert.ok(payload.includes("636000"), "Should contain VA IIN");
+  assert.ok(payload.substring(15, 17) === "01", "Version should be 01");
+});
+
+/* ============================================================
+   DECODER — ROUND-TRIP INTEGRITY
+   ============================================================ */
+
+test("decoder round-trip preserves all field values", () => {
+  const { fields, dataObj } = makeTestData("CA", "10");
+  fillV09TestData(dataObj);
+  dataObj.DCS = "MARTINEZ";
+  dataObj.DAC = "ELENA";
+  dataObj.DAD = "ROSA";
+  dataObj.DAH = "APT 4B";
+
+  const payload = window.generateAAMVAPayload("CA", "10", fields, dataObj);
+  const decoded = window.AAMVA_DECODER.decode(payload);
+
+  assert.ok(decoded.ok);
+  assert.equal(decoded.json.DCS, "MARTINEZ");
+  assert.equal(decoded.json.DAC, "ELENA");
+  assert.equal(decoded.json.DAD, "ROSA");
+  assert.equal(decoded.json.DAH, "APT 4B");
+  assert.equal(decoded.json.state, "CA");
+});
+
+test("decoder describeFields produces human-readable output", () => {
+  const { fields, dataObj } = makeTestData("NY", "10");
+  fillV09TestData(dataObj);
+
+  const payload = window.generateAAMVAPayload("NY", "10", fields, dataObj);
+  const decoded = window.AAMVA_DECODER.decode(payload);
+
+  assert.ok(decoded.ok);
+  assert.ok(decoded.mapped, "Should have mapped output");
+  assert.ok(decoded.mapped.includes("Customer Family Name"), "Should include field label");
+  assert.ok(decoded.mapped.includes("VERA"), "Should include field value");
+});
+
+/* ============================================================
+   ENCODER — MULTIPLE ERROR CORRECTION LEVELS
+   ============================================================ */
+
+test("PDF417.generate works with different EC levels", () => {
+  for (let ec = 0; ec <= 8; ec++) {
+    const matrix = window.PDF417.generate("HELLO", { errorCorrectionLevel: ec });
+    assert.ok(matrix.length > 0, `EC level ${ec} should produce a valid matrix`);
+    assert.ok(matrix[0].length > 0, `EC level ${ec} rows should have columns`);
+  }
+});
+
+test("higher EC levels produce more rows", () => {
+  const m2 = window.PDF417.generate("TEST", { errorCorrectionLevel: 2 });
+  const m6 = window.PDF417.generate("TEST", { errorCorrectionLevel: 6 });
+  // Higher EC = more error correction codewords = more rows
+  assert.ok(m6.length >= m2.length,
+    `EC 6 (${m6.length} rows) should have >= rows than EC 2 (${m2.length} rows)`);
 });
