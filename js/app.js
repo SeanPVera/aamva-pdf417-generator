@@ -20,6 +20,7 @@ const generateAAMVAPayload = window.generateAAMVAPayload;
 let currentState = null;
 let currentVersion = null;
 let currentFields = [];
+let currentAllowedFieldSet = new Set(["state", "version"]);
 
 let historyStack = [];
 let historyIndex = -1;
@@ -140,6 +141,7 @@ function renderFields(preserveValues) {
   if (!currentVersion) return;
 
   currentFields = window.getFieldsForVersion(currentVersion);
+  currentAllowedFieldSet = new Set(["state", "version", ...currentFields.map(f => f.code)]);
 
   currentFields.forEach(field => {
     const div = document.createElement("div");
@@ -298,11 +300,11 @@ function hookEvents() {
   const fieldsContainer = document.getElementById("fields");
   if (fieldsContainer) {
     fieldsContainer.addEventListener("input", () => {
-      liveUpdate();
+      scheduleLiveUpdate();
       debounceSave();
     });
     fieldsContainer.addEventListener("change", () => {
-      liveUpdate();
+      scheduleLiveUpdate();
       debounceSave();
     });
   }
@@ -457,16 +459,32 @@ function updateSizerInfo() {
     `Quiet zone: ${s.quietZone} modules each side`;
 }
 
+let reRenderRaf = null;
+
 function reRenderBarcode() {
-  if (lastPayloadText) {
+  if (!lastPayloadText) return;
+  if (reRenderRaf !== null) return;
+
+  reRenderRaf = requestAnimationFrame(() => {
+    reRenderRaf = null;
     renderBarcode(lastPayloadText);
-  }
+  });
 }
 
 
 /* ============================================================
    LIVE UPDATE
    ============================================================ */
+
+let liveUpdateRaf = null;
+
+function scheduleLiveUpdate() {
+  if (liveUpdateRaf !== null) return;
+  liveUpdateRaf = requestAnimationFrame(() => {
+    liveUpdateRaf = null;
+    liveUpdate();
+  });
+}
 
 function liveUpdate() {
   if (!currentState || !currentVersion) return;
@@ -505,10 +523,8 @@ function validateUnknownFields(obj) {
   if (window.AAMVA_UNKNOWN_FIELD_POLICY !== "reject") return true;
   if (!obj) return true;
 
-  const allowed = new Set(["state", "version", ...currentFields.map(f => f.code)]);
-
   for (const k of Object.keys(obj)) {
-    if (!allowed.has(k)) {
+    if (!currentAllowedFieldSet.has(k)) {
       showError(`Unknown field: ${k}`);
       return false;
     }
