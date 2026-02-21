@@ -290,6 +290,22 @@ test("PDF417.raw returns byte mode latch + byte array", () => {
   assert.deepEqual(raw, [901, 65, 66, 67]);
 });
 
+test("PDF417.raw uses 924 compaction for full 6-byte blocks", () => {
+  const raw = window.PDF417.raw("ABCDEF");
+  assert.equal(raw[0], 924, "Expected 924 latch for 6-byte compaction");
+  assert.equal(raw.length, 6, "924 mode should emit 5 codewords for 6 bytes");
+  raw.slice(1).forEach(cw => {
+    assert.ok(cw >= 0 && cw < 900, `Codeword ${cw} must be in [0, 899]`);
+  });
+});
+
+test("PDF417.raw keeps UTF-8 bytes in byte compaction", () => {
+  const raw = window.PDF417.raw("José");
+  // "é" in UTF-8 is C3 A9 and should not collapse into Latin-1 single byte.
+  assert.ok(raw.includes(0xC3), "Should include UTF-8 leading byte for é");
+  assert.ok(raw.includes(0xA9), "Should include UTF-8 trailing byte for é");
+});
+
 test("PDF417.generateSVG returns SVG string and matrix", () => {
   const result = window.PDF417.generateSVG("TEST");
   assert.ok(result.svg, "Should have svg property");
