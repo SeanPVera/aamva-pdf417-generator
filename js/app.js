@@ -93,7 +93,7 @@ function populateStateList() {
         opt.disabled = true;
       } else {
         opt.value = code;
-        opt.textContent = `${code} (v${meta.aamvaVersion})`;
+        opt.textContent = `${code} — ${meta.name} (v${meta.aamvaVersion})`;
       }
 
       sel.appendChild(opt);
@@ -123,8 +123,18 @@ const FIELD_HINTS = {
   char: "Single character (1=M, 2=F, 9=X)"
 };
 
-function renderFields() {
+function renderFields(preserveValues) {
   const wrap = document.getElementById("fields");
+
+  // Capture existing field values before clearing
+  const savedValues = {};
+  if (preserveValues && currentFields.length > 0) {
+    currentFields.forEach(f => {
+      const el = document.getElementById(f.code);
+      if (el && el.value) savedValues[f.code] = el.value;
+    });
+  }
+
   wrap.innerHTML = "";
 
   if (!currentVersion) return;
@@ -136,25 +146,123 @@ function renderFields() {
     if (field.required) div.classList.add("field-required");
 
     const label = document.createElement("label");
+    label.setAttribute("for", field.code);
     label.textContent = `${field.code} — ${field.label}`;
     div.appendChild(label);
 
-    const input = document.createElement("input");
-    input.type = "text";
-    input.id = field.code;
-    input.placeholder = field.label;
-    div.appendChild(input);
+    const options = window.AAMVA_FIELD_OPTIONS && window.AAMVA_FIELD_OPTIONS[field.code];
+    const maxLen = window.AAMVA_FIELD_LIMITS && window.AAMVA_FIELD_LIMITS[field.code];
 
-    // Add type hints for non-string fields
-    const hint = FIELD_HINTS[field.type];
-    if (hint) {
-      const hintEl = document.createElement("div");
-      hintEl.className = "field-hint";
-      hintEl.textContent = hint;
-      div.appendChild(hintEl);
+    if (options) {
+      // Render as dropdown for constrained fields
+      const select = document.createElement("select");
+      select.id = field.code;
+      select.setAttribute("aria-label", field.label);
+
+      const emptyOpt = document.createElement("option");
+      emptyOpt.value = "";
+      emptyOpt.textContent = `Select ${field.label}...`;
+      select.appendChild(emptyOpt);
+
+      options.forEach(opt => {
+        const optEl = document.createElement("option");
+        optEl.value = opt.value;
+        optEl.textContent = opt.label;
+        select.appendChild(optEl);
+      });
+
+      div.appendChild(select);
+    } else if (field.type === "date") {
+      // Render date field with both text input and date picker
+      const inputWrap = document.createElement("div");
+      inputWrap.className = "date-field-wrap";
+
+      const input = document.createElement("input");
+      input.type = "text";
+      input.id = field.code;
+      input.placeholder = "MMDDYYYY";
+      input.setAttribute("aria-label", field.label);
+      input.pattern = "\\d{8}";
+      if (maxLen) input.maxLength = maxLen;
+      inputWrap.appendChild(input);
+
+      const picker = document.createElement("input");
+      picker.type = "date";
+      picker.className = "date-picker";
+      picker.setAttribute("aria-label", `${field.label} date picker`);
+      picker.addEventListener("change", () => {
+        if (picker.value) {
+          // Convert YYYY-MM-DD to MMDDYYYY
+          const [y, m, d] = picker.value.split("-");
+          input.value = m + d + y;
+          input.dispatchEvent(new Event("input", { bubbles: true }));
+        }
+      });
+      inputWrap.appendChild(picker);
+
+      div.appendChild(inputWrap);
+    } else {
+      const input = document.createElement("input");
+      input.type = "text";
+      input.id = field.code;
+      input.placeholder = field.label;
+      input.setAttribute("aria-label", field.label);
+      if (maxLen) input.maxLength = maxLen;
+      div.appendChild(input);
+    }
+
+    // Add type hints for non-dropdown, non-date fields
+    if (!options && field.type !== "date") {
+      const hint = FIELD_HINTS[field.type];
+      if (hint) {
+        const hintEl = document.createElement("div");
+        hintEl.className = "field-hint";
+        hintEl.textContent = hint;
+        div.appendChild(hintEl);
+      }
+    }
+
+    // Show max length hint for free-text fields
+    if (!options && maxLen && field.type !== "date") {
+      const lenHint = document.createElement("div");
+      lenHint.className = "field-hint";
+      lenHint.textContent = `Max length: ${maxLen}`;
+      div.appendChild(lenHint);
     }
 
     wrap.appendChild(div);
+  });
+
+  // Restore saved values for fields that still exist
+  if (preserveValues) {
+    for (const [code, val] of Object.entries(savedValues)) {
+      const el = document.getElementById(code);
+      if (el) el.value = val;
+    }
+  }
+}
+
+
+/* ============================================================
+   AUTO-FILL DERIVABLE FIELDS
+   ============================================================ */
+
+function autoFillStateFields(stateCode) {
+  const stateDef = window.AAMVA_STATES[stateCode];
+  if (!stateDef) return;
+
+  // Auto-fill jurisdiction code (DAJ) with state code
+  const daj = document.getElementById("DAJ");
+  if (daj && !daj.value) daj.value = stateCode;
+
+  // Auto-fill country (DCG) with USA
+  const dcg = document.getElementById("DCG");
+  if (dcg && !dcg.value) dcg.value = "USA";
+
+  // Auto-fill truncation indicators with "N" (Not Truncated) defaults
+  ["DDE", "DDF", "DDG"].forEach(code => {
+    const el = document.getElementById(code);
+    if (el && !el.value) el.value = "N";
   });
 }
 
@@ -172,7 +280,8 @@ function hookEvents() {
     if (stateVersion && window.AAMVA_VERSIONS[stateVersion]) {
       document.getElementById("versionSelect").value = stateVersion;
       currentVersion = stateVersion;
-      renderFields();
+      renderFields(true);
+      autoFillStateFields(currentState);
     }
 
     liveUpdate();
@@ -181,7 +290,7 @@ function hookEvents() {
 
   document.getElementById("versionSelect").addEventListener("change", e => {
     currentVersion = e.target.value;
-    renderFields();
+    renderFields(true);
     liveUpdate();
     saveToLocalStorage();
   });
@@ -189,6 +298,10 @@ function hookEvents() {
   const fieldsContainer = document.getElementById("fields");
   if (fieldsContainer) {
     fieldsContainer.addEventListener("input", () => {
+      liveUpdate();
+      debounceSave();
+    });
+    fieldsContainer.addEventListener("change", () => {
       liveUpdate();
       debounceSave();
     });
@@ -207,6 +320,47 @@ function hookEvents() {
   document.getElementById("exportPngBtn").addEventListener("click", exportPNG);
   document.getElementById("exportPdfBtn").addEventListener("click", exportPDF);
   document.getElementById("exportSvgBtn").addEventListener("click", exportSVG);
+  document.getElementById("exportJsonBtn").addEventListener("click", exportJSON);
+  document.getElementById("clearFormBtn").addEventListener("click", clearForm);
+
+  // Copy-to-clipboard buttons
+  document.querySelectorAll(".copy-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const targetId = btn.dataset.target;
+      const el = document.getElementById(targetId);
+      if (el && el.value) {
+        navigator.clipboard.writeText(el.value).then(() => {
+          const orig = btn.textContent;
+          btn.textContent = "Copied!";
+          setTimeout(() => { btn.textContent = orig; }, 1500);
+        }).catch(() => {
+          // Fallback: select text
+          el.select();
+          document.execCommand("copy");
+        });
+      }
+    });
+  });
+
+  // Drag-and-drop JSON import on sidebar
+  const sidebar = document.getElementById("sidebar");
+  sidebar.addEventListener("dragover", e => {
+    e.preventDefault();
+    sidebar.classList.add("drag-over");
+  });
+  sidebar.addEventListener("dragleave", () => {
+    sidebar.classList.remove("drag-over");
+  });
+  sidebar.addEventListener("drop", e => {
+    e.preventDefault();
+    sidebar.classList.remove("drag-over");
+    const file = e.dataTransfer.files[0];
+    if (file) {
+      // Reuse the file import handler
+      const fakeEvent = { target: { files: [file] } };
+      handleJSONImport(fakeEvent);
+    }
+  });
 }
 
 function hookKeyboardShortcuts() {
@@ -295,7 +449,7 @@ function updateSizerInfo() {
   // How many modules fit in the width
   const modulesAcross = Math.floor(s.widthMM / (s.moduleWidthMil * 0.0254));
 
-  info.innerHTML =
+  info.textContent =
     `Physical: ${s.widthMM} x ${s.heightMM} mm (${widthIn}" x ${heightIn}")\n` +
     `Module: ${s.moduleWidthMil} mil (${moduleWidthMM} mm)\n` +
     `Export: ${exportWidthPx} x ${exportHeightPx} px @ ${s.dpi} DPI\n` +
@@ -363,6 +517,8 @@ function validateUnknownFields(obj) {
 }
 
 function validateFields(obj) {
+  let firstError = null;
+
   for (const field of currentFields) {
     const raw = obj[field.code] || "";
     const val = sanitizeFieldValue(raw);
@@ -374,10 +530,30 @@ function validateFields(obj) {
       obj[field.code] = val;
     }
 
-    if (!window.validateFieldValue(field, val)) {
-      showError(`Invalid value for ${field.code} (${field.label})`);
-      return false;
+    const el = document.getElementById(field.code);
+    const isValid = window.validateFieldValue(field, val);
+
+    // Apply visual indicators
+    if (el) {
+      el.classList.remove("field-valid", "field-invalid");
+      if (val) {
+        el.classList.add(isValid ? "field-valid" : "field-invalid");
+      }
     }
+
+    if (!isValid && !firstError) {
+      const maxLen = window.AAMVA_FIELD_LIMITS && window.AAMVA_FIELD_LIMITS[field.code];
+      if (maxLen && val.length > maxLen) {
+        firstError = `${field.code} (${field.label}) exceeds max length of ${maxLen}`;
+      } else {
+        firstError = `Invalid value for ${field.code} (${field.label})`;
+      }
+    }
+  }
+
+  if (firstError) {
+    showError(firstError);
+    return false;
   }
   return true;
 }
@@ -450,6 +626,16 @@ function renderBarcode(text) {
 
 function renderDecoded(obj) {
   const out = document.getElementById("decodedOutput");
+
+  // Use the decoder's field mapper if available for human-readable output
+  if (window.AAMVA_DECODER && obj.version) {
+    const decoded = window.AAMVA_DECODER.decode(JSON.stringify(obj));
+    if (decoded.ok && decoded.mapped) {
+      out.value = decoded.mapped;
+      return;
+    }
+  }
+
   out.value = JSON.stringify(obj, null, 2);
 }
 
@@ -596,6 +782,56 @@ function exportSVG() {
   }
 }
 
+function exportJSON() {
+  if (!currentState || !currentVersion) return;
+
+  try {
+    const payloadObj = window.buildPayloadObject(currentState, currentVersion, currentFields);
+    const json = JSON.stringify(payloadObj, null, 2);
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `aamva_${currentState}_${currentVersion}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  } catch (err) {
+    showError("JSON Export Error: " + err.message);
+  }
+}
+
+function clearForm() {
+  currentFields.forEach(f => {
+    const el = document.getElementById(f.code);
+    if (el) el.value = "";
+  });
+
+  // Clear canvas
+  const canvas = document.getElementById("barcodeCanvas");
+  if (canvas) {
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+
+  // Clear output panes
+  const paneIds = ["decodedOutput", "rawCodewords", "payloadInspector"];
+  paneIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = "";
+  });
+
+  // Clear dimension label
+  const dimLabel = document.getElementById("barcodeDimensions");
+  if (dimLabel) dimLabel.textContent = "";
+
+  // Reset cached state
+  lastMatrix = null;
+  lastPayloadText = null;
+
+  hideError();
+  saveToLocalStorage();
+}
+
 
 /* ============================================================
    JSON IMPORT
@@ -653,6 +889,8 @@ async function handleJSONImport(e) {
    UNDO / REDO
    ============================================================ */
 
+const HISTORY_MAX = 100;
+
 function snapshotHistory(obj) {
   if (isRestoringSnapshot) return;
   clearTimeout(snapshotTimer);
@@ -662,6 +900,10 @@ function snapshotHistory(obj) {
     if (historyStack[historyIndex] === snap) return;
     historyStack = historyStack.slice(0, historyIndex + 1);
     historyStack.push(snap);
+    // Cap history size to prevent unbounded memory growth
+    if (historyStack.length > HISTORY_MAX) {
+      historyStack = historyStack.slice(historyStack.length - HISTORY_MAX);
+    }
     historyIndex = historyStack.length - 1;
   }, 500);
 }
@@ -756,6 +998,7 @@ function restoreFromLocalStorage() {
       }
       if (currentVersion) {
         renderFields();
+        autoFillStateFields(currentState);
       }
       return;
     }
@@ -811,6 +1054,7 @@ function showError(msg) {
   const box = document.getElementById("errorBox");
   box.style.display = "block";
   box.textContent = msg;
+  box.setAttribute("role", "alert");
 }
 
 function hideError() {

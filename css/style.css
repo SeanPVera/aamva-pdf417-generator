@@ -1,5 +1,5 @@
 /*
- * Basic CSS for AAMVA PDF417 Generator
+ * CSS for AAMVA PDF417 Generator
  */
 
 :root {
@@ -10,6 +10,8 @@
   --error-bg: #ffcccc;
   --error-text: #cc0000;
   --error-border: #cc0000;
+  --btn-bg: #e8e8e8;
+  --btn-hover-bg: #d0d0d0;
 }
 
 [data-theme="dark"] {
@@ -20,6 +22,8 @@
   --error-bg: #4a1c1c;
   --error-text: #ff6b6b;
   --error-border: #ff4444;
+  --btn-bg: #3e3e3e;
+  --btn-hover-bg: #505050;
 }
 
 [data-theme="dmv"] {
@@ -30,10 +34,16 @@
   --error-bg: #ffe0e0;
   --error-text: #990000;
   --error-border: #cc3333;
+  --btn-bg: #99ccff;
+  --btn-hover-bg: #80bfff;
+}
+
+* {
+  box-sizing: border-box;
 }
 
 body {
-  font-family: sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   margin: 0;
   display: flex;
   height: 100vh;
@@ -47,7 +57,8 @@ body {
 }
 
 #sidebar {
-  width: 300px;
+  width: 340px;
+  min-width: 340px;
   background-color: var(--sidebar-bg);
   padding: 20px;
   border-right: 1px solid var(--border-color);
@@ -81,6 +92,10 @@ select, input[type="text"], input[type="file"], textarea, button {
   padding: 8px;
   margin-bottom: 10px;
   box-sizing: border-box;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
 }
 
 textarea {
@@ -91,11 +106,39 @@ textarea {
 
 button {
   cursor: pointer;
+  background-color: var(--btn-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-weight: 500;
+  transition: background-color 0.15s;
+}
+
+button:hover {
+  background-color: var(--btn-hover-bg);
+}
+
+button:focus-visible {
+  outline: 2px solid #0066cc;
+  outline-offset: 2px;
 }
 
 .export-buttons {
   display: flex;
   gap: 10px;
+}
+
+.export-buttons button {
+  flex: 1;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.form-actions button {
+  flex: 1;
 }
 
 #barcodeWrapper {
@@ -172,6 +215,7 @@ button {
   background: var(--sidebar-bg);
   border-radius: 3px;
   line-height: 1.5;
+  white-space: pre-line;
 }
 
 #quietZone {
@@ -192,6 +236,7 @@ button {
   color: var(--error-text);
   padding: 10px;
   border: 1px solid var(--error-border);
+  border-radius: 4px;
   display: none;
   margin-bottom: 10px;
 }
@@ -221,4 +266,142 @@ button {
   opacity: 0.6;
   margin-top: -6px;
   margin-bottom: 4px;
+}
+
+/* Date field with inline picker */
+.date-field-wrap {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.date-field-wrap input[type="text"] {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.date-field-wrap .date-picker {
+  width: 40px;
+  min-width: 40px;
+  padding: 6px 4px;
+  margin-bottom: 0;
+  cursor: pointer;
+}
+
+/* Section headers with copy buttons */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.section-header h2 {
+  margin-bottom: 0;
+}
+
+.copy-btn {
+  width: auto;
+  padding: 4px 12px;
+  font-size: 12px;
+  margin-bottom: 0;
+}
+
+/* Drag-and-drop highlight */
+#sidebar.drag-over {
+  outline: 3px dashed #0066cc;
+  outline-offset: -3px;
+  background-color: color-mix(in srgb, var(--sidebar-bg) 85%, #0066cc);
+}
+
+/* Field validation indicators */
+.field-valid {
+  border-color: #2d8a2d !important;
+}
+
+.field-invalid {
+  border-color: var(--error-border) !important;
+  background-color: color-mix(in srgb, var(--bg-color) 92%, var(--error-bg)) !important;
+}
+
+/* Focus styling for accessibility */
+select:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid #0066cc;
+  outline-offset: 1px;
+}
+
+/* ============================================================
+   MOBILE RESPONSIVE LAYOUT
+   ============================================================ */
+
+@media (max-width: 768px) {
+  body {
+    height: auto;
+    min-height: 100vh;
+  }
+
+  .app {
+    flex-direction: column;
+  }
+
+  #sidebar {
+    width: 100%;
+    min-width: 0;
+    border-right: none;
+    border-bottom: 1px solid var(--border-color);
+    max-height: none;
+    padding: 16px;
+  }
+
+  #content {
+    padding: 16px;
+  }
+
+  .export-buttons {
+    flex-wrap: wrap;
+  }
+
+  .export-buttons button {
+    min-width: calc(50% - 5px);
+  }
+
+  .form-actions {
+    flex-wrap: wrap;
+  }
+
+  .sizer-grid {
+    grid-template-columns: 1fr;
+  }
+
+  #barcodeCanvas {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  #sidebar {
+    padding: 12px;
+  }
+
+  #content {
+    padding: 12px;
+  }
+
+  h1 {
+    font-size: 1.3em;
+  }
+
+  h2 {
+    font-size: 1.1em;
+  }
+
+  .export-buttons {
+    flex-direction: column;
+  }
+
+  .export-buttons button {
+    min-width: 100%;
+  }
 }
