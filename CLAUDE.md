@@ -27,7 +27,7 @@ This file provides AI assistants (Claude, Copilot, etc.) with the context needed
 ├── js/
 │   └── app.js              # UI controller: event handlers, rendering, localStorage, export
 ├── lib/
-│   ├── pdf417.js           # PDF417 encoder: GF(929) Reed-Solomon, byte-mode, error correction
+│   ├── bwip-js.min.js      # bwip-js barcode renderer (PDF417 via bcid="pdf417")
 │   └── jspdf.umd.min.js    # jsPDF (minified UMD build) — included verbatim, do not edit
 ├── css/
 │   ├── style.css           # Main stylesheet (2-space indent, CSS custom properties)
@@ -61,19 +61,15 @@ Exports to `window.*` globals:
 
 **Do not** change field codes — they are standardized two-uppercase-letter + alphanumeric AAMVA data element identifiers (regex: `^[A-Z]{2}[A-Z0-9]$`).
 
-### `lib/pdf417.js` — Encoder
-Exposes `window.PDF417`. Core algorithm:
-- Byte-mode encoding with latch characters
-- GF(929) Reed-Solomon error correction (levels 0–8)
-- Cluster-pattern caching for render performance
-- Renders to an HTML `<canvas>` element
+### `lib/bwip-js.min.js` — Encoder
+Exposes `window.bwipjs`. PDF417 rendering is done with `bcid: "pdf417"` and encoder options (columns, eclevel, compact, scale).
 
-**Mathematical functions here are sensitive.** Any changes to codeword generation, cluster tables, or error correction polynomials must be validated by running the full test suite and cross-checking against a physical barcode scanner.
+**Encoder behavior is sensitive.** Any change to bwip-js integration options should be validated by running the full test suite and cross-checking with a physical barcode scanner.
 
 ### `js/app.js` — UI Controller
 - Reads schema from `window.AAMVA_*` globals
 - Manages DOM form state and localStorage persistence
-- Calls `window.PDF417` to render barcodes
+- Calls `window.bwipjs` to render barcodes
 - Handles JSON import/export and PDF download via jsPDF
 
 ### `decoder.js` — Decoder
@@ -208,7 +204,7 @@ All tests must pass on all three Node.js versions before merging.
 3. Run `npm test` to verify no duplicate IINs or structural violations
 
 ### Fix a PDF417 encoding bug
-1. Read `lib/pdf417.js` fully before making any changes
+1. Review `js/app.js` barcode option mapping and current `bwip-js` usage before making changes
 2. Changes to cluster tables, codeword generation, or Reed-Solomon polynomials require careful validation
 3. After changes, run `npm test` and also physically scan a generated barcode with a real scanner to confirm
 
