@@ -646,10 +646,15 @@ window.generateAAMVAPayload = function(stateCode, version, fields, dataObj) {
     throw new Error(`Missing mandatory fields for ${stateCode} (v${version}): ${missing.join(", ")}`);
   }
 
-  // Sanitize: strip control characters from all field values before encoding
+  // Sanitize: normalize to ASCII printable + strip control chars from all field values.
+  // AAMVA payload directory offsets are byte-based, so we keep payload text 7-bit ASCII.
   for (const field of fields) {
     if (dataObj[field.code]) {
-      dataObj[field.code] = dataObj[field.code].replace(/[\x00-\x1f\x7f]/g, "");
+      dataObj[field.code] = dataObj[field.code]
+        .normalize("NFKD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^\x20-\x7e]/g, "")
+        .replace(/[\x00-\x1f\x7f]/g, "");
     }
   }
 
@@ -694,12 +699,25 @@ window.generateAAMVAPayload = function(stateCode, version, fields, dataObj) {
   const headerLength = 21 + (1 * 10);
   const offset = headerLength;
 
-  const length = subfileData.length;
+  const textEncoder = typeof TextEncoder !== "undefined" ? new TextEncoder() : null;
+  const length = textEncoder ? textEncoder.encode(subfileData).length : subfileData.length;
+
+  if (length > 9999) {
+    throw new Error("Generated DL subfile exceeds 4-digit directory length limit (9999 bytes).");
+  }
 
   const offsetStr = offset.toString().padStart(4, '0');
   const lengthStr = length.toString().padStart(4, '0');
 
   const subfileDir = subfileType + offsetStr + lengthStr;
 
-  return header + numEntries + subfileDir + subfileData;
+  const payload = header + numEntries + subfileDir + subfileData;
+
+  // Defensive consistency check: directory length must match encoded subfile bytes.
+  const actualLength = textEncoder ? textEncoder.encode(subfileData).length : subfileData.length;
+  if (actualLength !== length) {
+    throw new Error("AAMVA payload directory length mismatch.");
+  }
+
+  return payload;
 };
