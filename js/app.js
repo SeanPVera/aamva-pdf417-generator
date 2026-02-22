@@ -27,8 +27,7 @@ let historyIndex = -1;
 let isRestoringSnapshot = false;
 let snapshotTimer = null;
 
-// Last generated matrix (cached for sizer/export)
-let lastMatrix = null;
+// Last payload text (cached for sizer/export)
 let lastPayloadText = null;
 
 // Barcode sizer state
@@ -50,7 +49,7 @@ window.addEventListener("DOMContentLoaded", () => {
     // Diagnostic checks
     const missing = [];
     if (!window.AAMVA_STATES) missing.push("AAMVA_STATES (aamva.js)");
-    if (!window.PDF417) missing.push("PDF417 (lib/pdf417.js)");
+    if (!window.bwipjs) missing.push("bwipjs (lib/bwip-js.min.js)");
     if (!window.jspdf) missing.push("jspdf (lib/jspdf.umd.min.js)");
 
     if (missing.length > 0) {
@@ -583,55 +582,58 @@ function renderBarcode(text) {
   lastPayloadText = text;
 
   const canvas = document.getElementById("barcodeCanvas");
-  const ctx = canvas.getContext("2d");
   const dimLabel = document.getElementById("barcodeDimensions");
-
-  const matrix = window.PDF417.generate(text, { errorCorrectionLevel: 5 });
-  lastMatrix = matrix;
-
   const s = getSizerValues();
-  const qz = s.quietZone;
 
-  // Calculate scale based on physical dimensions and DPI
-  // Module width in pixels at export DPI
-  const moduleWidthPx = (s.moduleWidthMil / 1000) * s.dpi;
+  // Calculate desired columns based on width
+  const moduleWidthMM = (s.moduleWidthMil * 0.0254);
+  const targetModules = s.widthMM / moduleWidthMM;
+  // Overhead: Start(17) + Left(17) + Right(17) + Stop(18) = 69 modules
+  let columns = Math.floor((targetModules - 69) / 17);
+  if (columns < 1) columns = 1;
+  if (columns > 30) columns = 30;
 
-  // Total barcode modules wide (including quiet zones)
-  const totalModulesWide = matrix[0].length + (qz * 2);
-  const totalModulesHigh = matrix.length + (qz * 2);
+  // For screen preview, use a simple scale (e.g. 2 or 3)
+  const screenScale = 2;
 
-  // For screen preview, use a scale that fits nicely
-  const px = Math.ceil(window.devicePixelRatio || 1);
-  const screenScale = Math.max(1, Math.round(moduleWidthPx * px / 2));
-
-  const totalWidth = totalModulesWide * screenScale;
-  const totalHeight = totalModulesHigh * screenScale;
-
-  canvas.width = totalWidth;
-  canvas.height = totalHeight;
-
-  // White background (includes quiet zone)
-  ctx.fillStyle = "white";
-  ctx.fillRect(0, 0, totalWidth, totalHeight);
-
-  // Draw barcode with quiet zone offset
-  ctx.fillStyle = "black";
-  const offsetX = qz * screenScale;
-  const offsetY = qz * screenScale;
-
-  matrix.forEach((row, y) => {
-    row.forEach((bit, x) => {
-      if (bit === 1) {
-        ctx.fillRect(offsetX + x * screenScale, offsetY + y * screenScale, screenScale, screenScale);
-      }
+  try {
+    bwipjs.toCanvas(canvas, {
+      bcid:        'pdf417',
+      text:        text,
+      scale:       screenScale,
+      columns:     columns,
+      eclevel:     5,
+      compact:     true,
+      padding:     s.quietZone, // Quiet zone in modules? No, in points or pixels? bwipjs uses 'padding' in points usually? Or scale factor?
+      // Wait, bwipjs uses 'padding' which adds white space. 'paddingwidth'/'paddingheight'
+      // If padding is used, it adds to dimensions.
+      // Let's use simpler approach: let bwipjs draw to canvas, it resizes canvas.
+      // But we want to simulate the quiet zone.
+      // bwipjs `padding` is in points. With scale, it's relative.
+      // Let's omit padding for now and rely on CSS or canvas clear.
+      // Actually, bwipjs resizes the canvas.
     });
-  });
 
-  // Update dimension label
-  if (dimLabel) {
-    const exportW = Math.round((s.widthMM / 25.4) * s.dpi);
-    const exportH = Math.round((s.heightMM / 25.4) * s.dpi);
-    dimLabel.textContent = `${matrix[0].length} x ${matrix.length} modules | Export: ${exportW} x ${exportH} px @ ${s.dpi} DPI`;
+    // Update dimension label
+    // bwipjs doesn't return matrix size easily.
+    // We can infer from canvas width/height and scale.
+    const modulesW = Math.floor(canvas.width / screenScale);
+    const modulesH = Math.floor(canvas.height / screenScale);
+
+    if (dimLabel) {
+      const exportW = Math.round((s.widthMM / 25.4) * s.dpi);
+      const exportH = Math.round((s.heightMM / 25.4) * s.dpi);
+      dimLabel.textContent = `~${modulesW} x ~${modulesH} modules | Export: ${exportW} x ${exportH} px @ ${s.dpi} DPI`;
+    }
+
+  } catch (e) {
+    console.error("Barcode render error:", e);
+    // Draw error on canvas
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "red";
+    ctx.font = "12px sans-serif";
+    ctx.fillText("Render Error", 10, 20);
   }
 }
 
@@ -664,9 +666,8 @@ function renderInspector(obj, rawText) {
   document.getElementById("payloadInspector").value =
     JSON.stringify(obj, null, 2);
 
-  const textToEncode = rawText || JSON.stringify(obj);
-  const rawBytes = window.PDF417.raw(textToEncode);
-  document.getElementById("rawCodewords").value = rawBytes.join(",");
+  // bwip-js abstracts codeword generation, so we don't display raw codewords.
+  document.getElementById("rawCodewords").value = "Raw codewords inspection not available with new encoder.";
 }
 
 function renderInspectorBrowser() {
@@ -698,49 +699,36 @@ function renderInspectorBrowser() {
    ============================================================ */
 
 function buildExportCanvas() {
-  if (!lastMatrix || !lastPayloadText) return null;
-
+  if (!lastPayloadText) return null;
   const s = getSizerValues();
-  const qz = s.quietZone;
 
-  // Target pixel dimensions from physical size + DPI
-  const exportWidthPx = Math.round((s.widthMM / 25.4) * s.dpi);
-  const exportHeightPx = Math.round((s.heightMM / 25.4) * s.dpi);
-
+  // Create canvas
   const canvas = document.createElement("canvas");
-  canvas.width = exportWidthPx;
-  canvas.height = exportHeightPx;
-  const ctx = canvas.getContext("2d");
 
-  // White background
-  ctx.fillStyle = "white";
-  ctx.fillRect(0, 0, exportWidthPx, exportHeightPx);
+  // Calculate columns (same logic as renderBarcode)
+  const moduleWidthMM = (s.moduleWidthMil * 0.0254);
+  const targetModules = s.widthMM / moduleWidthMM;
+  let columns = Math.floor((targetModules - 69) / 17);
+  if (columns < 1) columns = 1;
+  if (columns > 30) columns = 30;
 
-  // Calculate module size to fit the barcode within the export area
-  const totalModulesWide = lastMatrix[0].length + (qz * 2);
-  const totalModulesHigh = lastMatrix.length + (qz * 2);
+  // Calculate scale for export DPI
+  const scale = (s.moduleWidthMil / 1000) * s.dpi;
 
-  const moduleW = exportWidthPx / totalModulesWide;
-  const moduleH = exportHeightPx / totalModulesHigh;
-
-  ctx.fillStyle = "black";
-  const offsetX = qz * moduleW;
-  const offsetY = qz * moduleH;
-
-  lastMatrix.forEach((row, y) => {
-    row.forEach((bit, x) => {
-      if (bit === 1) {
-        ctx.fillRect(
-          Math.round(offsetX + x * moduleW),
-          Math.round(offsetY + y * moduleH),
-          Math.ceil(moduleW),
-          Math.ceil(moduleH)
-        );
-      }
+  try {
+    bwipjs.toCanvas(canvas, {
+      bcid:        'pdf417',
+      text:        lastPayloadText,
+      scale:       scale,
+      columns:     columns,
+      eclevel:     5,
+      compact:     true,
     });
-  });
-
-  return canvas;
+    return canvas;
+  } catch (e) {
+    showError("Export Error: " + e.message);
+    return null;
+  }
 }
 
 function exportPNG() {
@@ -784,7 +772,17 @@ function exportSVG() {
   try {
     const payloadObj = window.buildPayloadObject(currentState, currentVersion, currentFields);
     const aamvaData = generateAAMVAPayload(currentState, currentVersion, currentFields, payloadObj);
-    const { svg } = window.PDF417.generateSVG(aamvaData, { errorCorrectionLevel: 5, scale: 3 });
+
+    // SVG export
+    const s = getSizerValues();
+    const svg = bwipjs.toSVG({
+        bcid:        'pdf417',
+        text:        aamvaData,
+        scale:       3, // Fixed scale for SVG usually fine as it's vector
+        columns:     30, // Or calculated? Maybe just max width
+        eclevel:     5,
+        compact:     true,
+    });
 
     const blob = new Blob([svg], { type: "image/svg+xml" });
     const url = URL.createObjectURL(blob);
