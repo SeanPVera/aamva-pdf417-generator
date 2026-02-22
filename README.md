@@ -82,15 +82,15 @@ Please read this section carefully if you need strict production-grade complianc
   - Data is not stored on a server. Refreshing/reopening may lose unsaved work.
 - **No cryptographic signature/security layer.**
   - This is payload generation and visual barcode encoding, not identity verification.
-- **No automated test suite included in this repo right now.**
-  - You should add your own QA and validation procedures before depending on it in sensitive workflows.
+- **Automated unit tests are included and should be run before release.**
+  - Run `npm test` to validate schema, payload, decoder, and barcode rendering behavior.
 
 ---
 
 ## Tech stack and architecture
 
 - **Frontend:** Vanilla JavaScript + HTML + CSS
-- **Barcode encoding:** Custom PDF417 logic in `lib/pdf417.js`
+- **Barcode encoding:** `bwip-js` (bundled minified build in `lib/bwip-js.min.js`)
 - **AAMVA schema + payload creation:** `aamva.js`
 - **UI controller and event wiring:** `js/app.js`
 - **Optional desktop runtime:** Electron (`main.js`, `preload.js`)
@@ -277,7 +277,7 @@ Tips:
 - Update schema definitions in `aamva.js` to add/edit versions and fields.
 - The payload generator and validation helpers are also in `aamva.js`.
 - UI flow lives in `js/app.js`.
-- PDF417 implementation lives in `lib/pdf417.js`.
+- PDF417 rendering is provided by `bwip-js` via `lib/bwip-js.min.js`.
 
 ---
 
@@ -295,7 +295,7 @@ Tips:
 ├── js/
 │   └── app.js
 ├── lib/
-│   ├── pdf417.js
+│   ├── bwip-js.min.js
 │   └── jspdf.umd.min.js
 ├── css/
 │   ├── style.css
