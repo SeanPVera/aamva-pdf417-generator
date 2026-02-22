@@ -82,15 +82,16 @@ Please read this section carefully if you need strict production-grade complianc
   - Data is not stored on a server. Refreshing/reopening may lose unsaved work.
 - **No cryptographic signature/security layer.**
   - This is payload generation and visual barcode encoding, not identity verification.
-- **No automated test suite included in this repo right now.**
-  - You should add your own QA and validation procedures before depending on it in sensitive workflows.
+- **Test coverage is currently partial.**
+  - The repository includes a Node test suite for schema/data logic, but does not yet include UI/browser automation or CI wiring.
+  - You should add additional QA and validation procedures before depending on it in sensitive workflows.
 
 ---
 
 ## Tech stack and architecture
 
 - **Frontend:** Vanilla JavaScript + HTML + CSS
-- **Barcode encoding:** Custom PDF417 logic in `lib/pdf417.js`
+- **Barcode encoding:** `bwip-js` (bundled minified build in `lib/bwip-js.min.js`)
 - **AAMVA schema + payload creation:** `aamva.js`
 - **UI controller and event wiring:** `js/app.js`
 - **Optional desktop runtime:** Electron (`main.js`, `preload.js`)
