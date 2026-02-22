@@ -12,6 +12,7 @@
     "test": "node --test test/*.test.js"
   },
   "devDependencies": {
+    "bwip-js": "^4.8.0",
     "electron": "^33.0.0",
     "electron-builder": "^24.9.3"
   },
@@ -36,7 +37,6 @@
     }
   },
   "dependencies": {
-    "bwip-js": "^4.8.0",
     "jspdf": "^3.0.4",
     "pdf417": "^0.1.5"
   }

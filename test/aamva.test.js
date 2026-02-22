@@ -1,13 +1,40 @@
 const { test } = require("node:test");
 const assert = require("node:assert/strict");
+const bwipjs = require("bwip-js");
 
 // Minimal browser global shim for loading the source files
 global.window = global;
 
+// Mock PDF417 for tests that rely on the old interface or create a shim
+// Since we switched to bwip-js, we need to decide if we want to shim the old PDF417 interface
+// or update the tests.
+// The tests check:
+// 1. PDF417.generate returns a 2D matrix
+// 2. PDF417.raw returns byte mode latch
+// 3. PDF417.generateSVG returns SVG string
+// 4. EC levels behavior
+
+// We should implement a shim that uses bwip-js to satisfy these tests,
+// OR rewrite the tests to use bwip-js.
+// Given the time constraints and the goal to fix CI, rewriting tests to match the new reality is better.
+// But some tests check internal behavior of the old encoder (like "raw" output).
+// bwip-js abstracts this.
+
+// Let's shim the window.PDF417 object to use bwip-js where possible,
+// or simply update the tests to test the new integration if appropriate.
+// However, the `js/app.js` was updated to use `bwipjs` directly, so `window.PDF417` is gone from the app.
+// So we should remove tests that test the old `PDF417` object, and add tests for `bwipjs` integration if needed.
+// But `aamva.test.js` seems to mix AAMVA logic tests and PDF417 encoder tests.
+
+// We will keep AAMVA logic tests and remove/update PDF417 encoder tests.
+
 // Load source modules (they attach to window.*)
-require("../lib/pdf417.js");
 require("../aamva.js");
 require("../decoder.js");
+
+// Stub bwipjs on window for completeness, though tests running in Node might use require("bwip-js")
+window.bwipjs = bwipjs;
+
 
 /* ============================================================
    AAMVA STATE DEFINITIONS
@@ -265,57 +292,6 @@ test("validateFieldValue allows empty optional fields", () => {
 });
 
 /* ============================================================
-   PDF417 ENCODER
-   ============================================================ */
-
-test("PDF417.generate returns a 2D matrix", () => {
-  const matrix = window.PDF417.generate("TEST");
-  assert.ok(Array.isArray(matrix), "Should return an array");
-  assert.ok(matrix.length > 0, "Should have rows");
-  assert.ok(Array.isArray(matrix[0]), "Each row should be an array");
-  assert.ok(matrix[0].length > 0, "Each row should have columns");
-});
-
-test("PDF417.generate matrix contains only 0s and 1s", () => {
-  const matrix = window.PDF417.generate("HELLO");
-  for (const row of matrix) {
-    for (const bit of row) {
-      assert.ok(bit === 0 || bit === 1, `Expected 0 or 1, got ${bit}`);
-    }
-  }
-});
-
-test("PDF417.raw returns byte mode latch + byte array", () => {
-  const raw = window.PDF417.raw("ABC");
-  assert.deepEqual(raw, [901, 65, 66, 67]);
-});
-
-test("PDF417.generateSVG returns SVG string and matrix", () => {
-  const result = window.PDF417.generateSVG("TEST");
-  assert.ok(result.svg, "Should have svg property");
-  assert.ok(result.matrix, "Should have matrix property");
-  assert.ok(result.svg.startsWith("<svg"), "SVG should start with <svg tag");
-  assert.ok(result.svg.endsWith("</svg>"), "SVG should end with </svg>");
-});
-
-test("PDF417.generateSVG uses run-length encoding (fewer rects than modules)", () => {
-  const result = window.PDF417.generateSVG("TEST", { scale: 1 });
-  // Count rect elements (excluding the white background rect)
-  const rectCount = (result.svg.match(/<rect /g) || []).length;
-  const matrix = result.matrix;
-  // Count total black modules
-  let blackModules = 0;
-  for (const row of matrix) {
-    for (const bit of row) {
-      if (bit === 1) blackModules++;
-    }
-  }
-  // With RLE, rect count should be less than total black modules
-  assert.ok(rectCount < blackModules,
-    `RLE should produce fewer rects (${rectCount}) than black modules (${blackModules})`);
-});
-
-/* ============================================================
    AAMVA PAYLOAD GENERATION
    ============================================================ */
 
@@ -528,34 +504,6 @@ test("mandatory field count increases across versions", () => {
 });
 
 /* ============================================================
-   PDF417 ENCODER — BYTE MODE LATCH
-   ============================================================ */
-
-test("PDF417.raw includes byte mode latch codeword 901", () => {
-  const raw = window.PDF417.raw("ABC");
-  assert.equal(raw[0], 901, "First codeword should be 901 (byte mode latch)");
-  assert.equal(raw[1], 65, "Second codeword should be 65 (A)");
-  assert.equal(raw[2], 66, "Third codeword should be 66 (B)");
-  assert.equal(raw[3], 67, "Fourth codeword should be 67 (C)");
-});
-
-/* ============================================================
-   PDF417 — CLUSTER CONSISTENCY
-   ============================================================ */
-
-test("all codewords in a row use the same cluster pattern width", () => {
-  // Generate a barcode and verify that rows have consistent structure
-  const matrix = window.PDF417.generate("TEST DATA", { errorCorrectionLevel: 2 });
-  assert.ok(matrix.length > 0, "Should have rows");
-  // All rows should have the same width (consistent structure)
-  const expectedWidth = matrix[0].length;
-  for (let i = 1; i < matrix.length; i++) {
-    assert.equal(matrix[i].length, expectedWidth,
-      `Row ${i} width (${matrix[i].length}) should equal row 0 width (${expectedWidth})`);
-  }
-});
-
-/* ============================================================
    buildPayloadObject — DOM DECOUPLED
    ============================================================ */
 
@@ -646,24 +594,4 @@ test("decoder describeFields produces human-readable output", () => {
   assert.ok(decoded.mapped, "Should have mapped output");
   assert.ok(decoded.mapped.includes("Customer Family Name"), "Should include field label");
   assert.ok(decoded.mapped.includes("VERA"), "Should include field value");
-});
-
-/* ============================================================
-   ENCODER — MULTIPLE ERROR CORRECTION LEVELS
-   ============================================================ */
-
-test("PDF417.generate works with different EC levels", () => {
-  for (let ec = 0; ec <= 8; ec++) {
-    const matrix = window.PDF417.generate("HELLO", { errorCorrectionLevel: ec });
-    assert.ok(matrix.length > 0, `EC level ${ec} should produce a valid matrix`);
-    assert.ok(matrix[0].length > 0, `EC level ${ec} rows should have columns`);
-  }
-});
-
-test("higher EC levels produce more rows", () => {
-  const m2 = window.PDF417.generate("TEST", { errorCorrectionLevel: 2 });
-  const m6 = window.PDF417.generate("TEST", { errorCorrectionLevel: 6 });
-  // Higher EC = more error correction codewords = more rows
-  assert.ok(m6.length >= m2.length,
-    `EC 6 (${m6.length} rows) should have >= rows than EC 2 (${m2.length} rows)`);
 });
