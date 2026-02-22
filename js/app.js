@@ -118,8 +118,13 @@ function populateVersionList() {
    FIELD RENDERING
    ============================================================ */
 
+// Date format differs by AAMVA version: v01 uses CCYYMMDD, v02+ use MMDDCCYY (MMDDYYYY)
+const DATE_FORMAT_BY_VERSION = {
+  "01": "CCYYMMDD"
+};
+const DEFAULT_DATE_FORMAT = "MMDDYYYY";
+
 const FIELD_HINTS = {
-  date: "Format: MMDDYYYY",
   zip:  "Format: 12345 or 12345-6789",
   char: "Single character (1=M, 2=F, 9=X)"
 };
@@ -176,13 +181,16 @@ function renderFields(preserveValues) {
       div.appendChild(select);
     } else if (field.type === "date") {
       // Render date field with both text input and date picker
+      // v01 uses CCYYMMDD; all other versions use MMDDYYYY (MMDDCCYY)
+      const dateFmt = DATE_FORMAT_BY_VERSION[currentVersion] || DEFAULT_DATE_FORMAT;
+
       const inputWrap = document.createElement("div");
       inputWrap.className = "date-field-wrap";
 
       const input = document.createElement("input");
       input.type = "text";
       input.id = field.code;
-      input.placeholder = "MMDDYYYY";
+      input.placeholder = dateFmt;
       input.setAttribute("aria-label", field.label);
       input.pattern = "\\d{8}";
       if (maxLen) input.maxLength = maxLen;
@@ -211,6 +219,15 @@ function renderFields(preserveValues) {
       input.setAttribute("aria-label", field.label);
       if (maxLen) input.maxLength = maxLen;
       div.appendChild(input);
+    }
+
+    // Add date format hint
+    if (!options && field.type === "date") {
+      const dateFmt = DATE_FORMAT_BY_VERSION[currentVersion] || DEFAULT_DATE_FORMAT;
+      const hintEl = document.createElement("div");
+      hintEl.className = "field-hint";
+      hintEl.textContent = `Format: ${dateFmt}`;
+      div.appendChild(hintEl);
     }
 
     // Add type hints for non-dropdown, non-date fields

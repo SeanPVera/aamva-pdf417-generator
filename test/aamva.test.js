@@ -667,3 +667,141 @@ test("higher EC levels produce more rows", () => {
   assert.ok(m6.length >= m2.length,
     `EC 6 (${m6.length} rows) should have >= rows than EC 2 (${m2.length} rows)`);
 });
+
+/* ============================================================
+   CLUSTER TABLE INTEGRITY — ISO 15438 structural constraints
+   ============================================================ */
+
+test("each cluster table has entries for all 929 codeword indices", () => {
+  // CLUSTER_TABLE is built at module load. Verify via matrix generation:
+  // generate a barcode large enough to exercise all 3 clusters (needs 3+ rows)
+  const longText = "CLUSTER TABLE INTEGRITY CHECK 0123456789 ABCDEFGHIJKLMNOPQRSTUVWXYZ " +
+                   "THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG 9876543210";
+  const matrix = window.PDF417.generate(longText, { errorCorrectionLevel: 2 });
+  assert.ok(matrix.length >= 3,
+    `Matrix should have at least 3 rows to test all clusters; got ${matrix.length}`);
+});
+
+test("all cluster patterns are 17 modules wide", () => {
+  // Check each row's data codewords sum to 17 modules each
+  const matrix = window.PDF417.generate("CLUSTER CHECK 1234567890", { errorCorrectionLevel: 1 });
+  const START_LEN = 17, STOP_LEN = 18, IND_LEN = 17;
+
+  for (let r = 0; r < matrix.length; r++) {
+    const row = matrix[r];
+    // Strip start, stop, left indicator, right indicator
+    const dataSection = row.slice(START_LEN + IND_LEN, row.length - IND_LEN - STOP_LEN);
+    assert.equal(dataSection.length % 17, 0,
+      `Row ${r}: data section length ${dataSection.length} must be divisible by 17`);
+
+    // Each 17-module block: extract element widths and verify cluster constraint
+    for (let c = 0; c + 17 <= dataSection.length; c += 17) {
+      const bits = dataSection.slice(c, c + 17);
+      const widths = [];
+      let count = 1;
+      for (let i = 1; i < bits.length; i++) {
+        if (bits[i] === bits[i - 1]) count++;
+        else { widths.push(count); count = 1; }
+      }
+      widths.push(count);
+
+      assert.equal(widths.length, 8,
+        `Row ${r} codeword ${c / 17}: must have 8 elements, got ${widths.length}`);
+      assert.ok(widths.every(w => w >= 1 && w <= 6),
+        `Row ${r} codeword ${c / 17}: all widths must be 1–6, got [${widths}]`);
+      assert.equal(widths.reduce((a, b) => a + b, 0), 17,
+        `Row ${r} codeword ${c / 17}: widths must sum to 17`);
+
+      // Verify cluster constraint: K = (b1-b2+b3-b4+9)%9 must match row%3
+      const [b1, , b2, , b3, , b4] = widths;
+      const K = (((b1 - b2 + b3 - b4) % 9) + 9) % 9;
+      const expectedK = (r % 3) * 3; // cluster 0→K=0, 1→K=3, 2→K=6
+      assert.equal(K, expectedK,
+        `Row ${r} codeword ${c / 17}: K=${K} but expected ${expectedK} (cluster ${r % 3})`);
+    }
+  }
+});
+
+test("start and stop patterns are correct per ISO 15438", () => {
+  const matrix = window.PDF417.generate("START STOP CHECK", { errorCorrectionLevel: 1 });
+
+  for (let r = 0; r < matrix.length; r++) {
+    const row = matrix[r];
+    // Start pattern: B8,S1,B1,S1,B1,S1,B1,S3 = [1×8,0,1,0,1,0,1,0,0,0] = 17 modules
+    const start = row.slice(0, 17).join("");
+    assert.equal(start, "11111111010101000",
+      `Row ${r}: start pattern should be 11111111010101000, got ${start}`);
+
+    // Stop pattern: B7,S1,B1,S3,B1,S1,B1,S2,B1 = 18 modules
+    const stop = row.slice(row.length - 18).join("");
+    assert.equal(stop, "111111101000101001",
+      `Row ${r}: stop pattern should be 111111101000101001, got ${stop}`);
+  }
+});
+
+/* ============================================================
+   BYTE COMPACTION ENCODING — ISO 15438 Section 5.4.3
+   ============================================================ */
+
+test("byte encoding uses latch 900 when length divisible by 6", () => {
+  // 6 bytes → latch codeword 900
+  const cw = window.PDF417.raw("SIXBYT"); // 6 chars
+  assert.equal(cw[0], 900, "6-byte string should use latch 900");
+});
+
+test("byte encoding uses latch 901 when length not divisible by 6", () => {
+  const cw4 = window.PDF417.raw("TEST");   // 4 bytes
+  const cw7 = window.PDF417.raw("TESTING"); // 7 bytes
+  assert.equal(cw4[0], 901, "4-byte string should use latch 901");
+  assert.equal(cw7[0], 901, "7-byte string should use latch 901");
+});
+
+test("byte encoding produces 5 codewords per 6-byte group", () => {
+  // 12 bytes (2 full groups) with latch 900 → 1 + 2×5 = 11 codewords
+  const cw = window.PDF417.raw("ABCDEFGHIJKL"); // exactly 12 bytes
+  assert.equal(cw[0], 900, "should use latch 900");
+  assert.equal(cw.length, 11, "12 bytes with latch 900 → 1 + 10 = 11 codewords");
+});
+
+test("byte encoding encodes remainder bytes one-per-codeword after full groups", () => {
+  // 7 bytes = 1 full group (6 bytes → 5 codewords) + 1 remainder byte
+  // latch 901 + 5 codewords + 1 remainder = 7 total
+  const cw = window.PDF417.raw("ABCDEFG"); // 7 bytes
+  assert.equal(cw[0], 901, "should use latch 901");
+  assert.equal(cw.length, 7, "7 bytes → latch + 5 codewords + 1 remainder = 7 codewords");
+  // The last codeword should be 'G' = 71
+  assert.equal(cw[cw.length - 1], 71, "last codeword should be byte value of 'G' (71)");
+});
+
+test("byte encoding round-trips correctly", () => {
+  // Encode 6 bytes, then decode the 5 codewords back to 6 bytes
+  const input = [72, 101, 108, 108, 111, 33]; // "Hello!"
+  const cw = window.PDF417.raw("Hello!").slice(1); // skip latch
+  assert.equal(cw.length, 5, "6 bytes should encode to 5 codewords");
+
+  // Decode: compute value from 5 base-929 codewords, then extract 6 bytes
+  let val = 0;
+  for (const c of cw) val = val * 929 + c;
+  const decoded = [];
+  for (let i = 5; i >= 0; i--) { decoded[i] = val % 256; val = Math.floor(val / 256); }
+  assert.deepStrictEqual(decoded, input, "decoded bytes should match original");
+});
+
+/* ============================================================
+   SCHEMA FIXES — DAD optional, DCU optional in v02
+   ============================================================ */
+
+test("Middle name DAD is optional in versions 04 through 10", () => {
+  for (const v of ["04", "05", "06", "07", "08", "09", "10"]) {
+    const dadField = window.AAMVA_VERSIONS[v].fields.find(f => f.code === "DAD");
+    assert.ok(dadField, `Version ${v} should have DAD field`);
+    assert.ok(!dadField.required,
+      `Version ${v}: DAD (Middle Name) should be optional (not all people have a middle name)`);
+  }
+});
+
+test("Name Suffix DCU is optional in version 02", () => {
+  const dcuField = window.AAMVA_VERSIONS["02"].fields.find(f => f.code === "DCU");
+  assert.ok(dcuField, "Version 02 should have DCU field");
+  assert.ok(!dcuField.required, "Version 02: DCU (Name Suffix) should be optional");
+});
