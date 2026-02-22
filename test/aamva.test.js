@@ -482,6 +482,32 @@ test("generateAAMVAPayload strips control characters from field values", () => {
   assert.ok(payload.includes("DCSDOE"), "Should contain sanitized last name");
 });
 
+test("generateAAMVAPayload normalizes non-ascii characters for byte-safe directory lengths", () => {
+  const { fields, dataObj } = makeTestData("CA", "10");
+  fillV09TestData(dataObj);
+  dataObj.DCS = "GARCÍA";
+  dataObj.DAC = "JOSÉ";
+
+  const payload = window.generateAAMVAPayload("CA", "10", fields, dataObj);
+
+  assert.ok(payload.includes("DCSGARCIA"), "Should transliterate accented surname");
+  assert.ok(payload.includes("DACJOSE"), "Should transliterate accented given name");
+});
+
+test("generateAAMVAPayload directory length matches DL subfile bytes", () => {
+  const { fields, dataObj } = makeTestData("NY", "10");
+  fillV09TestData(dataObj);
+
+  const payload = window.generateAAMVAPayload("NY", "10", fields, dataObj);
+  const subfileDir = payload.substring(21, 31);
+  const offset = Number.parseInt(subfileDir.substring(2, 6), 10);
+  const length = Number.parseInt(subfileDir.substring(6, 10), 10);
+  const dlData = payload.substring(offset, offset + length);
+
+  assert.equal(offset, 31, "DL offset should match fixed single-directory header length");
+  assert.equal(dlData.length, length, "DL subfile length should match declared directory length");
+});
+
 test("error messages include field labels", () => {
   const { fields, dataObj } = makeTestData("NY", "10");
   // Leave all required fields empty
