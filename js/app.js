@@ -578,40 +578,37 @@ function validateFields(obj) {
    BARCODE RENDERING
    ============================================================ */
 
-function renderBarcode(text) {
-  lastPayloadText = text;
-
-  const canvas = document.getElementById("barcodeCanvas");
-  const dimLabel = document.getElementById("barcodeDimensions");
-  const s = getSizerValues();
-
-  // Calculate desired columns based on width
+function getPDF417Layout(s) {
   const moduleWidthMM = (s.moduleWidthMil * 0.0254);
   const targetModules = s.widthMM / moduleWidthMM;
   // Overhead: Start(17) + Left(17) + Right(17) + Stop(18) = 69 modules
   let columns = Math.floor((targetModules - 69) / 17);
   if (columns < 1) columns = 1;
   if (columns > 30) columns = 30;
+  return { columns };
+}
 
-  // For screen preview, use a simple scale (e.g. 2 or 3)
+function renderBarcode(text) {
+  lastPayloadText = text;
+
+  const canvas = document.getElementById("barcodeCanvas");
+  const dimLabel = document.getElementById("barcodeDimensions");
+  const s = getSizerValues();
+  const { columns } = getPDF417Layout(s);
+
+  // For screen preview, use a simple scale.
   const screenScale = 2;
 
   try {
     bwipjs.toCanvas(canvas, {
-      bcid:        'pdf417',
-      text:        text,
-      scale:       screenScale,
-      columns:     columns,
-      eclevel:     5,
-      compact:     true,
-      padding:     s.quietZone, // Quiet zone in modules? No, in points or pixels? bwipjs uses 'padding' in points usually? Or scale factor?
-      // Wait, bwipjs uses 'padding' which adds white space. 'paddingwidth'/'paddingheight'
-      // If padding is used, it adds to dimensions.
-      // Let's use simpler approach: let bwipjs draw to canvas, it resizes canvas.
-      // But we want to simulate the quiet zone.
-      // bwipjs `padding` is in points. With scale, it's relative.
-      // Let's omit padding for now and rely on CSS or canvas clear.
-      // Actually, bwipjs resizes the canvas.
+      bcid:          'pdf417',
+      text:          text,
+      scale:         screenScale,
+      columns:       columns,
+      eclevel:       5,
+      compact:       false,
+      paddingwidth:  s.quietZone,
+      paddingheight: s.quietZone,
     });
 
     // Update dimension label
@@ -705,24 +702,21 @@ function buildExportCanvas() {
   // Create canvas
   const canvas = document.createElement("canvas");
 
-  // Calculate columns (same logic as renderBarcode)
-  const moduleWidthMM = (s.moduleWidthMil * 0.0254);
-  const targetModules = s.widthMM / moduleWidthMM;
-  let columns = Math.floor((targetModules - 69) / 17);
-  if (columns < 1) columns = 1;
-  if (columns > 30) columns = 30;
+  const { columns } = getPDF417Layout(s);
 
   // Calculate scale for export DPI
   const scale = (s.moduleWidthMil / 1000) * s.dpi;
 
   try {
     bwipjs.toCanvas(canvas, {
-      bcid:        'pdf417',
-      text:        lastPayloadText,
-      scale:       scale,
-      columns:     columns,
-      eclevel:     5,
-      compact:     true,
+      bcid:          'pdf417',
+      text:          lastPayloadText,
+      scale:         scale,
+      columns:       columns,
+      eclevel:       5,
+      compact:       false,
+      paddingwidth:  s.quietZone,
+      paddingheight: s.quietZone,
     });
     return canvas;
   } catch (e) {
@@ -775,13 +769,16 @@ function exportSVG() {
 
     // SVG export
     const s = getSizerValues();
+    const { columns } = getPDF417Layout(s);
     const svg = bwipjs.toSVG({
-        bcid:        'pdf417',
-        text:        aamvaData,
-        scale:       3, // Fixed scale for SVG usually fine as it's vector
-        columns:     30, // Or calculated? Maybe just max width
-        eclevel:     5,
-        compact:     true,
+        bcid:          'pdf417',
+        text:          aamvaData,
+        scale:         3,
+        columns:       columns,
+        eclevel:       5,
+        compact:       false,
+        paddingwidth:  s.quietZone,
+        paddingheight: s.quietZone,
     });
 
     const blob = new Blob([svg], { type: "image/svg+xml" });

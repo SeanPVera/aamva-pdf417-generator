@@ -196,6 +196,22 @@ test("validateFieldValue rejects invalid date format", () => {
   assert.equal(window.validateFieldValue(field, "1990-01-15"), false);
   assert.equal(window.validateFieldValue(field, "199001"), false);
 });
+
+test("validateFieldValue enforces constrained option sets", () => {
+  const sex = { code: "DBC", type: "char", required: true };
+  assert.ok(window.validateFieldValue(sex, "1"), "DBC should accept enumerated value '1'");
+  assert.equal(window.validateFieldValue(sex, "M"), false, "DBC should reject non-enumerated value 'M'");
+
+  const eye = { code: "DAY", type: "string", required: false };
+  assert.ok(window.validateFieldValue(eye, "BLU"), "DAY should accept BLU");
+  assert.equal(window.validateFieldValue(eye, "BLUE"), false, "DAY should reject invalid eye color token");
+});
+
+test("validateFieldValue rejects impossible calendar dates", () => {
+  const field = { code: "DBB", type: "date", required: true };
+  assert.equal(window.validateFieldValue(field, "02312024"), false, "MMDDYYYY Feb 31 should be invalid");
+  assert.equal(window.validateFieldValue(field, "20240230"), false, "YYYYMMDD Feb 30 should be invalid");
+});
 test("validateFieldValue accepts valid ZIP codes", () => {
   const field = { code: "DAK", type: "zip", required: true };
   assert.ok(window.validateFieldValue(field, "10001"));
@@ -212,8 +228,8 @@ test("validateFieldValue accepts digits for char type (AAMVA sex field)", () => 
   assert.ok(window.validateFieldValue(field, "2"), "Should accept '2' (female)");
   assert.ok(window.validateFieldValue(field, "9"), "Should accept '9' (not specified)");
 });
-test("validateFieldValue accepts uppercase letters for char type", () => {
-  const field = { code: "DBC", type: "char", required: true };
+test("validateFieldValue accepts uppercase letters for unconstrained char type", () => {
+  const field = { code: "DCK", type: "char", required: true };
   assert.ok(window.validateFieldValue(field, "M"));
   assert.ok(window.validateFieldValue(field, "F"));
 });
@@ -382,6 +398,23 @@ test("payload header has correct fixed-length structure", () => {
 /* ============================================================
    INPUT SANITIZATION
    ============================================================ */
+test("generateAAMVAPayload rejects unknown state and version", () => {
+  const fields = window.getFieldsForVersion("10");
+  const dataObj = {
+    DCS: "DOE", DAC: "JOHN", DBB: "19900115", DBA: "20300115", DBD: "20200115",
+    DBC: "1", DAY: "BLU", DAU: "510", DAG: "123 MAIN ST", DAI: "ALBANY", DAJ: "NY",
+    DAK: "12207", DAQ: "D1234567", DCF: "ABC123"
+  };
+
+  assert.throws(() => {
+    window.generateAAMVAPayload("XX", "10", fields, dataObj);
+  }, /Unknown state code/);
+
+  assert.throws(() => {
+    window.generateAAMVAPayload("NY", "99", fields, dataObj);
+  }, /Unsupported AAMVA version/);
+});
+
 test("generateAAMVAPayload strips control characters from field values", () => {
   const { fields, dataObj } = makeTestData("CA", "10");
   fillV09TestData(dataObj);
