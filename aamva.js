@@ -589,13 +589,46 @@ window.validateFieldValue = function(field, value) {
   if (field.required && !value) return false;
   if (!value) return true;
 
+  // Enforce constrained option sets when present.
+  const constrainedOptions = window.AAMVA_FIELD_OPTIONS && window.AAMVA_FIELD_OPTIONS[field.code];
+  if (Array.isArray(constrainedOptions) && constrainedOptions.length > 0) {
+    const allowedValues = new Set(constrainedOptions.map(opt => opt.value));
+    if (!allowedValues.has(value)) return false;
+  }
+
   // Check length limit
   const maxLen = window.AAMVA_FIELD_LIMITS[field.code];
   if (maxLen && value.length > maxLen) return false;
 
   switch (field.type) {
     case "date":
-      return /^\d{8}$/.test(value); // MMDDCCYY or CCYYMMDD
+      // Accept both MMDDYYYY and YYYYMMDD while validating basic month/day ranges.
+      if (!/^\d{8}$/.test(value)) return false;
+
+      const mmddyyyy = {
+        month: Number.parseInt(value.substring(0, 2), 10),
+        day: Number.parseInt(value.substring(2, 4), 10),
+        year: Number.parseInt(value.substring(4, 8), 10)
+      };
+      const yyyymmdd = {
+        year: Number.parseInt(value.substring(0, 4), 10),
+        month: Number.parseInt(value.substring(4, 6), 10),
+        day: Number.parseInt(value.substring(6, 8), 10)
+      };
+
+      const isCalendarValid = ({ year, month, day }) => {
+        if (year < 1800 || year > 2200) return false;
+        if (month < 1 || month > 12) return false;
+        if (day < 1 || day > 31) return false;
+        const dt = new Date(Date.UTC(year, month - 1, day));
+        return (
+          dt.getUTCFullYear() === year &&
+          dt.getUTCMonth() === (month - 1) &&
+          dt.getUTCDate() === day
+        );
+      };
+
+      return isCalendarValid(mmddyyyy) || isCalendarValid(yyyymmdd);
     case "zip":
       return /^\d{5}(-?\d{4})?$/.test(value);
     case "char":
@@ -633,6 +666,13 @@ window.buildPayloadObject = function(stateCode, version, fields, valuesMap) {
 
 // Generate AAMVA compliant payload string
 window.generateAAMVAPayload = function(stateCode, version, fields, dataObj) {
+  if (!window.AAMVA_STATES[stateCode]) {
+    throw new Error(`Unknown state code: ${stateCode}`);
+  }
+  if (!window.AAMVA_VERSIONS[version]) {
+    throw new Error(`Unsupported AAMVA version: ${version}`);
+  }
+
   // VALIDATION: Check mandatory fields
   const mandatoryFields = window.getMandatoryFields(stateCode, version);
   const missing = [];
