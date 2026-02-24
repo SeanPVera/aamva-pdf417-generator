@@ -187,14 +187,20 @@ test("getVersionForState returns null for unknown state", () => {
 /* ============================================================
    FIELD VALIDATION
    ============================================================ */
-test("validateFieldValue accepts valid date YYYYMMDD", () => {
+test("validateFieldValue accepts valid date MMDDYYYY", () => {
   const field = { code: "DBB", type: "date", required: true };
-  assert.ok(window.validateFieldValue(field, "19900115"));
+  // AAMVA CDS mandates MMDDYYYY: January 15, 1990 = 01151990
+  assert.ok(window.validateFieldValue(field, "01151990"));
 });
-test("validateFieldValue rejects invalid date format", () => {
+test("validateFieldValue rejects non-MMDDYYYY date formats", () => {
   const field = { code: "DBB", type: "date", required: true };
+  // Hyphenated ISO format — not 8 digits
   assert.equal(window.validateFieldValue(field, "1990-01-15"), false);
+  // Too short
   assert.equal(window.validateFieldValue(field, "199001"), false);
+  // YYYYMMDD format must be rejected — barcode scanners parse dates as MMDDYYYY,
+  // so "19900115" would be read as month=19, day=90, year=0115 (invalid).
+  assert.equal(window.validateFieldValue(field, "19900115"), false, "YYYYMMDD must be rejected");
 });
 
 test("validateFieldValue enforces constrained option sets", () => {
@@ -209,8 +215,10 @@ test("validateFieldValue enforces constrained option sets", () => {
 
 test("validateFieldValue rejects impossible calendar dates", () => {
   const field = { code: "DBB", type: "date", required: true };
+  // Feb 31 is invalid (MMDDYYYY)
   assert.equal(window.validateFieldValue(field, "02312024"), false, "MMDDYYYY Feb 31 should be invalid");
-  assert.equal(window.validateFieldValue(field, "20240230"), false, "YYYYMMDD Feb 30 should be invalid");
+  // Month 13 is invalid
+  assert.equal(window.validateFieldValue(field, "13012024"), false, "MMDDYYYY month 13 should be invalid");
 });
 test("validateFieldValue accepts valid ZIP codes", () => {
   const field = { code: "DAK", type: "zip", required: true };
@@ -285,12 +293,13 @@ function fillV09TestData(dataObj) {
   dataObj.DCA = "D";
   dataObj.DCB = "NONE";
   dataObj.DCD = "NONE";
-  dataObj.DBA = "20301231";
+  // All dates must be MMDDYYYY per the AAMVA CDS standard.
+  dataObj.DBA = "12312030";  // December 31, 2030
   dataObj.DCS = "VERA";
   dataObj.DAC = "SEAN";
   dataObj.DAD = "M";
-  dataObj.DBD = "20200101";
-  dataObj.DBB = "19900101";
+  dataObj.DBD = "01012020";  // January 1, 2020
+  dataObj.DBB = "01011990";  // January 1, 1990
   dataObj.DBC = "1";
   dataObj.DAY = "BRO";
   dataObj.DAU = "510";
@@ -347,6 +356,9 @@ test("decoder handles AAMVA-format payloads", () => {
   assert.equal(result.json.DCS, "VERA");
   assert.equal(result.json.DAC, "SEAN");
   assert.equal(result.json.version, "10");
+  // DCA is the first field in the subfile — previously silently dropped due to
+  // a decoder bug where the directory "DL" was mistaken for the subfile start.
+  assert.equal(result.json.DCA, "D", "First field DCA should be decoded (not silently dropped)");
 });
 test("decoder falls back to JSON for legacy format", () => {
   const json = JSON.stringify({ version: "09", DCS: "SMITH", DAC: "JANE" });
@@ -584,4 +596,162 @@ test("higher EC levels increase PDF417 symbol height in bwip-js output", () => {
   const h2 = Number(svgEc2.match(/viewBox="0 0 \d+ (\d+)"/)[1]);
   const h6 = Number(svgEc6.match(/viewBox="0 0 \d+ (\d+)"/)[1]);
   assert.ok(h6 >= h2, `EC 6 height (${h6}) should be >= EC 2 height (${h2})`);
+});
+/* ============================================================
+   DATE FORMAT — MMDDYYYY ENFORCEMENT (CRITICAL FOR SCANNABILITY)
+   AAMVA CDS requires MMDDYYYY for all date fields. Barcode scanners
+   (police terminals, age verification hardware) interpret dates as
+   MMDDYYYY. Encoding YYYYMMDD produces barcodes that real scanners
+   will fail to read correctly.
+   ============================================================ */
+test("validateFieldValue accepts only MMDDYYYY format dates", () => {
+  const field = { code: "DBB", type: "date", required: true };
+  // Valid MMDDYYYY dates
+  assert.ok(window.validateFieldValue(field, "01151990"), "Jan 15 1990 is valid MMDDYYYY");
+  assert.ok(window.validateFieldValue(field, "12312030"), "Dec 31 2030 is valid MMDDYYYY");
+  assert.ok(window.validateFieldValue(field, "02282000"), "Feb 28 2000 is valid MMDDYYYY");
+  // YYYYMMDD must be rejected — month byte would read as 19, 20, etc. on scanners
+  assert.equal(window.validateFieldValue(field, "19900115"), false, "19900115 (YYYYMMDD) must be rejected");
+  assert.equal(window.validateFieldValue(field, "20301231"), false, "20301231 (YYYYMMDD) must be rejected");
+  assert.equal(window.validateFieldValue(field, "20200101"), false, "20200101 (YYYYMMDD) must be rejected");
+});
+test("generateAAMVAPayload encodes dates in MMDDYYYY format", () => {
+  const { fields, dataObj } = makeTestData("CA", "10");
+  fillV09TestData(dataObj);
+  const payload = window.generateAAMVAPayload("CA", "10", fields, dataObj);
+  // DBB should contain the MMDDYYYY date, not YYYYMMDD
+  assert.ok(payload.includes("DBB01011990"), "DBB field should use MMDDYYYY (01011990 = Jan 1 1990)");
+  assert.ok(payload.includes("DBA12312030"), "DBA field should use MMDDYYYY (12312030 = Dec 31 2030)");
+  assert.ok(!payload.includes("DBB19901"), "Payload must not contain YYYYMMDD date 19901...");
+});
+test("bwip-js renders AAMVA payload with MMDDYYYY dates without error", () => {
+  const { fields, dataObj } = makeTestData("NY", "10");
+  fillV09TestData(dataObj);
+  const payload = window.generateAAMVAPayload("NY", "10", fields, dataObj);
+  // If this throws, the payload is malformed for bwip-js
+  const svg = window.bwipjs.toSVG({
+    bcid: "pdf417",
+    text: payload,
+    columns: 10,
+    eclevel: 5,
+    compact: false,
+    scale: 1
+  });
+  assert.ok(svg.includes("<path"), "Full AAMVA payload should render to PDF417 barcode");
+});
+/* ============================================================
+   DAK POSTAL CODE — 11-CHARACTER PADDING
+   AAMVA CDS requires DAK to be left-justified, space-padded to 11
+   characters. Unpadded values may cause strict AAMVA scanners to
+   fail field-length checks.
+   ============================================================ */
+test("generateAAMVAPayload pads 5-digit ZIP to 11 characters in DAK", () => {
+  const { fields, dataObj } = makeTestData("NY", "10");
+  fillV09TestData(dataObj);
+  dataObj.DAK = "10001";
+  const payload = window.generateAAMVAPayload("NY", "10", fields, dataObj);
+  // Should be padded to 11 chars: "10001      "
+  assert.ok(payload.includes("DAK10001      "), "5-digit ZIP should be space-padded to 11 chars");
+});
+test("generateAAMVAPayload pads 9-digit ZIP (no hyphen) to 11 characters in DAK", () => {
+  const { fields, dataObj } = makeTestData("NY", "10");
+  fillV09TestData(dataObj);
+  dataObj.DAK = "100011234";
+  const payload = window.generateAAMVAPayload("NY", "10", fields, dataObj);
+  // 9 chars padded to 11: "100011234  "
+  assert.ok(payload.includes("DAK100011234  "), "9-digit ZIP should be space-padded to 11 chars");
+});
+test("generateAAMVAPayload strips hyphen and pads ZIP+4 to 11 characters", () => {
+  const { fields, dataObj } = makeTestData("NY", "10");
+  fillV09TestData(dataObj);
+  dataObj.DAK = "10001-1234";
+  const payload = window.generateAAMVAPayload("NY", "10", fields, dataObj);
+  // Hyphen stripped, padded to 11: "100011234  "
+  assert.ok(payload.includes("DAK100011234  "), "ZIP+4 with hyphen should be stripped and padded to 11 chars");
+});
+/* ============================================================
+   MIDDLE NAME — OPTIONAL PER AAMVA CDS
+   DAD is optional ("Required if available on the DL/ID"). Many
+   real licenses omit the middle name field entirely.
+   ============================================================ */
+test("DAD (Middle Name) is optional in all versions 04 through 10", () => {
+  for (const ver of ["04", "05", "06", "07", "08", "09", "10"]) {
+    const fields = window.getFieldsForVersion(ver);
+    const dad = fields.find(f => f.code === "DAD");
+    assert.ok(dad, `Version ${ver} should include DAD field`);
+    assert.ok(!dad.required, `Version ${ver} DAD should NOT be required (it is optional per AAMVA CDS)`);
+  }
+});
+test("generateAAMVAPayload accepts versions 04+ without middle name", () => {
+  const { fields, dataObj } = makeTestData("NY", "10");
+  fillV09TestData(dataObj);
+  dataObj.DAD = "";  // No middle name
+  // Should not throw — middle name is optional
+  const payload = window.generateAAMVAPayload("NY", "10", fields, dataObj);
+  assert.ok(payload.includes("DCSVE"), "Should still include last name");
+  assert.ok(!payload.includes("DAD\n"), "Empty DAD should be omitted from payload");
+});
+/* ============================================================
+   NAME SUFFIX — OPTIONAL IN VERSION 02
+   ============================================================ */
+test("DCU (Name Suffix) is optional in version 02", () => {
+  const fields = window.getFieldsForVersion("02");
+  const dcu = fields.find(f => f.code === "DCU");
+  assert.ok(dcu, "Version 02 should include DCU");
+  assert.ok(!dcu.required, "Version 02 DCU should NOT be required");
+});
+/* ============================================================
+   FULL ROUND-TRIP SCANNABILITY — AAMVA PAYLOAD → PDF417 → DECODE
+   The gold standard test: generate a valid AAMVA payload, render it
+   to a PDF417 barcode, then decode the raw text back and verify all
+   fields survive the round trip intact.
+   ============================================================ */
+test("complete round-trip: AAMVA payload survives PDF417 encode and text decode", () => {
+  const { fields, dataObj } = makeTestData("CA", "10");
+  fillV09TestData(dataObj);
+  dataObj.DCS = "SMITH";
+  dataObj.DAC = "JANE";
+  dataObj.DAK = "90210";
+
+  const payload = window.generateAAMVAPayload("CA", "10", fields, dataObj);
+
+  // Encode to PDF417 — if this throws the payload is malformed
+  const svg = window.bwipjs.toSVG({
+    bcid: "pdf417",
+    text: payload,
+    columns: 10,
+    eclevel: 5,
+    compact: false,
+    scale: 1
+  });
+  assert.ok(svg.includes("<svg"), "Should render to SVG");
+
+  // Decode the raw payload text (simulating a scanner reading the barcode text)
+  const decoded = window.AAMVA_DECODER.decode(payload);
+  assert.ok(decoded.ok, "Decoded result should be ok");
+  assert.equal(decoded.json.DCS, "SMITH", "Last name should survive round trip");
+  assert.equal(decoded.json.DAC, "JANE", "First name should survive round trip");
+  assert.equal(decoded.json.DBB, "01011990", "DOB should survive round trip as MMDDYYYY");
+  assert.equal(decoded.json.state, "CA", "State should be resolved from IIN");
+  assert.equal(decoded.json.version, "10", "Version should be preserved");
+});
+test("version 01 round-trip with full name (DAA) field", () => {
+  const fields = window.getFieldsForVersion("01");
+  const dataObj = { state: "VA", version: "01" };
+  fields.forEach(f => { dataObj[f.code] = ""; });
+  dataObj.DAA = "DOE,JOHN,M";
+  dataObj.DAG = "123 MAIN ST";
+  dataObj.DAI = "RICHMOND";
+  dataObj.DAJ = "VA";
+  dataObj.DAK = "23220";
+  dataObj.DAQ = "T12345678";
+  dataObj.DBA = "12312030";  // MMDDYYYY
+  dataObj.DBB = "01151990";  // MMDDYYYY
+  dataObj.DBC = "1";
+
+  const payload = window.generateAAMVAPayload("VA", "01", fields, dataObj);
+  const decoded = window.AAMVA_DECODER.decode(payload);
+  assert.ok(decoded.ok, "v01 payload should decode");
+  assert.equal(decoded.json.DAA, "DOE,JOHN,M", "v01 full name should survive round trip");
+  assert.equal(decoded.json.DBB, "01151990", "DOB in MMDDYYYY should survive round trip");
 });

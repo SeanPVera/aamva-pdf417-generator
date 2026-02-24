@@ -241,7 +241,7 @@ window.AAMVA_VERSIONS = {
     fields: [
       { code: "DCT", label: "Customer Given Names", type: "string", required: true },
       { code: "DCS", label: "Customer Family Name", type: "string", required: true },
-      { code: "DCU", label: "Name Suffix", type: "string", required: true },
+      { code: "DCU", label: "Name Suffix", type: "string" },
       { code: "DAG", label: "Address Street", type: "string", required: true },
       { code: "DAH", label: "Address Line 2", type: "string" },
       { code: "DAI", label: "City", type: "string", required: true },
@@ -305,7 +305,7 @@ window.AAMVA_VERSIONS = {
       { code: "DBA", label: "Expiration Date", type: "date", required: true },
       { code: "DCS", label: "Customer Family Name", type: "string", required: true },
       { code: "DAC", label: "Customer First Name", type: "string", required: true },
-      { code: "DAD", label: "Customer Middle Name", type: "string", required: true },
+      { code: "DAD", label: "Customer Middle Name", type: "string" },
       { code: "DBD", label: "Document Issue Date", type: "date", required: true },
       { code: "DBB", label: "Date of Birth", type: "date", required: true },
       { code: "DBC", label: "Sex", type: "char", required: true },
@@ -340,7 +340,7 @@ window.AAMVA_VERSIONS = {
       { code: "DBA", label: "Expiration Date", type: "date", required: true },
       { code: "DCS", label: "Customer Family Name", type: "string", required: true },
       { code: "DAC", label: "Customer First Name", type: "string", required: true },
-      { code: "DAD", label: "Customer Middle Name", type: "string", required: true },
+      { code: "DAD", label: "Customer Middle Name", type: "string" },
       { code: "DBD", label: "Document Issue Date", type: "date", required: true },
       { code: "DBB", label: "Date of Birth", type: "date", required: true },
       { code: "DBC", label: "Sex", type: "char", required: true },
@@ -375,7 +375,7 @@ window.AAMVA_VERSIONS = {
       { code: "DBA", label: "Expiration Date", type: "date", required: true },
       { code: "DCS", label: "Customer Family Name", type: "string", required: true },
       { code: "DAC", label: "Customer First Name", type: "string", required: true },
-      { code: "DAD", label: "Customer Middle Name", type: "string", required: true },
+      { code: "DAD", label: "Customer Middle Name", type: "string" },
       { code: "DBD", label: "Document Issue Date", type: "date", required: true },
       { code: "DBB", label: "Date of Birth", type: "date", required: true },
       { code: "DBC", label: "Sex", type: "char", required: true },
@@ -410,7 +410,7 @@ window.AAMVA_VERSIONS = {
       { code: "DBA", label: "Expiration Date", type: "date", required: true },
       { code: "DCS", label: "Customer Family Name", type: "string", required: true },
       { code: "DAC", label: "Customer First Name", type: "string", required: true },
-      { code: "DAD", label: "Customer Middle Name", type: "string", required: true },
+      { code: "DAD", label: "Customer Middle Name", type: "string" },
       { code: "DBD", label: "Document Issue Date", type: "date", required: true },
       { code: "DBB", label: "Date of Birth", type: "date", required: true },
       { code: "DBC", label: "Sex", type: "char", required: true },
@@ -445,7 +445,7 @@ window.AAMVA_VERSIONS = {
       { code: "DBA", label: "Expiration Date", type: "date", required: true },
       { code: "DCS", label: "Customer Family Name", type: "string", required: true },
       { code: "DAC", label: "Customer First Name", type: "string", required: true },
-      { code: "DAD", label: "Customer Middle Name", type: "string", required: true },
+      { code: "DAD", label: "Customer Middle Name", type: "string" },
       { code: "DBD", label: "Document Issue Date", type: "date", required: true },
       { code: "DBB", label: "Date of Birth", type: "date", required: true },
       { code: "DBC", label: "Sex", type: "char", required: true },
@@ -482,7 +482,7 @@ window.AAMVA_VERSIONS = {
       { code: "DBA", label: "Expiration Date", type: "date", required: true },
       { code: "DCS", label: "Customer Family Name", type: "string", required: true },
       { code: "DAC", label: "Customer First Name", type: "string", required: true },
-      { code: "DAD", label: "Customer Middle Name", type: "string", required: true },
+      { code: "DAD", label: "Customer Middle Name", type: "string" },
       { code: "DBD", label: "Document Issue Date", type: "date", required: true },
       { code: "DBB", label: "Date of Birth", type: "date", required: true },
       { code: "DBC", label: "Sex", type: "char", required: true },
@@ -519,7 +519,7 @@ window.AAMVA_VERSIONS = {
       { code: "DBA", label: "Expiration Date", type: "date", required: true },
       { code: "DCS", label: "Customer Family Name", type: "string", required: true },
       { code: "DAC", label: "Customer First Name", type: "string", required: true },
-      { code: "DAD", label: "Customer Middle Name", type: "string", required: true },
+      { code: "DAD", label: "Customer Middle Name", type: "string" },
       { code: "DBD", label: "Document Issue Date", type: "date", required: true },
       { code: "DBB", label: "Date of Birth", type: "date", required: true },
       { code: "DBC", label: "Sex", type: "char", required: true },
@@ -602,33 +602,26 @@ window.validateFieldValue = function(field, value) {
 
   switch (field.type) {
     case "date":
-      // Accept both MMDDYYYY and YYYYMMDD while validating basic month/day ranges.
+      // AAMVA CDS mandates MMDDYYYY for all date fields across all versions.
+      // Do NOT accept YYYYMMDD — barcode scanners (police terminals, age verification
+      // hardware) parse dates as MMDDYYYY and will misread or reject YYYYMMDD values.
       if (!/^\d{8}$/.test(value)) return false;
 
-      const mmddyyyy = {
-        month: Number.parseInt(value.substring(0, 2), 10),
-        day: Number.parseInt(value.substring(2, 4), 10),
-        year: Number.parseInt(value.substring(4, 8), 10)
-      };
-      const yyyymmdd = {
-        year: Number.parseInt(value.substring(0, 4), 10),
-        month: Number.parseInt(value.substring(4, 6), 10),
-        day: Number.parseInt(value.substring(6, 8), 10)
-      };
+      const month = Number.parseInt(value.substring(0, 2), 10);
+      const day   = Number.parseInt(value.substring(2, 4), 10);
+      const year  = Number.parseInt(value.substring(4, 8), 10);
 
-      const isCalendarValid = ({ year, month, day }) => {
-        if (year < 1800 || year > 2200) return false;
-        if (month < 1 || month > 12) return false;
-        if (day < 1 || day > 31) return false;
+      if (year < 1800 || year > 2200) return false;
+      if (month < 1 || month > 12) return false;
+      if (day < 1 || day > 31) return false;
+      {
         const dt = new Date(Date.UTC(year, month - 1, day));
         return (
           dt.getUTCFullYear() === year &&
           dt.getUTCMonth() === (month - 1) &&
           dt.getUTCDate() === day
         );
-      };
-
-      return isCalendarValid(mmddyyyy) || isCalendarValid(yyyymmdd);
+      }
     case "zip":
       return /^\d{5}(-?\d{4})?$/.test(value);
     case "char":
@@ -721,8 +714,14 @@ window.generateAAMVAPayload = function(stateCode, version, fields, dataObj) {
 
   // Fields
   for (const field of fields) {
-    const val = dataObj[field.code];
+    let val = dataObj[field.code];
     if (val !== undefined && val !== "") {
+      // AAMVA CDS requires DAK (Postal Code) to be exactly 11 characters,
+      // left-justified and space-padded. Strip any hyphen from ZIP+4 before padding.
+      if (field.code === "DAK") {
+        const stripped = val.replace(/-/g, "");
+        val = stripped.padEnd(11, " ").substring(0, 11);
+      }
       subfileData += field.code + val + dataElementSeparator;
     }
   }
