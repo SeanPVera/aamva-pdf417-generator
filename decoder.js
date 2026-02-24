@@ -41,25 +41,34 @@ window.AAMVA_DECODER = (() => {
 
   function decodeAAMVAFormat(text) {
     try {
-      // Header structure:
-      // @(1) + \n(1) + \x1e(1) + \r(1) + "ANSI "(5) + IIN(6) + version(2) + jurisVersion(2) + numEntries(2)
-      // Offsets: IIN starts at 9, version at 15, jurisVersion at 17, numEntries at 19
-      // = 21 bytes of header before subfile directory entries
+      // Header structure (21 bytes total):
+      //   @(1) + \n(1) + \x1e(1) + \r(1) + "ANSI "(5) + IIN(6) + version(2) + jurisVersion(2) + numEntries(2)
+      //   IIN at 9, version at 15, numEntries at 19
+      // Directory entries follow at byte 21; each entry is 10 bytes:
+      //   subfileType(2) + offset(4) + length(4)
       const iin = text.substring(9, 15);
       const version = text.substring(15, 17);
 
-      // Find the DL subfile — scan for "DL" after the header
-      const dlIndex = text.indexOf("DL", 21);
-      if (dlIndex === -1) {
-        return { error: "No DL subfile found" };
+      // Read the first directory entry — must be the DL subfile
+      const dirType = text.substring(21, 23);
+      if (dirType !== "DL") {
+        return { error: "No DL subfile found in directory" };
       }
 
-      // Extract the subfile content after "DL"
-      const subfileContent = text.substring(dlIndex + 2);
+      // The offset field (4 digits) tells us exactly where the subfile content begins.
+      // Using the directory offset avoids the previous bug of finding "DL" in the
+      // directory entry itself and discarding the first field of every payload.
+      const subfileOffset = Number.parseInt(text.substring(23, 27), 10);
+      if (!Number.isFinite(subfileOffset) || subfileOffset < 31) {
+        return { error: "Invalid DL subfile offset in directory" };
+      }
+
+      // Subfile begins with the 2-byte subfile type ("DL"); field data follows after that.
+      const fieldData = text.substring(subfileOffset + 2);
 
       // Parse field code/value pairs separated by \n (data element separator)
       const obj = { version: version };
-      const entries = subfileContent.split("\n");
+      const entries = fieldData.split("\n");
 
       for (const entry of entries) {
         // Each entry is a 3-character field code followed by the value

@@ -836,7 +836,6 @@ function clearForm() {
   if (dimLabel) dimLabel.textContent = "";
 
   // Reset cached state
-  lastMatrix = null;
   lastPayloadText = null;
 
   hideError();
