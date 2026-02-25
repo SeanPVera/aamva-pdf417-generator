@@ -226,10 +226,15 @@ window.AAMVA_VERSIONS = {
       { code: "DAR", label: "Vehicle Class", type: "string" },
       { code: "DAS", label: "Restriction Codes", type: "string" },
       { code: "DAT", label: "Endorsement Codes", type: "string" },
-      { code: "DBA", label: "Expiration Date", type: "date", required: true },
-      { code: "DBB", label: "Date of Birth", type: "date", required: true },
-      { code: "DBC", label: "Sex", type: "char", required: true },
-      { code: "DBD", label: "Document Issue Date", type: "date" },
+      { code: "DBA", label: "Expiration Date", type: "date", required: true, dateFormat: "YYYYMMDD" },
+      { code: "DBB", label: "Date of Birth", type: "date", required: true, dateFormat: "YYYYMMDD" },
+      { code: "DBC", label: "Sex", type: "char", required: true,
+        options: [
+          { value: "M", label: "M — Male" },
+          { value: "F", label: "F — Female" }
+        ]
+      },
+      { code: "DBD", label: "Document Issue Date", type: "date", dateFormat: "YYYYMMDD" },
       { code: "DAU", label: "Height", type: "string" },
       { code: "DAY", label: "Eye Color", type: "string" },
       { code: "DAW", label: "Weight", type: "string" }
@@ -590,7 +595,9 @@ window.validateFieldValue = function(field, value) {
   if (!value) return true;
 
   // Enforce constrained option sets when present.
-  const constrainedOptions = window.AAMVA_FIELD_OPTIONS && window.AAMVA_FIELD_OPTIONS[field.code];
+  // Prioritize version-specific options if available (e.g. DBC in v01)
+  const constrainedOptions = field.options || (window.AAMVA_FIELD_OPTIONS && window.AAMVA_FIELD_OPTIONS[field.code]);
+
   if (Array.isArray(constrainedOptions) && constrainedOptions.length > 0) {
     const allowedValues = new Set(constrainedOptions.map(opt => opt.value));
     if (!allowedValues.has(value)) return false;
@@ -602,14 +609,22 @@ window.validateFieldValue = function(field, value) {
 
   switch (field.type) {
     case "date":
-      // AAMVA CDS mandates MMDDYYYY for all date fields across all versions.
-      // Do NOT accept YYYYMMDD — barcode scanners (police terminals, age verification
-      // hardware) parse dates as MMDDYYYY and will misread or reject YYYYMMDD values.
+      // Check for version-specific date format override (e.g., v01 uses YYYYMMDD)
+      const dateFormat = field.dateFormat || "MMDDYYYY";
+
       if (!/^\d{8}$/.test(value)) return false;
 
-      const month = Number.parseInt(value.substring(0, 2), 10);
-      const day   = Number.parseInt(value.substring(2, 4), 10);
-      const year  = Number.parseInt(value.substring(4, 8), 10);
+      let year, month, day;
+      if (dateFormat === "YYYYMMDD") {
+        year  = Number.parseInt(value.substring(0, 4), 10);
+        month = Number.parseInt(value.substring(4, 6), 10);
+        day   = Number.parseInt(value.substring(6, 8), 10);
+      } else {
+        // Default: MMDDYYYY (and MMDDCCYY)
+        month = Number.parseInt(value.substring(0, 2), 10);
+        day   = Number.parseInt(value.substring(2, 4), 10);
+        year  = Number.parseInt(value.substring(4, 8), 10);
+      }
 
       if (year < 1800 || year > 2200) return false;
       if (month < 1 || month > 12) return false;
@@ -679,11 +694,24 @@ window.generateAAMVAPayload = function(stateCode, version, fields, dataObj) {
     throw new Error(`Missing mandatory fields for ${stateCode} (v${version}): ${missing.join(", ")}`);
   }
 
+  // Consistency Check: Ensure DAJ (Jurisdiction Code) matches selected State if present
+  if (dataObj.DAJ && dataObj.DAJ !== stateCode) {
+    dataObj.DAJ = stateCode;
+  }
+
   // Sanitize: normalize to ASCII printable + strip control chars from all field values.
   // AAMVA payload directory offsets are byte-based, so we keep payload text 7-bit ASCII.
+  // Also force UPPERCASE for standard alphanumeric fields for better compliance.
   for (const field of fields) {
     if (dataObj[field.code]) {
-      dataObj[field.code] = dataObj[field.code]
+      let val = dataObj[field.code];
+
+      // Force uppercase for string/char/zip fields (dates are numeric)
+      if (field.type === "string" || field.type === "char" || field.type === "zip") {
+         val = val.toUpperCase();
+      }
+
+      dataObj[field.code] = val
         .normalize("NFKD")
         .replace(/[\u0300-\u036f]/g, "")
         .replace(/[^\x20-\x7e]/g, "")

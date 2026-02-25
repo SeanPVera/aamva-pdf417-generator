@@ -151,7 +151,8 @@ function renderFields(preserveValues) {
     label.textContent = `${field.code} — ${field.label}`;
     div.appendChild(label);
 
-    const options = window.AAMVA_FIELD_OPTIONS && window.AAMVA_FIELD_OPTIONS[field.code];
+    // Prefer field-specific options if available (e.g. sex codes in V01)
+    const options = field.options || (window.AAMVA_FIELD_OPTIONS && window.AAMVA_FIELD_OPTIONS[field.code]);
     const maxLen = window.AAMVA_FIELD_LIMITS && window.AAMVA_FIELD_LIMITS[field.code];
 
     if (options) {
@@ -178,10 +179,12 @@ function renderFields(preserveValues) {
       const inputWrap = document.createElement("div");
       inputWrap.className = "date-field-wrap";
 
+      const formatPlaceholder = field.dateFormat || "MMDDYYYY";
+
       const input = document.createElement("input");
       input.type = "text";
       input.id = field.code;
-      input.placeholder = "MMDDYYYY";
+      input.placeholder = formatPlaceholder;
       input.setAttribute("aria-label", field.label);
       input.pattern = "\\d{8}";
       if (maxLen) input.maxLength = maxLen;
@@ -193,9 +196,16 @@ function renderFields(preserveValues) {
       picker.setAttribute("aria-label", `${field.label} date picker`);
       picker.addEventListener("change", () => {
         if (picker.value) {
-          // Convert YYYY-MM-DD to MMDDYYYY
+          // Input is always YYYY-MM-DD from the date input
           const [y, m, d] = picker.value.split("-");
-          input.value = m + d + y;
+
+          if (field.dateFormat === "YYYYMMDD") {
+            input.value = y + m + d;
+          } else {
+            // Default MMDDYYYY
+            input.value = m + d + y;
+          }
+
           input.dispatchEvent(new Event("input", { bubbles: true }));
         }
       });
