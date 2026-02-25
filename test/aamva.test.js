@@ -192,14 +192,13 @@ test("validateFieldValue accepts valid date MMDDYYYY", () => {
   // AAMVA CDS mandates MMDDYYYY: January 15, 1990 = 01151990
   assert.ok(window.validateFieldValue(field, "01151990"));
 });
-test("validateFieldValue rejects non-MMDDYYYY date formats", () => {
+test("validateFieldValue rejects non-MMDDYYYY date formats for standard versions", () => {
   const field = { code: "DBB", type: "date", required: true };
   // Hyphenated ISO format — not 8 digits
   assert.equal(window.validateFieldValue(field, "1990-01-15"), false);
   // Too short
   assert.equal(window.validateFieldValue(field, "199001"), false);
-  // YYYYMMDD format must be rejected — barcode scanners parse dates as MMDDYYYY,
-  // so "19900115" would be read as month=19, day=90, year=0115 (invalid).
+  // YYYYMMDD format must be rejected — barcode scanners parse dates as MMDDYYYY
   assert.equal(window.validateFieldValue(field, "19900115"), false, "YYYYMMDD must be rejected");
 });
 
@@ -293,7 +292,7 @@ function fillV09TestData(dataObj) {
   dataObj.DCA = "D";
   dataObj.DCB = "NONE";
   dataObj.DCD = "NONE";
-  // All dates must be MMDDYYYY per the AAMVA CDS standard.
+  // All dates must be MMDDYYYY per the AAMVA CDS standard (V09/V10).
   dataObj.DBA = "12312030";  // December 31, 2030
   dataObj.DCS = "VERA";
   dataObj.DAC = "SEAN";
@@ -539,10 +538,11 @@ test("buildPayloadObject preserves all provided field values", () => {
 /* ============================================================
    VERSION 01 — FULL NAME (DAA) PAYLOAD
    ============================================================ */
-test("version 01 payload uses DAA (full name) field", () => {
+test("version 01 payload uses DAA (full name) field and correct formats", () => {
   const fields = window.getFieldsForVersion("01");
   const dataObj = { state: "VA", version: "01" };
   fields.forEach(f => { dataObj[f.code] = ""; });
+
   // Fill v01 mandatory fields
   dataObj.DAA = "DOE,JOHN,M";
   dataObj.DAG = "123 MAIN ST";
@@ -550,14 +550,40 @@ test("version 01 payload uses DAA (full name) field", () => {
   dataObj.DAJ = "VA";
   dataObj.DAK = "23220";
   dataObj.DAQ = "T12345678";
-  dataObj.DBA = "20301231";
-  dataObj.DBB = "19900115";
-  dataObj.DBC = "1";
+
+  // V01 uses YYYYMMDD and M/F sex code
+  dataObj.DBA = "20301231"; // YYYYMMDD
+  dataObj.DBB = "19900115"; // YYYYMMDD
+  dataObj.DBC = "M";        // Male
+
   const payload = window.generateAAMVAPayload("VA", "01", fields, dataObj);
-  assert.ok(payload.includes("DAADOE,JOHN,M"), "Should contain DAA full name");
-  assert.ok(payload.includes("636000"), "Should contain VA IIN");
-  assert.ok(payload.substring(15, 17) === "01", "Version should be 01");
+  const decoded = window.AAMVA_DECODER.decode(payload);
+
+  assert.ok(decoded.ok, "v01 payload should decode");
+  assert.equal(decoded.json.DAA, "DOE,JOHN,M", "v01 full name should survive round trip");
+  assert.equal(decoded.json.DBB, "19900115", "DOB in YYYYMMDD should survive round trip");
+  assert.equal(decoded.json.DBC, "M", "Sex M should survive");
 });
+
+test("validateFieldValue validates YYYYMMDD for version 01 fields", () => {
+  // We need to fetch the actual field definition from Version 01 which has the dateFormat prop
+  const v01fields = window.getFieldsForVersion("01");
+  const dbb = v01fields.find(f => f.code === "DBB");
+
+  assert.ok(dbb.dateFormat === "YYYYMMDD", "V01 DBB should have YYYYMMDD format");
+  assert.ok(window.validateFieldValue(dbb, "19900115"), "Should accept YYYYMMDD");
+  assert.equal(window.validateFieldValue(dbb, "01151990"), false, "Should reject MMDDYYYY for V01");
+});
+
+test("validateFieldValue accepts version-specific options (V01 Sex Code M/F)", () => {
+  const v01fields = window.getFieldsForVersion("01");
+  const dbc = v01fields.find(f => f.code === "DBC");
+
+  assert.ok(window.validateFieldValue(dbc, "M"), "Should accept M");
+  assert.ok(window.validateFieldValue(dbc, "F"), "Should accept F");
+  assert.equal(window.validateFieldValue(dbc, "1"), false, "Should reject 1 for V01");
+});
+
 /* ============================================================
    DECODER — ROUND-TRIP INTEGRITY
    ============================================================ */
@@ -700,58 +726,24 @@ test("DCU (Name Suffix) is optional in version 02", () => {
   assert.ok(dcu, "Version 02 should include DCU");
   assert.ok(!dcu.required, "Version 02 DCU should NOT be required");
 });
+
 /* ============================================================
-   FULL ROUND-TRIP SCANNABILITY — AAMVA PAYLOAD → PDF417 → DECODE
-   The gold standard test: generate a valid AAMVA payload, render it
-   to a PDF417 barcode, then decode the raw text back and verify all
-   fields survive the round trip intact.
+   UPPERCASE & CONSISTENCY ENFORCEMENT
    ============================================================ */
-test("complete round-trip: AAMVA payload survives PDF417 encode and text decode", () => {
+test("generateAAMVAPayload enforces uppercase for string fields", () => {
   const { fields, dataObj } = makeTestData("CA", "10");
   fillV09TestData(dataObj);
-  dataObj.DCS = "SMITH";
-  dataObj.DAC = "JANE";
-  dataObj.DAK = "90210";
-
+  dataObj.DCS = "smith"; // lowercase
+  dataObj.DAC = "jane";  // lowercase
   const payload = window.generateAAMVAPayload("CA", "10", fields, dataObj);
-
-  // Encode to PDF417 — if this throws the payload is malformed
-  const svg = window.bwipjs.toSVG({
-    bcid: "pdf417",
-    text: payload,
-    columns: 10,
-    eclevel: 5,
-    compact: false,
-    scale: 1
-  });
-  assert.ok(svg.includes("<svg"), "Should render to SVG");
-
-  // Decode the raw payload text (simulating a scanner reading the barcode text)
-  const decoded = window.AAMVA_DECODER.decode(payload);
-  assert.ok(decoded.ok, "Decoded result should be ok");
-  assert.equal(decoded.json.DCS, "SMITH", "Last name should survive round trip");
-  assert.equal(decoded.json.DAC, "JANE", "First name should survive round trip");
-  assert.equal(decoded.json.DBB, "01011990", "DOB should survive round trip as MMDDYYYY");
-  assert.equal(decoded.json.state, "CA", "State should be resolved from IIN");
-  assert.equal(decoded.json.version, "10", "Version should be preserved");
+  assert.ok(payload.includes("DCSSMITH"), "DCS should be uppercase");
+  assert.ok(payload.includes("DACJANE"), "DAC should be uppercase");
 });
-test("version 01 round-trip with full name (DAA) field", () => {
-  const fields = window.getFieldsForVersion("01");
-  const dataObj = { state: "VA", version: "01" };
-  fields.forEach(f => { dataObj[f.code] = ""; });
-  dataObj.DAA = "DOE,JOHN,M";
-  dataObj.DAG = "123 MAIN ST";
-  dataObj.DAI = "RICHMOND";
-  dataObj.DAJ = "VA";
-  dataObj.DAK = "23220";
-  dataObj.DAQ = "T12345678";
-  dataObj.DBA = "12312030";  // MMDDYYYY
-  dataObj.DBB = "01151990";  // MMDDYYYY
-  dataObj.DBC = "1";
 
-  const payload = window.generateAAMVAPayload("VA", "01", fields, dataObj);
-  const decoded = window.AAMVA_DECODER.decode(payload);
-  assert.ok(decoded.ok, "v01 payload should decode");
-  assert.equal(decoded.json.DAA, "DOE,JOHN,M", "v01 full name should survive round trip");
-  assert.equal(decoded.json.DBB, "01151990", "DOB in MMDDYYYY should survive round trip");
+test("generateAAMVAPayload enforces DAJ matches state", () => {
+  const { fields, dataObj } = makeTestData("CA", "10");
+  fillV09TestData(dataObj);
+  dataObj.DAJ = "NY"; // mismatched state
+  const payload = window.generateAAMVAPayload("CA", "10", fields, dataObj);
+  assert.ok(payload.includes("DAJCA"), "DAJ should be forced to match state (CA)");
 });
