@@ -118,7 +118,7 @@ function populateVersionList() {
    ============================================================ */
 
 const FIELD_HINTS = {
-  date: "Format: MMDDYYYY",
+  date: "Format: YYYYMMDD",
   zip:  "Format: 12345 or 12345-6789",
   char: "Single character (1=M, 2=F, 9=X)"
 };
@@ -181,7 +181,7 @@ function renderFields(preserveValues) {
       const input = document.createElement("input");
       input.type = "text";
       input.id = field.code;
-      input.placeholder = "MMDDYYYY";
+      input.placeholder = "YYYYMMDD";
       input.setAttribute("aria-label", field.label);
       input.pattern = "\\d{8}";
       if (maxLen) input.maxLength = maxLen;
@@ -193,9 +193,9 @@ function renderFields(preserveValues) {
       picker.setAttribute("aria-label", `${field.label} date picker`);
       picker.addEventListener("change", () => {
         if (picker.value) {
-          // Convert YYYY-MM-DD to MMDDYYYY
+          // Convert YYYY-MM-DD to YYYYMMDD
           const [y, m, d] = picker.value.split("-");
-          input.value = m + d + y;
+          input.value = y + m + d;
           input.dispatchEvent(new Event("input", { bubbles: true }));
         }
       });
@@ -585,13 +585,7 @@ function renderBarcode(text) {
   const dimLabel = document.getElementById("barcodeDimensions");
   const s = getSizerValues();
 
-  // Calculate desired columns based on width
-  const moduleWidthMM = (s.moduleWidthMil * 0.0254);
-  const targetModules = s.widthMM / moduleWidthMM;
-  // Overhead: Start(17) + Left(17) + Right(17) + Stop(18) = 69 modules
-  let columns = Math.floor((targetModules - 69) / 17);
-  if (columns < 1) columns = 1;
-  if (columns > 30) columns = 30;
+  const layout = computePdf417Layout(s);
 
   // For screen preview, use a simple scale (e.g. 2 or 3)
   const screenScale = 2;
@@ -601,17 +595,11 @@ function renderBarcode(text) {
       bcid:        'pdf417',
       text:        text,
       scale:       screenScale,
-      columns:     columns,
+      columns:     layout.columns,
       eclevel:     5,
       compact:     true,
-      padding:     s.quietZone, // Quiet zone in modules? No, in points or pixels? bwipjs uses 'padding' in points usually? Or scale factor?
-      // Wait, bwipjs uses 'padding' which adds white space. 'paddingwidth'/'paddingheight'
-      // If padding is used, it adds to dimensions.
-      // Let's use simpler approach: let bwipjs draw to canvas, it resizes canvas.
-      // But we want to simulate the quiet zone.
-      // bwipjs `padding` is in points. With scale, it's relative.
-      // Let's omit padding for now and rely on CSS or canvas clear.
-      // Actually, bwipjs resizes the canvas.
+      paddingwidth: s.quietZone,
+      paddingheight: s.quietZone,
     });
 
     // Update dimension label
@@ -635,6 +623,20 @@ function renderBarcode(text) {
     ctx.font = "12px sans-serif";
     ctx.fillText("Render Error", 10, 20);
   }
+}
+
+function computePdf417Layout(sizerValues) {
+  const moduleWidthMM = (sizerValues.moduleWidthMil * 0.0254);
+  const targetModules = sizerValues.widthMM / moduleWidthMM;
+  // Overhead: Start(17) + Left(17) + Right(17) + Stop(18) = 69 modules
+  let columns = Math.floor((targetModules - 69) / 17);
+  if (columns < 1) columns = 1;
+  if (columns > 30) columns = 30;
+
+  return {
+    columns,
+    exportScale: (sizerValues.moduleWidthMil / 1000) * sizerValues.dpi
+  };
 }
 
 
@@ -705,24 +707,18 @@ function buildExportCanvas() {
   // Create canvas
   const canvas = document.createElement("canvas");
 
-  // Calculate columns (same logic as renderBarcode)
-  const moduleWidthMM = (s.moduleWidthMil * 0.0254);
-  const targetModules = s.widthMM / moduleWidthMM;
-  let columns = Math.floor((targetModules - 69) / 17);
-  if (columns < 1) columns = 1;
-  if (columns > 30) columns = 30;
-
-  // Calculate scale for export DPI
-  const scale = (s.moduleWidthMil / 1000) * s.dpi;
+  const layout = computePdf417Layout(s);
 
   try {
     bwipjs.toCanvas(canvas, {
       bcid:        'pdf417',
       text:        lastPayloadText,
-      scale:       scale,
-      columns:     columns,
+      scale:       layout.exportScale,
+      columns:     layout.columns,
       eclevel:     5,
       compact:     true,
+      paddingwidth: s.quietZone,
+      paddingheight: s.quietZone,
     });
     return canvas;
   } catch (e) {
@@ -775,13 +771,16 @@ function exportSVG() {
 
     // SVG export
     const s = getSizerValues();
+    const layout = computePdf417Layout(s);
     const svg = bwipjs.toSVG({
         bcid:        'pdf417',
         text:        aamvaData,
-        scale:       3, // Fixed scale for SVG usually fine as it's vector
-        columns:     30, // Or calculated? Maybe just max width
+        scale:       3,
+        columns:     layout.columns,
         eclevel:     5,
         compact:     true,
+        paddingwidth: s.quietZone,
+        paddingheight: s.quietZone,
     });
 
     const blob = new Blob([svg], { type: "image/svg+xml" });
@@ -839,7 +838,6 @@ function clearForm() {
   if (dimLabel) dimLabel.textContent = "";
 
   // Reset cached state
-  lastMatrix = null;
   lastPayloadText = null;
 
   hideError();

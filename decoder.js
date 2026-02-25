@@ -47,15 +47,44 @@ window.AAMVA_DECODER = (() => {
       // = 21 bytes of header before subfile directory entries
       const iin = text.substring(9, 15);
       const version = text.substring(15, 17);
+      const numEntries = Number.parseInt(text.substring(19, 21), 10);
 
-      // Find the DL subfile — scan for "DL" after the header
-      const dlIndex = text.indexOf("DL", 21);
-      if (dlIndex === -1) {
+      if (!Number.isInteger(numEntries) || numEntries < 1) {
+        return { error: "Invalid AAMVA directory entry count" };
+      }
+
+      // Parse subfile directory entries to find DL offset/length.
+      let dlOffset = null;
+      let dlLength = null;
+      for (let i = 0; i < numEntries; i++) {
+        const entryStart = 21 + (i * 10);
+        const type = text.substring(entryStart, entryStart + 2);
+        const offset = Number.parseInt(text.substring(entryStart + 2, entryStart + 6), 10);
+        const length = Number.parseInt(text.substring(entryStart + 6, entryStart + 10), 10);
+
+        if (type === "DL") {
+          dlOffset = offset;
+          dlLength = length;
+          break;
+        }
+      }
+
+      if (dlOffset === null || dlLength === null) {
         return { error: "No DL subfile found" };
       }
 
-      // Extract the subfile content after "DL"
-      const subfileContent = text.substring(dlIndex + 2);
+      if (!Number.isInteger(dlOffset) || !Number.isInteger(dlLength) || dlOffset < 0 || dlLength <= 0) {
+        return { error: "Invalid DL directory metadata" };
+      }
+
+      // DL subfile contains the "DL" designator at its beginning.
+      const dlSubfile = text.substring(dlOffset, dlOffset + dlLength);
+      if (!dlSubfile.startsWith("DL")) {
+        return { error: "DL subfile offset mismatch" };
+      }
+
+      // Extract only the DL payload content after "DL".
+      const subfileContent = dlSubfile.substring(2);
 
       // Parse field code/value pairs separated by \n (data element separator)
       const obj = { version: version };

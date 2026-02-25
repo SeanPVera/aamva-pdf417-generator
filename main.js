@@ -19,11 +19,18 @@ function createWindow() {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
       nodeIntegration: false,
-      sandbox: true
+      sandbox: true,
+      webSecurity: true
     }
   });
 
   win.loadFile("index.html");
+
+  win.webContents.setWindowOpenHandler(() => ({ action: "deny" }));
+
+  win.webContents.on("will-navigate", (event) => {
+    event.preventDefault();
+  });
 
   // Uncomment if you want devtools by default
   // win.webContents.openDevTools();

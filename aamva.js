@@ -595,7 +595,7 @@ window.validateFieldValue = function(field, value) {
 
   switch (field.type) {
     case "date":
-      return /^\d{8}$/.test(value); // MMDDCCYY or CCYYMMDD
+      return /^\d{8}$/.test(value); // YYYYMMDD (8 digits)
     case "zip":
       return /^\d{5}(-?\d{4})?$/.test(value);
     case "char":

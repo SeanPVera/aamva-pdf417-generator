@@ -552,3 +552,21 @@ test("higher EC levels increase PDF417 symbol height in bwip-js output", () => {
   const h6 = Number(svgEc6.match(/viewBox="0 0 \d+ (\d+)"/)[1]);
   assert.ok(h6 >= h2, `EC 6 height (${h6}) should be >= EC 2 height (${h2})`);
 });
+
+test("decoder rejects malformed directory entry count", () => {
+  const { fields, dataObj } = makeTestData("NY", "10");
+  fillV09TestData(dataObj);
+  const payload = window.generateAAMVAPayload("NY", "10", fields, dataObj);
+  const malformed = payload.slice(0, 19) + "00" + payload.slice(21);
+  const decoded = window.AAMVA_DECODER.decode(malformed);
+  assert.ok(decoded.error, "Decoder should fail malformed directory entry count");
+});
+
+test("decoder rejects mismatched DL directory offset", () => {
+  const { fields, dataObj } = makeTestData("CA", "10");
+  fillV09TestData(dataObj);
+  const payload = window.generateAAMVAPayload("CA", "10", fields, dataObj);
+  const badOffset = payload.slice(0, 23) + "9999" + payload.slice(27);
+  const decoded = window.AAMVA_DECODER.decode(badOffset);
+  assert.ok(decoded.error, "Decoder should fail when DL offset does not point to DL subfile");
+});
