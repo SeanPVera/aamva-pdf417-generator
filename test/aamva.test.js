@@ -64,6 +64,13 @@ test("territories have IINs", () => {
   assert.ok(window.AAMVA_STATES.VI.IIN, "Virgin Islands should have IIN");
   assert.ok(window.AAMVA_STATES.PR.IIN, "Puerto Rico should have IIN");
 });
+test("territories are marked unsupported for generation", () => {
+  assert.equal(window.isJurisdictionSupported("AS"), false);
+  assert.equal(window.isJurisdictionSupported("GU"), false);
+  assert.equal(window.isJurisdictionSupported("VI"), false);
+  assert.equal(window.isJurisdictionSupported("PR"), false);
+  assert.equal(window.isJurisdictionSupported("CA"), true);
+});
 test("no duplicate IINs across states", () => {
   const seen = {};
   for (const [code, def] of Object.entries(window.AAMVA_STATES)) {
@@ -424,6 +431,47 @@ test("generateAAMVAPayload rejects unknown state and version", () => {
   assert.throws(() => {
     window.generateAAMVAPayload("NY", "99", fields, dataObj);
   }, /Unsupported AAMVA version/);
+});
+
+test("generateAAMVAPayload rejects unsupported territories", () => {
+  const fields = window.getFieldsForVersion("09");
+  const dataObj = {
+    DCS: "DOE", DAC: "JOHN", DBC: "1", DAY: "BLU", DBB: "01011990",
+    DBA: "01012030", DBD: "01012020", DAU: "510", DAG: "123 MAIN ST",
+    DAI: "PAGO PAGO", DAJ: "AS", DAK: "96799", DAQ: "A12345",
+    DCA: "D", DCB: "NONE", DCD: "NONE", DCF: "ABC123", DCG: "USA"
+  };
+
+  assert.throws(() => {
+    window.generateAAMVAPayload("AS", "09", fields, dataObj);
+  }, /Unsupported jurisdiction/);
+});
+
+test("validateAAMVAPayloadStructure accepts valid generated payload", () => {
+  const { fields, dataObj } = makeTestData("NY", "10");
+  fillV09TestData(dataObj);
+  const payload = window.generateAAMVAPayload("NY", "10", fields, dataObj);
+  const result = window.validateAAMVAPayloadStructure(payload);
+  assert.deepEqual(result, { ok: true });
+});
+
+test("validateAAMVAPayloadStructure rejects malformed header tokens", () => {
+  const { fields, dataObj } = makeTestData("NY", "10");
+  fillV09TestData(dataObj);
+  const payload = window.generateAAMVAPayload("NY", "10", fields, dataObj);
+  const malformed = "#" + payload.substring(1);
+  const result = window.validateAAMVAPayloadStructure(malformed);
+  assert.equal(result.ok, false);
+  assert.match(result.error, /Invalid compliance indicator/);
+});
+
+test("decoder rejects malformed directory offset/length", () => {
+  const { fields, dataObj } = makeTestData("NY", "10");
+  fillV09TestData(dataObj);
+  const payload = window.generateAAMVAPayload("NY", "10", fields, dataObj);
+  const badLengthPayload = payload.substring(0, 27) + "9999" + payload.substring(31);
+  const decoded = window.AAMVA_DECODER.decode(badLengthPayload);
+  assert.ok(decoded.error, "Decoder should return an error for inconsistent directory length");
 });
 
 test("generateAAMVAPayload strips control characters from field values", () => {
