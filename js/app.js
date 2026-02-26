@@ -12,6 +12,7 @@ const describeVersion = window.describeVersion;
 const validateFieldValue = window.validateFieldValue;
 const buildPayloadObject = window.buildPayloadObject;
 const generateAAMVAPayload = window.generateAAMVAPayload;
+const isJurisdictionSupported = window.isJurisdictionSupported;
 
 /* ============================================================
    GLOBALS
@@ -87,7 +88,7 @@ function populateStateList() {
       const meta = window.AAMVA_STATES[code];
       const opt = document.createElement("option");
 
-      if (meta === null) {
+      if (meta === null || (isJurisdictionSupported && !isJurisdictionSupported(code))) {
         opt.value = "";
         opt.textContent = `${code} (unsupported)`;
         opt.disabled = true;

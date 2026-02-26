@@ -83,10 +83,16 @@ window.AAMVA_STATES = {
   DC: { IIN: "636043", name: "District of Columbia", aamvaVersion: "10" },
 
   // US Territories
-  AS: { IIN: "604427", name: "American Samoa", aamvaVersion: "09" },
-  GU: { IIN: "636019", name: "Guam", aamvaVersion: "09" },
-  VI: { IIN: "636062", name: "US Virgin Islands", aamvaVersion: "09" },
-  PR: { IIN: "604431", name: "Puerto Rico", aamvaVersion: "09" }
+  AS: { IIN: "604427", name: "American Samoa", aamvaVersion: "09", supported: false },
+  GU: { IIN: "636019", name: "Guam", aamvaVersion: "09", supported: false },
+  VI: { IIN: "636062", name: "US Virgin Islands", aamvaVersion: "09", supported: false },
+  PR: { IIN: "604431", name: "Puerto Rico", aamvaVersion: "09", supported: false }
+};
+
+window.isJurisdictionSupported = function(stateCode) {
+  const stateDef = window.AAMVA_STATES[stateCode];
+  if (!stateDef) return false;
+  return stateDef.supported !== false;
 };
 
 /* ========== CONSTRAINED FIELD OPTIONS ========== */
@@ -677,6 +683,9 @@ window.generateAAMVAPayload = function(stateCode, version, fields, dataObj) {
   if (!window.AAMVA_STATES[stateCode]) {
     throw new Error(`Unknown state code: ${stateCode}`);
   }
+  if (!window.isJurisdictionSupported(stateCode)) {
+    throw new Error(`Unsupported jurisdiction for generation: ${stateCode}`);
+  }
   if (!window.AAMVA_VERSIONS[version]) {
     throw new Error(`Unsupported AAMVA version: ${version}`);
   }
@@ -787,4 +796,68 @@ window.generateAAMVAPayload = function(stateCode, version, fields, dataObj) {
   }
 
   return payload;
+};
+
+// Strict structural validation helper for generated or imported AAMVA payload strings.
+window.validateAAMVAPayloadStructure = function(payload) {
+  if (!payload || typeof payload !== "string") {
+    return { ok: false, error: "Empty or invalid payload" };
+  }
+
+  if (payload.length < 31) {
+    return { ok: false, error: "Payload too short for AAMVA header and directory" };
+  }
+
+  if (payload.charAt(0) !== "@") return { ok: false, error: "Invalid compliance indicator" };
+  if (payload.charAt(1) !== "\n") return { ok: false, error: "Invalid data element separator" };
+  if (payload.charAt(2) !== "\x1e") return { ok: false, error: "Invalid record separator" };
+  if (payload.charAt(3) !== "\r") return { ok: false, error: "Invalid segment terminator" };
+  if (payload.substring(4, 9) !== "ANSI ") return { ok: false, error: "Invalid file type" };
+  if (!/^\d{6}$/.test(payload.substring(9, 15))) return { ok: false, error: "Invalid IIN" };
+  if (!/^\d{2}$/.test(payload.substring(15, 17))) return { ok: false, error: "Invalid AAMVA version token" };
+  if (!/^\d{2}$/.test(payload.substring(17, 19))) return { ok: false, error: "Invalid jurisdiction version token" };
+
+  const numEntriesStr = payload.substring(19, 21);
+  if (!/^\d{2}$/.test(numEntriesStr)) {
+    return { ok: false, error: "Invalid directory entry count" };
+  }
+
+  const numEntries = Number.parseInt(numEntriesStr, 10);
+  if (numEntries < 1) {
+    return { ok: false, error: "AAMVA payload must contain at least one subfile entry" };
+  }
+
+  const directoryEnd = 21 + (numEntries * 10);
+  if (payload.length < directoryEnd) {
+    return { ok: false, error: "Payload truncated before directory entries" };
+  }
+
+  const dirType = payload.substring(21, 23);
+  if (dirType !== "DL") {
+    return { ok: false, error: "First directory entry must be DL" };
+  }
+
+  const offset = Number.parseInt(payload.substring(23, 27), 10);
+  const length = Number.parseInt(payload.substring(27, 31), 10);
+
+  if (!Number.isFinite(offset) || !Number.isFinite(length)) {
+    return { ok: false, error: "Invalid DL directory offset/length" };
+  }
+  if (offset < directoryEnd) {
+    return { ok: false, error: "DL offset points inside directory" };
+  }
+  if (length < 3) {
+    return { ok: false, error: "DL subfile length is too short" };
+  }
+
+  const subfileEnd = offset + length;
+  if (subfileEnd > payload.length) {
+    return { ok: false, error: "DL subfile length exceeds payload size" };
+  }
+
+  if (payload.substring(offset, offset + 2) !== "DL") {
+    return { ok: false, error: "DL subfile marker missing at offset" };
+  }
+
+  return { ok: true };
 };

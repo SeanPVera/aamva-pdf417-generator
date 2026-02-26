@@ -41,6 +41,13 @@ window.AAMVA_DECODER = (() => {
 
   function decodeAAMVAFormat(text) {
     try {
+      if (window.validateAAMVAPayloadStructure) {
+        const strictValidation = window.validateAAMVAPayloadStructure(text);
+        if (!strictValidation.ok) {
+          return { error: strictValidation.error };
+        }
+      }
+
       // Header structure (21 bytes total):
       //   @(1) + \n(1) + \x1e(1) + \r(1) + "ANSI "(5) + IIN(6) + version(2) + jurisVersion(2) + numEntries(2)
       //   IIN at 9, version at 15, numEntries at 19
@@ -63,8 +70,13 @@ window.AAMVA_DECODER = (() => {
         return { error: "Invalid DL subfile offset in directory" };
       }
 
+      const subfileLength = Number.parseInt(text.substring(27, 31), 10);
+      if (!Number.isFinite(subfileLength) || subfileLength < 3) {
+        return { error: "Invalid DL subfile length in directory" };
+      }
+
       // Subfile begins with the 2-byte subfile type ("DL"); field data follows after that.
-      const fieldData = text.substring(subfileOffset + 2);
+      const fieldData = text.substring(subfileOffset + 2, subfileOffset + subfileLength);
 
       // Parse field code/value pairs separated by \n (data element separator)
       const obj = { version: version };
