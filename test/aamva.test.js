@@ -313,7 +313,12 @@ function fillV09TestData(dataObj) {
   dataObj.DAI = "NEW YORK";
   dataObj.DAJ = "NY";
   dataObj.DAK = "10001";
-  dataObj.DAQ = "V12345678";
+  // Updated with valid format for tests (NY: 9 digits, CA: Letter+7 digits, etc.)
+  if (dataObj.state === "NY") dataObj.DAQ = "123456789";
+  else if (dataObj.state === "CA") dataObj.DAQ = "D1234567";
+  else if (dataObj.state === "TX") dataObj.DAQ = "12345678";
+  else dataObj.DAQ = "V12345678";
+
   dataObj.DCF = "00000000";
   dataObj.DCG = "USA";
   dataObj.DDE = "N";
@@ -334,7 +339,7 @@ test("generateAAMVAPayload includes field values", () => {
   fillV09TestData(dataObj);
   dataObj.DCS = "DOE";
   dataObj.DAC = "JOHN";
-  dataObj.DAQ = "D1234567";
+  // dataObj.DAQ = "D1234567"; // Already set in fillV09TestData
   const payload = window.generateAAMVAPayload("CA", "10", fields, dataObj);
   assert.ok(payload.includes("DCSDOE"), "Should contain last name field");
   assert.ok(payload.includes("DACJOHN"), "Should contain first name field");
@@ -421,7 +426,7 @@ test("generateAAMVAPayload rejects unknown state and version", () => {
   const dataObj = {
     DCS: "DOE", DAC: "JOHN", DBB: "19900115", DBA: "20300115", DBD: "20200115",
     DBC: "1", DAY: "BLU", DAU: "510", DAG: "123 MAIN ST", DAI: "ALBANY", DAJ: "NY",
-    DAK: "12207", DAQ: "D1234567", DCF: "ABC123"
+    DAK: "12207", DAQ: "123456789", DCF: "ABC123"
   };
 
   assert.throws(() => {
@@ -479,7 +484,7 @@ test("generateAAMVAPayload strips control characters from field values", () => {
   fillV09TestData(dataObj);
   dataObj.DCS = "DOE\x0D";
   dataObj.DAC = "JOHN";
-  dataObj.DAQ = "D1234567";
+  // dataObj.DAQ = "D1234567"; // Set by helper
   const payload = window.generateAAMVAPayload("CA", "10", fields, dataObj);
   // Control chars should be stripped
   assert.ok(!payload.includes("\x00"), "Should not contain null byte");
@@ -883,7 +888,7 @@ test("generateAAMVAPayload version 02 round-trip preserves DCT field", () => {
   dataObj.DAI = "NEW YORK";
   dataObj.DAJ = "NY";
   dataObj.DAK = "10001";
-  dataObj.DAQ = "NY12345678";
+  dataObj.DAQ = "123456789"; // NY DAQ requires 9 digits now
   dataObj.DCA = "D";
   dataObj.DCB = "NONE";
   dataObj.DCD = "NONE";
