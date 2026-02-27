@@ -25,6 +25,7 @@ This project is designed for **local, offline use** and runs with plain HTML/CSS
 - [How to use the app](#how-to-use-the-app)
 - [JSON import format](#json-import-format)
 - [Troubleshooting](#troubleshooting)
+- [Production readiness checklist](#production-readiness-checklist)
 - [Developer notes](#developer-notes)
 - [Project structure](#project-structure)
 - [License](#license)
@@ -269,6 +270,35 @@ Tips:
 ### “Unsupported territory” is disabled
 
 - This is expected. Territories listed as `null` are intentionally not enabled.
+
+---
+
+## Production readiness checklist
+
+Before shipping this app in an internal or external environment, run through:
+
+- **Dependency hygiene**
+  - Run `npm audit` and address vulnerabilities before release.
+  - Keep bundled browser libraries in `lib/` synchronized with installed package versions (`jspdf`, `bwip-js`).
+- **Quality gates**
+  - Run `npm test`, `npm run lint`, and `npm run format:check` in CI.
+  - Treat failing checks as release blockers.
+- **Electron hardening**
+  - `contextIsolation` is enabled, `nodeIntegration` is disabled, and renderer sandboxing is enabled by default.
+  - Outbound navigation and popups are blocked in `main.js`.
+- **Operational guardrails**
+  - Keep this tool restricted to legal and authorized use cases only.
+  - Avoid processing real production PII unless your environment has approved controls (device security, encryption, access controls, retention policy).
+
+Suggested release command sequence:
+
+```bash
+npm ci
+npm run lint
+npm run format:check
+npm test
+npm audit
+```
 
 ---
 

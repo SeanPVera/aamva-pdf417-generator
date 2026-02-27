@@ -89,7 +89,7 @@ window.AAMVA_STATES = {
   PR: { IIN: "604431", name: "Puerto Rico", aamvaVersion: "09", supported: false }
 };
 
-window.isJurisdictionSupported = function(stateCode) {
+window.isJurisdictionSupported = function (stateCode) {
   const stateDef = window.AAMVA_STATES[stateCode];
   if (!stateDef) return false;
   return stateDef.supported !== false;
@@ -174,43 +174,43 @@ window.AAMVA_FIELD_OPTIONS = {
 // Maximum lengths per the AAMVA CDS specification.
 
 window.AAMVA_FIELD_LIMITS = {
-  DCS: 40,   // Family Name
-  DAC: 40,   // First Name
-  DAD: 40,   // Middle Name
-  DAA: 125,  // Full Name (v01)
-  DCT: 80,   // Given Names (v02)
-  DCU: 5,    // Name Suffix
-  DAG: 35,   // Address Street
-  DAH: 35,   // Address Line 2
-  DAI: 20,   // City
-  DAJ: 2,    // Jurisdiction Code
-  DAK: 11,   // Postal Code (XXXXX-XXXX or XXXXXXXXXXX)
-  DAQ: 25,   // Customer ID Number
-  DCA: 6,    // Vehicle Class
-  DCB: 12,   // Restriction Codes
-  DCD: 5,    // Endorsement Codes
-  DBA: 8,    // Expiration Date
-  DBB: 8,    // Date of Birth
-  DBC: 1,    // Sex
-  DBD: 8,    // Document Issue Date
-  DAU: 6,    // Height (FT-IN or cm)
-  DAY: 3,    // Eye Color
-  DAZ: 3,    // Hair Color
-  DAW: 3,    // Weight (pounds)
-  DAX: 3,    // Weight (kilograms)
-  DCF: 25,   // Document Discriminator
-  DCG: 3,    // Country Identification
-  DCL: 2,    // Race/Ethnicity
-  DDE: 1,    // Family Name Truncation
-  DDF: 1,    // First Name Truncation
-  DDG: 1,    // Middle Name Truncation
-  DDA: 1,    // Compliance Type
-  DDB: 8,    // Card Revision Date
-  DDK: 1,    // Organ Donor Indicator
-  DDL: 1,    // Veteran Indicator
-  DAR: 4,    // Vehicle Class (v01)
-  DAS: 10,   // Restriction Codes (v01)
-  DAT: 5     // Endorsement Codes (v01)
+  DCS: 40, // Family Name
+  DAC: 40, // First Name
+  DAD: 40, // Middle Name
+  DAA: 125, // Full Name (v01)
+  DCT: 80, // Given Names (v02)
+  DCU: 5, // Name Suffix
+  DAG: 35, // Address Street
+  DAH: 35, // Address Line 2
+  DAI: 20, // City
+  DAJ: 2, // Jurisdiction Code
+  DAK: 11, // Postal Code (XXXXX-XXXX or XXXXXXXXXXX)
+  DAQ: 25, // Customer ID Number
+  DCA: 6, // Vehicle Class
+  DCB: 12, // Restriction Codes
+  DCD: 5, // Endorsement Codes
+  DBA: 8, // Expiration Date
+  DBB: 8, // Date of Birth
+  DBC: 1, // Sex
+  DBD: 8, // Document Issue Date
+  DAU: 6, // Height (FT-IN or cm)
+  DAY: 3, // Eye Color
+  DAZ: 3, // Hair Color
+  DAW: 3, // Weight (pounds)
+  DAX: 3, // Weight (kilograms)
+  DCF: 25, // Document Discriminator
+  DCG: 3, // Country Identification
+  DCL: 2, // Race/Ethnicity
+  DDE: 1, // Family Name Truncation
+  DDF: 1, // First Name Truncation
+  DDG: 1, // Middle Name Truncation
+  DDA: 1, // Compliance Type
+  DDB: 8, // Card Revision Date
+  DDK: 1, // Organ Donor Indicator
+  DDL: 1, // Veteran Indicator
+  DAR: 4, // Vehicle Class (v01)
+  DAS: 10, // Restriction Codes (v01)
+  DAT: 5 // Endorsement Codes (v01)
 };
 
 /* ========== STATE-SPECIFIC RULES ========== */
@@ -227,7 +227,9 @@ window.AAMVA_STATE_RULES = {
     generators: {
       DAQ: () => {
         const letter = String.fromCharCode(65 + Math.floor(Math.random() * 26)); // A-Z
-        const numbers = Math.floor(Math.random() * 10000000).toString().padStart(7, '0');
+        const numbers = Math.floor(Math.random() * 10000000)
+          .toString()
+          .padStart(7, "0");
         return letter + numbers;
       }
     }
@@ -238,7 +240,10 @@ window.AAMVA_STATE_RULES = {
       DAQ: (val) => /^[0-9]{9}$/.test(val)
     },
     generators: {
-      DAQ: () => Math.floor(Math.random() * 1000000000).toString().padStart(9, '0')
+      DAQ: () =>
+        Math.floor(Math.random() * 1000000000)
+          .toString()
+          .padStart(9, "0")
     }
   },
   TX: {
@@ -247,7 +252,10 @@ window.AAMVA_STATE_RULES = {
       DAQ: (val) => /^[0-9]{8}$/.test(val)
     },
     generators: {
-      DAQ: () => Math.floor(Math.random() * 100000000).toString().padStart(8, '0')
+      DAQ: () =>
+        Math.floor(Math.random() * 100000000)
+          .toString()
+          .padStart(8, "0")
     }
   },
   FL: {
@@ -259,20 +267,20 @@ window.AAMVA_STATE_RULES = {
     generators: {
       DAQ: () => {
         const letter = String.fromCharCode(65 + Math.floor(Math.random() * 26));
-        const numbers = Math.floor(Math.random() * 1000000000000).toString().padStart(12, '0');
+        const numbers = Math.floor(Math.random() * 1000000000000)
+          .toString()
+          .padStart(12, "0");
         return letter + numbers;
       }
     }
   }
 };
 
-
 /* ========== VERSION DEFINITIONS ========== */
 // Field definitions based on AAMVA CDS specifications.
 // Mandatory (required: true) vs Optional fields per the published standard.
 
 window.AAMVA_VERSIONS = {
-
   "01": {
     name: "AAMVA DL/ID-2000 (Version 01)",
     fields: [
@@ -286,9 +294,19 @@ window.AAMVA_VERSIONS = {
       { code: "DAR", label: "Vehicle Class", type: "string" },
       { code: "DAS", label: "Restriction Codes", type: "string" },
       { code: "DAT", label: "Endorsement Codes", type: "string" },
-      { code: "DBA", label: "Expiration Date", type: "date", required: true, dateFormat: "YYYYMMDD" },
+      {
+        code: "DBA",
+        label: "Expiration Date",
+        type: "date",
+        required: true,
+        dateFormat: "YYYYMMDD"
+      },
       { code: "DBB", label: "Date of Birth", type: "date", required: true, dateFormat: "YYYYMMDD" },
-      { code: "DBC", label: "Sex", type: "char", required: true,
+      {
+        code: "DBC",
+        label: "Sex",
+        type: "char",
+        required: true,
         options: [
           { value: "M", label: "M — Male" },
           { value: "F", label: "F — Female" }
@@ -575,7 +593,7 @@ window.AAMVA_VERSIONS = {
     ]
   },
 
-  "10": {
+  10: {
     name: "AAMVA DL/ID-2020 (Version 10)",
     fields: [
       { code: "DCA", label: "Vehicle Class", type: "string", required: true },
@@ -619,47 +637,48 @@ window.AAMVA_VERSIONS = {
 window.AAMVA_UNKNOWN_FIELD_POLICY = "reject";
 
 // Get the default AAMVA version for a state
-window.getVersionForState = function(stateCode) {
+window.getVersionForState = function (stateCode) {
   const stateDef = window.AAMVA_STATES[stateCode];
   if (!stateDef) return null;
   return stateDef.aamvaVersion || "10";
 };
 
 // Get field definitions by version
-window.getFieldsForVersion = function(v) {
+window.getFieldsForVersion = function (v) {
   return window.AAMVA_VERSIONS[v]?.fields || [];
 };
 
 // Get mandatory fields for a specific state and version
-window.getMandatoryFields = function(stateCode, version) {
+window.getMandatoryFields = function (stateCode, version) {
   const versionDef = window.AAMVA_VERSIONS[version];
   if (!versionDef) return [];
-  return versionDef.fields.filter(f => f.required);
+  return versionDef.fields.filter((f) => f.required);
 };
 
 // Inspector helper
-window.describeVersion = function(v) {
+window.describeVersion = function (v) {
   const info = window.AAMVA_VERSIONS[v];
   if (!info) return "Unknown version";
 
   return (
     `Version: ${info.name}\n` +
     `Fields:\n` +
-    info.fields.map(f => `${f.code} — ${f.label}${f.required ? " (mandatory)" : ""}`).join("\n")
+    info.fields.map((f) => `${f.code} — ${f.label}${f.required ? " (mandatory)" : ""}`).join("\n")
   );
 };
 
 // Validate field, type, required-ness, and length limits
-window.validateFieldValue = function(field, value, stateCode, _strictMode = false) {
+window.validateFieldValue = function (field, value, stateCode, _strictMode = false) {
   if (field.required && !value) return false;
   if (!value) return true;
 
   // Enforce constrained option sets when present.
   // Prioritize version-specific options if available (e.g. DBC in v01)
-  const constrainedOptions = field.options || (window.AAMVA_FIELD_OPTIONS && window.AAMVA_FIELD_OPTIONS[field.code]);
+  const constrainedOptions =
+    field.options || (window.AAMVA_FIELD_OPTIONS && window.AAMVA_FIELD_OPTIONS[field.code]);
 
   if (Array.isArray(constrainedOptions) && constrainedOptions.length > 0) {
-    const allowedValues = new Set(constrainedOptions.map(opt => opt.value));
+    const allowedValues = new Set(constrainedOptions.map((opt) => opt.value));
     if (!allowedValues.has(value)) return false;
   }
 
@@ -668,7 +687,11 @@ window.validateFieldValue = function(field, value, stateCode, _strictMode = fals
   if (maxLen && value.length > maxLen) return false;
 
   // State-specific validation
-  if (stateCode && window.AAMVA_STATE_RULES[stateCode] && window.AAMVA_STATE_RULES[stateCode].validators) {
+  if (
+    stateCode &&
+    window.AAMVA_STATE_RULES[stateCode] &&
+    window.AAMVA_STATE_RULES[stateCode].validators
+  ) {
     const validator = window.AAMVA_STATE_RULES[stateCode].validators[field.code];
     if (validator && !validator(value)) {
       return false;
@@ -684,14 +707,14 @@ window.validateFieldValue = function(field, value, stateCode, _strictMode = fals
 
       let year, month, day;
       if (dateFormat === "YYYYMMDD") {
-        year  = Number.parseInt(value.substring(0, 4), 10);
+        year = Number.parseInt(value.substring(0, 4), 10);
         month = Number.parseInt(value.substring(4, 6), 10);
-        day   = Number.parseInt(value.substring(6, 8), 10);
+        day = Number.parseInt(value.substring(6, 8), 10);
       } else {
         // Default: MMDDYYYY (and MMDDCCYY)
         month = Number.parseInt(value.substring(0, 2), 10);
-        day   = Number.parseInt(value.substring(2, 4), 10);
-        year  = Number.parseInt(value.substring(4, 8), 10);
+        day = Number.parseInt(value.substring(2, 4), 10);
+        year = Number.parseInt(value.substring(4, 8), 10);
       }
 
       if (year < 1800 || year > 2200) return false;
@@ -700,9 +723,7 @@ window.validateFieldValue = function(field, value, stateCode, _strictMode = fals
       {
         const dt = new Date(Date.UTC(year, month - 1, day));
         return (
-          dt.getUTCFullYear() === year &&
-          dt.getUTCMonth() === (month - 1) &&
-          dt.getUTCDate() === day
+          dt.getUTCFullYear() === year && dt.getUTCMonth() === month - 1 && dt.getUTCDate() === day
         );
       }
     case "zip":
@@ -718,7 +739,7 @@ window.validateFieldValue = function(field, value, stateCode, _strictMode = fals
 // Build minimal payload object for encoding.
 // If valuesMap is provided, uses it directly (for Node/test environments).
 // Otherwise reads from DOM elements (browser).
-window.buildPayloadObject = function(stateCode, version, fields, valuesMap) {
+window.buildPayloadObject = function (stateCode, version, fields, valuesMap) {
   const obj = {
     state: stateCode,
     version: version
@@ -726,12 +747,12 @@ window.buildPayloadObject = function(stateCode, version, fields, valuesMap) {
 
   if (valuesMap) {
     // Use provided values map (Node.js / test environment)
-    fields.forEach(f => {
+    fields.forEach((f) => {
       obj[f.code] = valuesMap[f.code] || "";
     });
   } else {
     // Read from DOM (browser environment)
-    fields.forEach(f => {
+    fields.forEach((f) => {
       const el = typeof document !== "undefined" && document.getElementById(f.code);
       if (el) obj[f.code] = el.value || "";
     });
@@ -740,7 +761,7 @@ window.buildPayloadObject = function(stateCode, version, fields, valuesMap) {
   return obj;
 };
 
-window.generateDocumentDiscriminator = function(length = 12) {
+window.generateDocumentDiscriminator = function (length = 12) {
   const charset = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   const chars = [];
 
@@ -760,7 +781,7 @@ window.generateDocumentDiscriminator = function(length = 12) {
 };
 
 // Generate AAMVA compliant payload string
-window.generateAAMVAPayload = function(stateCode, version, fields, dataObj, options = {}) {
+window.generateAAMVAPayload = function (stateCode, version, fields, dataObj, options = {}) {
   const strictMode = options.strictMode === true;
 
   if (!window.AAMVA_STATES[stateCode]) {
@@ -768,13 +789,13 @@ window.generateAAMVAPayload = function(stateCode, version, fields, dataObj, opti
   }
   if (!window.isJurisdictionSupported(stateCode)) {
     if (strictMode) {
-        throw new Error(`Strict Mode: Unsupported jurisdiction for generation: ${stateCode}`);
+      throw new Error(`Strict Mode: Unsupported jurisdiction for generation: ${stateCode}`);
     } else {
-        // Log warning but proceed? Or just fail?
-        // The original code threw an error, so we maintain that behavior unless relaxed?
-        // Actually, the original code always threw. So strict mode here doesn't change much unless we wanted to ALLOW it in non-strict mode.
-        // Let's keep it restrictive.
-        throw new Error(`Unsupported jurisdiction for generation: ${stateCode}`);
+      // Log warning but proceed? Or just fail?
+      // The original code threw an error, so we maintain that behavior unless relaxed?
+      // Actually, the original code always threw. So strict mode here doesn't change much unless we wanted to ALLOW it in non-strict mode.
+      // Let's keep it restrictive.
+      throw new Error(`Unsupported jurisdiction for generation: ${stateCode}`);
     }
   }
   if (!window.AAMVA_VERSIONS[version]) {
@@ -783,36 +804,38 @@ window.generateAAMVAPayload = function(stateCode, version, fields, dataObj, opti
 
   // State-specific generator hooks
   if (window.AAMVA_STATE_RULES[stateCode] && window.AAMVA_STATE_RULES[stateCode].generators) {
-      const generators = window.AAMVA_STATE_RULES[stateCode].generators;
-      for (const [code, generator] of Object.entries(generators)) {
-          if (options.autoGenerateDiscriminator && !dataObj[code]) {
-             dataObj[code] = generator();
-          }
+    const generators = window.AAMVA_STATE_RULES[stateCode].generators;
+    for (const [code, generator] of Object.entries(generators)) {
+      if (options.autoGenerateDiscriminator && !dataObj[code]) {
+        dataObj[code] = generator();
       }
+    }
   }
 
   const shouldAutoGenerateDiscriminator = options.autoGenerateDiscriminator === true;
-  if (shouldAutoGenerateDiscriminator && !dataObj.DCF && fields.some(f => f.code === "DCF")) {
+  if (shouldAutoGenerateDiscriminator && !dataObj.DCF && fields.some((f) => f.code === "DCF")) {
     dataObj.DCF = window.generateDocumentDiscriminator();
   }
 
   // VALIDATION: Check mandatory fields
   const mandatoryFields = window.getMandatoryFields(stateCode, version);
   const missing = [];
-  mandatoryFields.forEach(f => {
+  mandatoryFields.forEach((f) => {
     if (!dataObj[f.code]) {
       missing.push(`${f.label} (${f.code})`);
     }
   });
 
   if (missing.length > 0) {
-    throw new Error(`Missing mandatory fields for ${stateCode} (v${version}): ${missing.join(", ")}`);
+    throw new Error(
+      `Missing mandatory fields for ${stateCode} (v${version}): ${missing.join(", ")}`
+    );
   }
 
   // Consistency Check: Ensure DAJ (Jurisdiction Code) matches selected State if present
   if (dataObj.DAJ && dataObj.DAJ !== stateCode) {
     if (strictMode) {
-        throw new Error(`Strict Mode: DAJ (${dataObj.DAJ}) must match state code (${stateCode})`);
+      throw new Error(`Strict Mode: DAJ (${dataObj.DAJ}) must match state code (${stateCode})`);
     }
     dataObj.DAJ = stateCode;
   }
@@ -826,7 +849,7 @@ window.generateAAMVAPayload = function(stateCode, version, fields, dataObj, opti
 
       // Force uppercase for string/char/zip fields (dates are numeric)
       if (field.type === "string" || field.type === "char" || field.type === "zip") {
-         val = val.toUpperCase();
+        val = val.toUpperCase();
       }
 
       dataObj[field.code] = val
@@ -868,7 +891,15 @@ window.generateAAMVAPayload = function(stateCode, version, fields, dataObj, opti
   const fileType = "ANSI ";
 
   // Header Part 1
-  const header = compliance + dataElementSeparator + recordSeparator + segmentTerminator + fileType + iin + version + jurisVersion;
+  const header =
+    compliance +
+    dataElementSeparator +
+    recordSeparator +
+    segmentTerminator +
+    fileType +
+    iin +
+    version +
+    jurisVersion;
 
   // Subfiles
   // We only support "DL" (Driver License)
@@ -900,7 +931,7 @@ window.generateAAMVAPayload = function(stateCode, version, fields, dataObj, opti
   // @(1) + \n(1) + \x1e(1) + \r(1) + ANSI (5) + IIN(6) + Ver(2) + JVer(2) + NumEntries(2) = 21 bytes.
   // Subfile Directory Entry: Type(2) + Offset(4) + Length(4) = 10 bytes.
 
-  const headerLength = 21 + (1 * 10);
+  const headerLength = 21 + 1 * 10;
   const offset = headerLength;
 
   const textEncoder = typeof TextEncoder !== "undefined" ? new TextEncoder() : null;
@@ -910,8 +941,8 @@ window.generateAAMVAPayload = function(stateCode, version, fields, dataObj, opti
     throw new Error("Generated DL subfile exceeds 4-digit directory length limit (9999 bytes).");
   }
 
-  const offsetStr = offset.toString().padStart(4, '0');
-  const lengthStr = length.toString().padStart(4, '0');
+  const offsetStr = offset.toString().padStart(4, "0");
+  const lengthStr = length.toString().padStart(4, "0");
 
   const subfileDir = subfileType + offsetStr + lengthStr;
 
@@ -927,7 +958,7 @@ window.generateAAMVAPayload = function(stateCode, version, fields, dataObj, opti
 };
 
 // Strict structural validation helper for generated or imported AAMVA payload strings.
-window.validateAAMVAPayloadStructure = function(payload, strictMode = false) {
+window.validateAAMVAPayloadStructure = function (payload, strictMode = false) {
   if (!payload || typeof payload !== "string") {
     return { ok: false, error: "Empty or invalid payload" };
   }
@@ -942,8 +973,10 @@ window.validateAAMVAPayloadStructure = function(payload, strictMode = false) {
   if (payload.charAt(3) !== "\r") return { ok: false, error: "Invalid segment terminator" };
   if (payload.substring(4, 9) !== "ANSI ") return { ok: false, error: "Invalid file type" };
   if (!/^\d{6}$/.test(payload.substring(9, 15))) return { ok: false, error: "Invalid IIN" };
-  if (!/^\d{2}$/.test(payload.substring(15, 17))) return { ok: false, error: "Invalid AAMVA version token" };
-  if (!/^\d{2}$/.test(payload.substring(17, 19))) return { ok: false, error: "Invalid jurisdiction version token" };
+  if (!/^\d{2}$/.test(payload.substring(15, 17)))
+    return { ok: false, error: "Invalid AAMVA version token" };
+  if (!/^\d{2}$/.test(payload.substring(17, 19)))
+    return { ok: false, error: "Invalid jurisdiction version token" };
 
   const numEntriesStr = payload.substring(19, 21);
   if (!/^\d{2}$/.test(numEntriesStr)) {
@@ -955,7 +988,7 @@ window.validateAAMVAPayloadStructure = function(payload, strictMode = false) {
     return { ok: false, error: "AAMVA payload must contain at least one subfile entry" };
   }
 
-  const directoryEnd = 21 + (numEntries * 10);
+  const directoryEnd = 21 + numEntries * 10;
   if (payload.length < directoryEnd) {
     return { ok: false, error: "Payload truncated before directory entries" };
   }
@@ -989,9 +1022,9 @@ window.validateAAMVAPayloadStructure = function(payload, strictMode = false) {
   }
 
   if (strictMode) {
-      // Add stricter checks here if needed, e.g., checking if IIN matches known states
-      // or validating offsets more aggressively.
-      // For now, structure validation is quite strict already.
+    // Add stricter checks here if needed, e.g., checking if IIN matches known states
+    // or validating offsets more aggressively.
+    // For now, structure validation is quite strict already.
   }
 
   return { ok: true };

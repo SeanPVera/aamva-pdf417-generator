@@ -1,148 +1,204 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- CSP: all resources load from same origin; blob/data URIs for canvas exports; no eval; no external connections -->
-  <meta http-equiv="Content-Security-Policy"
-    content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; connect-src 'none'; worker-src 'none'; object-src 'none'; base-uri 'self';">
-  <title>AAMVA PDF417 Generator – Deluxe Edition</title>
-  <link rel="stylesheet" href="css/style.css">
-</head>
-<body>
-  <div class="app">
-    <aside id="sidebar" role="complementary" aria-label="Form controls">
-      <div id="errorBox" class="error-box" role="alert" aria-live="assertive"></div>
-      <h1>AAMVA Fields</h1>
-      <label for="stateSelect">State</label>
-      <select id="stateSelect" aria-label="Select state"></select>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- CSP: all resources load from same origin; blob/data URIs for canvas exports; no eval; no external connections -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; connect-src 'none'; worker-src 'none'; object-src 'none'; base-uri 'self';"
+    />
+    <title>AAMVA PDF417 Generator – Deluxe Edition</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <div class="app">
+      <aside id="sidebar" role="complementary" aria-label="Form controls">
+        <div id="errorBox" class="error-box" role="alert" aria-live="assertive"></div>
+        <h1>AAMVA Fields</h1>
+        <label for="stateSelect">State</label>
+        <select id="stateSelect" aria-label="Select state"></select>
 
-      <label for="versionSelect">AAMVA Version</label>
-      <select id="versionSelect" aria-label="Select AAMVA version"></select>
+        <label for="versionSelect">AAMVA Version</label>
+        <select id="versionSelect" aria-label="Select AAMVA version"></select>
 
-      <div class="compliance-toggle">
-         <input type="checkbox" id="complianceMode" aria-label="Toggle Compliance Mode">
-         <label for="complianceMode">Compliance Mode</label>
-      </div>
-
-      <div id="fields" role="group" aria-label="AAMVA data fields"></div>
-
-      <section class="json-import">
-        <h2>Import JSON</h2>
-        <input type="file" id="jsonFileInput" accept=".json" aria-label="Import JSON file">
-      </section>
-
-      <div class="form-actions">
-        <button id="exportJsonBtn" aria-label="Export form data as JSON">Export JSON</button>
-        <button id="clearFormBtn" aria-label="Clear all form fields">Clear Form</button>
-      </div>
-
-      <div class="undo-redo">
-        <button id="undoBtn" aria-label="Undo last change (Ctrl+Z)">Undo</button>
-        <button id="redoBtn" aria-label="Redo last change (Ctrl+Y)">Redo</button>
-        <div class="shortcut-hint" aria-hidden="true">Ctrl+Z / Ctrl+Y (or Ctrl+Shift+Z)</div>
-      </div>
-
-      <label for="themeSelect">Theme</label>
-      <select id="themeSelect" aria-label="Select color theme">
-        <option value="light">Light</option>
-        <option value="dark">Dark</option>
-        <option value="dmv">DMV Blue</option>
-      </select>
-    </aside>
-
-    <main id="content" role="main">
-      <section id="previewSection" aria-label="Barcode preview">
-        <h2>PDF417 Preview</h2>
-        <div id="barcodeWrapper">
-          <canvas id="barcodeCanvas" width="400" height="200" aria-label="Generated PDF417 barcode"></canvas>
-          <div id="barcodeDimensions" class="barcode-dimensions" aria-live="polite"></div>
+        <div class="compliance-toggle">
+          <input type="checkbox" id="complianceMode" aria-label="Toggle Compliance Mode" />
+          <label for="complianceMode">Compliance Mode</label>
         </div>
 
-        <details id="barcodeSizer" class="barcode-sizer">
-          <summary>Barcode Size Settings</summary>
+        <div id="fields" role="group" aria-label="AAMVA data fields"></div>
 
-          <div class="sizer-row">
-            <label for="sizePreset">Preset</label>
-            <select id="sizePreset" aria-label="Size preset">
-              <option value="custom">Custom</option>
-              <option value="standard" selected>Standard License (76 x 25 mm)</option>
-              <option value="compact">Compact License (64 x 20 mm)</option>
-              <option value="large">Large Format (89 x 32 mm)</option>
-            </select>
+        <section class="json-import">
+          <h2>Import JSON</h2>
+          <input type="file" id="jsonFileInput" accept=".json" aria-label="Import JSON file" />
+        </section>
+
+        <div class="form-actions">
+          <button id="exportJsonBtn" aria-label="Export form data as JSON">Export JSON</button>
+          <button id="clearFormBtn" aria-label="Clear all form fields">Clear Form</button>
+        </div>
+
+        <div class="undo-redo">
+          <button id="undoBtn" aria-label="Undo last change (Ctrl+Z)">Undo</button>
+          <button id="redoBtn" aria-label="Redo last change (Ctrl+Y)">Redo</button>
+          <div class="shortcut-hint" aria-hidden="true">Ctrl+Z / Ctrl+Y (or Ctrl+Shift+Z)</div>
+        </div>
+
+        <label for="themeSelect">Theme</label>
+        <select id="themeSelect" aria-label="Select color theme">
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+          <option value="dmv">DMV Blue</option>
+        </select>
+      </aside>
+
+      <main id="content" role="main">
+        <section id="previewSection" aria-label="Barcode preview">
+          <h2>PDF417 Preview</h2>
+          <div id="barcodeWrapper">
+            <canvas
+              id="barcodeCanvas"
+              width="400"
+              height="200"
+              aria-label="Generated PDF417 barcode"
+            ></canvas>
+            <div id="barcodeDimensions" class="barcode-dimensions" aria-live="polite"></div>
           </div>
 
-          <div class="sizer-grid">
-            <div>
-              <label for="barcodeWidthMM">Width (mm)</label>
-              <input type="number" id="barcodeWidthMM" value="76" min="20" max="120" step="1" aria-label="Barcode width in millimeters">
+          <details id="barcodeSizer" class="barcode-sizer">
+            <summary>Barcode Size Settings</summary>
+
+            <div class="sizer-row">
+              <label for="sizePreset">Preset</label>
+              <select id="sizePreset" aria-label="Size preset">
+                <option value="custom">Custom</option>
+                <option value="standard" selected>Standard License (76 x 25 mm)</option>
+                <option value="compact">Compact License (64 x 20 mm)</option>
+                <option value="large">Large Format (89 x 32 mm)</option>
+              </select>
             </div>
-            <div>
-              <label for="barcodeHeightMM">Height (mm)</label>
-              <input type="number" id="barcodeHeightMM" value="25" min="8" max="60" step="1" aria-label="Barcode height in millimeters">
+
+            <div class="sizer-grid">
+              <div>
+                <label for="barcodeWidthMM">Width (mm)</label>
+                <input
+                  type="number"
+                  id="barcodeWidthMM"
+                  value="76"
+                  min="20"
+                  max="120"
+                  step="1"
+                  aria-label="Barcode width in millimeters"
+                />
+              </div>
+              <div>
+                <label for="barcodeHeightMM">Height (mm)</label>
+                <input
+                  type="number"
+                  id="barcodeHeightMM"
+                  value="25"
+                  min="8"
+                  max="60"
+                  step="1"
+                  aria-label="Barcode height in millimeters"
+                />
+              </div>
+              <div>
+                <label for="moduleWidthMil">Module Width (mil)</label>
+                <input
+                  type="number"
+                  id="moduleWidthMil"
+                  value="15"
+                  min="6"
+                  max="25"
+                  step="1"
+                  aria-label="Module width in mils"
+                />
+              </div>
+              <div>
+                <label for="exportDPI">Export DPI</label>
+                <input
+                  type="number"
+                  id="exportDPI"
+                  value="300"
+                  min="72"
+                  max="600"
+                  step="1"
+                  aria-label="Export DPI"
+                />
+              </div>
             </div>
-            <div>
-              <label for="moduleWidthMil">Module Width (mil)</label>
-              <input type="number" id="moduleWidthMil" value="15" min="6" max="25" step="1" aria-label="Module width in mils">
+
+            <div class="sizer-row">
+              <label for="quietZone">Quiet Zone (modules)</label>
+              <input
+                type="range"
+                id="quietZone"
+                min="0"
+                max="10"
+                value="2"
+                aria-label="Quiet zone modules"
+              />
+              <span id="quietZoneLabel">2</span>
             </div>
-            <div>
-              <label for="exportDPI">Export DPI</label>
-              <input type="number" id="exportDPI" value="300" min="72" max="600" step="1" aria-label="Export DPI">
-            </div>
+
+            <div id="sizerInfo" class="sizer-info" aria-live="polite"></div>
+          </details>
+
+          <div class="export-buttons">
+            <button id="exportPngBtn" aria-label="Export as PNG">Export PNG</button>
+            <button id="exportPdfBtn" aria-label="Export as PDF">Export PDF</button>
+            <button id="exportSvgBtn" aria-label="Export as SVG">Export SVG</button>
           </div>
+        </section>
 
-          <div class="sizer-row">
-            <label for="quietZone">Quiet Zone (modules)</label>
-            <input type="range" id="quietZone" min="0" max="10" value="2" aria-label="Quiet zone modules">
-            <span id="quietZoneLabel">2</span>
+        <section id="decodedOutputSection" aria-label="Decoded output">
+          <div class="section-header">
+            <h2>Decoded Output</h2>
+            <button class="copy-btn" data-target="decodedOutput" aria-label="Copy decoded output">
+              Copy
+            </button>
           </div>
+          <textarea id="decodedOutput" readonly aria-label="Decoded barcode output"></textarea>
+        </section>
 
-          <div id="sizerInfo" class="sizer-info" aria-live="polite"></div>
-        </details>
+        <section id="rawCodewordsSection" aria-label="Raw codewords">
+          <div class="section-header">
+            <h2>Raw Codewords</h2>
+            <button class="copy-btn" data-target="rawCodewords" aria-label="Copy raw codewords">
+              Copy
+            </button>
+          </div>
+          <textarea id="rawCodewords" readonly aria-label="Raw codeword values"></textarea>
+        </section>
 
-        <div class="export-buttons">
-          <button id="exportPngBtn" aria-label="Export as PNG">Export PNG</button>
-          <button id="exportPdfBtn" aria-label="Export as PDF">Export PDF</button>
-          <button id="exportSvgBtn" aria-label="Export as SVG">Export SVG</button>
-        </div>
-      </section>
+        <section id="payloadInspectorSection" aria-label="Payload inspector">
+          <div class="section-header">
+            <h2>Payload Inspector</h2>
+            <button
+              class="copy-btn"
+              data-target="payloadInspector"
+              aria-label="Copy payload inspector output"
+            >
+              Copy
+            </button>
+          </div>
+          <textarea id="payloadInspector" readonly aria-label="Payload inspector output"></textarea>
+        </section>
 
-      <section id="decodedOutputSection" aria-label="Decoded output">
-        <div class="section-header">
-          <h2>Decoded Output</h2>
-          <button class="copy-btn" data-target="decodedOutput" aria-label="Copy decoded output">Copy</button>
-        </div>
-        <textarea id="decodedOutput" readonly aria-label="Decoded barcode output"></textarea>
-      </section>
+        <section id="versionBrowserSection" aria-label="Version browser">
+          <h2>Version Browser</h2>
+          <select id="versionBrowser" aria-label="Browse AAMVA versions"></select>
+          <textarea id="versionFields" readonly aria-label="Version field definitions"></textarea>
+        </section>
+      </main>
+    </div>
 
-      <section id="rawCodewordsSection" aria-label="Raw codewords">
-        <div class="section-header">
-          <h2>Raw Codewords</h2>
-          <button class="copy-btn" data-target="rawCodewords" aria-label="Copy raw codewords">Copy</button>
-        </div>
-        <textarea id="rawCodewords" readonly aria-label="Raw codeword values"></textarea>
-      </section>
-
-      <section id="payloadInspectorSection" aria-label="Payload inspector">
-        <div class="section-header">
-          <h2>Payload Inspector</h2>
-          <button class="copy-btn" data-target="payloadInspector" aria-label="Copy payload inspector output">Copy</button>
-        </div>
-        <textarea id="payloadInspector" readonly aria-label="Payload inspector output"></textarea>
-      </section>
-
-      <section id="versionBrowserSection" aria-label="Version browser">
-        <h2>Version Browser</h2>
-        <select id="versionBrowser" aria-label="Browse AAMVA versions"></select>
-        <textarea id="versionFields" readonly aria-label="Version field definitions"></textarea>
-      </section>
-    </main>
-  </div>
-
-  <script src="lib/jspdf.umd.min.js"></script>
-  <script src="lib/bwip-js.min.js"></script>
-  <script src="aamva.js"></script>
-  <script src="decoder.js"></script>
-  <script src="js/app.js"></script>
-</body>
+    <script src="lib/jspdf.umd.min.js"></script>
+    <script src="lib/bwip-js.min.js"></script>
+    <script src="aamva.js"></script>
+    <script src="decoder.js"></script>
+    <script src="js/app.js"></script>
+  </body>
 </html>

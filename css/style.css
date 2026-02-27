@@ -77,7 +77,8 @@ body {
   gap: 20px;
 }
 
-h1, h2 {
+h1,
+h2 {
   margin-top: 0;
 }
 
@@ -87,7 +88,11 @@ label {
   margin-bottom: 5px;
 }
 
-select, input[type="text"], input[type="file"], textarea, button {
+select,
+input[type="text"],
+input[type="file"],
+textarea,
+button {
   width: 100%;
   padding: 8px;
   margin-bottom: 10px;
@@ -248,12 +253,12 @@ button:focus-visible {
 }
 
 .undo-redo {
-    display: flex;
-    gap: 10px;
+  display: flex;
+  gap: 10px;
 }
 
 .undo-redo button {
-    flex: 1;
+  flex: 1;
 }
 
 .field-required label::after {
@@ -405,7 +410,6 @@ textarea:focus-visible {
     min-width: 100%;
   }
 }
-
 
 /* Keyboard shortcut hint below undo/redo buttons */
 .shortcut-hint {

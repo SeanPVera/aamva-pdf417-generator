@@ -44,6 +44,6 @@
   },
   "dependencies": {
     "bwip-js": "^4.8.0",
-    "jspdf": "^3.0.4"
+    "jspdf": "^4.2.0"
   }
 }

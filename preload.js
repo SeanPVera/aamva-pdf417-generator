@@ -8,20 +8,9 @@
  * Electron version: sets up window.api if needed.
  */
 
-const { contextBridge } =
-  (() => { try { return require("electron"); } catch { return {}; } })();
+const { contextBridge } = require("electron");
 
-// In browser mode, contextBridge is undefined and we simply skip.
-if (contextBridge && contextBridge.exposeInMainWorld) {
-  contextBridge.exposeInMainWorld("api", {
-    ping: () => "pong",
-    version: "desktop"
-  });
-} else {
-  // Browser fallback — window is available in this context
-  /* global window */
-  window.api = {
-    ping: () => "pong",
-    version: "browser"
-  };
-}
+contextBridge.exposeInMainWorld("api", {
+  ping: () => "pong",
+  version: "desktop"
+});
