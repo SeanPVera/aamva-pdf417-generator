@@ -752,6 +752,25 @@ window.generateAAMVAPayload = function(stateCode, version, fields, dataObj, opti
     }
   }
 
+  // VALIDATION: Verify all provided field values conform to their field definitions.
+  // This runs after sanitization so uppercase enforcement is already applied.
+  // Catches spec violations such as numeric sex codes on version 01 (must be M/F)
+  // or MMDDYYYY dates on version 01 fields that require YYYYMMDD.
+  const invalidFields = [];
+  for (const field of fields) {
+    const val = dataObj[field.code];
+    if (val !== undefined && val !== "") {
+      if (!window.validateFieldValue(field, val)) {
+        invalidFields.push(`${field.label} (${field.code})`);
+      }
+    }
+  }
+  if (invalidFields.length > 0) {
+    throw new Error(
+      `Invalid field values for ${stateCode} (v${version}): ${invalidFields.join(", ")}`
+    );
+  }
+
   const stateDef = window.AAMVA_STATES[stateCode];
   const iin = stateDef.IIN;
   const jurisVersion = "00"; // Jurisdiction-specific version (00 default)
@@ -857,8 +876,8 @@ window.validateAAMVAPayloadStructure = function(payload) {
   }
 
   const dirType = payload.substring(21, 23);
-  if (dirType !== "DL") {
-    return { ok: false, error: "First directory entry must be DL" };
+  if (dirType !== "DL" && dirType !== "ID") {
+    return { ok: false, error: "First directory entry must be DL or ID" };
   }
 
   const offset = Number.parseInt(payload.substring(23, 27), 10);
@@ -879,8 +898,9 @@ window.validateAAMVAPayloadStructure = function(payload) {
     return { ok: false, error: "DL subfile length exceeds payload size" };
   }
 
-  if (payload.substring(offset, offset + 2) !== "DL") {
-    return { ok: false, error: "DL subfile marker missing at offset" };
+  const subfileMarker = payload.substring(offset, offset + 2);
+  if (subfileMarker !== "DL" && subfileMarker !== "ID") {
+    return { ok: false, error: "Subfile marker at offset must be DL or ID" };
   }
 
   return { ok: true };

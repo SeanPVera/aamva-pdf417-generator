@@ -118,10 +118,11 @@ function populateVersionList() {
    FIELD RENDERING
    ============================================================ */
 
+// Hints shown below non-dropdown, non-date fields. Date fields use the
+// input placeholder (formatPlaceholder) to convey MMDDYYYY vs YYYYMMDD.
 const FIELD_HINTS = {
-  date: "Format: MMDDYYYY",
   zip:  "Format: 12345 or 12345-6789",
-  char: "Single character (1=M, 2=F, 9=X)"
+  char: "Single character"
 };
 
 function renderFields(preserveValues) {

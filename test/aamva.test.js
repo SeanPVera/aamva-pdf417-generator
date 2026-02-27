@@ -815,3 +815,120 @@ test("generateAAMVAPayload enforces DAJ matches state", () => {
   const payload = window.generateAAMVAPayload("CA", "10", fields, dataObj);
   assert.ok(payload.includes("DAJCA"), "DAJ should be forced to match state (CA)");
 });
+/* ============================================================
+   GENERATOR-LEVEL FIELD VALUE VALIDATION
+   generateAAMVAPayload now validates field values (not just
+   presence) after sanitization, catching spec violations that
+   the UI layer would catch but programmatic callers might not.
+   ============================================================ */
+test("generateAAMVAPayload rejects invalid sex code for version 01 (must be M or F, not 1/2/9)", () => {
+  const fields = window.getFieldsForVersion("01");
+  const dataObj = { state: "VA", version: "01" };
+  fields.forEach(f => { dataObj[f.code] = ""; });
+  dataObj.DAA = "DOE,JOHN,M";
+  dataObj.DAG = "123 MAIN ST";
+  dataObj.DAI = "RICHMOND";
+  dataObj.DAJ = "VA";
+  dataObj.DAK = "23220";
+  dataObj.DAQ = "T12345678";
+  dataObj.DBA = "20301231"; // YYYYMMDD (correct for V01)
+  dataObj.DBB = "19900115"; // YYYYMMDD (correct for V01)
+  dataObj.DBC = "1";        // INVALID for V01 — numeric codes are for V02+
+
+  assert.throws(() => {
+    window.generateAAMVAPayload("VA", "01", fields, dataObj);
+  }, /Invalid field values/, "Generator must reject numeric sex code for version 01");
+});
+
+test("generateAAMVAPayload rejects MMDDYYYY date format for version 01 (requires YYYYMMDD)", () => {
+  const fields = window.getFieldsForVersion("01");
+  const dataObj = { state: "VA", version: "01" };
+  fields.forEach(f => { dataObj[f.code] = ""; });
+  dataObj.DAA = "DOE,JOHN,M";
+  dataObj.DAG = "123 MAIN ST";
+  dataObj.DAI = "RICHMOND";
+  dataObj.DAJ = "VA";
+  dataObj.DAK = "23220";
+  dataObj.DAQ = "T12345678";
+  dataObj.DBA = "20301231"; // YYYYMMDD (correct for V01)
+  dataObj.DBB = "01151990"; // INVALID: MMDDYYYY format passed to a YYYYMMDD field
+  dataObj.DBC = "M";
+
+  assert.throws(() => {
+    window.generateAAMVAPayload("VA", "01", fields, dataObj);
+  }, /Invalid field values/, "Generator must reject MMDDYYYY date in a V01 YYYYMMDD date field");
+});
+
+/* ============================================================
+   VERSION 02 — DCT (GIVEN NAMES) ROUND-TRIP
+   Version 02 (AAMVA CDS 2003) uses DCT (Customer Given Names)
+   instead of the split DAC/DAD fields introduced in version 03.
+   ============================================================ */
+test("version 02 uses DCT (not DAC) for given names", () => {
+  const fields = window.getFieldsForVersion("02");
+  assert.ok(fields.some(f => f.code === "DCT"), "Version 02 should have DCT (Customer Given Names)");
+  assert.ok(!fields.some(f => f.code === "DAC"), "Version 02 should NOT have DAC (introduced in v03)");
+  assert.ok(!fields.some(f => f.code === "DAD"), "Version 02 should NOT have DAD (introduced in v03)");
+});
+
+test("generateAAMVAPayload version 02 round-trip preserves DCT field", () => {
+  const fields = window.getFieldsForVersion("02");
+  const dataObj = { state: "NY", version: "02" };
+  fields.forEach(f => { dataObj[f.code] = ""; });
+
+  // V02 mandatory fields — dates are MMDDYYYY, sex code is 1/2/9
+  dataObj.DCT = "JOHN PAUL";   // Given Names (V02 uses DCT, not DAC)
+  dataObj.DCS = "SMITH";
+  dataObj.DAG = "123 MAIN ST";
+  dataObj.DAI = "NEW YORK";
+  dataObj.DAJ = "NY";
+  dataObj.DAK = "10001";
+  dataObj.DAQ = "NY12345678";
+  dataObj.DCA = "D";
+  dataObj.DCB = "NONE";
+  dataObj.DCD = "NONE";
+  dataObj.DBA = "12312030"; // MMDDYYYY
+  dataObj.DBB = "01011990"; // MMDDYYYY
+  dataObj.DBC = "1";        // V02+ uses numeric sex codes
+  dataObj.DBD = "01012020"; // MMDDYYYY
+  dataObj.DAU = "510";
+  dataObj.DAY = "BRO";
+  dataObj.DCF = "ABC12345678";
+  dataObj.DCG = "USA";
+  dataObj.DAW = "180";
+
+  const payload = window.generateAAMVAPayload("NY", "02", fields, dataObj);
+  assert.ok(payload.includes("DCTJOHN PAUL"), "V02 payload should include DCT with given names");
+  assert.ok(!payload.includes("\nDAC"), "V02 payload should not include DAC field");
+
+  const decoded = window.AAMVA_DECODER.decode(payload);
+  assert.ok(decoded.ok, "V02 payload should decode successfully");
+  assert.equal(decoded.json.DCT, "JOHN PAUL", "DCT given names should survive round-trip");
+  assert.equal(decoded.json.DCS, "SMITH", "Family name should survive round-trip");
+  assert.equal(decoded.json.DBB, "01011990", "Date of birth should survive round-trip");
+  assert.equal(decoded.json.version, "02", "Version should be 02");
+  assert.equal(decoded.json.state, "NY", "State should be resolved from IIN");
+});
+
+/* ============================================================
+   VALIDATOR — ID CARD SUBFILE SUPPORT
+   validateAAMVAPayloadStructure and the decoder must accept
+   both DL (driver license) and ID (identification card) as
+   valid AAMVA subfile types per the spec.
+   ============================================================ */
+test("validateAAMVAPayloadStructure accepts ID subfile type for identification cards", () => {
+  // Construct a minimal synthetic AAMVA ID-card payload manually.
+  // Header (19 bytes) + numEntries (2) + directory (10) + subfile (14) = 45 bytes total.
+  const idPayload =
+    "@\n\x1e\rANSI " +      // 9 bytes: compliance indicator + separators + file type
+    "636001" +               // 6 bytes: NY IIN
+    "10" +                   // 2 bytes: AAMVA version 10
+    "00" +                   // 2 bytes: jurisdiction version
+    "01" +                   // 2 bytes: number of directory entries
+    "ID" + "0031" + "0014" + // 10 bytes: directory entry (type=ID, offset=31, length=14)
+    "IDDBB01011990\r";       // 14 bytes: subfile content
+
+  const result = window.validateAAMVAPayloadStructure(idPayload);
+  assert.deepEqual(result, { ok: true },
+    "Validator should accept ID subfile type for AAMVA identification card payloads");
+});
