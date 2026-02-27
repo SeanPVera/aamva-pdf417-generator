@@ -56,10 +56,10 @@ window.AAMVA_DECODER = (() => {
       const iin = text.substring(9, 15);
       const version = text.substring(15, 17);
 
-      // Read the first directory entry — must be the DL subfile
+      // Read the first directory entry — must be the DL or ID subfile
       const dirType = text.substring(21, 23);
-      if (dirType !== "DL") {
-        return { error: "No DL subfile found in directory" };
+      if (dirType !== "DL" && dirType !== "ID") {
+        return { error: "No DL or ID subfile found in directory" };
       }
 
       // The offset field (4 digits) tells us exactly where the subfile content begins.
