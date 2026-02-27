@@ -3,16 +3,16 @@
  * Wires the UI, AAMVA schemas, encoder, inspector, and tools.
  */
 
-// Helper to safely get globals
-const AAMVA_STATES = window.AAMVA_STATES;
-const AAMVA_VERSIONS = window.AAMVA_VERSIONS;
-const AAMVA_UNKNOWN_FIELD_POLICY = window.AAMVA_UNKNOWN_FIELD_POLICY;
-const getFieldsForVersion = window.getFieldsForVersion;
-const describeVersion = window.describeVersion;
-const validateFieldValue = window.validateFieldValue;
-const buildPayloadObject = window.buildPayloadObject;
+// These are the only aliases that are used directly (without window. prefix) in this file
 const generateAAMVAPayload = window.generateAAMVAPayload;
 const isJurisdictionSupported = window.isJurisdictionSupported;
+
+// Debug logging — set window.AAMVA_DEBUG = true in the browser console to enable verbose logs
+function debugLog(...args) {
+  if (window.AAMVA_DEBUG) {
+    console.log("[AAMVA]", ...args);
+  }
+}
 
 /* ============================================================
    GLOBALS
@@ -45,7 +45,7 @@ const SIZE_PRESETS = {
 
 window.addEventListener("DOMContentLoaded", () => {
   try {
-    console.log("App initialization started.");
+    debugLog("App initialization started.");
 
     // Diagnostic checks
     const missing = [];
@@ -66,7 +66,7 @@ window.addEventListener("DOMContentLoaded", () => {
     restoreFromLocalStorage();
     updateSizerInfo();
 
-    console.log("App initialization complete.");
+    debugLog("App initialization complete.");
   } catch (err) {
     console.error("Initialization Error:", err);
     showError("Startup Error: " + err.message);
@@ -308,7 +308,7 @@ function hookEvents() {
     saveToLocalStorage();
   });
 
-  document.getElementById("complianceMode").addEventListener("change", e => {
+  document.getElementById("complianceMode").addEventListener("change", () => {
     liveUpdate();
     saveToLocalStorage();
   });
@@ -692,7 +692,7 @@ function renderDecoded(obj) {
    INSPECTOR PANES
    ============================================================ */
 
-function renderInspector(obj, rawText) {
+function renderInspector(obj, _rawText) {
   document.getElementById("payloadInspector").value =
     JSON.stringify(obj, null, 2);
 
@@ -873,6 +873,12 @@ function clearForm() {
 
   hideError();
   saveToLocalStorage();
+
+  // Return focus to the first editable field so keyboard users can continue
+  const firstField = currentFields.length > 0 ? document.getElementById(currentFields[0].code) : null;
+  if (firstField) {
+    firstField.focus();
+  }
 }
 
 
@@ -880,51 +886,81 @@ function clearForm() {
    JSON IMPORT
    ============================================================ */
 
+const JSON_IMPORT_MAX_BYTES = 1024 * 1024; // 1 MB
+
 async function handleJSONImport(e) {
   const file = e.target.files[0];
   if (!file) return;
 
-  if (!file.name.endsWith(".json")) {
-    showError("File is not JSON");
+  // File type check
+  if (!file.name.toLowerCase().endsWith(".json")) {
+    showError("Import failed: file must have a .json extension.");
     return;
   }
 
+  // File size guard
+  if (file.size > JSON_IMPORT_MAX_BYTES) {
+    showError(`Import failed: file exceeds the 1 MB size limit (got ${(file.size / 1024).toFixed(1)} KB).`);
+    return;
+  }
+
+  let json;
   try {
     const text = await file.text();
-    const json = JSON.parse(text);
-
-    if (!window.AAMVA_STATES[json.state]) {
-      showError("Invalid state");
-      return;
-    }
-
-    if (!window.AAMVA_VERSIONS[json.version]) {
-      showError("Invalid version");
-      return;
-    }
-
-    // Set version first so currentFields is correct for unknown field validation
-    document.getElementById("stateSelect").value = json.state;
-    document.getElementById("versionSelect").value = json.version;
-
-    currentState = json.state;
-    currentVersion = json.version;
-
-    renderFields();
-
-    if (!validateUnknownFields(json)) return;
-
-    currentFields.forEach(f => {
-      const el = document.getElementById(f.code);
-      if (el) el.value = json[f.code] || "";
-    });
-
-    liveUpdate();
-    saveToLocalStorage();
-
-  } catch (err) {
-    showError("Invalid JSON");
+    json = JSON.parse(text);
+  } catch (parseErr) {
+    showError(`Import failed: the file contains invalid JSON — ${parseErr.message}`);
+    return;
   }
+
+  // Normalize key casing: AAMVA field codes are uppercase; accept lowercase "state"/"version" keys
+  if (typeof json !== "object" || json === null || Array.isArray(json)) {
+    showError("Import failed: JSON must be an object (not an array or primitive).");
+    return;
+  }
+  const normalized = {};
+  for (const [k, v] of Object.entries(json)) {
+    normalized[k.trim()] = typeof v === "string" ? v.trim() : v;
+  }
+
+  // Schema validation — state
+  if (!normalized.state || !window.AAMVA_STATES[normalized.state]) {
+    showError(
+      normalized.state
+        ? `Import failed: unrecognized state code "${normalized.state}".`
+        : "Import failed: missing required field \"state\"."
+    );
+    return;
+  }
+
+  // Schema validation — version
+  if (!normalized.version || !window.AAMVA_VERSIONS[normalized.version]) {
+    showError(
+      normalized.version
+        ? `Import failed: unrecognized AAMVA version "${normalized.version}".`
+        : "Import failed: missing required field \"version\"."
+    );
+    return;
+  }
+
+  // Set version first so currentFields is correct for unknown field validation
+  document.getElementById("stateSelect").value = normalized.state;
+  document.getElementById("versionSelect").value = normalized.version;
+
+  currentState = normalized.state;
+  currentVersion = normalized.version;
+
+  renderFields();
+
+  if (!validateUnknownFields(normalized)) return;
+
+  currentFields.forEach(f => {
+    const el = document.getElementById(f.code);
+    if (el) el.value = normalized[f.code] || "";
+  });
+
+  liveUpdate();
+  saveToLocalStorage();
 }
 
 
@@ -978,10 +1014,16 @@ function restoreSnapshot(snap) {
 
     currentFields.forEach(f => {
       const el = document.getElementById(f.code);
-      if(el) el.value = json[f.code] || "";
+      if (el) el.value = json[f.code] || "";
     });
 
     liveUpdate();
+
+    // Return focus to the first editable field so keyboard users can continue
+    const firstField = currentFields.length > 0 ? document.getElementById(currentFields[0].code) : null;
+    if (firstField) {
+      firstField.focus();
+    }
   } finally {
     isRestoringSnapshot = false;
   }

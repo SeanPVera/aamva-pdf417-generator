@@ -9,11 +9,17 @@
     "start": "electron .",
     "dev": "electron .",
     "build": "electron-builder",
-    "test": "node --test test/*.test.js"
+    "test": "node --test test/*.test.js",
+    "lint": "eslint js/app.js aamva.js decoder.js main.js preload.js",
+    "format": "prettier --write js/app.js aamva.js decoder.js main.js preload.js css/style.css css/themes.css index.html",
+    "format:check": "prettier --check js/app.js aamva.js decoder.js main.js preload.js css/style.css css/themes.css index.html"
   },
   "devDependencies": {
     "electron": "^33.0.0",
-    "electron-builder": "^24.9.3"
+    "electron-builder": "^24.9.3",
+    "eslint": "^8.57.1",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.8.1"
   },
   "build": {
     "appId": "com.seanvera.aamva.pdf417",

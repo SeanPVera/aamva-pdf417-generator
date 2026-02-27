@@ -405,3 +405,12 @@ textarea:focus-visible {
     min-width: 100%;
   }
 }
+
+
+/* Keyboard shortcut hint below undo/redo buttons */
+.shortcut-hint {
+  font-size: 0.72em;
+  color: var(--text-muted, #888);
+  margin-top: 2px;
+  user-select: none;
+}
