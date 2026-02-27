@@ -16,7 +16,6 @@
  */
 
 window.AAMVA_DECODER = (() => {
-
   function decodePayload(text) {
     if (!text || typeof text !== "string") {
       return { error: "Empty or invalid input" };
@@ -113,8 +112,7 @@ window.AAMVA_DECODER = (() => {
 
   function describeFields(obj) {
     if (!obj.version || !window.AAMVA_VERSIONS[obj.version]) {
-      return "Unknown version — cannot map fields.\n" +
-             JSON.stringify(obj, null, 2);
+      return "Unknown version — cannot map fields.\n" + JSON.stringify(obj, null, 2);
     }
 
     const def = window.AAMVA_VERSIONS[obj.version];
@@ -122,7 +120,7 @@ window.AAMVA_DECODER = (() => {
     lines.push(`AAMVA ${def.name}`);
     lines.push("");
 
-    def.fields.forEach(f => {
+    def.fields.forEach((f) => {
       const val = obj[f.code] ?? "";
       lines.push(`${f.code}: ${val}   (${f.label})`);
     });

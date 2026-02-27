@@ -34,10 +34,9 @@ let lastPayloadText = null;
 // Barcode sizer state
 const SIZE_PRESETS = {
   standard: { widthMM: 76, heightMM: 25 },
-  compact:  { widthMM: 64, heightMM: 20 },
-  large:    { widthMM: 89, heightMM: 32 }
+  compact: { widthMM: 64, heightMM: 20 },
+  large: { widthMM: 89, heightMM: 32 }
 };
-
 
 /* ============================================================
    INITIALIZATION
@@ -73,7 +72,6 @@ window.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-
 /* ============================================================
    UI POPULATION
    ============================================================ */
@@ -84,7 +82,7 @@ function populateStateList() {
 
   Object.keys(window.AAMVA_STATES)
     .sort()
-    .forEach(code => {
+    .forEach((code) => {
       const meta = window.AAMVA_STATES[code];
       const opt = document.createElement("option");
 
@@ -105,14 +103,13 @@ function populateVersionList() {
   const sel = document.getElementById("versionSelect");
   sel.innerHTML = "";
 
-  Object.keys(window.AAMVA_VERSIONS).forEach(v => {
+  Object.keys(window.AAMVA_VERSIONS).forEach((v) => {
     const opt = document.createElement("option");
     opt.value = v;
     opt.textContent = `${v} — ${window.AAMVA_VERSIONS[v].name}`;
     sel.appendChild(opt);
   });
 }
-
 
 /* ============================================================
    FIELD RENDERING
@@ -121,7 +118,7 @@ function populateVersionList() {
 // Hints shown below non-dropdown, non-date fields. Date fields use the
 // input placeholder (formatPlaceholder) to convey MMDDYYYY vs YYYYMMDD.
 const FIELD_HINTS = {
-  zip:  "Format: 12345 or 12345-6789",
+  zip: "Format: 12345 or 12345-6789",
   char: "Single character"
 };
 
@@ -131,7 +128,7 @@ function renderFields(preserveValues) {
   // Capture existing field values before clearing
   const savedValues = {};
   if (preserveValues && currentFields.length > 0) {
-    currentFields.forEach(f => {
+    currentFields.forEach((f) => {
       const el = document.getElementById(f.code);
       if (el && el.value) savedValues[f.code] = el.value;
     });
@@ -142,9 +139,9 @@ function renderFields(preserveValues) {
   if (!currentVersion) return;
 
   currentFields = window.getFieldsForVersion(currentVersion);
-  currentAllowedFieldSet = new Set(["state", "version", ...currentFields.map(f => f.code)]);
+  currentAllowedFieldSet = new Set(["state", "version", ...currentFields.map((f) => f.code)]);
 
-  currentFields.forEach(field => {
+  currentFields.forEach((field) => {
     const div = document.createElement("div");
     if (field.required) div.classList.add("field-required");
 
@@ -154,7 +151,8 @@ function renderFields(preserveValues) {
     div.appendChild(label);
 
     // Prefer field-specific options if available (e.g. sex codes in V01)
-    const options = field.options || (window.AAMVA_FIELD_OPTIONS && window.AAMVA_FIELD_OPTIONS[field.code]);
+    const options =
+      field.options || (window.AAMVA_FIELD_OPTIONS && window.AAMVA_FIELD_OPTIONS[field.code]);
     const maxLen = window.AAMVA_FIELD_LIMITS && window.AAMVA_FIELD_LIMITS[field.code];
 
     if (options) {
@@ -168,7 +166,7 @@ function renderFields(preserveValues) {
       emptyOpt.textContent = `Select ${field.label}...`;
       select.appendChild(emptyOpt);
 
-      options.forEach(opt => {
+      options.forEach((opt) => {
         const optEl = document.createElement("option");
         optEl.value = opt.value;
         optEl.textContent = opt.label;
@@ -255,7 +253,6 @@ function renderFields(preserveValues) {
   }
 }
 
-
 /* ============================================================
    AUTO-FILL DERIVABLE FIELDS
    ============================================================ */
@@ -273,19 +270,18 @@ function autoFillStateFields(stateCode) {
   if (dcg && !dcg.value) dcg.value = "USA";
 
   // Auto-fill truncation indicators with "N" (Not Truncated) defaults
-  ["DDE", "DDF", "DDG"].forEach(code => {
+  ["DDE", "DDF", "DDG"].forEach((code) => {
     const el = document.getElementById(code);
     if (el && !el.value) el.value = "N";
   });
 }
-
 
 /* ============================================================
    EVENT HANDLERS
    ============================================================ */
 
 function hookEvents() {
-  document.getElementById("stateSelect").addEventListener("change", e => {
+  document.getElementById("stateSelect").addEventListener("change", (e) => {
     currentState = e.target.value;
 
     // Auto-select the AAMVA version for this state
@@ -301,7 +297,7 @@ function hookEvents() {
     saveToLocalStorage();
   });
 
-  document.getElementById("versionSelect").addEventListener("change", e => {
+  document.getElementById("versionSelect").addEventListener("change", (e) => {
     currentVersion = e.target.value;
     renderFields(true);
     liveUpdate();
@@ -330,9 +326,11 @@ function hookEvents() {
   document.getElementById("undoBtn").addEventListener("click", undo);
   document.getElementById("redoBtn").addEventListener("click", redo);
 
-  document.getElementById("themeSelect").addEventListener("change", e => {
+  document.getElementById("themeSelect").addEventListener("change", (e) => {
     document.documentElement.dataset.theme = e.target.value;
-    try { localStorage.setItem("aamva_theme", e.target.value); } catch {}
+    try {
+      localStorage.setItem("aamva_theme", e.target.value);
+    } catch {}
   });
 
   document.getElementById("exportPngBtn").addEventListener("click", exportPNG);
@@ -342,34 +340,39 @@ function hookEvents() {
   document.getElementById("clearFormBtn").addEventListener("click", clearForm);
 
   // Copy-to-clipboard buttons
-  document.querySelectorAll(".copy-btn").forEach(btn => {
+  document.querySelectorAll(".copy-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
       const targetId = btn.dataset.target;
       const el = document.getElementById(targetId);
       if (el && el.value) {
-        navigator.clipboard.writeText(el.value).then(() => {
-          const orig = btn.textContent;
-          btn.textContent = "Copied!";
-          setTimeout(() => { btn.textContent = orig; }, 1500);
-        }).catch(() => {
-          // Fallback: select text
-          el.select();
-          document.execCommand("copy");
-        });
+        navigator.clipboard
+          .writeText(el.value)
+          .then(() => {
+            const orig = btn.textContent;
+            btn.textContent = "Copied!";
+            setTimeout(() => {
+              btn.textContent = orig;
+            }, 1500);
+          })
+          .catch(() => {
+            // Fallback: select text
+            el.select();
+            document.execCommand("copy");
+          });
       }
     });
   });
 
   // Drag-and-drop JSON import on sidebar
   const sidebar = document.getElementById("sidebar");
-  sidebar.addEventListener("dragover", e => {
+  sidebar.addEventListener("dragover", (e) => {
     e.preventDefault();
     sidebar.classList.add("drag-over");
   });
   sidebar.addEventListener("dragleave", () => {
     sidebar.classList.remove("drag-over");
   });
-  sidebar.addEventListener("drop", e => {
+  sidebar.addEventListener("drop", (e) => {
     e.preventDefault();
     sidebar.classList.remove("drag-over");
     const file = e.dataTransfer.files[0];
@@ -382,7 +385,7 @@ function hookEvents() {
 }
 
 function hookKeyboardShortcuts() {
-  document.addEventListener("keydown", e => {
+  document.addEventListener("keydown", (e) => {
     if ((e.ctrlKey || e.metaKey) && e.key === "z" && !e.shiftKey) {
       e.preventDefault();
       undo();
@@ -394,18 +397,17 @@ function hookKeyboardShortcuts() {
   });
 }
 
-
 /* ============================================================
    BARCODE SIZER
    ============================================================ */
 
 function getSizerValues() {
   return {
-    widthMM:       parseFloat(document.getElementById("barcodeWidthMM").value) || 76,
-    heightMM:      parseFloat(document.getElementById("barcodeHeightMM").value) || 25,
+    widthMM: parseFloat(document.getElementById("barcodeWidthMM").value) || 76,
+    heightMM: parseFloat(document.getElementById("barcodeHeightMM").value) || 25,
     moduleWidthMil: parseFloat(document.getElementById("moduleWidthMil").value) || 15,
-    dpi:           parseInt(document.getElementById("exportDPI").value, 10) || 300,
-    quietZone:     parseInt(document.getElementById("quietZone").value, 10) || 2
+    dpi: parseInt(document.getElementById("exportDPI").value, 10) || 300,
+    quietZone: parseInt(document.getElementById("quietZone").value, 10) || 2
   };
 }
 
@@ -437,8 +439,14 @@ function hookSizerEvents() {
 
   widthInput.addEventListener("input", switchToCustom);
   heightInput.addEventListener("input", switchToCustom);
-  moduleInput.addEventListener("input", () => { updateSizerInfo(); reRenderBarcode(); });
-  dpiInput.addEventListener("input", () => { updateSizerInfo(); reRenderBarcode(); });
+  moduleInput.addEventListener("input", () => {
+    updateSizerInfo();
+    reRenderBarcode();
+  });
+  dpiInput.addEventListener("input", () => {
+    updateSizerInfo();
+    reRenderBarcode();
+  });
 
   quietInput.addEventListener("input", () => {
     quietLabel.textContent = quietInput.value;
@@ -487,7 +495,6 @@ function reRenderBarcode() {
   });
 }
 
-
 /* ============================================================
    LIVE UPDATE
    ============================================================ */
@@ -515,10 +522,16 @@ function liveUpdate() {
     if (!validateUnknownFields(payloadObj)) return;
     if (!validateFields(payloadObj)) return;
 
-    const aamvaData = generateAAMVAPayload(currentState, currentVersion, currentFields, payloadObj, {
+    const aamvaData = generateAAMVAPayload(
+      currentState,
+      currentVersion,
+      currentFields,
+      payloadObj,
+      {
         autoGenerateDiscriminator: true,
         strictMode: isStrict
-    });
+      }
+    );
 
     renderBarcode(aamvaData);
     renderDecoded(payloadObj);
@@ -528,7 +541,6 @@ function liveUpdate() {
     showError("Update Error: " + err.message);
   }
 }
-
 
 /* ============================================================
    VALIDATION
@@ -596,13 +608,12 @@ function validateFields(obj) {
   return true;
 }
 
-
 /* ============================================================
    BARCODE RENDERING
    ============================================================ */
 
 function getPDF417Layout(s) {
-  const moduleWidthMM = (s.moduleWidthMil * 0.0254);
+  const moduleWidthMM = s.moduleWidthMil * 0.0254;
   const targetModules = s.widthMM / moduleWidthMM;
   // Overhead: Start(17) + Left(17) + Right(17) + Stop(18) = 69 modules
   let columns = Math.floor((targetModules - 69) / 17);
@@ -634,14 +645,14 @@ function renderBarcode(text) {
 
   try {
     bwipjs.toCanvas(canvas, {
-      bcid:          'pdf417',
-      text:          text,
-      scale:         screenScale,
-      columns:       columns,
-      eclevel:       5, // AAMVA standard recommendation is typically 3+
-      compact:       false,
-      paddingwidth:  s.quietZone,
-      paddingheight: s.quietZone,
+      bcid: "pdf417",
+      text: text,
+      scale: screenScale,
+      columns: columns,
+      eclevel: 5, // AAMVA standard recommendation is typically 3+
+      compact: false,
+      paddingwidth: s.quietZone,
+      paddingheight: s.quietZone
     });
 
     // Update dimension label
@@ -655,7 +666,6 @@ function renderBarcode(text) {
       const exportH = Math.round((s.heightMM / 25.4) * s.dpi);
       dimLabel.textContent = `~${modulesW} x ~${modulesH} modules | Export: ${exportW} x ${exportH} px @ ${s.dpi} DPI`;
     }
-
   } catch (e) {
     console.error("Barcode render error:", e);
     // Draw error on canvas
@@ -666,7 +676,6 @@ function renderBarcode(text) {
     ctx.fillText("Render Error", 10, 20);
   }
 }
-
 
 /* ============================================================
    DECODER
@@ -687,24 +696,23 @@ function renderDecoded(obj) {
   out.value = JSON.stringify(obj, null, 2);
 }
 
-
 /* ============================================================
    INSPECTOR PANES
    ============================================================ */
 
 function renderInspector(obj, _rawText) {
-  document.getElementById("payloadInspector").value =
-    JSON.stringify(obj, null, 2);
+  document.getElementById("payloadInspector").value = JSON.stringify(obj, null, 2);
 
   // bwip-js abstracts codeword generation, so we don't display raw codewords.
-  document.getElementById("rawCodewords").value = "Raw codewords inspection not available with new encoder.";
+  document.getElementById("rawCodewords").value =
+    "Raw codewords inspection not available with new encoder.";
 }
 
 function renderInspectorBrowser() {
   const sel = document.getElementById("versionBrowser");
   sel.innerHTML = "";
 
-  Object.keys(window.AAMVA_VERSIONS).forEach(v => {
+  Object.keys(window.AAMVA_VERSIONS).forEach((v) => {
     const opt = document.createElement("option");
     opt.value = v;
     opt.textContent = `${v} — ${window.AAMVA_VERSIONS[v].name}`;
@@ -712,17 +720,14 @@ function renderInspectorBrowser() {
   });
 
   sel.addEventListener("change", () => {
-    document.getElementById("versionFields").value =
-      window.describeVersion(sel.value);
+    document.getElementById("versionFields").value = window.describeVersion(sel.value);
   });
 
   // Show initial version description
   if (sel.value) {
-    document.getElementById("versionFields").value =
-      window.describeVersion(sel.value);
+    document.getElementById("versionFields").value = window.describeVersion(sel.value);
   }
 }
-
 
 /* ============================================================
    EXPORTS
@@ -742,14 +747,14 @@ function buildExportCanvas() {
 
   try {
     bwipjs.toCanvas(canvas, {
-      bcid:          'pdf417',
-      text:          lastPayloadText,
-      scale:         scale,
-      columns:       columns,
-      eclevel:       5, // Consistent with preview
-      compact:       false,
-      paddingwidth:  s.quietZone,
-      paddingheight: s.quietZone,
+      bcid: "pdf417",
+      text: lastPayloadText,
+      scale: scale,
+      columns: columns,
+      eclevel: 5, // Consistent with preview
+      compact: false,
+      paddingwidth: s.quietZone,
+      paddingheight: s.quietZone
     });
     return canvas;
   } catch (e) {
@@ -798,20 +803,26 @@ function exportSVG() {
 
   try {
     const payloadObj = window.buildPayloadObject(currentState, currentVersion, currentFields);
-    const aamvaData = generateAAMVAPayload(currentState, currentVersion, currentFields, payloadObj, { autoGenerateDiscriminator: true });
+    const aamvaData = generateAAMVAPayload(
+      currentState,
+      currentVersion,
+      currentFields,
+      payloadObj,
+      { autoGenerateDiscriminator: true }
+    );
 
     // SVG export
     const s = getSizerValues();
     const { columns } = getPDF417Layout(s);
     const svg = bwipjs.toSVG({
-        bcid:          'pdf417',
-        text:          aamvaData,
-        scale:         3,
-        columns:       columns,
-        eclevel:       5, // Consistent with preview
-        compact:       false,
-        paddingwidth:  s.quietZone,
-        paddingheight: s.quietZone,
+      bcid: "pdf417",
+      text: aamvaData,
+      scale: 3,
+      columns: columns,
+      eclevel: 5, // Consistent with preview
+      compact: false,
+      paddingwidth: s.quietZone,
+      paddingheight: s.quietZone
     });
 
     const blob = new Blob([svg], { type: "image/svg+xml" });
@@ -845,7 +856,7 @@ function exportJSON() {
 }
 
 function clearForm() {
-  currentFields.forEach(f => {
+  currentFields.forEach((f) => {
     const el = document.getElementById(f.code);
     if (el) el.value = "";
   });
@@ -854,12 +865,14 @@ function clearForm() {
   const canvas = document.getElementById("barcodeCanvas");
   if (canvas) {
     const ctx = canvas.getContext("2d");
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (ctx) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
   }
 
   // Clear output panes
   const paneIds = ["decodedOutput", "rawCodewords", "payloadInspector"];
-  paneIds.forEach(id => {
+  paneIds.forEach((id) => {
     const el = document.getElementById(id);
     if (el) el.value = "";
   });
@@ -875,12 +888,12 @@ function clearForm() {
   saveToLocalStorage();
 
   // Return focus to the first editable field so keyboard users can continue
-  const firstField = currentFields.length > 0 ? document.getElementById(currentFields[0].code) : null;
+  const firstField =
+    currentFields.length > 0 ? document.getElementById(currentFields[0].code) : null;
   if (firstField) {
     firstField.focus();
   }
 }
-
 
 /* ============================================================
    JSON IMPORT
@@ -900,7 +913,9 @@ async function handleJSONImport(e) {
 
   // File size guard
   if (file.size > JSON_IMPORT_MAX_BYTES) {
-    showError(`Import failed: file exceeds the 1 MB size limit (got ${(file.size / 1024).toFixed(1)} KB).`);
+    showError(
+      `Import failed: file exceeds the 1 MB size limit (got ${(file.size / 1024).toFixed(1)} KB).`
+    );
     return;
   }
 
@@ -928,7 +943,7 @@ async function handleJSONImport(e) {
     showError(
       normalized.state
         ? `Import failed: unrecognized state code "${normalized.state}".`
-        : "Import failed: missing required field \"state\"."
+        : 'Import failed: missing required field "state".'
     );
     return;
   }
@@ -938,7 +953,7 @@ async function handleJSONImport(e) {
     showError(
       normalized.version
         ? `Import failed: unrecognized AAMVA version "${normalized.version}".`
-        : "Import failed: missing required field \"version\"."
+        : 'Import failed: missing required field "version".'
     );
     return;
   }
@@ -954,7 +969,7 @@ async function handleJSONImport(e) {
 
   if (!validateUnknownFields(normalized)) return;
 
-  currentFields.forEach(f => {
+  currentFields.forEach((f) => {
     const el = document.getElementById(f.code);
     if (el) el.value = normalized[f.code] || "";
   });
@@ -962,7 +977,6 @@ async function handleJSONImport(e) {
   liveUpdate();
   saveToLocalStorage();
 }
-
 
 /* ============================================================
    UNDO / REDO
@@ -1012,7 +1026,7 @@ function restoreSnapshot(snap) {
 
     renderFields();
 
-    currentFields.forEach(f => {
+    currentFields.forEach((f) => {
       const el = document.getElementById(f.code);
       if (el) el.value = json[f.code] || "";
     });
@@ -1020,7 +1034,8 @@ function restoreSnapshot(snap) {
     liveUpdate();
 
     // Return focus to the first editable field so keyboard users can continue
-    const firstField = currentFields.length > 0 ? document.getElementById(currentFields[0].code) : null;
+    const firstField =
+      currentFields.length > 0 ? document.getElementById(currentFields[0].code) : null;
     if (firstField) {
       firstField.focus();
     }
@@ -1028,7 +1043,6 @@ function restoreSnapshot(snap) {
     isRestoringSnapshot = false;
   }
 }
-
 
 /* ============================================================
    LOCAL STORAGE PERSISTENCE
@@ -1050,7 +1064,7 @@ function saveToLocalStorage() {
       fields: {},
       strictMode: document.getElementById("complianceMode").checked
     };
-    currentFields.forEach(f => {
+    currentFields.forEach((f) => {
       const el = document.getElementById(f.code);
       if (el) data.fields[f.code] = el.value;
     });
@@ -1108,7 +1122,7 @@ function restoreFromLocalStorage() {
     renderFields();
 
     if (data.fields) {
-      currentFields.forEach(f => {
+      currentFields.forEach((f) => {
         const el = document.getElementById(f.code);
         if (el && data.fields[f.code] !== undefined) {
           el.value = data.fields[f.code];
@@ -1134,7 +1148,6 @@ function restoreFromLocalStorage() {
     }
   }
 }
-
 
 /* ============================================================
    ERROR MESSAGE UI
