@@ -8,7 +8,7 @@
  *  - Single window
  */
 
-const { app, BrowserWindow } = require("electron");
+const { app, BrowserWindow, shell } = require("electron");
 const path = require("path");
 
 function createWindow() {
@@ -24,6 +24,21 @@ function createWindow() {
   });
 
   win.loadFile("index.html");
+
+  // Block all new-window/popup attempts — this app has no need for them
+  win.webContents.setWindowOpenHandler(() => ({ action: "deny" }));
+
+  // Prevent navigation away from the local app file
+  win.webContents.on("will-navigate", (event, url) => {
+    const appUrl = new URL(`file://${path.resolve(__dirname, "index.html")}`).href;
+    if (url !== appUrl) {
+      event.preventDefault();
+      // Open external links in the system browser instead
+      if (url.startsWith("https://") || url.startsWith("http://")) {
+        shell.openExternal(url);
+      }
+    }
+  });
 
   // Uncomment if you want devtools by default
   // win.webContents.openDevTools();

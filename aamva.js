@@ -650,7 +650,7 @@ window.describeVersion = function(v) {
 };
 
 // Validate field, type, required-ness, and length limits
-window.validateFieldValue = function(field, value, stateCode, strictMode = false) {
+window.validateFieldValue = function(field, value, stateCode, _strictMode = false) {
   if (field.required && !value) return false;
   if (!value) return true;
 
@@ -868,7 +868,7 @@ window.generateAAMVAPayload = function(stateCode, version, fields, dataObj, opti
   const fileType = "ANSI ";
 
   // Header Part 1
-  let header = compliance + dataElementSeparator + recordSeparator + segmentTerminator + fileType + iin + version + jurisVersion;
+  const header = compliance + dataElementSeparator + recordSeparator + segmentTerminator + fileType + iin + version + jurisVersion;
 
   // Subfiles
   // We only support "DL" (Driver License)

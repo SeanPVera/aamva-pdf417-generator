@@ -18,7 +18,8 @@ if (contextBridge && contextBridge.exposeInMainWorld) {
     version: "desktop"
   });
 } else {
-  // Browser fallback
+  // Browser fallback — window is available in this context
+  /* global window */
   window.api = {
     ping: () => "pong",
     version: "browser"

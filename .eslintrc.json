@@ -1,0 +1,30 @@
+{
+  "env": {
+    "browser": true,
+    "es2020": true
+  },
+  "parserOptions": {
+    "ecmaVersion": 2020
+  },
+  "globals": {
+    "bwipjs": "readonly"
+  },
+  "rules": {
+    "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
+    "no-undef": "error",
+    "no-console": "off",
+    "no-var": "error",
+    "prefer-const": "warn",
+    "eqeqeq": ["error", "always"]
+  },
+  "overrides": [
+    {
+      "files": ["main.js", "preload.js", "test/**/*.js"],
+      "env": {
+        "node": true,
+        "browser": false
+      }
+    }
+  ],
+  "ignorePatterns": ["lib/**", "dist/**", "node_modules/**"]
+}

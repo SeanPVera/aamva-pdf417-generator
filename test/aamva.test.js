@@ -937,3 +937,188 @@ test("validateAAMVAPayloadStructure accepts ID subfile type for identification c
   assert.deepEqual(result, { ok: true },
     "Validator should accept ID subfile type for AAMVA identification card payloads");
 });
+
+/* ============================================================
+   GOLDEN PAYLOAD VECTORS
+   End-to-end generation tests that pin the exact structural
+   shape of well-known input/output pairs. Regressions in the
+   encoder or field ordering will break these tests.
+   ============================================================ */
+
+test("golden vector: CA v09 — minimal required fields produce valid payload", () => {
+  const fields = window.getFieldsForVersion("09");
+  const dataObj = {
+    DCA: "C",
+    DCB: "NONE",
+    DCD: "NONE",
+    DBA: "01012030",
+    DCS: "DOE",
+    DAC: "JANE",
+    DBD: "01012020",
+    DBB: "01011990",
+    DBC: "2",
+    DAY: "BRO",
+    DAU: "506",
+    DAG: "123 MAIN ST",
+    DAI: "LOS ANGELES",
+    DAJ: "CA",
+    DAK: "90001",
+    DAQ: "B1234567",
+    DCF: "TESTDISC001",
+    DCG: "USA",
+    DDE: "N",
+    DDF: "N",
+    DDG: "N"
+  };
+
+  const payload = window.generateAAMVAPayload("CA", "09", fields, dataObj);
+
+  // Header structure
+  assert.ok(payload.startsWith("@\n\x1e\rANSI "), "payload must start with AAMVA compliance header");
+  assert.ok(payload.includes("636014"), "CA IIN 636014 must appear in header");
+  assert.ok(payload.includes("09"), "version 09 must appear in header");
+
+  // Required fields present in subfile
+  assert.ok(payload.includes("DCSDOE"), "family name field DCS must be present");
+  assert.ok(payload.includes("DACJANE"), "first name field DAC must be present");
+  assert.ok(payload.includes("DBB01011990"), "date of birth DBB must be present");
+  assert.ok(payload.includes("DAJCA"), "jurisdiction DAJ=CA must be present");
+  assert.ok(payload.includes("DCGUSA"), "country DCG=USA must be present");
+
+  // Structural validation
+  const validation = window.validateAAMVAPayloadStructure(payload);
+  assert.deepEqual(validation, { ok: true }, "structural validator must accept generated CA v09 payload");
+
+  // Round-trip decode
+  const decoded = window.AAMVA_DECODER.decode(payload);
+  assert.ok(decoded.ok, "decoder must accept CA v09 payload");
+  assert.equal(decoded.json.DCS, "DOE", "family name must survive round-trip");
+  assert.equal(decoded.json.DAC, "JANE", "first name must survive round-trip");
+  assert.equal(decoded.json.DBB, "01011990", "DOB must survive round-trip");
+  assert.equal(decoded.json.state, "CA", "state must be resolved from IIN 636014");
+  assert.equal(decoded.json.version, "09", "version must be 09");
+});
+
+test("golden vector: TX v10 — payload uses TX IIN and contains required name fields", () => {
+  const fields = window.getFieldsForVersion("10");
+  const dataObj = {
+    DCA: "C",
+    DCB: "NONE",
+    DCD: "NONE",
+    DBA: "01012035",
+    DCS: "SMITH",
+    DAC: "JOHN",
+    DAD: "ALLEN",
+    DBD: "06152022",
+    DBB: "06151985",
+    DBC: "1",
+    DAY: "BLU",
+    DAU: "511",
+    DAG: "456 OAK AVE",
+    DAI: "AUSTIN",
+    DAJ: "TX",
+    DAK: "78701",
+    DAQ: "12345678",
+    DCF: "TXGOLD001",
+    DCG: "USA",
+    DDE: "N",
+    DDF: "N",
+    DDG: "N"
+  };
+
+  const payload = window.generateAAMVAPayload("TX", "10", fields, dataObj);
+
+  assert.ok(payload.startsWith("@\n\x1e\rANSI "), "payload must start with AAMVA header");
+  assert.ok(payload.includes("636015"), "TX IIN 636015 must appear in header");
+  assert.ok(payload.includes("10"), "version 10 must appear in header");
+  assert.ok(payload.includes("DCSSMITH"), "family name DCS=SMITH must appear");
+  assert.ok(payload.includes("DACJOHN"), "first name DAC=JOHN must appear");
+  assert.ok(payload.includes("DADALLEN"), "middle name DAD=ALLEN must appear");
+  assert.ok(payload.includes("DAJTX"), "jurisdiction DAJ=TX must appear");
+
+  const validation = window.validateAAMVAPayloadStructure(payload);
+  assert.deepEqual(validation, { ok: true }, "TX v10 payload must pass structural validation");
+
+  const decoded = window.AAMVA_DECODER.decode(payload);
+  assert.ok(decoded.ok, "decoder must accept TX v10 payload");
+  assert.equal(decoded.json.DCS, "SMITH", "family name round-trip");
+  assert.equal(decoded.json.DAD, "ALLEN", "middle name round-trip");
+  assert.equal(decoded.json.state, "TX", "state resolved from IIN 636015");
+  assert.equal(decoded.json.version, "10", "version is 10");
+});
+
+test("golden vector: VA v01 — uses DAA (full name) not split name fields", () => {
+  const fields = window.getFieldsForVersion("01");
+  const dataObj = {
+    DAA: "DOE JOHN",
+    DAG: "789 ELM ST",
+    DAI: "RICHMOND",
+    DAJ: "VA",
+    DAK: "23220",
+    DAQ: "T12345678",
+    DBA: "20301231",
+    DBB: "19850615",
+    DBC: "M",
+    DBD: "20200101",
+    DAU: "511"
+  };
+
+  const payload = window.generateAAMVAPayload("VA", "01", fields, dataObj);
+
+  assert.ok(payload.startsWith("@\n\x1e\rANSI "), "payload must start with AAMVA header");
+  assert.ok(payload.includes("636000"), "VA IIN 636000 must appear in header");
+  assert.ok(payload.includes("01"), "version 01 must appear in header");
+  assert.ok(payload.includes("DAADOE JOHN"), "full name DAA must appear in v01 payload");
+  assert.ok(!payload.includes("\nDAC"), "split first name DAC must NOT appear in v01 payload");
+  assert.ok(!payload.includes("\nDCS"), "split family name DCS must NOT appear in v01 payload");
+  assert.ok(payload.includes("DAJVA"), "jurisdiction DAJ=VA must appear");
+
+  const validation = window.validateAAMVAPayloadStructure(payload);
+  assert.deepEqual(validation, { ok: true }, "VA v01 payload must pass structural validation");
+
+  const decoded = window.AAMVA_DECODER.decode(payload);
+  assert.ok(decoded.ok, "decoder must accept VA v01 payload");
+  assert.equal(decoded.json.DAA, "DOE JOHN", "full name must survive round-trip in v01");
+  assert.equal(decoded.json.state, "VA", "state resolved from IIN 636000");
+  assert.equal(decoded.json.version, "01", "version is 01");
+});
+
+test("golden vector: payload directory offset is always 31 (fixed header size)", () => {
+  // The AAMVA header is always exactly 31 bytes:
+  // @(1) + \n(1) + \x1e(1) + \r(1) + ANSI (5) + IIN(6) + ver(2) + jver(2) + numEntries(2) + dirEntry(10) = 31
+  const fields = window.getFieldsForVersion("09");
+  const dataObj = {
+    DCA: "C", DCB: "NONE", DCD: "NONE",
+    DBA: "01012030", DCS: "TEST", DAC: "USER", DBD: "01012020", DBB: "01011990",
+    DBC: "1", DAY: "BRO", DAU: "509", DAG: "1 A ST", DAI: "CITY", DAJ: "CA",
+    DAK: "90000", DAQ: "A0000001", DCF: "DISC0001", DCG: "USA",
+    DDE: "N", DDF: "N", DDG: "N"
+  };
+
+  const payload = window.generateAAMVAPayload("CA", "09", fields, dataObj);
+
+  // Directory entry is at bytes 21..30 (0-indexed): "DL" + 4-digit offset + 4-digit length
+  // The offset field is bytes 23..26 and should always be "0031"
+  const dirEntry = payload.substring(21, 31);
+  assert.equal(dirEntry.substring(0, 2), "DL", "directory entry type should be DL");
+  assert.equal(dirEntry.substring(2, 6), "0031", "subfile offset must always be 0031 (fixed 31-byte header)");
+});
+
+test("golden vector: DAK postal code is always exactly 11 chars in payload", () => {
+  const fields = window.getFieldsForVersion("09");
+  const dataObj = {
+    DCA: "C", DCB: "NONE", DCD: "NONE",
+    DBA: "01012030", DCS: "ZIPTEST", DAC: "USER", DBD: "01012020", DBB: "01011990",
+    DBC: "1", DAY: "BRO", DAU: "509", DAG: "1 A ST", DAI: "CITY", DAJ: "CA",
+    DAK: "90210",
+    DAQ: "A0000002", DCF: "DISC0002", DCG: "USA",
+    DDE: "N", DDF: "N", DDG: "N"
+  };
+
+  const payload = window.generateAAMVAPayload("CA", "09", fields, dataObj);
+
+  // Find DAK value in payload: "DAK" + exactly 11 chars + "\n"
+  const dakMatch = payload.match(/DAK(.{11})\n/);
+  assert.ok(dakMatch, "DAK field must be present and followed by exactly 11 characters");
+  assert.equal(dakMatch[1], "90210      ", "5-digit ZIP must be padded to 11 chars");
+});
