@@ -35,6 +35,7 @@
       "js/app.js",
       "aamva.js",
       "decoder.js",
+      "css/**",
       "lib/**",
       "assets/**"
     ],

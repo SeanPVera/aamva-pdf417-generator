@@ -593,7 +593,7 @@ window.AAMVA_VERSIONS = {
     ]
   },
 
-  10: {
+  "10": {
     name: "AAMVA DL/ID-2020 (Version 10)",
     fields: [
       { code: "DCA", label: "Vehicle Class", type: "string", required: true },
