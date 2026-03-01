@@ -138,7 +138,9 @@ function renderFields(preserveValues) {
 
   if (!currentVersion) return;
 
-  currentFields = window.getFieldsForVersion(currentVersion);
+  currentFields = currentState
+    ? window.getFieldsForStateAndVersion(currentState, currentVersion)
+    : window.getFieldsForVersion(currentVersion);
   currentAllowedFieldSet = new Set(["state", "version", ...currentFields.map((f) => f.code)]);
 
   currentFields.forEach((field) => {
@@ -220,6 +222,20 @@ function renderFields(preserveValues) {
       input.setAttribute("aria-label", field.label);
       if (maxLen) input.maxLength = maxLen;
       div.appendChild(input);
+
+      // Add "None" quick-select for restriction/endorsement code fields
+      if (field.code === "DCB" || field.code === "DCD") {
+        const noneBtn = document.createElement("button");
+        noneBtn.type = "button";
+        noneBtn.className = "none-btn";
+        noneBtn.textContent = "None";
+        noneBtn.setAttribute("aria-label", `Set ${field.label} to NONE`);
+        noneBtn.addEventListener("click", function () {
+          input.value = "NONE";
+          input.dispatchEvent(new Event("input", { bubbles: true }));
+        });
+        div.appendChild(noneBtn);
+      }
     }
 
     // Add type hints for non-dropdown, non-date fields
@@ -261,9 +277,10 @@ function autoFillStateFields(stateCode) {
   const stateDef = window.AAMVA_STATES[stateCode];
   if (!stateDef) return;
 
-  // Auto-fill jurisdiction code (DAJ) with state code
+  // Auto-fill jurisdiction code (DAJ) with state code — always overwrite
+  // since DAJ must match the selected state per the AAMVA spec
   const daj = document.getElementById("DAJ");
-  if (daj && !daj.value) daj.value = stateCode;
+  if (daj) daj.value = stateCode;
 
   // Auto-fill country (DCG) with USA
   const dcg = document.getElementById("DCG");

@@ -276,6 +276,71 @@ window.AAMVA_STATE_RULES = {
   }
 };
 
+/* ========== STATE-SPECIFIC FIELD EXCLUSIONS ========== */
+// Optional fields that specific states omit from their physical license barcodes.
+// Required fields are never excluded regardless of this configuration.
+// States not listed here show all fields defined by their AAMVA version.
+
+window.AAMVA_STATE_EXCLUDED_FIELDS = {
+  // New York: no weight, no hair color on license
+  NY: ["DAW", "DAX", "DAZ", "DCL"],
+  // Connecticut: no weight on license
+  CT: ["DAW", "DAX", "DCL"],
+  // Vermont: no weight on license
+  VT: ["DAW", "DAX", "DCL"],
+  // Maine: no weight on license
+  ME: ["DAW", "DAX", "DCL"],
+  // New Hampshire: no weight on license
+  NH: ["DAW", "DAX", "DCL"],
+  // Most states don't use weight-in-kg (DAX) or race/ethnicity (DCL)
+  AL: ["DAX", "DCL"],
+  AK: ["DAX", "DCL"],
+  AZ: ["DAX", "DCL"],
+  AR: ["DAX", "DCL"],
+  CA: ["DAX", "DCL"],
+  CO: ["DAX", "DCL"],
+  DE: ["DAX", "DCL"],
+  FL: ["DAX", "DCL"],
+  GA: ["DAX", "DCL"],
+  HI: ["DAX", "DCL"],
+  ID: ["DAX", "DCL"],
+  IL: ["DAX", "DCL"],
+  IN: ["DAX", "DCL"],
+  IA: ["DAX", "DCL"],
+  KS: ["DAX", "DCL"],
+  KY: ["DAX", "DCL"],
+  LA: ["DAX", "DCL"],
+  MD: ["DAX", "DCL"],
+  MA: ["DAX", "DCL"],
+  MI: ["DAX", "DCL"],
+  MN: ["DAX", "DCL"],
+  MS: ["DAX", "DCL"],
+  MO: ["DAX", "DCL"],
+  MT: ["DAX", "DCL"],
+  NE: ["DAX", "DCL"],
+  NV: ["DAX", "DCL"],
+  NJ: ["DAX", "DCL"],
+  NM: ["DAX", "DCL"],
+  NC: ["DAX", "DCL"],
+  ND: ["DAX", "DCL"],
+  OH: ["DAX", "DCL"],
+  OK: ["DAX", "DCL"],
+  OR: ["DAX", "DCL"],
+  PA: ["DAX", "DCL"],
+  RI: ["DAX", "DCL"],
+  SC: ["DAX", "DCL"],
+  SD: ["DAX", "DCL"],
+  TN: ["DAX", "DCL"],
+  TX: ["DAX", "DCL"],
+  UT: ["DAX", "DCL"],
+  VA: ["DAX", "DCL"],
+  WA: ["DAX", "DCL"],
+  WV: ["DAX", "DCL"],
+  WI: ["DAX", "DCL"],
+  WY: ["DAX", "DCL"],
+  DC: ["DAX", "DCL"]
+};
+
 /* ========== VERSION DEFINITIONS ========== */
 // Field definitions based on AAMVA CDS specifications.
 // Mandatory (required: true) vs Optional fields per the published standard.
@@ -646,6 +711,22 @@ window.getVersionForState = function (stateCode) {
 // Get field definitions by version
 window.getFieldsForVersion = function (v) {
   return window.AAMVA_VERSIONS[v]?.fields || [];
+};
+
+// Get field definitions filtered by state-specific exclusions.
+// Required fields are never excluded. Only optional fields listed in
+// AAMVA_STATE_EXCLUDED_FIELDS for the given state are removed.
+window.getFieldsForStateAndVersion = function (stateCode, v) {
+  const allFields = window.getFieldsForVersion(v);
+  if (!stateCode || !window.AAMVA_STATE_EXCLUDED_FIELDS) return allFields;
+
+  const excluded = window.AAMVA_STATE_EXCLUDED_FIELDS[stateCode];
+  if (!excluded || excluded.length === 0) return allFields;
+
+  const excludedSet = new Set(excluded);
+  return allFields.filter(function (f) {
+    return f.required || !excludedSet.has(f.code);
+  });
 };
 
 // Get mandatory fields for a specific state and version

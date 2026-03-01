@@ -1122,3 +1122,83 @@ test("golden vector: DAK postal code is always exactly 11 chars in payload", () 
   assert.ok(dakMatch, "DAK field must be present and followed by exactly 11 characters");
   assert.equal(dakMatch[1], "90210      ", "5-digit ZIP must be padded to 11 chars");
 });
+
+/* ============================================================
+   STATE-SPECIFIC FIELD EXCLUSIONS
+   ============================================================ */
+
+test("AAMVA_STATE_EXCLUDED_FIELDS is defined", () => {
+  assert.ok(window.AAMVA_STATE_EXCLUDED_FIELDS, "AAMVA_STATE_EXCLUDED_FIELDS should be defined");
+  assert.equal(typeof window.AAMVA_STATE_EXCLUDED_FIELDS, "object");
+});
+
+test("state exclusion entries contain only valid field codes", () => {
+  // Gather all known field codes across all versions
+  const allCodes = new Set();
+  for (const v of Object.keys(window.AAMVA_VERSIONS)) {
+    for (const f of window.AAMVA_VERSIONS[v].fields) {
+      allCodes.add(f.code);
+    }
+  }
+
+  for (const [state, excluded] of Object.entries(window.AAMVA_STATE_EXCLUDED_FIELDS)) {
+    assert.ok(Array.isArray(excluded), `${state} exclusions should be an array`);
+    for (const code of excluded) {
+      assert.ok(allCodes.has(code), `${state} excluded field "${code}" must be a valid AAMVA field code`);
+    }
+  }
+});
+
+test("state exclusions never exclude required fields", () => {
+  for (const [state, excluded] of Object.entries(window.AAMVA_STATE_EXCLUDED_FIELDS)) {
+    const stateDef = window.AAMVA_STATES[state];
+    if (!stateDef) continue;
+    const version = stateDef.aamvaVersion;
+    const fields = window.getFieldsForVersion(version);
+    const requiredCodes = fields.filter(f => f.required).map(f => f.code);
+    for (const code of excluded) {
+      assert.ok(
+        !requiredCodes.includes(code),
+        `${state} must not exclude required field ${code} (v${version})`
+      );
+    }
+  }
+});
+
+test("getFieldsForStateAndVersion filters excluded optional fields", () => {
+  // NY excludes DAW (weight) — it's an optional field in v09
+  const nyFields = window.getFieldsForStateAndVersion("NY", "09");
+  const nyCodes = nyFields.map(f => f.code);
+  assert.ok(!nyCodes.includes("DAW"), "NY should not include DAW (weight)");
+  assert.ok(!nyCodes.includes("DAZ"), "NY should not include DAZ (hair color)");
+  // But required fields like DCS should still be present
+  assert.ok(nyCodes.includes("DCS"), "NY should still include required field DCS");
+  assert.ok(nyCodes.includes("DAJ"), "NY should still include required field DAJ");
+});
+
+test("getFieldsForStateAndVersion keeps all required fields", () => {
+  for (const [state, excluded] of Object.entries(window.AAMVA_STATE_EXCLUDED_FIELDS)) {
+    const stateDef = window.AAMVA_STATES[state];
+    if (!stateDef) continue;
+    const version = stateDef.aamvaVersion;
+    const filtered = window.getFieldsForStateAndVersion(state, version);
+    const allFields = window.getFieldsForVersion(version);
+    const requiredCodes = allFields.filter(f => f.required).map(f => f.code);
+    const filteredCodes = filtered.map(f => f.code);
+    for (const code of requiredCodes) {
+      assert.ok(filteredCodes.includes(code), `${state}: required field ${code} must survive filtering`);
+    }
+  }
+});
+
+test("getFieldsForStateAndVersion returns all fields for unknown state", () => {
+  const allFields = window.getFieldsForVersion("09");
+  const filtered = window.getFieldsForStateAndVersion("ZZ", "09");
+  assert.equal(filtered.length, allFields.length, "unknown state should return all fields");
+});
+
+test("getFieldsForStateAndVersion returns all fields when stateCode is null", () => {
+  const allFields = window.getFieldsForVersion("09");
+  const filtered = window.getFieldsForStateAndVersion(null, "09");
+  assert.equal(filtered.length, allFields.length, "null state should return all fields");
+});

@@ -273,6 +273,16 @@ button:focus-visible {
   margin-bottom: 4px;
 }
 
+/* "None" quick-select button for restriction/endorsement fields */
+.none-btn {
+  width: auto;
+  display: inline-block;
+  padding: 4px 12px;
+  font-size: 12px;
+  margin-top: -6px;
+  margin-bottom: 4px;
+}
+
 /* Date field with inline picker */
 .date-field-wrap {
   display: flex;
