@@ -764,7 +764,10 @@ function buildExportCanvas() {
 }
 
 function exportPNG() {
-  if (!currentState || !currentVersion) return;
+  if (!currentState || !currentVersion) {
+    showError("Please select a state and AAMVA version before exporting.");
+    return;
+  }
 
   const exportCanvas = buildExportCanvas();
   if (!exportCanvas) return;
@@ -776,7 +779,10 @@ function exportPNG() {
 }
 
 function exportPDF() {
-  if (!currentState || !currentVersion) return;
+  if (!currentState || !currentVersion) {
+    showError("Please select a state and AAMVA version before exporting.");
+    return;
+  }
 
   const exportCanvas = buildExportCanvas();
   if (!exportCanvas) return;
@@ -799,7 +805,10 @@ function exportPDF() {
 }
 
 function exportSVG() {
-  if (!currentState || !currentVersion) return;
+  if (!currentState || !currentVersion) {
+    showError("Please select a state and AAMVA version before exporting.");
+    return;
+  }
 
   try {
     const payloadObj = window.buildPayloadObject(currentState, currentVersion, currentFields);
@@ -838,7 +847,10 @@ function exportSVG() {
 }
 
 function exportJSON() {
-  if (!currentState || !currentVersion) return;
+  if (!currentState || !currentVersion) {
+    showError("Please select a state and AAMVA version before exporting.");
+    return;
+  }
 
   try {
     const payloadObj = window.buildPayloadObject(currentState, currentVersion, currentFields);
@@ -1069,7 +1081,11 @@ function saveToLocalStorage() {
       if (el) data.fields[f.code] = el.value;
     });
     localStorage.setItem(LS_KEY, JSON.stringify(data));
-  } catch {}
+  } catch (e) {
+    if (e && e.name === "QuotaExceededError") {
+      console.warn("[AAMVA] localStorage quota exceeded; form state could not be saved.");
+    }
+  }
 }
 
 function restoreFromLocalStorage() {
