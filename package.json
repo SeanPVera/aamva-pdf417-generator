@@ -11,8 +11,8 @@
     "build": "electron-builder",
     "test": "node --test test/*.test.js",
     "lint": "eslint js/app.js aamva.js decoder.js main.js preload.js",
-    "format": "prettier --write js/app.js aamva.js decoder.js main.js preload.js css/style.css css/themes.css index.html",
-    "format:check": "prettier --check js/app.js aamva.js decoder.js main.js preload.js css/style.css css/themes.css index.html"
+    "format": "prettier --write js/app.js aamva.js decoder.js main.js preload.js css/style.css index.html",
+    "format:check": "prettier --check js/app.js aamva.js decoder.js main.js preload.js css/style.css index.html"
   },
   "devDependencies": {
     "electron": "^33.0.0",

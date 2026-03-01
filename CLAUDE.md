@@ -30,19 +30,18 @@ This file provides AI assistants (Claude, Copilot, etc.) with the context needed
 │   ├── bwip-js.min.js      # bwip-js barcode renderer (PDF417 via bcid="pdf417")
 │   └── jspdf.umd.min.js    # jsPDF (minified UMD build) — included verbatim, do not edit
 ├── css/
-│   ├── style.css           # Main stylesheet (2-space indent, CSS custom properties)
-│   └── themes.css          # Theme variable overrides (light, dark, dmv)
+│   └── style.css           # Main stylesheet + theme variables (2-space indent, CSS custom properties)
 ├── test/
-│   └── aamva.test.js       # 62 unit tests using Node.js built-in test runner
+│   ├── aamva.test.js       # Schema, payload, decoder, and validation tests (Node.js built-in runner)
+│   └── app.test.js         # DOM integration tests using JSDOM
 ├── assets/
 │   └── sample.json         # Example import payload for manual testing
-├── verification/
-│   ├── verify.py           # Playwright automation for UI smoke tests
-│   ├── debug_verify.py     # Debug-focused variant
-│   └── verify_fix.py       # Additional verification helper
+├── LICENSE                  # MIT license
+├── .eslintrc.json           # ESLint configuration
+├── .prettierrc              # Prettier configuration
 └── .github/
     └── workflows/
-        └── node.js.yml     # CI: Node 18/20/22 matrix, npm ci → build → test
+        └── node.js.yml     # CI: Node 18/20/22 matrix, npm ci → lint → build → test
 ```
 
 ---
@@ -117,7 +116,7 @@ Tests use **Node.js built-in `node:test`** and **`node:assert/strict`** — no e
 
 ## Testing Conventions
 
-- Test file: `test/aamva.test.js`
+- Test files: `test/aamva.test.js` (schema/payload/decoder) and `test/app.test.js` (DOM integration)
 - Import only what is needed via `require('../aamva.js')` style (CommonJS)
 - Use `test(description, () => { ... })` blocks from `node:test`
 - Use `assert.strictEqual`, `assert.ok`, `assert.deepStrictEqual` from `node:assert/strict`
@@ -131,7 +130,10 @@ Tests use **Node.js built-in `node:test`** and **`node:assert/strict`** — no e
 4. AAMVA versions 01–10 — structure and field code format
 5. Version-specific fields — e.g., version 01 uses `DAA` (full name), versions 04+ add truncation flags
 6. State-to-version mapping — auto-selects correct AAMVA version per state
-7. Field validation — date format `YYYYMMDD`, ZIP `12345` or `12345-6789`
+7. Field validation — date format (`MMDDYYYY` for v02+, `YYYYMMDD` for v01), ZIP `12345` or `12345-6789`
+8. Payload generation — golden vectors, header structure, directory length, ZIP padding, uppercase enforcement
+9. Decoder round-trip — encode then decode preserves field values
+10. DOM integration — state selection, field rendering, JSON import, form clear
 
 ---
 
@@ -144,7 +146,7 @@ Tests use **Node.js built-in `node:test`** and **`node:assert/strict`** — no e
 - **No ES modules (`import`/`export`)** — all files use script-tag globals and IIFEs for browser compatibility
 - **No TypeScript** — plain JavaScript throughout
 - **Comments:** File-level JSDoc headers; inline comments for non-obvious logic
-- **No linter config** — follow the style of surrounding code when editing
+- **Linting:** ESLint (`.eslintrc.json`) and Prettier (`.prettierrc`) are configured; run `npm run lint` and `npm run format:check`
 
 ---
 
@@ -172,7 +174,7 @@ Fields are identified by 3-character codes (e.g., `DAA`, `DCS`, `DAB`). These ar
 GitHub Actions workflow (`.github/workflows/node.js.yml`):
 - **Triggers:** Push to `main`, PRs targeting `main`
 - **Matrix:** Node.js 18.x, 20.x, 22.x
-- **Steps:** `npm ci` → `npm run build --if-present` → `npm test`
+- **Steps:** `npm ci` → `npm run lint` → `npm run build --if-present` → `npm test`
 
 All tests must pass on all three Node.js versions before merging.
 
@@ -211,7 +213,7 @@ All tests must pass on all three Node.js versions before merging.
 ### Update the UI
 1. Edit `index.html` for structure, `css/style.css` for styling
 2. Edit `js/app.js` for behavior (DOM manipulation, event listeners)
-3. Theme variables live in `css/themes.css`; add new themes by defining new CSS custom property sets
+3. Theme variables live in `css/style.css` via `[data-theme]` selectors; add new themes by defining new CSS custom property sets
 
 ---
 
@@ -221,6 +223,10 @@ All tests must pass on all three Node.js versions before merging.
 |---|---|---|
 | `electron` | devDependency | Desktop app runtime |
 | `electron-builder` | devDependency | Packages app into OS installers |
+| `eslint` | devDependency | Code linting |
+| `prettier` | devDependency | Code formatting |
+| `jsdom` | devDependency | DOM environment for tests |
+| `bwip-js` | dependency | PDF417 barcode generation (also vendored in `lib/`) |
 | `jspdf` | dependency | PDF generation (also vendored in `lib/`) |
 
-No runtime dependencies beyond jsPDF. No test framework dependencies.
+No external test framework dependencies — uses Node.js built-in `node:test`.
