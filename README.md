@@ -74,7 +74,7 @@ Please read this section carefully if you need strict production-grade complianc
 - **Not a government-certified implementation.**
   - The project is practical and useful for testing workflows, but it is not presented as a certified issuer system.
 - **Schema coverage is limited to versions defined in code.**
-  - Current keys include legacy and modern entries such as `08`, `09`, `10`, and `2020`.
+  - Current keys include versions `01` through `10`, covering legacy (DL/ID-2000) through modern (DL/ID-2020) entries.
 - **Validation is intentionally lightweight.**
   - It checks required-ness and basic formats (examples: date/ZIP/single-char) but does not enforce every jurisdiction-specific rule.
 - **Territories are marked unsupported.**
@@ -138,7 +138,7 @@ If those commands print versions, you are ready.
 #### Option A (recommended): Clone with Git
 
 ```bash
-git clone https://github.com/<your-org-or-user>/aamva-pdf417-generator.git
+git clone https://github.com/SeanPVera/aamva-pdf417-generator.git
 cd aamva-pdf417-generator
 ```
 
@@ -225,11 +225,11 @@ There is no rigid external API contract, but a practical file usually looks like
 ```json
 {
   "state": "CA",
-  "version": "08",
+  "version": "10",
   "DCS": "DOE",
   "DAC": "JANE",
-  "DBB": "19940131",
-  "DBA": "20300131",
+  "DBB": "01311994",
+  "DBA": "01312030",
   "DAQ": "D1234567",
   "DAG": "123 MAIN ST",
   "DAI": "LOS ANGELES",
@@ -239,7 +239,7 @@ There is no rigid external API contract, but a practical file usually looks like
 ```
 
 Tips:
-- Dates should use `YYYYMMDD` where required.
+- Date format depends on the selected AAMVA version: version 01 uses `YYYYMMDD`, versions 02+ use `MMDDYYYY`.
 - ZIP supports `12345` or `12345-6789`.
 - Field requirements vary by selected version.
 
@@ -319,7 +319,9 @@ npm audit
 ├── main.js
 ├── preload.js
 ├── package.json
+├── LICENSE
 ├── README.md
+├── CLAUDE.md
 ├── aamva.js
 ├── decoder.js
 ├── js/
@@ -328,8 +330,10 @@ npm audit
 │   ├── bwip-js.min.js
 │   └── jspdf.umd.min.js
 ├── css/
-│   ├── style.css
-│   └── themes.css
+│   └── style.css
+├── test/
+│   ├── aamva.test.js
+│   └── app.test.js
 └── assets/
     └── sample.json
 ```
@@ -338,6 +342,6 @@ npm audit
 
 ## License
 
-MIT License (see `package.json`).
+MIT License — see [LICENSE](LICENSE) for details.
 
 © 2025 Sean Vera
