@@ -624,6 +624,59 @@ test("generateStateLicenseNumber produces values within field length limit for a
   }
 });
 
+test("all 50 states + DC have DDB generators in AAMVA_STATE_RULES", () => {
+  const states = Object.keys(window.AAMVA_STATES).filter(
+    (s) => window.AAMVA_STATES[s].supported !== false
+  );
+  for (const state of states) {
+    const rules = window.AAMVA_STATE_RULES[state];
+    assert.ok(rules.generators.DDB, `${state} should have DDB generator`);
+  }
+});
+
+test("generateStateCardRevisionDate returns valid MMDDYYYY dates for all states", () => {
+  const states = Object.keys(window.AAMVA_STATES).filter(
+    (s) => window.AAMVA_STATES[s].supported !== false
+  );
+  for (const state of states) {
+    const ddb = window.generateStateCardRevisionDate(state);
+    assert.ok(ddb, `${state} should have a card revision date`);
+    assert.match(ddb, /^\d{8}$/, `${state} DDB should be 8 digits`);
+
+    // Validate as a real date (MMDDYYYY)
+    const mm = Number.parseInt(ddb.substring(0, 2), 10);
+    const dd = Number.parseInt(ddb.substring(2, 4), 10);
+    const yyyy = Number.parseInt(ddb.substring(4, 8), 10);
+    assert.ok(mm >= 1 && mm <= 12, `${state} DDB month ${mm} should be 1-12`);
+    assert.ok(dd >= 1 && dd <= 31, `${state} DDB day ${dd} should be 1-31`);
+    assert.ok(yyyy >= 2015 && yyyy <= 2025, `${state} DDB year ${yyyy} should be 2015-2025`);
+
+    // Verify the date actually exists (no Feb 30, etc.)
+    const dt = new Date(Date.UTC(yyyy, mm - 1, dd));
+    assert.equal(dt.getUTCMonth(), mm - 1, `${state} DDB month should round-trip`);
+    assert.equal(dt.getUTCDate(), dd, `${state} DDB day should round-trip`);
+  }
+});
+
+test("generateStateCardRevisionDate returns null for unknown state", () => {
+  assert.equal(window.generateStateCardRevisionDate(null), null);
+  assert.equal(window.generateStateCardRevisionDate("ZZ"), null);
+});
+
+test("DDB values pass field validation for all states", () => {
+  const ddbField = { code: "DDB", type: "date", label: "Card Revision Date" };
+  const states = Object.keys(window.AAMVA_STATES).filter(
+    (s) => window.AAMVA_STATES[s].supported !== false
+  );
+  for (const state of states) {
+    const ddb = window.generateStateCardRevisionDate(state);
+    assert.ok(
+      window.validateFieldValue(ddbField, ddb, state),
+      `${state} DDB '${ddb}' should pass field validation`
+    );
+  }
+});
+
 test("generateAAMVAPayload auto-generates DCF when requested", () => {
   const { fields, dataObj } = makeTestData("NY", "10");
   fillV09TestData(dataObj);

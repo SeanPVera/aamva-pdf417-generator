@@ -214,6 +214,23 @@ function renderFields(preserveValues) {
       inputWrap.appendChild(picker);
 
       div.appendChild(inputWrap);
+
+      // Add "Generate" button for Card Revision Date (DDB) field
+      if (field.code === "DDB") {
+        const genBtn = document.createElement("button");
+        genBtn.type = "button";
+        genBtn.className = "generate-btn";
+        genBtn.textContent = "Generate";
+        genBtn.setAttribute("aria-label", "Auto-fill Card Revision Date for this state");
+        genBtn.addEventListener("click", function () {
+          const date = window.generateStateCardRevisionDate(currentState);
+          if (date) {
+            input.value = date;
+            input.dispatchEvent(new Event("input", { bubbles: true }));
+          }
+        });
+        div.appendChild(genBtn);
+      }
     } else {
       const input = document.createElement("input");
       input.type = "text";

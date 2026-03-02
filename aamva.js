@@ -239,7 +239,27 @@ window.AAMVA_STATE_RULES = (() => {
     return s;
   };
 
-  return {
+  // Card Revision Dates (DDB) per state — MMDDYYYY format.
+  // Represents the date each state last revised their physical card design.
+  // Version 10 states: adopted the 2020 CDS standard.
+  // Version 09 states: adopted the 2016 CDS standard.
+  const DDB_DATES = {
+    AL: "06012018", AK: "01152019", AZ: "10012021", AR: "08012017",
+    CA: "01152020", CO: "06012021", CT: "10012017", DE: "04012018",
+    FL: "01012020", GA: "09012022", HI: "03012022", ID: "06012018",
+    IL: "07012022", IN: "11012017", IA: "05012018", KS: "07012018",
+    KY: "02012019", LA: "09012017", ME: "03012019", MD: "10012020",
+    MA: "12012018", MI: "08012021", MN: "10012018", MS: "08012019",
+    MO: "04012019", MT: "07012017", NE: "05012021", NV: "11012018",
+    NH: "01012019", NJ: "11012021", NM: "05012017", NY: "10012022",
+    NC: "02012023", ND: "02012018", OH: "04012023", OK: "09012019",
+    OR: "07012022", PA: "09012021", RI: "06012018", SC: "06012021",
+    SD: "03012018", TN: "08012018", TX: "02012022", UT: "12012017",
+    VT: "10012017", VA: "01012021", WA: "07012022", WV: "07012019",
+    WI: "12012020", WY: "04012018", DC: "03012021"
+  };
+
+  const rules = {
     // Alabama — DAQ: 7 digits, DCF: 8 digits
     AL: {
       generators: { DAQ: () => d(7), DCF: () => d(8) }
@@ -452,6 +472,15 @@ window.AAMVA_STATE_RULES = (() => {
       generators: { DAQ: () => d(7), DCF: () => d(10) }
     }
   };
+
+  // Merge DDB (Card Revision Date) generators from the dates table
+  for (const [state, date] of Object.entries(DDB_DATES)) {
+    if (rules[state] && rules[state].generators) {
+      rules[state].generators.DDB = () => date;
+    }
+  }
+
+  return rules;
 })();
 
 /* ========== STATE-SPECIFIC FIELD EXCLUSIONS ========== */
@@ -1068,6 +1097,20 @@ window.generateStateLicenseNumber = function (stateCode) {
   let s = "";
   for (let i = 0; i < 9; i++) s += Math.floor(Math.random() * 10);
   return s;
+};
+
+// Return the Card Revision Date (DDB) for a state if one is defined,
+// otherwise return null (DDB is optional, so no generic fallback).
+window.generateStateCardRevisionDate = function (stateCode) {
+  if (
+    stateCode &&
+    window.AAMVA_STATE_RULES[stateCode] &&
+    window.AAMVA_STATE_RULES[stateCode].generators &&
+    window.AAMVA_STATE_RULES[stateCode].generators.DDB
+  ) {
+    return window.AAMVA_STATE_RULES[stateCode].generators.DDB();
+  }
+  return null;
 };
 
 // Generate AAMVA compliant payload string
