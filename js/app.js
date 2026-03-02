@@ -236,6 +236,20 @@ function renderFields(preserveValues) {
         });
         div.appendChild(noneBtn);
       }
+
+      // Add "Generate" button for Document Discriminator (DCF) field
+      if (field.code === "DCF") {
+        const genBtn = document.createElement("button");
+        genBtn.type = "button";
+        genBtn.className = "generate-btn";
+        genBtn.textContent = "Generate";
+        genBtn.setAttribute("aria-label", "Auto-generate Document Discriminator");
+        genBtn.addEventListener("click", function () {
+          input.value = window.generateStateDiscriminator(currentState);
+          input.dispatchEvent(new Event("input", { bubbles: true }));
+        });
+        div.appendChild(genBtn);
+      }
     }
 
     // Add type hints for non-dropdown, non-date fields

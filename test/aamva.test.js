@@ -506,6 +506,38 @@ test("generateDocumentDiscriminator returns uppercase alphanumeric token", () =>
   assert.match(discriminator, /^[A-Z2-9]+$/, "Should only include scanner-safe uppercase chars");
 });
 
+test("generateStateDiscriminator uses state-specific DCF format for CA", () => {
+  const dcf = window.generateStateDiscriminator("CA");
+  assert.match(dcf, /^[A-Z]{2}\d{4}\/\d{4}\/\d{4}$/, "CA DCF should be 2 alpha + 4d/4d/4d");
+});
+
+test("generateStateDiscriminator uses state-specific DCF format for NY", () => {
+  const dcf = window.generateStateDiscriminator("NY");
+  assert.match(dcf, /^\d{10}$/, "NY DCF should be 10 digits");
+});
+
+test("generateStateDiscriminator uses state-specific DCF format for TX", () => {
+  const dcf = window.generateStateDiscriminator("TX");
+  assert.match(dcf, /^\d{2}[A-Z]{6}\d{4}$/, "TX DCF should be 2d + 6 alpha + 4d");
+});
+
+test("generateStateDiscriminator uses state-specific DCF format for FL", () => {
+  const dcf = window.generateStateDiscriminator("FL");
+  assert.match(dcf, /^[A-Z]\d{11}$/, "FL DCF should be letter + 11 digits");
+});
+
+test("generateStateDiscriminator falls back to generic for states without DCF generator", () => {
+  const dcf = window.generateStateDiscriminator("WA");
+  assert.equal(dcf.length, 12, "Fallback should be 12 chars");
+  assert.match(dcf, /^[A-Z2-9]+$/, "Fallback should use scanner-safe chars");
+});
+
+test("generateStateDiscriminator falls back to generic when stateCode is null", () => {
+  const dcf = window.generateStateDiscriminator(null);
+  assert.equal(dcf.length, 12, "Null state should use generic 12-char format");
+  assert.match(dcf, /^[A-Z2-9]+$/, "Null state should use scanner-safe chars");
+});
+
 test("generateAAMVAPayload auto-generates DCF when requested", () => {
   const { fields, dataObj } = makeTestData("NY", "10");
   fillV09TestData(dataObj);
@@ -516,7 +548,8 @@ test("generateAAMVAPayload auto-generates DCF when requested", () => {
   });
 
   assert.ok(dataObj.DCF, "DCF should be populated when auto-generate is enabled");
-  assert.match(dataObj.DCF, /^[A-Z2-9]+$/, "Generated DCF should be scanner-safe");
+  // NY has a state-specific DCF generator (10 digits)
+  assert.match(dataObj.DCF, /^\d{10}$/, "NY DCF should match state-specific 10-digit format");
   assert.ok(payload.includes(`DCF${dataObj.DCF}`), "Payload should include generated DCF value");
 });
 test("generateAAMVAPayload directory length matches DL subfile bytes", () => {

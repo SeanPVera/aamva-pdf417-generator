@@ -231,6 +231,16 @@ window.AAMVA_STATE_RULES = {
           .toString()
           .padStart(7, "0");
         return letter + numbers;
+      },
+      // CA DCF: 2 alpha + 4 digits + "/" + 4 digits + "/" + 4 digits (e.g., "FD1234/5678/9012")
+      DCF: () => {
+        const a = String.fromCharCode(65 + Math.floor(Math.random() * 26));
+        const b = String.fromCharCode(65 + Math.floor(Math.random() * 26));
+        const d = (n) =>
+          Math.floor(Math.random() * Math.pow(10, n))
+            .toString()
+            .padStart(n, "0");
+        return a + b + d(4) + "/" + d(4) + "/" + d(4);
       }
     }
   },
@@ -243,7 +253,12 @@ window.AAMVA_STATE_RULES = {
       DAQ: () =>
         Math.floor(Math.random() * 1000000000)
           .toString()
-          .padStart(9, "0")
+          .padStart(9, "0"),
+      // NY DCF: 10 digits (e.g., "0123456789")
+      DCF: () =>
+        Math.floor(Math.random() * 10000000000)
+          .toString()
+          .padStart(10, "0")
     }
   },
   TX: {
@@ -255,7 +270,21 @@ window.AAMVA_STATE_RULES = {
       DAQ: () =>
         Math.floor(Math.random() * 100000000)
           .toString()
-          .padStart(8, "0")
+          .padStart(8, "0"),
+      // TX DCF: 2 digits + 6 alpha + 4 digits (e.g., "12ABCDEF3456")
+      DCF: () => {
+        const d2 = Math.floor(Math.random() * 100)
+          .toString()
+          .padStart(2, "0");
+        let alpha = "";
+        for (let i = 0; i < 6; i++) {
+          alpha += String.fromCharCode(65 + Math.floor(Math.random() * 26));
+        }
+        const d4 = Math.floor(Math.random() * 10000)
+          .toString()
+          .padStart(4, "0");
+        return d2 + alpha + d4;
+      }
     }
   },
   FL: {
@@ -271,6 +300,55 @@ window.AAMVA_STATE_RULES = {
           .toString()
           .padStart(12, "0");
         return letter + numbers;
+      },
+      // FL DCF: Letter + 11 digits (e.g., "A12345678901")
+      DCF: () => {
+        const letter = String.fromCharCode(65 + Math.floor(Math.random() * 26));
+        const numbers = Math.floor(Math.random() * 100000000000)
+          .toString()
+          .padStart(11, "0");
+        return letter + numbers;
+      }
+    }
+  },
+  PA: {
+    generators: {
+      // PA DCF: 2 alpha + 8 digits (e.g., "AB12345678")
+      DCF: () => {
+        const a = String.fromCharCode(65 + Math.floor(Math.random() * 26));
+        const b = String.fromCharCode(65 + Math.floor(Math.random() * 26));
+        const numbers = Math.floor(Math.random() * 100000000)
+          .toString()
+          .padStart(8, "0");
+        return a + b + numbers;
+      }
+    }
+  },
+  IL: {
+    generators: {
+      // IL DCF: 3 alpha + 9 digits (e.g., "ABC123456789")
+      DCF: () => {
+        let alpha = "";
+        for (let i = 0; i < 3; i++) {
+          alpha += String.fromCharCode(65 + Math.floor(Math.random() * 26));
+        }
+        const numbers = Math.floor(Math.random() * 1000000000)
+          .toString()
+          .padStart(9, "0");
+        return alpha + numbers;
+      }
+    }
+  },
+  OH: {
+    generators: {
+      // OH DCF: 8 uppercase alphanumeric (e.g., "A1B2C3D4")
+      DCF: () => {
+        const charset = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+        let result = "";
+        for (let i = 0; i < 8; i++) {
+          result += charset[Math.floor(Math.random() * charset.length)];
+        }
+        return result;
       }
     }
   }
@@ -859,6 +937,20 @@ window.generateDocumentDiscriminator = function (length = 12) {
   }
 
   return chars.join("");
+};
+
+// Generate a state-specific Document Discriminator if a DCF generator is defined
+// for the state, otherwise fall back to the generic generator.
+window.generateStateDiscriminator = function (stateCode) {
+  if (
+    stateCode &&
+    window.AAMVA_STATE_RULES[stateCode] &&
+    window.AAMVA_STATE_RULES[stateCode].generators &&
+    window.AAMVA_STATE_RULES[stateCode].generators.DCF
+  ) {
+    return window.AAMVA_STATE_RULES[stateCode].generators.DCF();
+  }
+  return window.generateDocumentDiscriminator();
 };
 
 // Generate AAMVA compliant payload string
