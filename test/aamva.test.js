@@ -526,16 +526,102 @@ test("generateStateDiscriminator uses state-specific DCF format for FL", () => {
   assert.match(dcf, /^[A-Z]\d{11}$/, "FL DCF should be letter + 11 digits");
 });
 
-test("generateStateDiscriminator falls back to generic for states without DCF generator", () => {
-  const dcf = window.generateStateDiscriminator("WA");
-  assert.equal(dcf.length, 12, "Fallback should be 12 chars");
-  assert.match(dcf, /^[A-Z2-9]+$/, "Fallback should use scanner-safe chars");
-});
-
 test("generateStateDiscriminator falls back to generic when stateCode is null", () => {
   const dcf = window.generateStateDiscriminator(null);
   assert.equal(dcf.length, 12, "Null state should use generic 12-char format");
   assert.match(dcf, /^[A-Z2-9]+$/, "Null state should use scanner-safe chars");
+});
+
+test("all 50 states + DC have DCF generators in AAMVA_STATE_RULES", () => {
+  const statesWithDCF = Object.keys(window.AAMVA_STATES).filter(
+    (s) => window.AAMVA_STATES[s].supported !== false
+  );
+  for (const state of statesWithDCF) {
+    const rules = window.AAMVA_STATE_RULES[state];
+    assert.ok(rules, `${state} should have state rules`);
+    assert.ok(rules.generators, `${state} should have generators`);
+    assert.ok(rules.generators.DCF, `${state} should have DCF generator`);
+    const dcf = rules.generators.DCF();
+    assert.ok(dcf.length > 0, `${state} DCF should not be empty`);
+    assert.ok(dcf.length <= 25, `${state} DCF (${dcf.length} chars) should not exceed 25-char limit`);
+  }
+});
+
+test("all 50 states + DC have DAQ generators in AAMVA_STATE_RULES", () => {
+  const statesWithDAQ = Object.keys(window.AAMVA_STATES).filter(
+    (s) => window.AAMVA_STATES[s].supported !== false
+  );
+  for (const state of statesWithDAQ) {
+    const rules = window.AAMVA_STATE_RULES[state];
+    assert.ok(rules, `${state} should have state rules`);
+    assert.ok(rules.generators, `${state} should have generators`);
+    assert.ok(rules.generators.DAQ, `${state} should have DAQ generator`);
+    const daq = rules.generators.DAQ();
+    assert.ok(daq.length > 0, `${state} DAQ should not be empty`);
+    assert.ok(daq.length <= 25, `${state} DAQ (${daq.length} chars) should not exceed 25-char limit`);
+  }
+});
+
+test("generateStateLicenseNumber produces state-specific DAQ values", () => {
+  // CA: letter + 7 digits
+  assert.match(window.generateStateLicenseNumber("CA"), /^[A-Z]\d{7}$/);
+  // NY: 9 digits
+  assert.match(window.generateStateLicenseNumber("NY"), /^\d{9}$/);
+  // TX: 8 digits
+  assert.match(window.generateStateLicenseNumber("TX"), /^\d{8}$/);
+  // FL: letter + 12 digits
+  assert.match(window.generateStateLicenseNumber("FL"), /^[A-Z]\d{12}$/);
+  // OH: 2 letters + 6 digits
+  assert.match(window.generateStateLicenseNumber("OH"), /^[A-Z]{2}\d{6}$/);
+  // NH: 2 digits + 3 letters + 5 digits
+  assert.match(window.generateStateLicenseNumber("NH"), /^\d{2}[A-Z]{3}\d{5}$/);
+  // WI: letter + 13 digits
+  assert.match(window.generateStateLicenseNumber("WI"), /^[A-Z]\d{13}$/);
+  // ID: 2 letters + 6 digits + letter
+  assert.match(window.generateStateLicenseNumber("ID"), /^[A-Z]{2}\d{6}[A-Z]$/);
+  // WA: 7 letters + 5 digits
+  assert.match(window.generateStateLicenseNumber("WA"), /^[A-Z]{7}\d{5}$/);
+});
+
+test("generateStateLicenseNumber falls back to generic when stateCode is null", () => {
+  const daq = window.generateStateLicenseNumber(null);
+  assert.equal(daq.length, 9, "Null state should use generic 9-digit format");
+  assert.match(daq, /^\d{9}$/, "Null state should produce 9 digits");
+});
+
+test("generated DAQ values pass validation for states with validators", () => {
+  const statesWithValidators = ["CA", "NY", "TX", "FL"];
+  for (const state of statesWithValidators) {
+    const daq = window.generateStateLicenseNumber(state);
+    const validator = window.AAMVA_STATE_RULES[state].validators.DAQ;
+    assert.ok(validator(daq), `Generated DAQ '${daq}' should pass ${state} validator`);
+  }
+});
+
+test("generateStateDiscriminator produces values within field length limit for all states", () => {
+  const states = Object.keys(window.AAMVA_STATES).filter(
+    (s) => window.AAMVA_STATES[s].supported !== false
+  );
+  for (const state of states) {
+    const dcf = window.generateStateDiscriminator(state);
+    assert.ok(
+      dcf.length <= window.AAMVA_FIELD_LIMITS.DCF,
+      `${state} DCF '${dcf}' (${dcf.length} chars) exceeds limit ${window.AAMVA_FIELD_LIMITS.DCF}`
+    );
+  }
+});
+
+test("generateStateLicenseNumber produces values within field length limit for all states", () => {
+  const states = Object.keys(window.AAMVA_STATES).filter(
+    (s) => window.AAMVA_STATES[s].supported !== false
+  );
+  for (const state of states) {
+    const daq = window.generateStateLicenseNumber(state);
+    assert.ok(
+      daq.length <= window.AAMVA_FIELD_LIMITS.DAQ,
+      `${state} DAQ '${daq}' (${daq.length} chars) exceeds limit ${window.AAMVA_FIELD_LIMITS.DAQ}`
+    );
+  }
 });
 
 test("generateAAMVAPayload auto-generates DCF when requested", () => {

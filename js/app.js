@@ -250,6 +250,20 @@ function renderFields(preserveValues) {
         });
         div.appendChild(genBtn);
       }
+
+      // Add "Generate" button for Customer ID Number (DAQ) field
+      if (field.code === "DAQ") {
+        const genBtn = document.createElement("button");
+        genBtn.type = "button";
+        genBtn.className = "generate-btn";
+        genBtn.textContent = "Generate";
+        genBtn.setAttribute("aria-label", "Auto-generate Customer ID Number");
+        genBtn.addEventListener("click", function () {
+          input.value = window.generateStateLicenseNumber(currentState);
+          input.dispatchEvent(new Event("input", { bubbles: true }));
+        });
+        div.appendChild(genBtn);
+      }
     }
 
     // Add type hints for non-dropdown, non-date fields

@@ -214,145 +214,245 @@ window.AAMVA_FIELD_LIMITS = {
 };
 
 /* ========== STATE-SPECIFIC RULES ========== */
-// Define custom validation rules and auto-generation logic per state.
-// Currently covers a few examples, expandable as needed.
+// Validation rules and auto-generation logic for DAQ (license number) and
+// DCF (Document Discriminator) per state. Generators produce values that
+// match each state's expected format. States without a specific format
+// fall back to a generic generator via generateStateLicenseNumber() /
+// generateStateDiscriminator().
 
-window.AAMVA_STATE_RULES = {
-  CA: {
-    // California ID Validation
-    validators: {
-      DAQ: (val) => /^[A-Z][0-9]{7}$/.test(val) // Letter + 7 digits
+window.AAMVA_STATE_RULES = (() => {
+  // Internal helpers — generate random digits, letters, or alphanumeric chars.
+  const d = (n) => {
+    let s = "";
+    for (let i = 0; i < n; i++) s += Math.floor(Math.random() * 10);
+    return s;
+  };
+  const l = (n) => {
+    let s = "";
+    for (let i = 0; i < n; i++) s += String.fromCharCode(65 + Math.floor(Math.random() * 26));
+    return s;
+  };
+  const an = (n) => {
+    const cs = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    let s = "";
+    for (let i = 0; i < n; i++) s += cs[Math.floor(Math.random() * cs.length)];
+    return s;
+  };
+
+  return {
+    // Alabama — DAQ: 7 digits, DCF: 8 digits
+    AL: {
+      generators: { DAQ: () => d(7), DCF: () => d(8) }
     },
-    // Auto-generate valid CA ID format
-    generators: {
-      DAQ: () => {
-        const letter = String.fromCharCode(65 + Math.floor(Math.random() * 26)); // A-Z
-        const numbers = Math.floor(Math.random() * 10000000)
-          .toString()
-          .padStart(7, "0");
-        return letter + numbers;
-      },
-      // CA DCF: 2 alpha + 4 digits + "/" + 4 digits + "/" + 4 digits (e.g., "FD1234/5678/9012")
-      DCF: () => {
-        const a = String.fromCharCode(65 + Math.floor(Math.random() * 26));
-        const b = String.fromCharCode(65 + Math.floor(Math.random() * 26));
-        const d = (n) =>
-          Math.floor(Math.random() * Math.pow(10, n))
-            .toString()
-            .padStart(n, "0");
-        return a + b + d(4) + "/" + d(4) + "/" + d(4);
-      }
-    }
-  },
-  NY: {
-    // New York ID Validation (9 digits)
-    validators: {
-      DAQ: (val) => /^[0-9]{9}$/.test(val)
+    // Alaska — DAQ: 7 digits, DCF: 2 alpha + 8 digits
+    AK: {
+      generators: { DAQ: () => d(7), DCF: () => l(2) + d(8) }
     },
-    generators: {
-      DAQ: () =>
-        Math.floor(Math.random() * 1000000000)
-          .toString()
-          .padStart(9, "0"),
-      // NY DCF: 10 digits (e.g., "0123456789")
-      DCF: () =>
-        Math.floor(Math.random() * 10000000000)
-          .toString()
-          .padStart(10, "0")
-    }
-  },
-  TX: {
-    // Texas ID Validation (8 digits)
-    validators: {
-      DAQ: (val) => /^[0-9]{8}$/.test(val)
+    // Arizona — DAQ: letter + 8 digits, DCF: 2 alpha + 8 digits
+    AZ: {
+      generators: { DAQ: () => l(1) + d(8), DCF: () => l(2) + d(8) }
     },
-    generators: {
-      DAQ: () =>
-        Math.floor(Math.random() * 100000000)
-          .toString()
-          .padStart(8, "0"),
-      // TX DCF: 2 digits + 6 alpha + 4 digits (e.g., "12ABCDEF3456")
-      DCF: () => {
-        const d2 = Math.floor(Math.random() * 100)
-          .toString()
-          .padStart(2, "0");
-        let alpha = "";
-        for (let i = 0; i < 6; i++) {
-          alpha += String.fromCharCode(65 + Math.floor(Math.random() * 26));
-        }
-        const d4 = Math.floor(Math.random() * 10000)
-          .toString()
-          .padStart(4, "0");
-        return d2 + alpha + d4;
-      }
-    }
-  },
-  FL: {
-    // Florida ID Validation (Letter + 12 digits, roughly)
-    // Simplified regex for basic validation
-    validators: {
-      DAQ: (val) => /^[A-Z][0-9]{12}$/.test(val)
+    // Arkansas — DAQ: 9 digits, DCF: 9 digits
+    AR: {
+      generators: { DAQ: () => d(9), DCF: () => d(9) }
     },
-    generators: {
-      DAQ: () => {
-        const letter = String.fromCharCode(65 + Math.floor(Math.random() * 26));
-        const numbers = Math.floor(Math.random() * 1000000000000)
-          .toString()
-          .padStart(12, "0");
-        return letter + numbers;
-      },
-      // FL DCF: Letter + 11 digits (e.g., "A12345678901")
-      DCF: () => {
-        const letter = String.fromCharCode(65 + Math.floor(Math.random() * 26));
-        const numbers = Math.floor(Math.random() * 100000000000)
-          .toString()
-          .padStart(11, "0");
-        return letter + numbers;
+    // California — DAQ: letter + 7 digits, DCF: 2 alpha + 4d/4d/4d
+    CA: {
+      validators: { DAQ: (val) => /^[A-Z][0-9]{7}$/.test(val) },
+      generators: {
+        DAQ: () => l(1) + d(7),
+        DCF: () => l(2) + d(4) + "/" + d(4) + "/" + d(4)
       }
+    },
+    // Colorado — DAQ: 9 digits, DCF: 2 alpha + 8 digits
+    CO: {
+      generators: { DAQ: () => d(9), DCF: () => l(2) + d(8) }
+    },
+    // Connecticut — DAQ: 9 digits, DCF: 9 digits
+    CT: {
+      generators: { DAQ: () => d(9), DCF: () => d(9) }
+    },
+    // Delaware — DAQ: 7 digits, DCF: 8 digits
+    DE: {
+      generators: { DAQ: () => d(7), DCF: () => d(8) }
+    },
+    // Florida — DAQ: letter + 12 digits, DCF: letter + 11 digits
+    FL: {
+      validators: { DAQ: (val) => /^[A-Z][0-9]{12}$/.test(val) },
+      generators: { DAQ: () => l(1) + d(12), DCF: () => l(1) + d(11) }
+    },
+    // Georgia — DAQ: 9 digits, DCF: 10 digits
+    GA: {
+      generators: { DAQ: () => d(9), DCF: () => d(10) }
+    },
+    // Hawaii — DAQ: letter + 8 digits, DCF: 2 alpha + 8 digits
+    HI: {
+      generators: { DAQ: () => l(1) + d(8), DCF: () => l(2) + d(8) }
+    },
+    // Idaho — DAQ: 2 letters + 6 digits + letter, DCF: 2 alpha + 8 digits
+    ID: {
+      generators: { DAQ: () => l(2) + d(6) + l(1), DCF: () => l(2) + d(8) }
+    },
+    // Illinois — DAQ: letter + 11 digits, DCF: 3 alpha + 9 digits
+    IL: {
+      generators: { DAQ: () => l(1) + d(11), DCF: () => l(3) + d(9) }
+    },
+    // Indiana — DAQ: 10 digits, DCF: 10 digits
+    IN: {
+      generators: { DAQ: () => d(10), DCF: () => d(10) }
+    },
+    // Iowa — DAQ: 9 digits, DCF: 9 digits
+    IA: {
+      generators: { DAQ: () => d(9), DCF: () => d(9) }
+    },
+    // Kansas — DAQ: letter + 8 digits, DCF: 2 alpha + 8 digits
+    KS: {
+      generators: { DAQ: () => l(1) + d(8), DCF: () => l(2) + d(8) }
+    },
+    // Kentucky — DAQ: letter + 8 digits, DCF: 8 digits
+    KY: {
+      generators: { DAQ: () => l(1) + d(8), DCF: () => d(8) }
+    },
+    // Louisiana — DAQ: 9 digits, DCF: 10 digits
+    LA: {
+      generators: { DAQ: () => d(9), DCF: () => d(10) }
+    },
+    // Maine — DAQ: 7 digits, DCF: 8 digits
+    ME: {
+      generators: { DAQ: () => d(7), DCF: () => d(8) }
+    },
+    // Maryland — DAQ: letter + 12 digits, DCF: 2 alpha + 10 digits
+    MD: {
+      generators: { DAQ: () => l(1) + d(12), DCF: () => l(2) + d(10) }
+    },
+    // Massachusetts — DAQ: letter + 8 digits, DCF: 2 alpha + 9 digits
+    MA: {
+      generators: { DAQ: () => l(1) + d(8), DCF: () => l(2) + d(9) }
+    },
+    // Michigan — DAQ: letter + 12 digits, DCF: letter + 10 digits
+    MI: {
+      generators: { DAQ: () => l(1) + d(12), DCF: () => l(1) + d(10) }
+    },
+    // Minnesota — DAQ: letter + 12 digits, DCF: letter + 9 digits
+    MN: {
+      generators: { DAQ: () => l(1) + d(12), DCF: () => l(1) + d(9) }
+    },
+    // Mississippi — DAQ: 9 digits, DCF: 10 digits
+    MS: {
+      generators: { DAQ: () => d(9), DCF: () => d(10) }
+    },
+    // Missouri — DAQ: letter + 9 digits, DCF: 10 digits
+    MO: {
+      generators: { DAQ: () => l(1) + d(9), DCF: () => d(10) }
+    },
+    // Montana — DAQ: 9 digits, DCF: 9 alphanumeric
+    MT: {
+      generators: { DAQ: () => d(9), DCF: () => an(9) }
+    },
+    // Nebraska — DAQ: letter + 8 digits, DCF: 2 alpha + 8 digits
+    NE: {
+      generators: { DAQ: () => l(1) + d(8), DCF: () => l(2) + d(8) }
+    },
+    // Nevada — DAQ: 10 digits, DCF: 10 digits
+    NV: {
+      generators: { DAQ: () => d(10), DCF: () => d(10) }
+    },
+    // New Hampshire — DAQ: 2 digits + 3 letters + 5 digits, DCF: 2 alpha + 8 digits
+    NH: {
+      generators: { DAQ: () => d(2) + l(3) + d(5), DCF: () => l(2) + d(8) }
+    },
+    // New Jersey — DAQ: letter + 14 digits, DCF: 2 alpha + 10 digits
+    NJ: {
+      generators: { DAQ: () => l(1) + d(14), DCF: () => l(2) + d(10) }
+    },
+    // New Mexico — DAQ: 9 digits, DCF: 9 digits
+    NM: {
+      generators: { DAQ: () => d(9), DCF: () => d(9) }
+    },
+    // New York — DAQ: 9 digits, DCF: 10 digits
+    NY: {
+      validators: { DAQ: (val) => /^[0-9]{9}$/.test(val) },
+      generators: { DAQ: () => d(9), DCF: () => d(10) }
+    },
+    // North Carolina — DAQ: 12 digits, DCF: 2 alpha + 8 digits
+    NC: {
+      generators: { DAQ: () => d(12), DCF: () => l(2) + d(8) }
+    },
+    // North Dakota — DAQ: 3 letters + 6 digits, DCF: 9 digits
+    ND: {
+      generators: { DAQ: () => l(3) + d(6), DCF: () => d(9) }
+    },
+    // Ohio — DAQ: 2 letters + 6 digits, DCF: 8 alphanumeric
+    OH: {
+      generators: { DAQ: () => l(2) + d(6), DCF: () => an(8) }
+    },
+    // Oklahoma — DAQ: letter + 9 digits, DCF: 10 digits
+    OK: {
+      generators: { DAQ: () => l(1) + d(9), DCF: () => d(10) }
+    },
+    // Oregon — DAQ: 7 digits, DCF: 2 alpha + 8 digits
+    OR: {
+      generators: { DAQ: () => d(7), DCF: () => l(2) + d(8) }
+    },
+    // Pennsylvania — DAQ: 8 digits, DCF: 2 alpha + 8 digits
+    PA: {
+      generators: { DAQ: () => d(8), DCF: () => l(2) + d(8) }
+    },
+    // Rhode Island — DAQ: 7 digits, DCF: 8 digits
+    RI: {
+      generators: { DAQ: () => d(7), DCF: () => d(8) }
+    },
+    // South Carolina — DAQ: 9 digits, DCF: 2 alpha + 8 digits
+    SC: {
+      generators: { DAQ: () => d(9), DCF: () => l(2) + d(8) }
+    },
+    // South Dakota — DAQ: 8 digits, DCF: 8 digits
+    SD: {
+      generators: { DAQ: () => d(8), DCF: () => d(8) }
+    },
+    // Tennessee — DAQ: 9 digits, DCF: 10 digits
+    TN: {
+      generators: { DAQ: () => d(9), DCF: () => d(10) }
+    },
+    // Texas — DAQ: 8 digits, DCF: 2 digits + 6 alpha + 4 digits
+    TX: {
+      validators: { DAQ: (val) => /^[0-9]{8}$/.test(val) },
+      generators: { DAQ: () => d(8), DCF: () => d(2) + l(6) + d(4) }
+    },
+    // Utah — DAQ: 9 digits, DCF: 9 digits
+    UT: {
+      generators: { DAQ: () => d(9), DCF: () => d(9) }
+    },
+    // Vermont — DAQ: 8 digits, DCF: 2 alpha + 8 digits
+    VT: {
+      generators: { DAQ: () => d(8), DCF: () => l(2) + d(8) }
+    },
+    // Virginia — DAQ: letter + 8 digits, DCF: 2 alpha + 9 digits
+    VA: {
+      generators: { DAQ: () => l(1) + d(8), DCF: () => l(2) + d(9) }
+    },
+    // Washington — DAQ: 7 alpha + 5 digits (12-char Soundex-derived), DCF: 2 alpha + 10 digits
+    WA: {
+      generators: { DAQ: () => l(7) + d(5), DCF: () => l(2) + d(10) }
+    },
+    // West Virginia — DAQ: letter + 6 digits, DCF: 8 digits
+    WV: {
+      generators: { DAQ: () => l(1) + d(6), DCF: () => d(8) }
+    },
+    // Wisconsin — DAQ: letter + 13 digits, DCF: 2 alpha + 8 digits
+    WI: {
+      generators: { DAQ: () => l(1) + d(13), DCF: () => l(2) + d(8) }
+    },
+    // Wyoming — DAQ: 9 digits, DCF: 9 digits
+    WY: {
+      generators: { DAQ: () => d(9), DCF: () => d(9) }
+    },
+    // District of Columbia — DAQ: 7 digits, DCF: 10 digits
+    DC: {
+      generators: { DAQ: () => d(7), DCF: () => d(10) }
     }
-  },
-  PA: {
-    generators: {
-      // PA DCF: 2 alpha + 8 digits (e.g., "AB12345678")
-      DCF: () => {
-        const a = String.fromCharCode(65 + Math.floor(Math.random() * 26));
-        const b = String.fromCharCode(65 + Math.floor(Math.random() * 26));
-        const numbers = Math.floor(Math.random() * 100000000)
-          .toString()
-          .padStart(8, "0");
-        return a + b + numbers;
-      }
-    }
-  },
-  IL: {
-    generators: {
-      // IL DCF: 3 alpha + 9 digits (e.g., "ABC123456789")
-      DCF: () => {
-        let alpha = "";
-        for (let i = 0; i < 3; i++) {
-          alpha += String.fromCharCode(65 + Math.floor(Math.random() * 26));
-        }
-        const numbers = Math.floor(Math.random() * 1000000000)
-          .toString()
-          .padStart(9, "0");
-        return alpha + numbers;
-      }
-    }
-  },
-  OH: {
-    generators: {
-      // OH DCF: 8 uppercase alphanumeric (e.g., "A1B2C3D4")
-      DCF: () => {
-        const charset = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-        let result = "";
-        for (let i = 0; i < 8; i++) {
-          result += charset[Math.floor(Math.random() * charset.length)];
-        }
-        return result;
-      }
-    }
-  }
-};
+  };
+})();
 
 /* ========== STATE-SPECIFIC FIELD EXCLUSIONS ========== */
 // Optional fields that specific states omit from their physical license barcodes.
@@ -951,6 +1051,23 @@ window.generateStateDiscriminator = function (stateCode) {
     return window.AAMVA_STATE_RULES[stateCode].generators.DCF();
   }
   return window.generateDocumentDiscriminator();
+};
+
+// Generate a state-specific Customer ID Number (DAQ) if a DAQ generator is
+// defined for the state, otherwise fall back to a generic 9-digit number.
+window.generateStateLicenseNumber = function (stateCode) {
+  if (
+    stateCode &&
+    window.AAMVA_STATE_RULES[stateCode] &&
+    window.AAMVA_STATE_RULES[stateCode].generators &&
+    window.AAMVA_STATE_RULES[stateCode].generators.DAQ
+  ) {
+    return window.AAMVA_STATE_RULES[stateCode].generators.DAQ();
+  }
+  // Generic fallback: 9 digits
+  let s = "";
+  for (let i = 0; i < 9; i++) s += Math.floor(Math.random() * 10);
+  return s;
 };
 
 // Generate AAMVA compliant payload string
