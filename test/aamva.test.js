@@ -649,13 +649,35 @@ test("generateStateCardRevisionDate returns valid MMDDYYYY dates for all states"
     const yyyy = Number.parseInt(ddb.substring(4, 8), 10);
     assert.ok(mm >= 1 && mm <= 12, `${state} DDB month ${mm} should be 1-12`);
     assert.ok(dd >= 1 && dd <= 31, `${state} DDB day ${dd} should be 1-31`);
-    assert.ok(yyyy >= 2015 && yyyy <= 2025, `${state} DDB year ${yyyy} should be 2015-2025`);
+    // Year range covers v04 (2009) through v10 (2024)
+    assert.ok(yyyy >= 2009 && yyyy <= 2024, `${state} DDB year ${yyyy} should be 2009-2024`);
 
     // Verify the date actually exists (no Feb 30, etc.)
     const dt = new Date(Date.UTC(yyyy, mm - 1, dd));
     assert.equal(dt.getUTCMonth(), mm - 1, `${state} DDB month should round-trip`);
     assert.equal(dt.getUTCDate(), dd, `${state} DDB day should round-trip`);
   }
+});
+
+test("generateStateCardRevisionDate respects issue date (DBD) cap", () => {
+  // Use a v10 state (CA) whose era range is 2019-2024.
+  // Pass an issue date of Jan 1 2020 — DDB must fall on or before it.
+  for (let i = 0; i < 20; i++) {
+    const ddb = window.generateStateCardRevisionDate("CA", "01012020");
+    assert.ok(ddb, "CA should return a DDB");
+    const mm = Number.parseInt(ddb.substring(0, 2), 10);
+    const dd = Number.parseInt(ddb.substring(2, 4), 10);
+    const yyyy = Number.parseInt(ddb.substring(4, 8), 10);
+    const ddbDate = Date.UTC(yyyy, mm - 1, dd);
+    const capDate = Date.UTC(2020, 0, 1);
+    assert.ok(ddbDate <= capDate, `CA DDB ${ddb} should be on or before 01012020`);
+  }
+});
+
+test("generateStateCardRevisionDate ignores invalid issue date gracefully", () => {
+  const ddb = window.generateStateCardRevisionDate("CA", "invalid");
+  assert.ok(ddb, "Should still generate a DDB when issue date is invalid");
+  assert.match(ddb, /^\d{8}$/, "DDB should be 8 digits");
 });
 
 test("generateStateCardRevisionDate returns null for unknown state", () => {
@@ -674,6 +696,28 @@ test("DDB values pass field validation for all states", () => {
       window.validateFieldValue(ddbField, ddb, state),
       `${state} DDB '${ddb}' should pass field validation`
     );
+  }
+});
+
+test("DDB dates fall within the expected version era range for each state", () => {
+  const eraRanges = {
+    "10": [2019, 2024], "09": [2015, 2020], "08": [2013, 2017],
+    "07": [2012, 2015], "06": [2011, 2014], "05": [2010, 2013], "04": [2009, 2012]
+  };
+  const states = Object.keys(window.AAMVA_STATES).filter(
+    (s) => window.AAMVA_STATES[s].supported !== false
+  );
+  for (const state of states) {
+    const ver = window.AAMVA_STATES[state].aamvaVersion;
+    const range = eraRanges[ver] || eraRanges["09"];
+    for (let i = 0; i < 5; i++) {
+      const ddb = window.generateStateCardRevisionDate(state);
+      const yyyy = Number.parseInt(ddb.substring(4, 8), 10);
+      assert.ok(
+        yyyy >= range[0] && yyyy <= range[1],
+        `${state} (v${ver}) DDB year ${yyyy} should be in ${range[0]}-${range[1]}`
+      );
+    }
   }
 });
 

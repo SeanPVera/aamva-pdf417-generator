@@ -223,7 +223,10 @@ function renderFields(preserveValues) {
         genBtn.textContent = "Generate";
         genBtn.setAttribute("aria-label", "Auto-fill Card Revision Date for this state");
         genBtn.addEventListener("click", function () {
-          const date = window.generateStateCardRevisionDate(currentState);
+          // Read Document Issue Date (DBD) so DDB is always on or before it
+          const dbdEl = document.getElementById("DBD");
+          const issueDateStr = dbdEl && dbdEl.value ? dbdEl.value : undefined;
+          const date = window.generateStateCardRevisionDate(currentState, issueDateStr);
           if (date) {
             input.value = date;
             input.dispatchEvent(new Event("input", { bubbles: true }));

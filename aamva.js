@@ -239,25 +239,49 @@ window.AAMVA_STATE_RULES = (() => {
     return s;
   };
 
-  // Card Revision Dates (DDB) per state — MMDDYYYY format.
-  // Represents the date each state last revised their physical card design.
-  // Version 10 states: adopted the 2020 CDS standard.
-  // Version 09 states: adopted the 2016 CDS standard.
-  const DDB_DATES = {
-    AL: "06012018", AK: "01152019", AZ: "10012021", AR: "08012017",
-    CA: "01152020", CO: "06012021", CT: "10012017", DE: "04012018",
-    FL: "01012020", GA: "09012022", HI: "03012022", ID: "06012018",
-    IL: "07012022", IN: "11012017", IA: "05012018", KS: "07012018",
-    KY: "02012019", LA: "09012017", ME: "03012019", MD: "10012020",
-    MA: "12012018", MI: "08012021", MN: "10012018", MS: "08012019",
-    MO: "04012019", MT: "07012017", NE: "05012021", NV: "11012018",
-    NH: "01012019", NJ: "11012021", NM: "05012017", NY: "10012022",
-    NC: "02012023", ND: "02012018", OH: "04012023", OK: "09012019",
-    OR: "07012022", PA: "09012021", RI: "06012018", SC: "06012021",
-    SD: "03012018", TN: "08012018", TX: "02012022", UT: "12012017",
-    VT: "10012017", VA: "01012021", WA: "07012022", WV: "07012019",
-    WI: "12012020", WY: "04012018", DC: "03012021"
+  // Plausible card revision date ranges by AAMVA version era.
+  // States adopt new AAMVA versions when they redesign their physical cards,
+  // so the DDB (Card Revision Date) falls within a window tied to version adoption.
+  // Each range is [startYear, endYear] inclusive.
+  const VERSION_ERA_RANGES = {
+    "10": [2019, 2024], // 2020 CDS — states adopting 2019-2024
+    "09": [2015, 2020], // 2016 CDS — states adopting 2015-2020
+    "08": [2013, 2017], // 2013 CDS
+    "07": [2012, 2015], // 2012 CDS
+    "06": [2011, 2014], // 2011 CDS
+    "05": [2010, 2013], // 2010 CDS
+    "04": [2009, 2012]  // 2009 CDS
   };
+
+  // Generate a random date in MMDDYYYY format within a year range, optionally
+  // capped by an issue date so that DDB always falls on or before it.
+  function randomDateInRange(startYear, endYear, beforeDateStr) {
+    let capMs = null;
+    if (beforeDateStr && /^\d{8}$/.test(beforeDateStr)) {
+      // beforeDateStr is MMDDYYYY
+      const bm = Number.parseInt(beforeDateStr.substring(0, 2), 10);
+      const bd = Number.parseInt(beforeDateStr.substring(2, 4), 10);
+      const by = Number.parseInt(beforeDateStr.substring(4, 8), 10);
+      if (bm >= 1 && bm <= 12 && bd >= 1 && bd <= 31 && by >= 1900) {
+        capMs = Date.UTC(by, bm - 1, bd);
+      }
+    }
+    const rangeStart = Date.UTC(startYear, 0, 1);
+    let rangeEnd = Date.UTC(endYear, 11, 31);
+    if (capMs !== null && capMs < rangeEnd) {
+      rangeEnd = capMs;
+    }
+    // If the cap pushed end before start, just use the start date
+    if (rangeEnd < rangeStart) {
+      rangeEnd = rangeStart;
+    }
+    const ts = rangeStart + Math.floor(Math.random() * (rangeEnd - rangeStart + 1));
+    const dt = new Date(ts);
+    const mm = String(dt.getUTCMonth() + 1).padStart(2, "0");
+    const dd = String(dt.getUTCDate()).padStart(2, "0");
+    const yyyy = String(dt.getUTCFullYear());
+    return mm + dd + yyyy;
+  }
 
   const rules = {
     // Alabama — DAQ: 7 digits, DCF: 8 digits
@@ -473,11 +497,16 @@ window.AAMVA_STATE_RULES = (() => {
     }
   };
 
-  // Merge DDB (Card Revision Date) generators from the dates table
-  for (const [state, date] of Object.entries(DDB_DATES)) {
-    if (rules[state] && rules[state].generators) {
-      rules[state].generators.DDB = () => date;
-    }
+  // Merge DDB (Card Revision Date) generators — each generator derives a
+  // plausible date from the state's AAMVA version era, optionally capped by
+  // the Document Issue Date (DBD) so DDB is always on or before it.
+  for (const state of Object.keys(rules)) {
+    const stateDef = window.AAMVA_STATES[state];
+    if (!stateDef || !rules[state].generators) continue;
+    const ver = stateDef.aamvaVersion;
+    const range = VERSION_ERA_RANGES[ver] || VERSION_ERA_RANGES["09"];
+    rules[state].generators.DDB = (issueDateStr) =>
+      randomDateInRange(range[0], range[1], issueDateStr);
   }
 
   return rules;
@@ -1101,14 +1130,16 @@ window.generateStateLicenseNumber = function (stateCode) {
 
 // Return the Card Revision Date (DDB) for a state if one is defined,
 // otherwise return null (DDB is optional, so no generic fallback).
-window.generateStateCardRevisionDate = function (stateCode) {
+// Accepts an optional issueDateStr (MMDDYYYY) so the generated DDB
+// is guaranteed to fall on or before the document issue date.
+window.generateStateCardRevisionDate = function (stateCode, issueDateStr) {
   if (
     stateCode &&
     window.AAMVA_STATE_RULES[stateCode] &&
     window.AAMVA_STATE_RULES[stateCode].generators &&
     window.AAMVA_STATE_RULES[stateCode].generators.DDB
   ) {
-    return window.AAMVA_STATE_RULES[stateCode].generators.DDB();
+    return window.AAMVA_STATE_RULES[stateCode].generators.DDB(issueDateStr);
   }
   return null;
 };
@@ -1140,7 +1171,8 @@ window.generateAAMVAPayload = function (stateCode, version, fields, dataObj, opt
     const generators = window.AAMVA_STATE_RULES[stateCode].generators;
     for (const [code, generator] of Object.entries(generators)) {
       if (options.autoGenerateDiscriminator && !dataObj[code]) {
-        dataObj[code] = generator();
+        // DDB generator accepts the issue date (DBD) so DDB <= DBD
+        dataObj[code] = code === "DDB" ? generator(dataObj.DBD) : generator();
       }
     }
   }
