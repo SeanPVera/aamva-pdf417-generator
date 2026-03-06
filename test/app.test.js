@@ -181,4 +181,19 @@ test("APP.JS - DOM Integration Tests", async (t) => {
     assert.equal(dcsInput.value, "", "DCS input should be cleared");
   });
 
+  await t.test("Barcode sizer enforces minimum quiet zone for scannability", async () => {
+    const quietZoneInput = document.getElementById("quietZone");
+    const info = document.getElementById("sizerInfo");
+
+    quietZoneInput.value = "0";
+    quietZoneInput.dispatchEvent(new Event("input"));
+    await wait();
+
+    assert.match(
+      info.textContent,
+      /Quiet zone: 2 modules each side/,
+      "Quiet zone should clamp to minimum 2 modules"
+    );
+  });
+
 });

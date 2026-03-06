@@ -38,6 +38,37 @@ const SIZE_PRESETS = {
   large: { widthMM: 89, heightMM: 32 }
 };
 
+const SCANNABILITY_LIMITS = {
+  widthMM: { min: 20, max: 120 },
+  heightMM: { min: 8, max: 60 },
+  moduleWidthMil: { min: 6, max: 25 },
+  dpi: { min: 72, max: 600 },
+  quietZone: { min: 2, max: 10 }
+};
+
+function clampNumber(value, min, max, fallback) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return fallback;
+  return Math.min(max, Math.max(min, n));
+}
+
+function normalizeSizerValues(raw) {
+  return {
+    widthMM: clampNumber(raw.widthMM, SCANNABILITY_LIMITS.widthMM.min, SCANNABILITY_LIMITS.widthMM.max, 76),
+    heightMM: clampNumber(raw.heightMM, SCANNABILITY_LIMITS.heightMM.min, SCANNABILITY_LIMITS.heightMM.max, 25),
+    moduleWidthMil: clampNumber(
+      raw.moduleWidthMil,
+      SCANNABILITY_LIMITS.moduleWidthMil.min,
+      SCANNABILITY_LIMITS.moduleWidthMil.max,
+      15
+    ),
+    dpi: Math.round(clampNumber(raw.dpi, SCANNABILITY_LIMITS.dpi.min, SCANNABILITY_LIMITS.dpi.max, 300)),
+    quietZone: Math.round(
+      clampNumber(raw.quietZone, SCANNABILITY_LIMITS.quietZone.min, SCANNABILITY_LIMITS.quietZone.max, 2)
+    )
+  };
+}
+
 /* ============================================================
    INITIALIZATION
    ============================================================ */
@@ -467,13 +498,15 @@ function hookKeyboardShortcuts() {
    ============================================================ */
 
 function getSizerValues() {
-  return {
+  const raw = {
     widthMM: parseFloat(document.getElementById("barcodeWidthMM").value) || 76,
     heightMM: parseFloat(document.getElementById("barcodeHeightMM").value) || 25,
     moduleWidthMil: parseFloat(document.getElementById("moduleWidthMil").value) || 15,
     dpi: parseInt(document.getElementById("exportDPI").value, 10) || 300,
     quietZone: parseInt(document.getElementById("quietZone").value, 10) || 2
   };
+
+  return normalizeSizerValues(raw);
 }
 
 function hookSizerEvents() {
