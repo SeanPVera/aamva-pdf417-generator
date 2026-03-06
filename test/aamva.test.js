@@ -506,6 +506,221 @@ test("generateDocumentDiscriminator returns uppercase alphanumeric token", () =>
   assert.match(discriminator, /^[A-Z2-9]+$/, "Should only include scanner-safe uppercase chars");
 });
 
+test("generateStateDiscriminator uses state-specific DCF format for CA", () => {
+  const dcf = window.generateStateDiscriminator("CA");
+  assert.match(dcf, /^[A-Z]{2}\d{4}\/\d{4}\/\d{4}$/, "CA DCF should be 2 alpha + 4d/4d/4d");
+});
+
+test("generateStateDiscriminator uses state-specific DCF format for NY", () => {
+  const dcf = window.generateStateDiscriminator("NY");
+  assert.match(dcf, /^\d{10}$/, "NY DCF should be 10 digits");
+});
+
+test("generateStateDiscriminator uses state-specific DCF format for TX", () => {
+  const dcf = window.generateStateDiscriminator("TX");
+  assert.match(dcf, /^\d{2}[A-Z]{6}\d{4}$/, "TX DCF should be 2d + 6 alpha + 4d");
+});
+
+test("generateStateDiscriminator uses state-specific DCF format for FL", () => {
+  const dcf = window.generateStateDiscriminator("FL");
+  assert.match(dcf, /^[A-Z]\d{11}$/, "FL DCF should be letter + 11 digits");
+});
+
+test("generateStateDiscriminator falls back to generic when stateCode is null", () => {
+  const dcf = window.generateStateDiscriminator(null);
+  assert.equal(dcf.length, 12, "Null state should use generic 12-char format");
+  assert.match(dcf, /^[A-Z2-9]+$/, "Null state should use scanner-safe chars");
+});
+
+test("all 50 states + DC have DCF generators in AAMVA_STATE_RULES", () => {
+  const statesWithDCF = Object.keys(window.AAMVA_STATES).filter(
+    (s) => window.AAMVA_STATES[s].supported !== false
+  );
+  for (const state of statesWithDCF) {
+    const rules = window.AAMVA_STATE_RULES[state];
+    assert.ok(rules, `${state} should have state rules`);
+    assert.ok(rules.generators, `${state} should have generators`);
+    assert.ok(rules.generators.DCF, `${state} should have DCF generator`);
+    const dcf = rules.generators.DCF();
+    assert.ok(dcf.length > 0, `${state} DCF should not be empty`);
+    assert.ok(dcf.length <= 25, `${state} DCF (${dcf.length} chars) should not exceed 25-char limit`);
+  }
+});
+
+test("all 50 states + DC have DAQ generators in AAMVA_STATE_RULES", () => {
+  const statesWithDAQ = Object.keys(window.AAMVA_STATES).filter(
+    (s) => window.AAMVA_STATES[s].supported !== false
+  );
+  for (const state of statesWithDAQ) {
+    const rules = window.AAMVA_STATE_RULES[state];
+    assert.ok(rules, `${state} should have state rules`);
+    assert.ok(rules.generators, `${state} should have generators`);
+    assert.ok(rules.generators.DAQ, `${state} should have DAQ generator`);
+    const daq = rules.generators.DAQ();
+    assert.ok(daq.length > 0, `${state} DAQ should not be empty`);
+    assert.ok(daq.length <= 25, `${state} DAQ (${daq.length} chars) should not exceed 25-char limit`);
+  }
+});
+
+test("generateStateLicenseNumber produces state-specific DAQ values", () => {
+  // CA: letter + 7 digits
+  assert.match(window.generateStateLicenseNumber("CA"), /^[A-Z]\d{7}$/);
+  // NY: 9 digits
+  assert.match(window.generateStateLicenseNumber("NY"), /^\d{9}$/);
+  // TX: 8 digits
+  assert.match(window.generateStateLicenseNumber("TX"), /^\d{8}$/);
+  // FL: letter + 12 digits
+  assert.match(window.generateStateLicenseNumber("FL"), /^[A-Z]\d{12}$/);
+  // OH: 2 letters + 6 digits
+  assert.match(window.generateStateLicenseNumber("OH"), /^[A-Z]{2}\d{6}$/);
+  // NH: 2 digits + 3 letters + 5 digits
+  assert.match(window.generateStateLicenseNumber("NH"), /^\d{2}[A-Z]{3}\d{5}$/);
+  // WI: letter + 13 digits
+  assert.match(window.generateStateLicenseNumber("WI"), /^[A-Z]\d{13}$/);
+  // ID: 2 letters + 6 digits + letter
+  assert.match(window.generateStateLicenseNumber("ID"), /^[A-Z]{2}\d{6}[A-Z]$/);
+  // WA: 7 letters + 5 digits
+  assert.match(window.generateStateLicenseNumber("WA"), /^[A-Z]{7}\d{5}$/);
+});
+
+test("generateStateLicenseNumber falls back to generic when stateCode is null", () => {
+  const daq = window.generateStateLicenseNumber(null);
+  assert.equal(daq.length, 9, "Null state should use generic 9-digit format");
+  assert.match(daq, /^\d{9}$/, "Null state should produce 9 digits");
+});
+
+test("generated DAQ values pass validation for states with validators", () => {
+  const statesWithValidators = ["CA", "NY", "TX", "FL"];
+  for (const state of statesWithValidators) {
+    const daq = window.generateStateLicenseNumber(state);
+    const validator = window.AAMVA_STATE_RULES[state].validators.DAQ;
+    assert.ok(validator(daq), `Generated DAQ '${daq}' should pass ${state} validator`);
+  }
+});
+
+test("generateStateDiscriminator produces values within field length limit for all states", () => {
+  const states = Object.keys(window.AAMVA_STATES).filter(
+    (s) => window.AAMVA_STATES[s].supported !== false
+  );
+  for (const state of states) {
+    const dcf = window.generateStateDiscriminator(state);
+    assert.ok(
+      dcf.length <= window.AAMVA_FIELD_LIMITS.DCF,
+      `${state} DCF '${dcf}' (${dcf.length} chars) exceeds limit ${window.AAMVA_FIELD_LIMITS.DCF}`
+    );
+  }
+});
+
+test("generateStateLicenseNumber produces values within field length limit for all states", () => {
+  const states = Object.keys(window.AAMVA_STATES).filter(
+    (s) => window.AAMVA_STATES[s].supported !== false
+  );
+  for (const state of states) {
+    const daq = window.generateStateLicenseNumber(state);
+    assert.ok(
+      daq.length <= window.AAMVA_FIELD_LIMITS.DAQ,
+      `${state} DAQ '${daq}' (${daq.length} chars) exceeds limit ${window.AAMVA_FIELD_LIMITS.DAQ}`
+    );
+  }
+});
+
+test("all 50 states + DC have DDB generators in AAMVA_STATE_RULES", () => {
+  const states = Object.keys(window.AAMVA_STATES).filter(
+    (s) => window.AAMVA_STATES[s].supported !== false
+  );
+  for (const state of states) {
+    const rules = window.AAMVA_STATE_RULES[state];
+    assert.ok(rules.generators.DDB, `${state} should have DDB generator`);
+  }
+});
+
+test("generateStateCardRevisionDate returns valid MMDDYYYY dates for all states", () => {
+  const states = Object.keys(window.AAMVA_STATES).filter(
+    (s) => window.AAMVA_STATES[s].supported !== false
+  );
+  for (const state of states) {
+    const ddb = window.generateStateCardRevisionDate(state);
+    assert.ok(ddb, `${state} should have a card revision date`);
+    assert.match(ddb, /^\d{8}$/, `${state} DDB should be 8 digits`);
+
+    // Validate as a real date (MMDDYYYY)
+    const mm = Number.parseInt(ddb.substring(0, 2), 10);
+    const dd = Number.parseInt(ddb.substring(2, 4), 10);
+    const yyyy = Number.parseInt(ddb.substring(4, 8), 10);
+    assert.ok(mm >= 1 && mm <= 12, `${state} DDB month ${mm} should be 1-12`);
+    assert.ok(dd >= 1 && dd <= 31, `${state} DDB day ${dd} should be 1-31`);
+    // Year range covers v04 (2009) through v10 (2024)
+    assert.ok(yyyy >= 2009 && yyyy <= 2024, `${state} DDB year ${yyyy} should be 2009-2024`);
+
+    // Verify the date actually exists (no Feb 30, etc.)
+    const dt = new Date(Date.UTC(yyyy, mm - 1, dd));
+    assert.equal(dt.getUTCMonth(), mm - 1, `${state} DDB month should round-trip`);
+    assert.equal(dt.getUTCDate(), dd, `${state} DDB day should round-trip`);
+  }
+});
+
+test("generateStateCardRevisionDate respects issue date (DBD) cap", () => {
+  // Use a v10 state (CA) whose era range is 2019-2024.
+  // Pass an issue date of Jan 1 2020 — DDB must fall on or before it.
+  for (let i = 0; i < 20; i++) {
+    const ddb = window.generateStateCardRevisionDate("CA", "01012020");
+    assert.ok(ddb, "CA should return a DDB");
+    const mm = Number.parseInt(ddb.substring(0, 2), 10);
+    const dd = Number.parseInt(ddb.substring(2, 4), 10);
+    const yyyy = Number.parseInt(ddb.substring(4, 8), 10);
+    const ddbDate = Date.UTC(yyyy, mm - 1, dd);
+    const capDate = Date.UTC(2020, 0, 1);
+    assert.ok(ddbDate <= capDate, `CA DDB ${ddb} should be on or before 01012020`);
+  }
+});
+
+test("generateStateCardRevisionDate ignores invalid issue date gracefully", () => {
+  const ddb = window.generateStateCardRevisionDate("CA", "invalid");
+  assert.ok(ddb, "Should still generate a DDB when issue date is invalid");
+  assert.match(ddb, /^\d{8}$/, "DDB should be 8 digits");
+});
+
+test("generateStateCardRevisionDate returns null for unknown state", () => {
+  assert.equal(window.generateStateCardRevisionDate(null), null);
+  assert.equal(window.generateStateCardRevisionDate("ZZ"), null);
+});
+
+test("DDB values pass field validation for all states", () => {
+  const ddbField = { code: "DDB", type: "date", label: "Card Revision Date" };
+  const states = Object.keys(window.AAMVA_STATES).filter(
+    (s) => window.AAMVA_STATES[s].supported !== false
+  );
+  for (const state of states) {
+    const ddb = window.generateStateCardRevisionDate(state);
+    assert.ok(
+      window.validateFieldValue(ddbField, ddb, state),
+      `${state} DDB '${ddb}' should pass field validation`
+    );
+  }
+});
+
+test("DDB dates fall within the expected version era range for each state", () => {
+  const eraRanges = {
+    "10": [2019, 2024], "09": [2015, 2020], "08": [2013, 2017],
+    "07": [2012, 2015], "06": [2011, 2014], "05": [2010, 2013], "04": [2009, 2012]
+  };
+  const states = Object.keys(window.AAMVA_STATES).filter(
+    (s) => window.AAMVA_STATES[s].supported !== false
+  );
+  for (const state of states) {
+    const ver = window.AAMVA_STATES[state].aamvaVersion;
+    const range = eraRanges[ver] || eraRanges["09"];
+    for (let i = 0; i < 5; i++) {
+      const ddb = window.generateStateCardRevisionDate(state);
+      const yyyy = Number.parseInt(ddb.substring(4, 8), 10);
+      assert.ok(
+        yyyy >= range[0] && yyyy <= range[1],
+        `${state} (v${ver}) DDB year ${yyyy} should be in ${range[0]}-${range[1]}`
+      );
+    }
+  }
+});
+
 test("generateAAMVAPayload auto-generates DCF when requested", () => {
   const { fields, dataObj } = makeTestData("NY", "10");
   fillV09TestData(dataObj);
@@ -516,7 +731,8 @@ test("generateAAMVAPayload auto-generates DCF when requested", () => {
   });
 
   assert.ok(dataObj.DCF, "DCF should be populated when auto-generate is enabled");
-  assert.match(dataObj.DCF, /^[A-Z2-9]+$/, "Generated DCF should be scanner-safe");
+  // NY has a state-specific DCF generator (10 digits)
+  assert.match(dataObj.DCF, /^\d{10}$/, "NY DCF should match state-specific 10-digit format");
   assert.ok(payload.includes(`DCF${dataObj.DCF}`), "Payload should include generated DCF value");
 });
 test("generateAAMVAPayload directory length matches DL subfile bytes", () => {
@@ -1121,4 +1337,84 @@ test("golden vector: DAK postal code is always exactly 11 chars in payload", () 
   const dakMatch = payload.match(/DAK(.{11})\n/);
   assert.ok(dakMatch, "DAK field must be present and followed by exactly 11 characters");
   assert.equal(dakMatch[1], "90210      ", "5-digit ZIP must be padded to 11 chars");
+});
+
+/* ============================================================
+   STATE-SPECIFIC FIELD EXCLUSIONS
+   ============================================================ */
+
+test("AAMVA_STATE_EXCLUDED_FIELDS is defined", () => {
+  assert.ok(window.AAMVA_STATE_EXCLUDED_FIELDS, "AAMVA_STATE_EXCLUDED_FIELDS should be defined");
+  assert.equal(typeof window.AAMVA_STATE_EXCLUDED_FIELDS, "object");
+});
+
+test("state exclusion entries contain only valid field codes", () => {
+  // Gather all known field codes across all versions
+  const allCodes = new Set();
+  for (const v of Object.keys(window.AAMVA_VERSIONS)) {
+    for (const f of window.AAMVA_VERSIONS[v].fields) {
+      allCodes.add(f.code);
+    }
+  }
+
+  for (const [state, excluded] of Object.entries(window.AAMVA_STATE_EXCLUDED_FIELDS)) {
+    assert.ok(Array.isArray(excluded), `${state} exclusions should be an array`);
+    for (const code of excluded) {
+      assert.ok(allCodes.has(code), `${state} excluded field "${code}" must be a valid AAMVA field code`);
+    }
+  }
+});
+
+test("state exclusions never exclude required fields", () => {
+  for (const [state, excluded] of Object.entries(window.AAMVA_STATE_EXCLUDED_FIELDS)) {
+    const stateDef = window.AAMVA_STATES[state];
+    if (!stateDef) continue;
+    const version = stateDef.aamvaVersion;
+    const fields = window.getFieldsForVersion(version);
+    const requiredCodes = fields.filter(f => f.required).map(f => f.code);
+    for (const code of excluded) {
+      assert.ok(
+        !requiredCodes.includes(code),
+        `${state} must not exclude required field ${code} (v${version})`
+      );
+    }
+  }
+});
+
+test("getFieldsForStateAndVersion filters excluded optional fields", () => {
+  // NY excludes DAW (weight) — it's an optional field in v09
+  const nyFields = window.getFieldsForStateAndVersion("NY", "09");
+  const nyCodes = nyFields.map(f => f.code);
+  assert.ok(!nyCodes.includes("DAW"), "NY should not include DAW (weight)");
+  assert.ok(!nyCodes.includes("DAZ"), "NY should not include DAZ (hair color)");
+  // But required fields like DCS should still be present
+  assert.ok(nyCodes.includes("DCS"), "NY should still include required field DCS");
+  assert.ok(nyCodes.includes("DAJ"), "NY should still include required field DAJ");
+});
+
+test("getFieldsForStateAndVersion keeps all required fields", () => {
+  for (const [state, excluded] of Object.entries(window.AAMVA_STATE_EXCLUDED_FIELDS)) {
+    const stateDef = window.AAMVA_STATES[state];
+    if (!stateDef) continue;
+    const version = stateDef.aamvaVersion;
+    const filtered = window.getFieldsForStateAndVersion(state, version);
+    const allFields = window.getFieldsForVersion(version);
+    const requiredCodes = allFields.filter(f => f.required).map(f => f.code);
+    const filteredCodes = filtered.map(f => f.code);
+    for (const code of requiredCodes) {
+      assert.ok(filteredCodes.includes(code), `${state}: required field ${code} must survive filtering`);
+    }
+  }
+});
+
+test("getFieldsForStateAndVersion returns all fields for unknown state", () => {
+  const allFields = window.getFieldsForVersion("09");
+  const filtered = window.getFieldsForStateAndVersion("ZZ", "09");
+  assert.equal(filtered.length, allFields.length, "unknown state should return all fields");
+});
+
+test("getFieldsForStateAndVersion returns all fields when stateCode is null", () => {
+  const allFields = window.getFieldsForVersion("09");
+  const filtered = window.getFieldsForStateAndVersion(null, "09");
+  assert.equal(filtered.length, allFields.length, "null state should return all fields");
 });

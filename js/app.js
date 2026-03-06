@@ -138,7 +138,9 @@ function renderFields(preserveValues) {
 
   if (!currentVersion) return;
 
-  currentFields = window.getFieldsForVersion(currentVersion);
+  currentFields = currentState
+    ? window.getFieldsForStateAndVersion(currentState, currentVersion)
+    : window.getFieldsForVersion(currentVersion);
   currentAllowedFieldSet = new Set(["state", "version", ...currentFields.map((f) => f.code)]);
 
   currentFields.forEach((field) => {
@@ -212,6 +214,26 @@ function renderFields(preserveValues) {
       inputWrap.appendChild(picker);
 
       div.appendChild(inputWrap);
+
+      // Add "Generate" button for Card Revision Date (DDB) field
+      if (field.code === "DDB") {
+        const genBtn = document.createElement("button");
+        genBtn.type = "button";
+        genBtn.className = "generate-btn";
+        genBtn.textContent = "Generate";
+        genBtn.setAttribute("aria-label", "Auto-fill Card Revision Date for this state");
+        genBtn.addEventListener("click", function () {
+          // Read Document Issue Date (DBD) so DDB is always on or before it
+          const dbdEl = document.getElementById("DBD");
+          const issueDateStr = dbdEl && dbdEl.value ? dbdEl.value : undefined;
+          const date = window.generateStateCardRevisionDate(currentState, issueDateStr);
+          if (date) {
+            input.value = date;
+            input.dispatchEvent(new Event("input", { bubbles: true }));
+          }
+        });
+        div.appendChild(genBtn);
+      }
     } else {
       const input = document.createElement("input");
       input.type = "text";
@@ -220,6 +242,48 @@ function renderFields(preserveValues) {
       input.setAttribute("aria-label", field.label);
       if (maxLen) input.maxLength = maxLen;
       div.appendChild(input);
+
+      // Add "None" quick-select for restriction/endorsement code fields
+      if (field.code === "DCB" || field.code === "DCD") {
+        const noneBtn = document.createElement("button");
+        noneBtn.type = "button";
+        noneBtn.className = "none-btn";
+        noneBtn.textContent = "None";
+        noneBtn.setAttribute("aria-label", `Set ${field.label} to NONE`);
+        noneBtn.addEventListener("click", function () {
+          input.value = "NONE";
+          input.dispatchEvent(new Event("input", { bubbles: true }));
+        });
+        div.appendChild(noneBtn);
+      }
+
+      // Add "Generate" button for Document Discriminator (DCF) field
+      if (field.code === "DCF") {
+        const genBtn = document.createElement("button");
+        genBtn.type = "button";
+        genBtn.className = "generate-btn";
+        genBtn.textContent = "Generate";
+        genBtn.setAttribute("aria-label", "Auto-generate Document Discriminator");
+        genBtn.addEventListener("click", function () {
+          input.value = window.generateStateDiscriminator(currentState);
+          input.dispatchEvent(new Event("input", { bubbles: true }));
+        });
+        div.appendChild(genBtn);
+      }
+
+      // Add "Generate" button for Customer ID Number (DAQ) field
+      if (field.code === "DAQ") {
+        const genBtn = document.createElement("button");
+        genBtn.type = "button";
+        genBtn.className = "generate-btn";
+        genBtn.textContent = "Generate";
+        genBtn.setAttribute("aria-label", "Auto-generate Customer ID Number");
+        genBtn.addEventListener("click", function () {
+          input.value = window.generateStateLicenseNumber(currentState);
+          input.dispatchEvent(new Event("input", { bubbles: true }));
+        });
+        div.appendChild(genBtn);
+      }
     }
 
     // Add type hints for non-dropdown, non-date fields
@@ -261,9 +325,10 @@ function autoFillStateFields(stateCode) {
   const stateDef = window.AAMVA_STATES[stateCode];
   if (!stateDef) return;
 
-  // Auto-fill jurisdiction code (DAJ) with state code
+  // Auto-fill jurisdiction code (DAJ) with state code — always overwrite
+  // since DAJ must match the selected state per the AAMVA spec
   const daj = document.getElementById("DAJ");
-  if (daj && !daj.value) daj.value = stateCode;
+  if (daj) daj.value = stateCode;
 
   // Auto-fill country (DCG) with USA
   const dcg = document.getElementById("DCG");

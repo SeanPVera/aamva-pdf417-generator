@@ -214,66 +214,367 @@ window.AAMVA_FIELD_LIMITS = {
 };
 
 /* ========== STATE-SPECIFIC RULES ========== */
-// Define custom validation rules and auto-generation logic per state.
-// Currently covers a few examples, expandable as needed.
+// Validation rules and auto-generation logic for DAQ (license number) and
+// DCF (Document Discriminator) per state. Generators produce values that
+// match each state's expected format. States without a specific format
+// fall back to a generic generator via generateStateLicenseNumber() /
+// generateStateDiscriminator().
 
-window.AAMVA_STATE_RULES = {
-  CA: {
-    // California ID Validation
-    validators: {
-      DAQ: (val) => /^[A-Z][0-9]{7}$/.test(val) // Letter + 7 digits
-    },
-    // Auto-generate valid CA ID format
-    generators: {
-      DAQ: () => {
-        const letter = String.fromCharCode(65 + Math.floor(Math.random() * 26)); // A-Z
-        const numbers = Math.floor(Math.random() * 10000000)
-          .toString()
-          .padStart(7, "0");
-        return letter + numbers;
+window.AAMVA_STATE_RULES = (() => {
+  // Internal helpers — generate random digits, letters, or alphanumeric chars.
+  const d = (n) => {
+    let s = "";
+    for (let i = 0; i < n; i++) s += Math.floor(Math.random() * 10);
+    return s;
+  };
+  const l = (n) => {
+    let s = "";
+    for (let i = 0; i < n; i++) s += String.fromCharCode(65 + Math.floor(Math.random() * 26));
+    return s;
+  };
+  const an = (n) => {
+    const cs = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    let s = "";
+    for (let i = 0; i < n; i++) s += cs[Math.floor(Math.random() * cs.length)];
+    return s;
+  };
+
+  // Plausible card revision date ranges by AAMVA version era.
+  // States adopt new AAMVA versions when they redesign their physical cards,
+  // so the DDB (Card Revision Date) falls within a window tied to version adoption.
+  // Each range is [startYear, endYear] inclusive.
+  const VERSION_ERA_RANGES = {
+    "10": [2019, 2024], // 2020 CDS — states adopting 2019-2024
+    "09": [2015, 2020], // 2016 CDS — states adopting 2015-2020
+    "08": [2013, 2017], // 2013 CDS
+    "07": [2012, 2015], // 2012 CDS
+    "06": [2011, 2014], // 2011 CDS
+    "05": [2010, 2013], // 2010 CDS
+    "04": [2009, 2012]  // 2009 CDS
+  };
+
+  // Generate a random date in MMDDYYYY format within a year range, optionally
+  // capped by an issue date so that DDB always falls on or before it.
+  function randomDateInRange(startYear, endYear, beforeDateStr) {
+    let capMs = null;
+    if (beforeDateStr && /^\d{8}$/.test(beforeDateStr)) {
+      // beforeDateStr is MMDDYYYY
+      const bm = Number.parseInt(beforeDateStr.substring(0, 2), 10);
+      const bd = Number.parseInt(beforeDateStr.substring(2, 4), 10);
+      const by = Number.parseInt(beforeDateStr.substring(4, 8), 10);
+      if (bm >= 1 && bm <= 12 && bd >= 1 && bd <= 31 && by >= 1900) {
+        capMs = Date.UTC(by, bm - 1, bd);
       }
     }
-  },
-  NY: {
-    // New York ID Validation (9 digits)
-    validators: {
-      DAQ: (val) => /^[0-9]{9}$/.test(val)
-    },
-    generators: {
-      DAQ: () =>
-        Math.floor(Math.random() * 1000000000)
-          .toString()
-          .padStart(9, "0")
+    const rangeStart = Date.UTC(startYear, 0, 1);
+    let rangeEnd = Date.UTC(endYear, 11, 31);
+    if (capMs !== null && capMs < rangeEnd) {
+      rangeEnd = capMs;
     }
-  },
-  TX: {
-    // Texas ID Validation (8 digits)
-    validators: {
-      DAQ: (val) => /^[0-9]{8}$/.test(val)
-    },
-    generators: {
-      DAQ: () =>
-        Math.floor(Math.random() * 100000000)
-          .toString()
-          .padStart(8, "0")
+    // If the cap pushed end before start, just use the start date
+    if (rangeEnd < rangeStart) {
+      rangeEnd = rangeStart;
     }
-  },
-  FL: {
-    // Florida ID Validation (Letter + 12 digits, roughly)
-    // Simplified regex for basic validation
-    validators: {
-      DAQ: (val) => /^[A-Z][0-9]{12}$/.test(val)
-    },
-    generators: {
-      DAQ: () => {
-        const letter = String.fromCharCode(65 + Math.floor(Math.random() * 26));
-        const numbers = Math.floor(Math.random() * 1000000000000)
-          .toString()
-          .padStart(12, "0");
-        return letter + numbers;
-      }
-    }
+    const ts = rangeStart + Math.floor(Math.random() * (rangeEnd - rangeStart + 1));
+    const dt = new Date(ts);
+    const mm = String(dt.getUTCMonth() + 1).padStart(2, "0");
+    const dd = String(dt.getUTCDate()).padStart(2, "0");
+    const yyyy = String(dt.getUTCFullYear());
+    return mm + dd + yyyy;
   }
+
+  const rules = {
+    // Alabama — DAQ: 7 digits, DCF: 8 digits
+    AL: {
+      generators: { DAQ: () => d(7), DCF: () => d(8) }
+    },
+    // Alaska — DAQ: 7 digits, DCF: 2 alpha + 8 digits
+    AK: {
+      generators: { DAQ: () => d(7), DCF: () => l(2) + d(8) }
+    },
+    // Arizona — DAQ: letter + 8 digits, DCF: 2 alpha + 8 digits
+    AZ: {
+      generators: { DAQ: () => l(1) + d(8), DCF: () => l(2) + d(8) }
+    },
+    // Arkansas — DAQ: 9 digits, DCF: 9 digits
+    AR: {
+      generators: { DAQ: () => d(9), DCF: () => d(9) }
+    },
+    // California — DAQ: letter + 7 digits, DCF: 2 alpha + 4d/4d/4d
+    CA: {
+      validators: { DAQ: (val) => /^[A-Z][0-9]{7}$/.test(val) },
+      generators: {
+        DAQ: () => l(1) + d(7),
+        DCF: () => l(2) + d(4) + "/" + d(4) + "/" + d(4)
+      }
+    },
+    // Colorado — DAQ: 9 digits, DCF: 2 alpha + 8 digits
+    CO: {
+      generators: { DAQ: () => d(9), DCF: () => l(2) + d(8) }
+    },
+    // Connecticut — DAQ: 9 digits, DCF: 9 digits
+    CT: {
+      generators: { DAQ: () => d(9), DCF: () => d(9) }
+    },
+    // Delaware — DAQ: 7 digits, DCF: 8 digits
+    DE: {
+      generators: { DAQ: () => d(7), DCF: () => d(8) }
+    },
+    // Florida — DAQ: letter + 12 digits, DCF: letter + 11 digits
+    FL: {
+      validators: { DAQ: (val) => /^[A-Z][0-9]{12}$/.test(val) },
+      generators: { DAQ: () => l(1) + d(12), DCF: () => l(1) + d(11) }
+    },
+    // Georgia — DAQ: 9 digits, DCF: 10 digits
+    GA: {
+      generators: { DAQ: () => d(9), DCF: () => d(10) }
+    },
+    // Hawaii — DAQ: letter + 8 digits, DCF: 2 alpha + 8 digits
+    HI: {
+      generators: { DAQ: () => l(1) + d(8), DCF: () => l(2) + d(8) }
+    },
+    // Idaho — DAQ: 2 letters + 6 digits + letter, DCF: 2 alpha + 8 digits
+    ID: {
+      generators: { DAQ: () => l(2) + d(6) + l(1), DCF: () => l(2) + d(8) }
+    },
+    // Illinois — DAQ: letter + 11 digits, DCF: 3 alpha + 9 digits
+    IL: {
+      generators: { DAQ: () => l(1) + d(11), DCF: () => l(3) + d(9) }
+    },
+    // Indiana — DAQ: 10 digits, DCF: 10 digits
+    IN: {
+      generators: { DAQ: () => d(10), DCF: () => d(10) }
+    },
+    // Iowa — DAQ: 9 digits, DCF: 9 digits
+    IA: {
+      generators: { DAQ: () => d(9), DCF: () => d(9) }
+    },
+    // Kansas — DAQ: letter + 8 digits, DCF: 2 alpha + 8 digits
+    KS: {
+      generators: { DAQ: () => l(1) + d(8), DCF: () => l(2) + d(8) }
+    },
+    // Kentucky — DAQ: letter + 8 digits, DCF: 8 digits
+    KY: {
+      generators: { DAQ: () => l(1) + d(8), DCF: () => d(8) }
+    },
+    // Louisiana — DAQ: 9 digits, DCF: 10 digits
+    LA: {
+      generators: { DAQ: () => d(9), DCF: () => d(10) }
+    },
+    // Maine — DAQ: 7 digits, DCF: 8 digits
+    ME: {
+      generators: { DAQ: () => d(7), DCF: () => d(8) }
+    },
+    // Maryland — DAQ: letter + 12 digits, DCF: 2 alpha + 10 digits
+    MD: {
+      generators: { DAQ: () => l(1) + d(12), DCF: () => l(2) + d(10) }
+    },
+    // Massachusetts — DAQ: letter + 8 digits, DCF: 2 alpha + 9 digits
+    MA: {
+      generators: { DAQ: () => l(1) + d(8), DCF: () => l(2) + d(9) }
+    },
+    // Michigan — DAQ: letter + 12 digits, DCF: letter + 10 digits
+    MI: {
+      generators: { DAQ: () => l(1) + d(12), DCF: () => l(1) + d(10) }
+    },
+    // Minnesota — DAQ: letter + 12 digits, DCF: letter + 9 digits
+    MN: {
+      generators: { DAQ: () => l(1) + d(12), DCF: () => l(1) + d(9) }
+    },
+    // Mississippi — DAQ: 9 digits, DCF: 10 digits
+    MS: {
+      generators: { DAQ: () => d(9), DCF: () => d(10) }
+    },
+    // Missouri — DAQ: letter + 9 digits, DCF: 10 digits
+    MO: {
+      generators: { DAQ: () => l(1) + d(9), DCF: () => d(10) }
+    },
+    // Montana — DAQ: 9 digits, DCF: 9 alphanumeric
+    MT: {
+      generators: { DAQ: () => d(9), DCF: () => an(9) }
+    },
+    // Nebraska — DAQ: letter + 8 digits, DCF: 2 alpha + 8 digits
+    NE: {
+      generators: { DAQ: () => l(1) + d(8), DCF: () => l(2) + d(8) }
+    },
+    // Nevada — DAQ: 10 digits, DCF: 10 digits
+    NV: {
+      generators: { DAQ: () => d(10), DCF: () => d(10) }
+    },
+    // New Hampshire — DAQ: 2 digits + 3 letters + 5 digits, DCF: 2 alpha + 8 digits
+    NH: {
+      generators: { DAQ: () => d(2) + l(3) + d(5), DCF: () => l(2) + d(8) }
+    },
+    // New Jersey — DAQ: letter + 14 digits, DCF: 2 alpha + 10 digits
+    NJ: {
+      generators: { DAQ: () => l(1) + d(14), DCF: () => l(2) + d(10) }
+    },
+    // New Mexico — DAQ: 9 digits, DCF: 9 digits
+    NM: {
+      generators: { DAQ: () => d(9), DCF: () => d(9) }
+    },
+    // New York — DAQ: 9 digits, DCF: 10 digits
+    NY: {
+      validators: { DAQ: (val) => /^[0-9]{9}$/.test(val) },
+      generators: { DAQ: () => d(9), DCF: () => d(10) }
+    },
+    // North Carolina — DAQ: 12 digits, DCF: 2 alpha + 8 digits
+    NC: {
+      generators: { DAQ: () => d(12), DCF: () => l(2) + d(8) }
+    },
+    // North Dakota — DAQ: 3 letters + 6 digits, DCF: 9 digits
+    ND: {
+      generators: { DAQ: () => l(3) + d(6), DCF: () => d(9) }
+    },
+    // Ohio — DAQ: 2 letters + 6 digits, DCF: 8 alphanumeric
+    OH: {
+      generators: { DAQ: () => l(2) + d(6), DCF: () => an(8) }
+    },
+    // Oklahoma — DAQ: letter + 9 digits, DCF: 10 digits
+    OK: {
+      generators: { DAQ: () => l(1) + d(9), DCF: () => d(10) }
+    },
+    // Oregon — DAQ: 7 digits, DCF: 2 alpha + 8 digits
+    OR: {
+      generators: { DAQ: () => d(7), DCF: () => l(2) + d(8) }
+    },
+    // Pennsylvania — DAQ: 8 digits, DCF: 2 alpha + 8 digits
+    PA: {
+      generators: { DAQ: () => d(8), DCF: () => l(2) + d(8) }
+    },
+    // Rhode Island — DAQ: 7 digits, DCF: 8 digits
+    RI: {
+      generators: { DAQ: () => d(7), DCF: () => d(8) }
+    },
+    // South Carolina — DAQ: 9 digits, DCF: 2 alpha + 8 digits
+    SC: {
+      generators: { DAQ: () => d(9), DCF: () => l(2) + d(8) }
+    },
+    // South Dakota — DAQ: 8 digits, DCF: 8 digits
+    SD: {
+      generators: { DAQ: () => d(8), DCF: () => d(8) }
+    },
+    // Tennessee — DAQ: 9 digits, DCF: 10 digits
+    TN: {
+      generators: { DAQ: () => d(9), DCF: () => d(10) }
+    },
+    // Texas — DAQ: 8 digits, DCF: 2 digits + 6 alpha + 4 digits
+    TX: {
+      validators: { DAQ: (val) => /^[0-9]{8}$/.test(val) },
+      generators: { DAQ: () => d(8), DCF: () => d(2) + l(6) + d(4) }
+    },
+    // Utah — DAQ: 9 digits, DCF: 9 digits
+    UT: {
+      generators: { DAQ: () => d(9), DCF: () => d(9) }
+    },
+    // Vermont — DAQ: 8 digits, DCF: 2 alpha + 8 digits
+    VT: {
+      generators: { DAQ: () => d(8), DCF: () => l(2) + d(8) }
+    },
+    // Virginia — DAQ: letter + 8 digits, DCF: 2 alpha + 9 digits
+    VA: {
+      generators: { DAQ: () => l(1) + d(8), DCF: () => l(2) + d(9) }
+    },
+    // Washington — DAQ: 7 alpha + 5 digits (12-char Soundex-derived), DCF: 2 alpha + 10 digits
+    WA: {
+      generators: { DAQ: () => l(7) + d(5), DCF: () => l(2) + d(10) }
+    },
+    // West Virginia — DAQ: letter + 6 digits, DCF: 8 digits
+    WV: {
+      generators: { DAQ: () => l(1) + d(6), DCF: () => d(8) }
+    },
+    // Wisconsin — DAQ: letter + 13 digits, DCF: 2 alpha + 8 digits
+    WI: {
+      generators: { DAQ: () => l(1) + d(13), DCF: () => l(2) + d(8) }
+    },
+    // Wyoming — DAQ: 9 digits, DCF: 9 digits
+    WY: {
+      generators: { DAQ: () => d(9), DCF: () => d(9) }
+    },
+    // District of Columbia — DAQ: 7 digits, DCF: 10 digits
+    DC: {
+      generators: { DAQ: () => d(7), DCF: () => d(10) }
+    }
+  };
+
+  // Merge DDB (Card Revision Date) generators — each generator derives a
+  // plausible date from the state's AAMVA version era, optionally capped by
+  // the Document Issue Date (DBD) so DDB is always on or before it.
+  for (const state of Object.keys(rules)) {
+    const stateDef = window.AAMVA_STATES[state];
+    if (!stateDef || !rules[state].generators) continue;
+    const ver = stateDef.aamvaVersion;
+    const range = VERSION_ERA_RANGES[ver] || VERSION_ERA_RANGES["09"];
+    rules[state].generators.DDB = (issueDateStr) =>
+      randomDateInRange(range[0], range[1], issueDateStr);
+  }
+
+  return rules;
+})();
+
+/* ========== STATE-SPECIFIC FIELD EXCLUSIONS ========== */
+// Optional fields that specific states omit from their physical license barcodes.
+// Required fields are never excluded regardless of this configuration.
+// States not listed here show all fields defined by their AAMVA version.
+
+window.AAMVA_STATE_EXCLUDED_FIELDS = {
+  // New York: no weight, no hair color on license
+  NY: ["DAW", "DAX", "DAZ", "DCL"],
+  // Connecticut: no weight on license
+  CT: ["DAW", "DAX", "DCL"],
+  // Vermont: no weight on license
+  VT: ["DAW", "DAX", "DCL"],
+  // Maine: no weight on license
+  ME: ["DAW", "DAX", "DCL"],
+  // New Hampshire: no weight on license
+  NH: ["DAW", "DAX", "DCL"],
+  // Most states don't use weight-in-kg (DAX) or race/ethnicity (DCL)
+  AL: ["DAX", "DCL"],
+  AK: ["DAX", "DCL"],
+  AZ: ["DAX", "DCL"],
+  AR: ["DAX", "DCL"],
+  CA: ["DAX", "DCL"],
+  CO: ["DAX", "DCL"],
+  DE: ["DAX", "DCL"],
+  FL: ["DAX", "DCL"],
+  GA: ["DAX", "DCL"],
+  HI: ["DAX", "DCL"],
+  ID: ["DAX", "DCL"],
+  IL: ["DAX", "DCL"],
+  IN: ["DAX", "DCL"],
+  IA: ["DAX", "DCL"],
+  KS: ["DAX", "DCL"],
+  KY: ["DAX", "DCL"],
+  LA: ["DAX", "DCL"],
+  MD: ["DAX", "DCL"],
+  MA: ["DAX", "DCL"],
+  MI: ["DAX", "DCL"],
+  MN: ["DAX", "DCL"],
+  MS: ["DAX", "DCL"],
+  MO: ["DAX", "DCL"],
+  MT: ["DAX", "DCL"],
+  NE: ["DAX", "DCL"],
+  NV: ["DAX", "DCL"],
+  NJ: ["DAX", "DCL"],
+  NM: ["DAX", "DCL"],
+  NC: ["DAX", "DCL"],
+  ND: ["DAX", "DCL"],
+  OH: ["DAX", "DCL"],
+  OK: ["DAX", "DCL"],
+  OR: ["DAX", "DCL"],
+  PA: ["DAX", "DCL"],
+  RI: ["DAX", "DCL"],
+  SC: ["DAX", "DCL"],
+  SD: ["DAX", "DCL"],
+  TN: ["DAX", "DCL"],
+  TX: ["DAX", "DCL"],
+  UT: ["DAX", "DCL"],
+  VA: ["DAX", "DCL"],
+  WA: ["DAX", "DCL"],
+  WV: ["DAX", "DCL"],
+  WI: ["DAX", "DCL"],
+  WY: ["DAX", "DCL"],
+  DC: ["DAX", "DCL"]
 };
 
 /* ========== VERSION DEFINITIONS ========== */
@@ -648,6 +949,22 @@ window.getFieldsForVersion = function (v) {
   return window.AAMVA_VERSIONS[v]?.fields || [];
 };
 
+// Get field definitions filtered by state-specific exclusions.
+// Required fields are never excluded. Only optional fields listed in
+// AAMVA_STATE_EXCLUDED_FIELDS for the given state are removed.
+window.getFieldsForStateAndVersion = function (stateCode, v) {
+  const allFields = window.getFieldsForVersion(v);
+  if (!stateCode || !window.AAMVA_STATE_EXCLUDED_FIELDS) return allFields;
+
+  const excluded = window.AAMVA_STATE_EXCLUDED_FIELDS[stateCode];
+  if (!excluded || excluded.length === 0) return allFields;
+
+  const excludedSet = new Set(excluded);
+  return allFields.filter(function (f) {
+    return f.required || !excludedSet.has(f.code);
+  });
+};
+
 // Get mandatory fields for a specific state and version
 window.getMandatoryFields = function (stateCode, version) {
   const versionDef = window.AAMVA_VERSIONS[version];
@@ -780,6 +1097,53 @@ window.generateDocumentDiscriminator = function (length = 12) {
   return chars.join("");
 };
 
+// Generate a state-specific Document Discriminator if a DCF generator is defined
+// for the state, otherwise fall back to the generic generator.
+window.generateStateDiscriminator = function (stateCode) {
+  if (
+    stateCode &&
+    window.AAMVA_STATE_RULES[stateCode] &&
+    window.AAMVA_STATE_RULES[stateCode].generators &&
+    window.AAMVA_STATE_RULES[stateCode].generators.DCF
+  ) {
+    return window.AAMVA_STATE_RULES[stateCode].generators.DCF();
+  }
+  return window.generateDocumentDiscriminator();
+};
+
+// Generate a state-specific Customer ID Number (DAQ) if a DAQ generator is
+// defined for the state, otherwise fall back to a generic 9-digit number.
+window.generateStateLicenseNumber = function (stateCode) {
+  if (
+    stateCode &&
+    window.AAMVA_STATE_RULES[stateCode] &&
+    window.AAMVA_STATE_RULES[stateCode].generators &&
+    window.AAMVA_STATE_RULES[stateCode].generators.DAQ
+  ) {
+    return window.AAMVA_STATE_RULES[stateCode].generators.DAQ();
+  }
+  // Generic fallback: 9 digits
+  let s = "";
+  for (let i = 0; i < 9; i++) s += Math.floor(Math.random() * 10);
+  return s;
+};
+
+// Return the Card Revision Date (DDB) for a state if one is defined,
+// otherwise return null (DDB is optional, so no generic fallback).
+// Accepts an optional issueDateStr (MMDDYYYY) so the generated DDB
+// is guaranteed to fall on or before the document issue date.
+window.generateStateCardRevisionDate = function (stateCode, issueDateStr) {
+  if (
+    stateCode &&
+    window.AAMVA_STATE_RULES[stateCode] &&
+    window.AAMVA_STATE_RULES[stateCode].generators &&
+    window.AAMVA_STATE_RULES[stateCode].generators.DDB
+  ) {
+    return window.AAMVA_STATE_RULES[stateCode].generators.DDB(issueDateStr);
+  }
+  return null;
+};
+
 // Generate AAMVA compliant payload string
 window.generateAAMVAPayload = function (stateCode, version, fields, dataObj, options = {}) {
   const strictMode = options.strictMode === true;
@@ -807,7 +1171,8 @@ window.generateAAMVAPayload = function (stateCode, version, fields, dataObj, opt
     const generators = window.AAMVA_STATE_RULES[stateCode].generators;
     for (const [code, generator] of Object.entries(generators)) {
       if (options.autoGenerateDiscriminator && !dataObj[code]) {
-        dataObj[code] = generator();
+        // DDB generator accepts the issue date (DBD) so DDB <= DBD
+        dataObj[code] = code === "DDB" ? generator(dataObj.DBD) : generator();
       }
     }
   }
