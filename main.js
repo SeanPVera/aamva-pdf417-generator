@@ -12,8 +12,10 @@ const { app, BrowserWindow, shell } = require("electron");
 const path = require("path");
 
 function createWindow() {
+  const isDev = process.env.NODE_ENV === 'development' || process.env.ELECTRON_IS_DEV === '1';
+
   const win = new BrowserWindow({
-    width: 1200,
+    width: 1280,
     height: 900,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
@@ -23,15 +25,21 @@ function createWindow() {
     }
   });
 
-  win.loadFile("index.html");
+  if (isDev) {
+    win.loadURL("http://localhost:3000");
+    win.webContents.openDevTools();
+  } else {
+    // Vite builds into /dist
+    win.loadFile(path.join(__dirname, "dist", "index.html"));
+  }
 
   // Block all new-window/popup attempts — this app has no need for them
   win.webContents.setWindowOpenHandler(() => ({ action: "deny" }));
 
   // Prevent navigation away from the local app file
   win.webContents.on("will-navigate", (event, url) => {
-    const appUrl = new URL(`file://${path.resolve(__dirname, "index.html")}`).href;
-    if (url !== appUrl) {
+    const isLocalUrl = url.includes('localhost:') || url.includes('file://');
+    if (!isLocalUrl) {
       event.preventDefault();
       // Open external links in the system browser instead
       if (url.startsWith("https://") || url.startsWith("http://")) {
@@ -39,9 +47,6 @@ function createWindow() {
       }
     }
   });
-
-  // Uncomment if you want devtools by default
-  // win.webContents.openDevTools();
 }
 
 app.whenReady().then(() => {
