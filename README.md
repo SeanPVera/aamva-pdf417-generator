@@ -2,7 +2,7 @@
 
 A browser-first tool for creating **AAMVA-formatted payloads** and rendering them as **PDF417 barcodes**.
 
-This project is designed for **local, offline use** and runs with plain HTML/CSS/JavaScript. It also includes an optional Electron wrapper if you prefer a desktop app window.
+This project is designed for **local, offline-oriented use** and runs as a React + TypeScript app via Vite. It also includes an optional Electron wrapper if you prefer a desktop app window.
 
 > [!WARNING]
 > This project is for educational, testing, and research use. Do not use it to create fraudulent IDs or documents. You are responsible for complying with all laws and policies in your jurisdiction.
@@ -23,6 +23,7 @@ This project is designed for **local, offline use** and runs with plain HTML/CSS
   - [Step 3: Run desktop mode with Electron](#step-3-run-desktop-mode-with-electron)
   - [Step 4: Build distributables (optional)](#step-4-build-distributables-optional)
 - [How to use the app](#how-to-use-the-app)
+- [iPhone-friendly setup (recommended)](#iphone-friendly-setup-recommended)
 - [JSON import format](#json-import-format)
 - [Troubleshooting](#troubleshooting)
 - [Production readiness checklist](#production-readiness-checklist)
@@ -46,7 +47,7 @@ At a high level, the app:
 
 ## Capabilities
 
-- **Runs locally in the browser** (`index.html`) with no backend.
+- **Runs locally in the browser** with no backend (`npm run dev` / `npm run build`).
 - **Optional desktop app mode** via Electron (`npm start`).
 - **Schema-driven field forms** per selected version.
 - **State metadata/IIN mapping** for all 50 U.S. states (+ DC).
@@ -91,12 +92,12 @@ Please read this section carefully if you need strict production-grade complianc
 
 ## Tech stack and architecture
 
-- **Frontend:** Vanilla JavaScript + HTML + CSS
-- **Barcode encoding:** `bwip-js` (bundled minified build in `lib/bwip-js.min.js`)
-- **AAMVA schema + payload creation:** `aamva.js`
-- **UI controller and event wiring:** `js/app.js`
+- **Frontend:** React 19 + TypeScript + Vite
+- **State management:** Zustand (persisted storage with encryption layer)
+- **Barcode encoding:** `bwip-js`
+- **Barcode decode/scanning:** `@zxing/browser` + `@zxing/library`
 - **Optional desktop runtime:** Electron (`main.js`, `preload.js`)
-- **PDF export library:** `jspdf` (bundled minified UMD build in `lib/`)
+- **PDF export library:** `jspdf`
 
 ---
 
@@ -105,8 +106,9 @@ Please read this section carefully if you need strict production-grade complianc
 If you only want to try the app:
 
 1. Download the repo.
-2. Open `index.html` in Chrome/Firefox/Edge/Safari.
-3. Select state + version, fill fields, and export.
+2. Install dependencies with `npm install`.
+3. Start the app with `npm run dev`.
+4. Open the local URL shown in terminal (usually `http://localhost:5173`).
 
 That is enough for most users.
 
@@ -153,16 +155,14 @@ cd aamva-pdf417-generator
 
 ### Step 2: Open in browser mode
 
-No package install needed for this mode.
-
-- Double-click `index.html`, or right-click → open with your browser.
-- If the browser blocks local file behavior, use a tiny local server:
+From the project folder:
 
 ```bash
-npx serve .
+npm install
+npm run dev
 ```
 
-Then open the URL shown in terminal (usually `http://localhost:3000`).
+Then open the URL shown in terminal (usually `http://localhost:5173`).
 
 ---
 
@@ -218,6 +218,25 @@ Build output is written to the `dist/` directory (as configured in `package.json
 - Unknown fields can be rejected depending on policy.
 
 ---
+
+## iPhone-friendly setup (recommended)
+
+If you want to use this on your iPhone with minimal friction:
+
+1. On your computer (same Wi-Fi network as iPhone), run:
+   ```bash
+   npm install
+   npm run dev:mobile
+   ```
+2. In terminal, copy the **Network** URL (example: `http://192.168.1.25:3000`).
+3. Open that URL in Safari on iPhone.
+4. Tap **Share → Add to Home Screen** for a one-tap launcher.
+5. In the app, use **Scan DL/ID Barcode → Use photo (iPhone-friendly)** to scan from camera or Photos if live camera scanning is blocked.
+
+Tips:
+- Keep both devices on the same Wi-Fi network.
+- If the page does not open, allow local network access/firewall for Node/Vite.
+- For a production deployment, host the built `dist/` folder over HTTPS so camera permissions are more reliable.
 
 ## JSON import format
 
@@ -280,7 +299,7 @@ Before shipping this app in an internal or external environment, run through:
 
 - **Dependency hygiene**
   - Run `npm audit` and address vulnerabilities before release.
-  - Keep bundled browser libraries in `lib/` synchronized with installed package versions (`jspdf`, `bwip-js`).
+  - Keep Node/Electron versions aligned with CI and lockfile updates.
 - **Quality gates**
   - Run `npm test`, `npm run lint`, and `npm run format:check` in CI.
   - Treat failing checks as release blockers.
@@ -305,10 +324,11 @@ npm audit
 
 ## Developer notes
 
-- Update schema definitions in `aamva.js` to add/edit versions and fields.
-- The payload generator and validation helpers are also in `aamva.js`.
-- UI flow lives in `js/app.js`.
-- PDF417 rendering is provided by `bwip-js` via `lib/bwip-js.min.js`.
+- Core AAMVA schema/version definitions live under `src/core/schema.ts`.
+- Payload generation and decode logic live in `src/core/generator.ts` and `src/core/decoder.ts`.
+- UI components are in `src/components/`, app composition in `src/App.tsx`.
+- State management and persistence are in `src/hooks/useFormStore.ts`.
+- Tests are in `src/tests/` and run with Vitest.
 
 ---
 
@@ -316,27 +336,21 @@ npm audit
 
 ```text
 .
+├── src/
+│   ├── core/
+│   ├── components/
+│   ├── hooks/
+│   ├── tests/
+│   ├── App.tsx
+│   └── main.tsx
 ├── index.html
 ├── main.js
 ├── preload.js
 ├── package.json
-├── LICENSE
+├── vite.config.ts
+├── tsconfig.json
 ├── README.md
-├── CLAUDE.md
-├── aamva.js
-├── decoder.js
-├── js/
-│   └── app.js
-├── lib/
-│   ├── bwip-js.min.js
-│   └── jspdf.umd.min.js
-├── css/
-│   └── style.css
-├── test/
-│   ├── aamva.test.js
-│   └── app.test.js
-└── assets/
-    └── sample.json
+└── LICENSE
 ```
 
 ---

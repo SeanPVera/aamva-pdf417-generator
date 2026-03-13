@@ -95,7 +95,7 @@ export function decodeAAMVAFormat(text: string): DecodeResult {
       if (entry.length >= 3) {
         const code = entry.substring(0, 3);
         let value = entry.substring(3);
-        value = value.replace(/\\r$/, '');
+        value = value.replace(/\r$/, '');
         if (code.match(/^[A-Z]{2}[A-Z0-9]$/)) {
           obj[code] = value;
         }
