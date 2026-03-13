@@ -95,6 +95,7 @@ window.addEventListener("DOMContentLoaded", () => {
     renderInspectorBrowser();
     restoreFromLocalStorage();
     updateSizerInfo();
+    renderValidationReport([], false);
 
     debugLog("App initialization complete.");
   } catch (err) {
@@ -525,6 +526,7 @@ function hookSizerEvents() {
       heightInput.value = preset.heightMM;
     }
     updateSizerInfo();
+    renderValidationReport([], false);
     reRenderBarcode();
   });
 
@@ -532,6 +534,7 @@ function hookSizerEvents() {
   const switchToCustom = () => {
     presetSel.value = "custom";
     updateSizerInfo();
+    renderValidationReport([], false);
     reRenderBarcode();
   };
 
@@ -539,16 +542,19 @@ function hookSizerEvents() {
   heightInput.addEventListener("input", switchToCustom);
   moduleInput.addEventListener("input", () => {
     updateSizerInfo();
+    renderValidationReport([], false);
     reRenderBarcode();
   });
   dpiInput.addEventListener("input", () => {
     updateSizerInfo();
+    renderValidationReport([], false);
     reRenderBarcode();
   });
 
   quietInput.addEventListener("input", () => {
     quietLabel.textContent = quietInput.value;
     updateSizerInfo();
+    renderValidationReport([], false);
     reRenderBarcode();
   });
 }
@@ -616,6 +622,7 @@ function liveUpdate() {
 
   try {
     const payloadObj = window.buildPayloadObject(currentState, currentVersion, currentFields);
+    renderValidationReport([], isStrict);
 
     if (!validateUnknownFields(payloadObj)) return;
     if (!validateFields(payloadObj)) return;
@@ -650,6 +657,23 @@ function sanitizeFieldValue(value) {
   return value.replace(/[\x00-\x1f\x7f]/g, "");
 }
 
+function createValidationIssue(field, value) {
+  const maxLen = window.AAMVA_FIELD_LIMITS && window.AAMVA_FIELD_LIMITS[field.code];
+  if (maxLen && value.length > maxLen) {
+    return {
+      code: field.code,
+      label: field.label,
+      message: `${field.code} (${field.label}) exceeds max length of ${maxLen}`
+    };
+  }
+
+  return {
+    code: field.code,
+    label: field.label,
+    message: `Invalid value for ${field.code} (${field.label})`
+  };
+}
+
 function validateUnknownFields(obj) {
   if (window.AAMVA_UNKNOWN_FIELD_POLICY !== "reject") return true;
   if (!obj) return true;
@@ -664,7 +688,7 @@ function validateUnknownFields(obj) {
 }
 
 function validateFields(obj) {
-  let firstError = null;
+  const issues = [];
   const isStrict = document.getElementById("complianceMode").checked;
 
   for (const field of currentFields) {
@@ -689,22 +713,20 @@ function validateFields(obj) {
       }
     }
 
-    if (!isValid && !firstError) {
-      const maxLen = window.AAMVA_FIELD_LIMITS && window.AAMVA_FIELD_LIMITS[field.code];
-      if (maxLen && val.length > maxLen) {
-        firstError = `${field.code} (${field.label}) exceeds max length of ${maxLen}`;
-      } else {
-        firstError = `Invalid value for ${field.code} (${field.label})`;
-      }
+    if (!isValid) {
+      issues.push(createValidationIssue(field, val));
     }
   }
 
-  if (firstError) {
-    showError(firstError);
+  renderValidationReport(issues, isStrict);
+
+  if (issues.length > 0) {
+    showError(issues[0].message);
     return false;
   }
   return true;
 }
+
 
 /* ============================================================
    BARCODE RENDERING
@@ -804,6 +826,21 @@ function renderInspector(obj, _rawText) {
   // bwip-js abstracts codeword generation, so we don't display raw codewords.
   document.getElementById("rawCodewords").value =
     "Raw codewords inspection not available with new encoder.";
+}
+
+function renderValidationReport(issues = [], isStrict = false) {
+  const out = document.getElementById("validationReport");
+  if (!out) return;
+
+  const mode = isStrict ? "Strict" : "Standard";
+  if (issues.length === 0) {
+    out.value = `Status: PASS\nMode: ${mode}\nIssues: 0`;
+    return;
+  }
+
+  out.value =
+    `Status: FAIL\nMode: ${mode}\nIssues: ${issues.length}\n\n` +
+    issues.map((issue, i) => `${i + 1}. ${issue.message}`).join("\n");
 }
 
 function renderInspectorBrowser() {
@@ -981,7 +1018,7 @@ function clearForm() {
   }
 
   // Clear output panes
-  const paneIds = ["decodedOutput", "rawCodewords", "payloadInspector"];
+  const paneIds = ["decodedOutput", "rawCodewords", "payloadInspector", "validationReport"];
   paneIds.forEach((id) => {
     const el = document.getElementById(id);
     if (el) el.value = "";
