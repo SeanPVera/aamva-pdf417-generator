@@ -1,50 +1,73 @@
 {
   "name": "aamva-pdf417-generator",
   "version": "1.0.0",
-  "description": "Full client-side AAMVA PDF417 generator for DL/ID standards.",
+  "description": "Professional Grade AAMVA PDF417 generator for DL/ID standards.",
   "author": "Sean Vera",
   "license": "MIT",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "dev": "electron .",
-    "build": "electron-builder",
-    "test": "node --test test/*.test.js",
-    "lint": "eslint js/app.js aamva.js decoder.js main.js preload.js",
-    "format": "prettier --write js/app.js aamva.js decoder.js main.js preload.js css/style.css index.html",
-    "format:check": "prettier --check js/app.js aamva.js decoder.js main.js preload.js css/style.css index.html"
+    "dev": "vite",
+    "build": "vite build",
+    "serve": "vite preview",
+    "test": "vitest",
+    "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "format": "prettier --write src/**/*.{ts,tsx,css,json}",
+    "format:check": "prettier --check src/**/*.{ts,tsx,css,json}",
+    "electron:dev": "concurrently \"npm run dev\" \"wait-on http://localhost:3000 && cross-env ELECTRON_IS_DEV=1 electron .\""
+  },
+  "dependencies": {
+    "@zxing/browser": "^0.1.5",
+    "@zxing/library": "^0.21.3",
+    "bwip-js": "^4.8.0",
+    "crypto-js": "^4.2.0",
+    "jspdf": "^4.2.0",
+    "lucide-react": "^0.577.0",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "zustand": "^5.0.11"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/crypto-js": "^4.2.2",
+    "@types/node": "^25.5.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@typescript-eslint/eslint-plugin": "^8.57.0",
+    "@typescript-eslint/parser": "^8.57.0",
+    "@vitejs/plugin-react": "^4.7.0",
+    "autoprefixer": "^10.4.27",
+    "concurrently": "^9.2.1",
+    "cross-env": "^10.1.0",
     "electron": "^33.0.0",
     "electron-builder": "^24.9.3",
     "eslint": "^8.57.1",
-    "eslint-config-prettier": "^10.1.8",
-    "jsdom": "^28.1.0",
-    "prettier": "^3.8.1"
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.4.7",
+    "jsdom": "^25.0.1",
+    "postcss": "^8.5.8",
+    "prettier": "^3.8.1",
+    "tailwindcss": "^3.4.19",
+    "typescript": "^5.9.3",
+    "vite": "^5.4.21",
+    "vitest": "^2.1.9",
+    "wait-on": "^9.0.4"
   },
   "build": {
     "appId": "com.seanvera.aamva.pdf417",
     "productName": "AAMVA PDF417 Generator",
     "directories": {
-      "output": "dist"
+      "output": "dist_electron"
     },
     "files": [
-      "index.html",
+      "dist/**/*",
       "main.js",
-      "preload.js",
-      "js/app.js",
-      "aamva.js",
-      "decoder.js",
-      "css/**",
-      "lib/**",
-      "assets/**"
+      "preload.js"
     ],
     "extraMetadata": {
       "version": "1.0.0"
     }
-  },
-  "dependencies": {
-    "bwip-js": "^4.8.0",
-    "jspdf": "^4.2.0"
   }
 }
