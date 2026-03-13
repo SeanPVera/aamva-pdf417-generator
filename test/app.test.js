@@ -97,6 +97,16 @@ test("APP.JS - DOM Integration Tests", async (t) => {
     assert.ok(label, "Family Name (DCS) field should exist for NY");
   });
 
+  await t.test("Validation report shows FAIL when required fields are empty", async () => {
+    const stateSelect = document.getElementById("stateSelect");
+    stateSelect.value = "NY";
+    stateSelect.dispatchEvent(new Event("change"));
+    await wait(120);
+
+    const report = document.getElementById("validationReport");
+    assert.match(report.value, /Status: FAIL/, "Validation report should indicate fail for empty required fields");
+  });
+
   await t.test("Changing field value triggers live update", async () => {
     // Ensure we are in a valid state
     const stateSelect = document.getElementById("stateSelect");
@@ -159,6 +169,17 @@ test("APP.JS - DOM Integration Tests", async (t) => {
 
     const stateSelect = document.getElementById("stateSelect");
     assert.equal(stateSelect.value, "CA", "State should switch to CA");
+  });
+
+  await t.test("Validation report is reset when clearing the form", async () => {
+    const report = document.getElementById("validationReport");
+    report.value = "Status: FAIL\nMode: Strict\nIssues: 2";
+
+    const clearBtn = document.getElementById("clearFormBtn");
+    clearBtn.click();
+    await wait();
+
+    assert.equal(report.value, "", "Clear form should reset validation report output");
   });
 
   await t.test("Clear Form resets fields", async () => {

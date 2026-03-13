@@ -187,6 +187,24 @@
           <textarea id="payloadInspector" readonly aria-label="Payload inspector output"></textarea>
         </section>
 
+        <section id="validationReportSection" aria-label="Validation report">
+          <div class="section-header">
+            <h2>Validation Report</h2>
+            <button
+              class="copy-btn"
+              data-target="validationReport"
+              aria-label="Copy validation report output"
+            >
+              Copy
+            </button>
+          </div>
+          <textarea
+            id="validationReport"
+            readonly
+            aria-label="Compliance validation report output"
+          ></textarea>
+        </section>
+
         <section id="versionBrowserSection" aria-label="Version browser">
           <h2>Version Browser</h2>
           <select id="versionBrowser" aria-label="Browse AAMVA versions"></select>

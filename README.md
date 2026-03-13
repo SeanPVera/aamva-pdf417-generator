@@ -56,6 +56,7 @@ At a high level, the app:
   - Decoded output panel
   - Raw codewords panel
   - Payload inspector panel
+  - Validation report panel (pass/fail + issue count)
   - Version browser panel
 - **Import JSON** to prefill field data.
 - **Export** barcode output as:
@@ -76,7 +77,7 @@ Please read this section carefully if you need strict production-grade complianc
 - **Schema coverage is limited to versions defined in code.**
   - Current keys include versions `01` through `10`, covering legacy (DL/ID-2000) through modern (DL/ID-2020) entries.
 - **Validation is intentionally lightweight.**
-  - It checks required-ness and basic formats (examples: date/ZIP/single-char) but does not enforce every jurisdiction-specific rule.
+  - It checks required-ness and basic formats (examples: date/ZIP/single-char), and now surfaces a structured pass/fail issue report in the UI, but does not enforce every jurisdiction-specific rule.
 - **Territories are marked unsupported.**
   - `AS`, `GU`, `VI`, and `PR` are present but disabled.
 - **No backend persistence.**
