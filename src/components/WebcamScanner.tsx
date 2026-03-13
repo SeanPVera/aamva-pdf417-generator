@@ -1,7 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { BrowserPDF417Reader } from '@zxing/browser';
 import { decodeAAMVA } from '../core/decoder';
-import { Camera, X, AlertTriangle } from 'lucide-react';
+import { Camera, X, AlertTriangle, ImagePlus } from 'lucide-react';
 import { useFormStore } from '../hooks/useFormStore';
 
 interface WebcamScannerProps {
@@ -10,14 +10,50 @@ interface WebcamScannerProps {
 
 export function WebcamScanner({ onClose }: WebcamScannerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<string | null>(null);
   const [scanning, setScanning] = useState(false);
+  const [imageScanning, setImageScanning] = useState(false);
   const loadJson = useFormStore((state) => state.loadJson);
   const setStateVersion = useFormStore((state) => state.setStateVersion);
 
+  const applyDecodedPayload = useCallback((text: string) => {
+    const decoded = decodeAAMVA(text);
+    if (decoded.ok && decoded.json) {
+      const { state, version } = decoded.json;
+      if (state && version) setStateVersion(state, version);
+      loadJson(decoded.json);
+      onClose();
+      return;
+    }
+    setError('Detected a barcode, but it is not a valid AAMVA DL/ID format.');
+  }, [loadJson, onClose, setStateVersion]);
+
+  const handleImageSelection = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setError(null);
+    setImageScanning(true);
+
+    const imageReader = new BrowserPDF417Reader();
+    const imageUrl = URL.createObjectURL(file);
+
+    try {
+      const result = await imageReader.decodeFromImageUrl(imageUrl);
+      applyDecodedPayload(result.getText());
+    } catch {
+      setError('Could not find a readable PDF417 barcode in the selected image.');
+    } finally {
+      URL.revokeObjectURL(imageUrl);
+      setImageScanning(false);
+      event.target.value = '';
+    }
+  };
+
   useEffect(() => {
     let reader: BrowserPDF417Reader | null = null;
-    let controls: any = null;
+    let controls: { stop: () => void } | null = null;
 
     const startScanner = async () => {
       try {
@@ -27,33 +63,22 @@ export function WebcamScanner({ onClose }: WebcamScannerProps) {
         const videoInputDevices = await BrowserPDF417Reader.listVideoInputDevices();
 
         if (videoInputDevices.length === 0) {
-          throw new Error("No camera found on this device.");
+          throw new Error('No camera found on this device.');
         }
 
-        // Prefer back camera if available
         const deviceId = videoInputDevices[videoInputDevices.length - 1].deviceId;
 
         if (videoRef.current) {
-          controls = await reader.decodeFromVideoDevice(deviceId, videoRef.current, (result, err) => {
+          controls = await reader.decodeFromVideoDevice(deviceId, videoRef.current, (result) => {
             if (result) {
-              const text = result.getText();
-              const decoded = decodeAAMVA(text);
-              if (decoded.ok && decoded.json) {
-                const { state, version, ...rest } = decoded.json;
-                if (state && version) setStateVersion(state, version);
-                loadJson(decoded.json);
-                if (controls) controls.stop();
-                onClose();
-              } else {
-                setError("Detected a barcode, but it is not a valid AAMVA DL/ID format.");
-              }
+              if (controls) controls.stop();
+              applyDecodedPayload(result.getText());
             }
-            // Ignore stream errors (like checksum failures while moving camera)
           });
         }
       } catch (err: any) {
         setScanning(false);
-        setError(err.message || "Failed to initialize camera.");
+        setError(err.message || 'Failed to initialize camera.');
       }
     };
 
@@ -62,7 +87,7 @@ export function WebcamScanner({ onClose }: WebcamScannerProps) {
     return () => {
       if (controls) controls.stop();
     };
-  }, [loadJson, onClose, setStateVersion]);
+  }, [applyDecodedPayload]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm">
@@ -98,6 +123,27 @@ export function WebcamScanner({ onClose }: WebcamScannerProps) {
               </div>
             </div>
           )}
+        </div>
+
+        <div className="mt-4 flex flex-wrap items-center gap-3">
+          <input
+            ref={imageInputRef}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            onChange={handleImageSelection}
+            className="hidden"
+          />
+          <button
+            type="button"
+            onClick={() => imageInputRef.current?.click()}
+            disabled={imageScanning}
+            className="inline-flex items-center gap-2 rounded border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            <ImagePlus className="h-4 w-4" />
+            {imageScanning ? 'Scanning image...' : 'Use photo (iPhone-friendly)'}
+          </button>
+          <span className="text-xs text-slate-500">Pick from Photos or open camera directly on mobile.</span>
         </div>
 
         <p className="text-center text-sm text-slate-500 dark:text-slate-400 mt-4">

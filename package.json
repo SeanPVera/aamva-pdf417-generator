@@ -8,8 +8,10 @@
   "scripts": {
     "start": "electron .",
     "dev": "vite",
+    "dev:mobile": "vite --host 0.0.0.0 --port 3000",
     "build": "vite build",
     "serve": "vite preview",
+    "preview:mobile": "vite preview --host 0.0.0.0 --port 4173",
     "test": "vitest",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "format": "prettier --write src/**/*.{ts,tsx,css,json}",

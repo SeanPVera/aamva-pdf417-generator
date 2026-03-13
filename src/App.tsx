@@ -1,6 +1,5 @@
 import React from 'react';
 import { Sidebar } from './components/Sidebar';
-import { FormFields } from './components/FormFields';
 import { BarcodePreview } from './components/BarcodePreview';
 import { Header } from './components/Header';
 import { BatchProcessor } from './components/BatchProcessor';
