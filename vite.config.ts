@@ -18,6 +18,16 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          react: ['react', 'react-dom'],
+          scanner: ['@zxing/browser', '@zxing/library'],
+          barcode: ['bwip-js'],
+          export: ['jspdf'],
+        },
+      },
+    },
   },
   server: {
     port: 3000,

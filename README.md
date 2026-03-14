@@ -14,6 +14,7 @@ This project is designed for **local, offline-oriented use** and runs as a React
 - [What this project does](#what-this-project-does)
 - [Capabilities](#capabilities)
 - [Known limitations](#known-limitations)
+- [Plan to address current limitations](#plan-to-address-current-limitations)
 - [Tech stack and architecture](#tech-stack-and-architecture)
 - [Quick start (no install)](#quick-start-no-install)
 - [Full install guide (college-student friendly)](#full-install-guide-college-student-friendly)
@@ -23,7 +24,7 @@ This project is designed for **local, offline-oriented use** and runs as a React
   - [Step 3: Run desktop mode with Electron](#step-3-run-desktop-mode-with-electron)
   - [Step 4: Build distributables (optional)](#step-4-build-distributables-optional)
 - [How to use the app](#how-to-use-the-app)
-- [iPhone-friendly setup (recommended)](#iphone-friendly-setup-recommended)
+- [iPhone setup guide (recommended)](#iphone-setup-guide-recommended)
 - [JSON import format](#json-import-format)
 - [Troubleshooting](#troubleshooting)
 - [Production readiness checklist](#production-readiness-checklist)
@@ -51,7 +52,7 @@ At a high level, the app:
 - **Optional desktop app mode** via Electron (`npm start`).
 - **Schema-driven field forms** per selected version.
 - **State metadata/IIN mapping** for all 50 U.S. states (+ DC).
-- **Unsupported territories are explicitly disabled** in the UI.
+- **Jurisdiction coverage includes all 50 states, DC, and U.S. territories** (with varying rule-depth by jurisdiction).
 - **Live barcode rendering** as you type.
 - **Payload visibility tools**:
   - Decoded output panel
@@ -78,15 +79,53 @@ Please read this section carefully if you need strict production-grade complianc
 - **Schema coverage is limited to versions defined in code.**
   - Current keys include versions `01` through `10`, covering legacy (DL/ID-2000) through modern (DL/ID-2020) entries.
 - **Validation is intentionally lightweight.**
-  - It checks required-ness and basic formats (examples: date/ZIP/single-char), and now surfaces a structured pass/fail issue report in the UI, but does not enforce every jurisdiction-specific rule.
-- **Territories are marked unsupported.**
-  - `AS`, `GU`, `VI`, and `PR` are present but disabled.
+  - It checks required-ness and basic formats (examples: date/ZIP/single-char), and surfaces a structured pass/fail issue report in the UI, but does not enforce every jurisdiction-specific rule.
+- **Jurisdiction support is broad, but compliance depth varies.**
+  - All 50 states, DC, and territories currently resolve in code, but field rules still need deeper jurisdiction-specific parity testing.
 - **No backend persistence.**
-  - Data is not stored on a server. Refreshing/reopening may lose unsaved work.
+  - Data is not stored on a server. Form data is persisted locally in browser storage only, so clearing site data/private mode can remove it.
 - **No cryptographic signature/security layer.**
   - This is payload generation and visual barcode encoding, not identity verification.
-- **Automated unit tests are included and should be run before release.**
-  - Run `npm test` to validate schema, payload, decoder, and barcode rendering behavior.
+- **Automated tests focus on core units; end-to-end/device testing is still limited.**
+  - Run `npm test` for schema/payload/decoder checks, then validate scanner/export flows manually across target browsers/devices.
+
+## Plan to address current limitations
+
+### Progress update
+
+- ✅ Added cross-field validation checks in generation flow for date chronology consistency (birth/issue/expiry).
+- ✅ Added warning-level validation signals (for example: unusually young age-at-issue), with strict mode treating warnings as blocking.
+- ✅ Added dedicated automated tests for cross-field validation and strict-mode behavior.
+
+1. **Certification-readiness track (governance + legal)**
+   - Define a compliance matrix against relevant AAMVA implementation guidance.
+   - Document accepted/non-accepted use cases and add explicit release gates.
+   - Produce auditable release notes for each compliance-impacting change.
+
+2. **Schema and rule-depth expansion**
+   - Add jurisdiction-specific rule packs (per-state/territory overrides for required fields, constraints, and date semantics).
+   - Introduce schema fixtures from real-world anonymized samples and conformance test vectors.
+   - Add version migration helpers when switching between AAMVA versions.
+
+3. **Validation hardening**
+   - Add cross-field validations (e.g., issue/expiry/birth chronology, age-class constraints, derived field consistency).
+   - Add warnings vs errors severity levels to improve UX.
+   - Add a "strict compliance" profile that enforces jurisdiction rule packs by default.
+
+4. **Persistence and security upgrades**
+   - Add optional encrypted export/import with user passphrase for secure transfer.
+   - In Electron mode, move key material to OS keychain/credential storage.
+   - Add configurable retention policy (auto-clear after inactivity, session-only mode, explicit secure wipe).
+
+5. **Cryptographic trust layer**
+   - Design a pluggable signing module for payload provenance (issuer key IDs, signature blocks, verification UI).
+   - Add verification mode for imported/scanned payloads, including tamper indicators.
+   - Keep signing optional so testing/research workflows still work without PKI dependencies.
+
+6. **Testing maturity expansion**
+   - Add E2E coverage (Playwright) for form fill, scan, and PNG/PDF/SVG export happy paths.
+   - Add mobile/browser matrix checks (Safari iOS, Chrome Android, desktop Chrome/Firefox/Edge).
+   - Add performance budgets (bundle size + scanner startup latency) and fail CI on regressions.
 
 ---
 
@@ -219,24 +258,48 @@ Build output is written to the `dist/` directory (as configured in `package.json
 
 ---
 
-## iPhone-friendly setup (recommended)
+## iPhone setup guide (recommended)
 
-If you want to use this on your iPhone with minimal friction:
+Use this when you want the app running on your iPhone but hosted from your laptop/desktop.
 
-1. On your computer (same Wi-Fi network as iPhone), run:
+### Option A: Development mode (fastest for local testing)
+
+1. On your computer, install dependencies and start the mobile dev server:
    ```bash
    npm install
    npm run dev:mobile
    ```
-2. In terminal, copy the **Network** URL (example: `http://192.168.1.25:3000`).
-3. Open that URL in Safari on iPhone.
-4. Tap **Share → Add to Home Screen** for a one-tap launcher.
-5. In the app, use **Scan DL/ID Barcode → Use photo (iPhone-friendly)** to scan from camera or Photos if live camera scanning is blocked.
+2. In terminal output, copy the **Network** URL (for example `http://192.168.1.25:3000`).
+3. Make sure your iPhone is on the **same Wi-Fi network** as your computer.
+4. Open the Network URL in **Safari** on iPhone.
+5. (Optional but recommended) tap **Share → Add to Home Screen** for app-like launching.
+6. In-app, use **Scan DL/ID Barcode → Use photo (iPhone-friendly)** if live camera scanning is blocked.
 
-Tips:
-- Keep both devices on the same Wi-Fi network.
-- If the page does not open, allow local network access/firewall for Node/Vite.
-- For a production deployment, host the built `dist/` folder over HTTPS so camera permissions are more reliable.
+### Option B: Production-like mode (better reliability)
+
+1. Build and preview the production bundle on your computer:
+   ```bash
+   npm install
+   npm run build
+   npm run preview:mobile
+   ```
+2. Copy the preview Network URL (example: `http://192.168.1.25:4173`).
+3. Open that URL in Safari on iPhone.
+4. Add to Home Screen if you want quick relaunch.
+
+### Camera and permissions checklist (iOS)
+
+- Prefer **Safari** (WebKit camera support is most reliable there).
+- If camera prompt does not appear, go to **Settings → Safari → Camera → Allow**.
+- If camera still fails, use the app's **photo upload scanning** flow instead.
+- For strongest camera compatibility in deployed environments, serve over **HTTPS**.
+
+### Troubleshooting iPhone connectivity
+
+- **Phone cannot open URL:** confirm both devices are on the same network/subnet.
+- **Still unreachable:** allow Node/Vite through your computer firewall.
+- **Corporate or guest Wi-Fi blocks local peers:** use a personal hotspot or home network.
+- **Need remote access outside local Wi-Fi:** host the built `dist/` over HTTPS (or tunnel) and open that public URL from iPhone.
 
 ## JSON import format
 
