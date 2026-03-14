@@ -7,6 +7,10 @@ export interface ValidationIssue {
   message: string;
 }
 
+export interface CrossFieldValidationIssue extends ValidationIssue {
+  severity: 'warning' | 'error';
+}
+
 export type ValidatorFunc = (val: string) => boolean;
 export type GeneratorFunc = (arg?: string) => string;
 
@@ -202,6 +206,76 @@ export function validateFieldValue(field: AAMVAField, value: string, stateCode?:
     default:
       return true;
   }
+}
+
+
+function parseAamvaDate(value: string, dateFormat: 'MMDDYYYY' | 'YYYYMMDD' = 'MMDDYYYY'): Date | null {
+  if (!/^\d{8}$/.test(value)) return null;
+
+  let year: number;
+  let month: number;
+  let day: number;
+
+  if (dateFormat === 'YYYYMMDD') {
+    year = parseInt(value.substring(0, 4), 10);
+    month = parseInt(value.substring(4, 6), 10);
+    day = parseInt(value.substring(6, 8), 10);
+  } else {
+    month = parseInt(value.substring(0, 2), 10);
+    day = parseInt(value.substring(2, 4), 10);
+    year = parseInt(value.substring(4, 8), 10);
+  }
+
+  const date = new Date(Date.UTC(year, month - 1, day));
+  if (date.getUTCFullYear() !== year || date.getUTCMonth() !== month - 1 || date.getUTCDate() !== day) {
+    return null;
+  }
+  return date;
+}
+
+function getDateFormatForCode(fields: AAMVAField[], code: string): 'MMDDYYYY' | 'YYYYMMDD' {
+  const dateField = fields.find((field) => field.code === code);
+  return dateField?.dateFormat === 'YYYYMMDD' ? 'YYYYMMDD' : 'MMDDYYYY';
+}
+
+export function validateCrossFieldConsistency(
+  dataObj: Record<string, string>,
+  fields: AAMVAField[]
+): CrossFieldValidationIssue[] {
+  const issues: CrossFieldValidationIssue[] = [];
+
+  const birthDate = dataObj.DBB ? parseAamvaDate(dataObj.DBB, getDateFormatForCode(fields, 'DBB')) : null;
+  const issueDate = dataObj.DBD ? parseAamvaDate(dataObj.DBD, getDateFormatForCode(fields, 'DBD')) : null;
+  const expiryDate = dataObj.DBA ? parseAamvaDate(dataObj.DBA, getDateFormatForCode(fields, 'DBA')) : null;
+  const revisionDate = dataObj.DDB ? parseAamvaDate(dataObj.DDB, getDateFormatForCode(fields, 'DDB')) : null;
+
+  if (birthDate && issueDate && issueDate < birthDate) {
+    issues.push({ code: 'DBD', label: 'Issue Date', severity: 'error', message: 'Issue date (DBD) cannot be earlier than date of birth (DBB).' });
+  }
+
+  if (issueDate && expiryDate && expiryDate < issueDate) {
+    issues.push({ code: 'DBA', label: 'Expiration Date', severity: 'error', message: 'Expiration date (DBA) cannot be earlier than issue date (DBD).' });
+  }
+
+  if (birthDate && expiryDate && expiryDate < birthDate) {
+    issues.push({ code: 'DBA', label: 'Expiration Date', severity: 'error', message: 'Expiration date (DBA) cannot be earlier than date of birth (DBB).' });
+  }
+
+  if (issueDate && revisionDate && revisionDate < issueDate) {
+    issues.push({ code: 'DDB', label: 'Card Revision Date', severity: 'warning', message: 'Card revision date (DDB) is earlier than issue date (DBD).' });
+  }
+
+  if (birthDate && issueDate) {
+    const ageAtIssue = issueDate.getUTCFullYear() - birthDate.getUTCFullYear() -
+      (issueDate.getUTCMonth() < birthDate.getUTCMonth() ||
+      (issueDate.getUTCMonth() === birthDate.getUTCMonth() && issueDate.getUTCDate() < birthDate.getUTCDate()) ? 1 : 0);
+
+    if (ageAtIssue < 14) {
+      issues.push({ code: 'DBB', label: 'Date of Birth', severity: 'warning', message: 'Age at issue is under 14 years; verify jurisdiction-specific issuance rules.' });
+    }
+  }
+
+  return issues;
 }
 
 export function sanitizeFieldValue(value: string): string {

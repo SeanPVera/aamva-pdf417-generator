@@ -1,6 +1,6 @@
 import { AAMVA_STATES, isJurisdictionSupported } from './states';
 import { AAMVA_VERSIONS, getMandatoryFields, AAMVAField } from './schema';
-import { AAMVA_STATE_RULES, validateFieldValue } from './validation';
+import { AAMVA_STATE_RULES, validateCrossFieldConsistency, validateFieldValue } from './validation';
 
 export interface GenerateOptions {
   strictMode?: boolean;
@@ -112,6 +112,18 @@ export function generateAAMVAPayload(
 
   if (invalidFields.length > 0) {
     throw new Error(`Invalid field values for ${stateCode} (v${version}): ${invalidFields.join(', ')}`);
+  }
+
+  const crossFieldIssues = validateCrossFieldConsistency(dataObj, fields);
+  const blockingCrossFieldIssues = crossFieldIssues.filter((issue) =>
+    issue.severity === 'error' || (strictMode && issue.severity === 'warning')
+  );
+
+  if (blockingCrossFieldIssues.length > 0) {
+    const details = blockingCrossFieldIssues
+      .map((issue) => `[${issue.severity.toUpperCase()}] ${issue.message}`)
+      .join(' ');
+    throw new Error(`Cross-field validation failed for ${stateCode} (v${version}): ${details}`);
   }
 
   const stateDef = AAMVA_STATES[stateCode];
