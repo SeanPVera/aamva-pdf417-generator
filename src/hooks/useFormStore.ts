@@ -2,23 +2,32 @@ import { create } from "zustand";
 import { persist, StateStorage, createJSONStorage } from "zustand/middleware";
 import CryptoJS from "crypto-js";
 
-// This key provides PII obfuscation from other local scripts.
-// It is NOT encryption-at-rest — the primary protection is the "Clear PII" button.
-const SECRET_KEY = "aamva-local-encryption-key-v1";
+const ENCRYPTION_KEY_STORAGE_KEY = "aamva_form_encryption_key_v1";
+
+function getOrCreateSecretKey(): string {
+  const existingKey = localStorage.getItem(ENCRYPTION_KEY_STORAGE_KEY);
+  if (existingKey) return existingKey;
+
+  const randomBytes = new Uint8Array(32);
+  crypto.getRandomValues(randomBytes);
+  const newKey = Array.from(randomBytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
+  localStorage.setItem(ENCRYPTION_KEY_STORAGE_KEY, newKey);
+  return newKey;
+}
 
 const encryptedStorage: StateStorage = {
   getItem: (name: string): string | null => {
     const encrypted = localStorage.getItem(name);
     if (!encrypted) return null;
     try {
-      const decrypted = CryptoJS.AES.decrypt(encrypted, SECRET_KEY);
+      const decrypted = CryptoJS.AES.decrypt(encrypted, getOrCreateSecretKey());
       return decrypted.toString(CryptoJS.enc.Utf8);
     } catch {
       return null;
     }
   },
   setItem: (name: string, value: string): void => {
-    const encrypted = CryptoJS.AES.encrypt(value, SECRET_KEY).toString();
+    const encrypted = CryptoJS.AES.encrypt(value, getOrCreateSecretKey()).toString();
     localStorage.setItem(name, encrypted);
   },
   removeItem: (name: string): void => {

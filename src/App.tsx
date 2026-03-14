@@ -3,7 +3,6 @@ import { Sidebar } from "./components/Sidebar";
 import { BarcodePreview } from "./components/BarcodePreview";
 import { Header } from "./components/Header";
 import { BatchProcessor } from "./components/BatchProcessor";
-import { WebcamScanner } from "./components/WebcamScanner";
 import { useFormStore } from "./hooks/useFormStore";
 import { getFieldsForStateAndVersion } from "./core/schema";
 import { validateFieldValue } from "./core/validation";
@@ -12,6 +11,10 @@ import {
   generateStateLicenseNumber,
   generateStateCardRevisionDate
 } from "./core/generator";
+
+const WebcamScanner = React.lazy(() =>
+  import("./components/WebcamScanner").then((module) => ({ default: module.WebcamScanner }))
+);
 
 function App() {
   const [isScanning, setIsScanning] = React.useState(false);
@@ -225,7 +228,11 @@ function App() {
         <BarcodePreview />
       </main>
 
-      {isScanning && <WebcamScanner onClose={() => setIsScanning(false)} />}
+      {isScanning && (
+        <React.Suspense fallback={null}>
+          <WebcamScanner onClose={() => setIsScanning(false)} />
+        </React.Suspense>
+      )}
     </div>
   );
 }
