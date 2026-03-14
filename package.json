@@ -16,7 +16,17 @@
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "format": "prettier --write src/**/*.{ts,tsx,css,json}",
     "format:check": "prettier --check src/**/*.{ts,tsx,css,json}",
-    "electron:dev": "concurrently \"npm run dev\" \"wait-on http://localhost:3000 && cross-env ELECTRON_IS_DEV=1 electron .\""
+    "electron:dev": "concurrently \"npm run dev\" \"wait-on http://localhost:3000 && cross-env ELECTRON_IS_DEV=1 electron .\"",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "src/**/*.{ts,tsx}": [
+      "eslint --fix --max-warnings 0",
+      "prettier --write"
+    ],
+    "src/**/*.{css,json}": [
+      "prettier --write"
+    ]
   },
   "dependencies": {
     "@zxing/browser": "^0.1.5",
@@ -48,7 +58,9 @@
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.7",
+    "husky": "^9.1.7",
     "jsdom": "^25.0.1",
+    "lint-staged": "^16.3.3",
     "postcss": "^8.5.8",
     "prettier": "^3.8.1",
     "tailwindcss": "^3.4.19",

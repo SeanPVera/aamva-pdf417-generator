@@ -1,5 +1,5 @@
-import { AAMVAField, AAMVA_FIELD_OPTIONS, AAMVA_FIELD_LIMITS } from './schema';
-import { AAMVA_STATES } from './states';
+import { AAMVAField, AAMVA_FIELD_OPTIONS, AAMVA_FIELD_LIMITS } from "./schema";
+import { AAMVA_STATES } from "./states";
 
 export interface ValidationIssue {
   code: string;
@@ -16,30 +16,30 @@ export interface StateRules {
 }
 
 const d = (n: number) => {
-  let s = '';
+  let s = "";
   for (let i = 0; i < n; i++) s += Math.floor(Math.random() * 10);
   return s;
 };
 const l = (n: number) => {
-  let s = '';
+  let s = "";
   for (let i = 0; i < n; i++) s += String.fromCharCode(65 + Math.floor(Math.random() * 26));
   return s;
 };
 const an = (n: number) => {
-  const cs = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  let s = '';
+  const cs = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let s = "";
   for (let i = 0; i < n; i++) s += cs[Math.floor(Math.random() * cs.length)];
   return s;
 };
 
 const VERSION_ERA_RANGES: Record<string, [number, number]> = {
-  '10': [2019, 2024],
-  '09': [2015, 2020],
-  '08': [2013, 2017],
-  '07': [2012, 2015],
-  '06': [2011, 2014],
-  '05': [2010, 2013],
-  '04': [2009, 2012],
+  "10": [2019, 2024],
+  "09": [2015, 2020],
+  "08": [2013, 2017],
+  "07": [2012, 2015],
+  "06": [2011, 2014],
+  "05": [2010, 2013],
+  "04": [2009, 2012]
 };
 
 function randomDateInRange(startYear: number, endYear: number, beforeDateStr?: string) {
@@ -62,8 +62,8 @@ function randomDateInRange(startYear: number, endYear: number, beforeDateStr?: s
   }
   const ts = rangeStart + Math.floor(Math.random() * (rangeEnd - rangeStart + 1));
   const dt = new Date(ts);
-  const mm = String(dt.getUTCMonth() + 1).padStart(2, '0');
-  const dd = String(dt.getUTCDate()).padStart(2, '0');
+  const mm = String(dt.getUTCMonth() + 1).padStart(2, "0");
+  const dd = String(dt.getUTCDate()).padStart(2, "0");
   const yyyy = String(dt.getUTCFullYear());
   return mm + dd + yyyy;
 }
@@ -76,14 +76,14 @@ export const AAMVA_STATE_RULES: Record<string, StateRules> = (() => {
     AR: { generators: { DAQ: () => d(9), DCF: () => d(9) } },
     CA: {
       validators: { DAQ: (val) => /^[A-Z][0-9]{7}$/.test(val) },
-      generators: { DAQ: () => l(1) + d(7), DCF: () => l(2) + d(4) + '/' + d(4) + '/' + d(4) },
+      generators: { DAQ: () => l(1) + d(7), DCF: () => l(2) + d(4) + "/" + d(4) + "/" + d(4) }
     },
     CO: { generators: { DAQ: () => d(9), DCF: () => l(2) + d(8) } },
     CT: { generators: { DAQ: () => d(9), DCF: () => d(9) } },
     DE: { generators: { DAQ: () => d(7), DCF: () => d(8) } },
     FL: {
       validators: { DAQ: (val) => /^[A-Z][0-9]{12}$/.test(val) },
-      generators: { DAQ: () => l(1) + d(12), DCF: () => l(1) + d(11) },
+      generators: { DAQ: () => l(1) + d(12), DCF: () => l(1) + d(11) }
     },
     GA: { generators: { DAQ: () => d(9), DCF: () => d(10) } },
     HI: { generators: { DAQ: () => l(1) + d(8), DCF: () => l(2) + d(8) } },
@@ -109,7 +109,7 @@ export const AAMVA_STATE_RULES: Record<string, StateRules> = (() => {
     NM: { generators: { DAQ: () => d(9), DCF: () => d(9) } },
     NY: {
       validators: { DAQ: (val) => /^[0-9]{9}$/.test(val) },
-      generators: { DAQ: () => d(9), DCF: () => d(10) },
+      generators: { DAQ: () => d(9), DCF: () => d(10) }
     },
     NC: { generators: { DAQ: () => d(12), DCF: () => l(2) + d(8) } },
     ND: { generators: { DAQ: () => l(3) + d(6), DCF: () => d(9) } },
@@ -123,7 +123,7 @@ export const AAMVA_STATE_RULES: Record<string, StateRules> = (() => {
     TN: { generators: { DAQ: () => d(9), DCF: () => d(10) } },
     TX: {
       validators: { DAQ: (val) => /^[0-9]{8}$/.test(val) },
-      generators: { DAQ: () => d(8), DCF: () => d(2) + l(6) + d(4) },
+      generators: { DAQ: () => d(8), DCF: () => d(2) + l(6) + d(4) }
     },
     UT: { generators: { DAQ: () => d(9), DCF: () => d(9) } },
     VT: { generators: { DAQ: () => d(8), DCF: () => l(2) + d(8) } },
@@ -136,14 +136,14 @@ export const AAMVA_STATE_RULES: Record<string, StateRules> = (() => {
     AS: { generators: { DAQ: () => d(9), DCF: () => d(10) } },
     GU: { generators: { DAQ: () => d(9), DCF: () => d(10) } },
     VI: { generators: { DAQ: () => d(9), DCF: () => d(10) } },
-    PR: { generators: { DAQ: () => d(9), DCF: () => d(10) } },
+    PR: { generators: { DAQ: () => d(9), DCF: () => d(10) } }
   };
 
   for (const state of Object.keys(rules)) {
     const stateDef = AAMVA_STATES[state];
     if (!stateDef || !rules[state].generators) continue;
     const ver = stateDef.aamvaVersion;
-    const range = VERSION_ERA_RANGES[ver] || VERSION_ERA_RANGES['09'];
+    const range = VERSION_ERA_RANGES[ver] || VERSION_ERA_RANGES["09"];
     rules[state].generators!.DDB = (issueDateStr?: string) =>
       randomDateInRange(range[0], range[1], issueDateStr);
   }
@@ -151,7 +151,12 @@ export const AAMVA_STATE_RULES: Record<string, StateRules> = (() => {
   return rules;
 })();
 
-export function validateFieldValue(field: AAMVAField, value: string, stateCode?: string, strictMode: boolean = false): boolean {
+export function validateFieldValue(
+  field: AAMVAField,
+  value: string,
+  stateCode?: string,
+  _strictMode: boolean = false
+): boolean {
   if (field.required && !value) return false;
   if (!value) return true;
 
@@ -172,12 +177,12 @@ export function validateFieldValue(field: AAMVAField, value: string, stateCode?:
   }
 
   switch (field.type) {
-    case 'date': {
-      const dateFormat = field.dateFormat || 'MMDDYYYY';
+    case "date": {
+      const dateFormat = field.dateFormat || "MMDDYYYY";
       if (!/^\d{8}$/.test(value)) return false;
 
       let year, month, day;
-      if (dateFormat === 'YYYYMMDD') {
+      if (dateFormat === "YYYYMMDD") {
         year = parseInt(value.substring(0, 4), 10);
         month = parseInt(value.substring(4, 6), 10);
         day = parseInt(value.substring(6, 8), 10);
@@ -192,13 +197,15 @@ export function validateFieldValue(field: AAMVAField, value: string, stateCode?:
       if (day < 1 || day > 31) return false;
 
       const dt = new Date(Date.UTC(year, month - 1, day));
-      return dt.getUTCFullYear() === year && dt.getUTCMonth() === month - 1 && dt.getUTCDate() === day;
+      return (
+        dt.getUTCFullYear() === year && dt.getUTCMonth() === month - 1 && dt.getUTCDate() === day
+      );
     }
-    case 'zip':
+    case "zip":
       return /^\d{5}(-?\d{4})?$/.test(value);
-    case 'char':
+    case "char":
       return /^[A-Z0-9]$/.test(value);
-    case 'string':
+    case "string":
     default:
       return true;
   }
@@ -206,5 +213,25 @@ export function validateFieldValue(field: AAMVAField, value: string, stateCode?:
 
 export function sanitizeFieldValue(value: string): string {
   // eslint-disable-next-line no-control-regex
-  return value.replace(/[\x00-\x1f\x7f]/g, '');
+  return value.replace(/[\x00-\x1f\x7f]/g, "");
+}
+
+/** Returns a list of validation issues for all fields given current values. */
+export function getValidationIssues(
+  fields: AAMVAField[],
+  values: Record<string, string>,
+  stateCode: string,
+  _strictMode: boolean
+): ValidationIssue[] {
+  const issues: ValidationIssue[] = [];
+  for (const field of fields) {
+    const value = values[field.code] || "";
+    const valid = validateFieldValue(field, value, stateCode, _strictMode);
+    if (!valid) {
+      const message =
+        field.required && !value ? "Required field is empty" : "Invalid format or value";
+      issues.push({ code: field.code, label: field.label, message });
+    }
+  }
+  return issues;
 }
