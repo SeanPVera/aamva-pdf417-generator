@@ -1,8 +1,21 @@
-import { AAMVA_STATES, isJurisdictionSupported } from '../core/states';
-import { AAMVA_VERSIONS, AAMVA_FIELD_OPTIONS, AAMVA_FIELD_LIMITS, getFieldsForVersion, getFieldsForStateAndVersion, AAMVA_STATE_EXCLUDED_FIELDS } from '../core/schema';
-import { validateFieldValue, sanitizeFieldValue, AAMVA_STATE_RULES } from '../core/validation';
-import { generateAAMVAPayload, generateDocumentDiscriminator, generateStateDiscriminator, generateStateLicenseNumber, generateStateCardRevisionDate } from '../core/generator';
-import { validateAAMVAPayloadStructure, decodeAAMVA, describeFields } from '../core/decoder';
+import { AAMVA_STATES, isJurisdictionSupported } from "../core/states";
+import {
+  AAMVA_VERSIONS,
+  AAMVA_FIELD_OPTIONS,
+  AAMVA_FIELD_LIMITS,
+  getFieldsForVersion,
+  getFieldsForStateAndVersion,
+  AAMVA_STATE_EXCLUDED_FIELDS
+} from "../core/schema";
+import { validateFieldValue, AAMVA_STATE_RULES } from "../core/validation";
+import {
+  generateAAMVAPayload,
+  generateDocumentDiscriminator,
+  generateStateDiscriminator,
+  generateStateLicenseNumber,
+  generateStateCardRevisionDate
+} from "../core/generator";
+import { validateAAMVAPayloadStructure, decodeAAMVA, describeFields } from "../core/decoder";
 
 const window = {
   AAMVA_STATES,
@@ -15,7 +28,7 @@ const window = {
   getVersionForState: (state) => AAMVA_STATES[state]?.aamvaVersion || null,
   generateAAMVAPayload,
   AAMVA_DECODER: { decode: decodeAAMVA },
-  describeVersion: (v) => AAMVA_VERSIONS[v] ? describeFields({version: v}) : "Unknown version",
+  describeVersion: (v) => (AAMVA_VERSIONS[v] ? describeFields({ version: v }) : "Unknown version"),
   validateAAMVAPayloadStructure,
   generateDocumentDiscriminator,
   generateStateDiscriminator,
@@ -24,16 +37,17 @@ const window = {
   generateStateCardRevisionDate,
   AAMVA_STATE_EXCLUDED_FIELDS,
   getFieldsForStateAndVersion,
-  buildPayloadObject: (s, v, f, d) => { const x = {state: s, version: v}; f.forEach(field => x[field.code] = d[field.code] ?? ""); return x; },
+  buildPayloadObject: (s, v, f, d) => {
+    const x = { state: s, version: v };
+    f.forEach((field) => (x[field.code] = d[field.code] ?? ""));
+    return x;
+  },
   bwipjs: bwipjs
 };
 import { test } from "vitest";
 import { assert } from "vitest";
 
-
-
 import * as bwipjs from "bwip-js";
-
 
 /* ============================================================
    AAMVA STATE DEFINITIONS
@@ -41,11 +55,57 @@ import * as bwipjs from "bwip-js";
 test("all 50 states + DC have valid IIN definitions", () => {
   const states = window.AAMVA_STATES;
   const expected = [
-    "AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA",
-    "HI","ID","IL","IN","IA","KS","KY","LA","ME","MD",
-    "MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ",
-    "NM","NY","NC","ND","OH","OK","OR","PA","RI","SC",
-    "SD","TN","TX","UT","VT","VA","WA","WV","WI","WY","DC"
+    "AL",
+    "AK",
+    "AZ",
+    "AR",
+    "CA",
+    "CO",
+    "CT",
+    "DE",
+    "FL",
+    "GA",
+    "HI",
+    "ID",
+    "IL",
+    "IN",
+    "IA",
+    "KS",
+    "KY",
+    "LA",
+    "ME",
+    "MD",
+    "MA",
+    "MI",
+    "MN",
+    "MS",
+    "MO",
+    "MT",
+    "NE",
+    "NV",
+    "NH",
+    "NJ",
+    "NM",
+    "NY",
+    "NC",
+    "ND",
+    "OH",
+    "OK",
+    "OR",
+    "PA",
+    "RI",
+    "SC",
+    "SD",
+    "TN",
+    "TX",
+    "UT",
+    "VT",
+    "VA",
+    "WA",
+    "WV",
+    "WI",
+    "WY",
+    "DC"
   ];
   for (const code of expected) {
     assert.ok(states[code], `State ${code} should be defined`);
@@ -70,16 +130,20 @@ test("all states have an aamvaVersion property", () => {
   for (const [code, def] of Object.entries(window.AAMVA_STATES)) {
     if (!def) continue;
     assert.ok(def.aamvaVersion, `State ${code} should have aamvaVersion`);
-    assert.ok(window.AAMVA_VERSIONS[def.aamvaVersion],
-      `State ${code} aamvaVersion "${def.aamvaVersion}" should be a valid version`);
+    assert.ok(
+      window.AAMVA_VERSIONS[def.aamvaVersion],
+      `State ${code} aamvaVersion "${def.aamvaVersion}" should be a valid version`
+    );
   }
 });
 test("all states have a name property", () => {
   for (const [code, def] of Object.entries(window.AAMVA_STATES)) {
     if (!def) continue;
     assert.ok(def.name, `State ${code} should have a name`);
-    assert.ok(typeof def.name === "string" && def.name.length > 1,
-      `State ${code} name should be a non-empty string`);
+    assert.ok(
+      typeof def.name === "string" && def.name.length > 1,
+      `State ${code} name should be a non-empty string`
+    );
   }
 });
 test("DC and UT have different IINs", () => {
@@ -151,14 +215,18 @@ test("AAMVA_FIELD_LIMITS defines max lengths", () => {
 test("validateFieldValue enforces length limits", () => {
   const field = { code: "DAJ", type: "string", required: true };
   assert.ok(window.validateFieldValue(field, "NY"), "NY should be valid (2 chars)");
-  assert.equal(window.validateFieldValue(field, "NYC"), false, "NYC should be invalid (3 chars, limit 2)");
+  assert.equal(
+    window.validateFieldValue(field, "NYC"),
+    false,
+    "NYC should be invalid (3 chars, limit 2)"
+  );
 });
 /* ============================================================
    DAH (ADDRESS LINE 2) FIELD
    ============================================================ */
 test("all versions include DAH (Address Line 2)", () => {
   for (const [ver, def] of Object.entries(window.AAMVA_VERSIONS)) {
-    const hasDAH = def.fields.some(f => f.code === "DAH");
+    const hasDAH = def.fields.some((f) => f.code === "DAH");
     assert.ok(hasDAH, `Version ${ver} should include DAH (Address Line 2)`);
   }
 });
@@ -184,28 +252,50 @@ test("all fields have required properties", () => {
       assert.ok(field.code, `Field in ${ver} missing code`);
       assert.ok(field.label, `Field ${field.code} in ${ver} missing label`);
       assert.ok(field.type, `Field ${field.code} in ${ver} missing type`);
-      assert.match(field.code, /^[A-Z]{2}[A-Z0-9]$/, `Field code ${field.code} should be 3 uppercase chars`);
+      assert.match(
+        field.code,
+        /^[A-Z]{2}[A-Z0-9]$/,
+        `Field code ${field.code} should be 3 uppercase chars`
+      );
     }
   }
 });
 test("version 01 uses DAA (full name) instead of split names", () => {
   const fields = window.getFieldsForVersion("01");
-  assert.ok(fields.some(f => f.code === "DAA"), "Version 01 should have DAA (Full Name)");
-  assert.ok(!fields.some(f => f.code === "DCS"), "Version 01 should NOT have DCS");
+  assert.ok(
+    fields.some((f) => f.code === "DAA"),
+    "Version 01 should have DAA (Full Name)"
+  );
+  assert.ok(!fields.some((f) => f.code === "DCS"), "Version 01 should NOT have DCS");
 });
 test("versions 04+ have truncation indicators", () => {
   for (const ver of ["04", "08", "09", "10"]) {
     const fields = window.getFieldsForVersion(ver);
-    assert.ok(fields.some(f => f.code === "DDE"), `Version ${ver} should have DDE`);
-    assert.ok(fields.some(f => f.code === "DDF"), `Version ${ver} should have DDF`);
-    assert.ok(fields.some(f => f.code === "DDG"), `Version ${ver} should have DDG`);
+    assert.ok(
+      fields.some((f) => f.code === "DDE"),
+      `Version ${ver} should have DDE`
+    );
+    assert.ok(
+      fields.some((f) => f.code === "DDF"),
+      `Version ${ver} should have DDF`
+    );
+    assert.ok(
+      fields.some((f) => f.code === "DDG"),
+      `Version ${ver} should have DDG`
+    );
   }
 });
 test("versions 08+ have organ donor and veteran indicators", () => {
   for (const ver of ["08", "09", "10"]) {
     const fields = window.getFieldsForVersion(ver);
-    assert.ok(fields.some(f => f.code === "DDK"), `Version ${ver} should have DDK (Organ Donor)`);
-    assert.ok(fields.some(f => f.code === "DDL"), `Version ${ver} should have DDL (Veteran)`);
+    assert.ok(
+      fields.some((f) => f.code === "DDK"),
+      `Version ${ver} should have DDK (Organ Donor)`
+    );
+    assert.ok(
+      fields.some((f) => f.code === "DDL"),
+      `Version ${ver} should have DDL (Veteran)`
+    );
   }
 });
 /* ============================================================
@@ -241,19 +331,35 @@ test("validateFieldValue rejects non-MMDDYYYY date formats for standard versions
 test("validateFieldValue enforces constrained option sets", () => {
   const sex = { code: "DBC", type: "char", required: true };
   assert.ok(window.validateFieldValue(sex, "1"), "DBC should accept enumerated value '1'");
-  assert.equal(window.validateFieldValue(sex, "M"), false, "DBC should reject non-enumerated value 'M'");
+  assert.equal(
+    window.validateFieldValue(sex, "M"),
+    false,
+    "DBC should reject non-enumerated value 'M'"
+  );
 
   const eye = { code: "DAY", type: "string", required: false };
   assert.ok(window.validateFieldValue(eye, "BLU"), "DAY should accept BLU");
-  assert.equal(window.validateFieldValue(eye, "BLUE"), false, "DAY should reject invalid eye color token");
+  assert.equal(
+    window.validateFieldValue(eye, "BLUE"),
+    false,
+    "DAY should reject invalid eye color token"
+  );
 });
 
 test("validateFieldValue rejects impossible calendar dates", () => {
   const field = { code: "DBB", type: "date", required: true };
   // Feb 31 is invalid (MMDDYYYY)
-  assert.equal(window.validateFieldValue(field, "02312024"), false, "MMDDYYYY Feb 31 should be invalid");
+  assert.equal(
+    window.validateFieldValue(field, "02312024"),
+    false,
+    "MMDDYYYY Feb 31 should be invalid"
+  );
   // Month 13 is invalid
-  assert.equal(window.validateFieldValue(field, "13012024"), false, "MMDDYYYY month 13 should be invalid");
+  assert.equal(
+    window.validateFieldValue(field, "13012024"),
+    false,
+    "MMDDYYYY month 13 should be invalid"
+  );
 });
 test("validateFieldValue accepts valid ZIP codes", () => {
   const field = { code: "DAK", type: "zip", required: true };
@@ -321,7 +427,9 @@ test("bwipjs SVG output includes a positive viewBox", () => {
 function makeTestData(state, version) {
   const fields = window.getFieldsForVersion(version);
   const dataObj = { state: state, version: version };
-  fields.forEach(f => { dataObj[f.code] = ""; });
+  fields.forEach((f) => {
+    dataObj[f.code] = "";
+  });
   return { fields, dataObj };
 }
 function fillV09TestData(dataObj) {
@@ -329,12 +437,12 @@ function fillV09TestData(dataObj) {
   dataObj.DCB = "NONE";
   dataObj.DCD = "NONE";
   // All dates must be MMDDYYYY per the AAMVA CDS standard (V09/V10).
-  dataObj.DBA = "12312030";  // December 31, 2030
+  dataObj.DBA = "12312030"; // December 31, 2030
   dataObj.DCS = "VERA";
   dataObj.DAC = "SEAN";
   dataObj.DAD = "M";
-  dataObj.DBD = "01012020";  // January 1, 2020
-  dataObj.DBB = "01011990";  // January 1, 1990
+  dataObj.DBD = "01012020"; // January 1, 2020
+  dataObj.DBB = "01011990"; // January 1, 1990
   dataObj.DBC = "1";
   dataObj.DAY = "BRO";
   dataObj.DAU = "510";
@@ -416,7 +524,7 @@ test("decoder returns error for invalid input", () => {
 test("getFieldsForVersion returns fields for valid version", () => {
   const fields = window.getFieldsForVersion("09");
   assert.ok(fields.length > 0);
-  assert.ok(fields.some(f => f.code === "DCS"));
+  assert.ok(fields.some((f) => f.code === "DCS"));
 });
 test("getFieldsForVersion returns empty for unknown version", () => {
   const fields = window.getFieldsForVersion("99");
@@ -453,9 +561,20 @@ test("payload header has correct fixed-length structure", () => {
 test("generateAAMVAPayload rejects unknown state and version", () => {
   const fields = window.getFieldsForVersion("10");
   const dataObj = {
-    DCS: "DOE", DAC: "JOHN", DBB: "19900115", DBA: "20300115", DBD: "20200115",
-    DBC: "1", DAY: "BLU", DAU: "510", DAG: "123 MAIN ST", DAI: "ALBANY", DAJ: "NY",
-    DAK: "12207", DAQ: "123456789", DCF: "ABC123"
+    DCS: "DOE",
+    DAC: "JOHN",
+    DBB: "19900115",
+    DBA: "20300115",
+    DBD: "20200115",
+    DBC: "1",
+    DAY: "BLU",
+    DAU: "510",
+    DAG: "123 MAIN ST",
+    DAI: "ALBANY",
+    DAJ: "NY",
+    DAK: "12207",
+    DAQ: "123456789",
+    DCF: "ABC123"
   };
 
   assert.throws(() => {
@@ -470,10 +589,24 @@ test("generateAAMVAPayload rejects unknown state and version", () => {
 test.skip("generateAAMVAPayload rejects unsupported territories", () => {
   const fields = window.getFieldsForVersion("09");
   const dataObj = {
-    DCS: "DOE", DAC: "JOHN", DBC: "1", DAY: "BLU", DBB: "01011990",
-    DBA: "01012030", DBD: "01012020", DAU: "510", DAG: "123 MAIN ST",
-    DAI: "PAGO PAGO", DAJ: "AS", DAK: "96799", DAQ: "A12345",
-    DCA: "D", DCB: "NONE", DCD: "NONE", DCF: "ABC123", DCG: "USA"
+    DCS: "DOE",
+    DAC: "JOHN",
+    DBC: "1",
+    DAY: "BLU",
+    DBB: "01011990",
+    DBA: "01012030",
+    DBD: "01012020",
+    DAU: "510",
+    DAG: "123 MAIN ST",
+    DAI: "PAGO PAGO",
+    DAJ: "AS",
+    DAK: "96799",
+    DAQ: "A12345",
+    DCA: "D",
+    DCB: "NONE",
+    DCD: "NONE",
+    DCF: "ABC123",
+    DCG: "USA"
   };
 
   assert.throws(() => {
@@ -572,7 +705,10 @@ test("all 50 states + DC have DCF generators in AAMVA_STATE_RULES", () => {
     assert.ok(rules.generators.DCF, `${state} should have DCF generator`);
     const dcf = rules.generators.DCF();
     assert.ok(dcf.length > 0, `${state} DCF should not be empty`);
-    assert.ok(dcf.length <= 25, `${state} DCF (${dcf.length} chars) should not exceed 25-char limit`);
+    assert.ok(
+      dcf.length <= 25,
+      `${state} DCF (${dcf.length} chars) should not exceed 25-char limit`
+    );
   }
 });
 
@@ -587,7 +723,10 @@ test("all 50 states + DC have DAQ generators in AAMVA_STATE_RULES", () => {
     assert.ok(rules.generators.DAQ, `${state} should have DAQ generator`);
     const daq = rules.generators.DAQ();
     assert.ok(daq.length > 0, `${state} DAQ should not be empty`);
-    assert.ok(daq.length <= 25, `${state} DAQ (${daq.length} chars) should not exceed 25-char limit`);
+    assert.ok(
+      daq.length <= 25,
+      `${state} DAQ (${daq.length} chars) should not exceed 25-char limit`
+    );
   }
 });
 
@@ -730,8 +869,13 @@ test("DDB values pass field validation for all states", () => {
 
 test("DDB dates fall within the expected version era range for each state", () => {
   const eraRanges = {
-    "10": [2019, 2024], "09": [2015, 2020], "08": [2013, 2017],
-    "07": [2012, 2015], "06": [2011, 2014], "05": [2010, 2013], "04": [2009, 2012]
+    "10": [2019, 2024],
+    "09": [2015, 2020],
+    "08": [2013, 2017],
+    "07": [2012, 2015],
+    "06": [2011, 2014],
+    "05": [2010, 2013],
+    "04": [2009, 2012]
   };
   const states = Object.keys(window.AAMVA_STATES).filter(
     (s) => window.AAMVA_STATES[s].supported !== false
@@ -783,7 +927,10 @@ test("error messages include field labels", () => {
     assert.fail("Should have thrown");
   } catch (err) {
     assert.ok(err.message.includes("Vehicle Class (DCA)"), "Should include field label and code");
-    assert.ok(err.message.includes("Customer Family Name (DCS)"), "Should include family name label");
+    assert.ok(
+      err.message.includes("Customer Family Name (DCS)"),
+      "Should include family name label"
+    );
   }
 });
 /* ============================================================
@@ -803,14 +950,18 @@ test("validateFieldValue rejects lowercase for char type", () => {
 test("version 01 has fewer fields than version 10", () => {
   const v01 = window.getFieldsForVersion("01");
   const v10 = window.getFieldsForVersion("10");
-  assert.ok(v01.length < v10.length,
-    `Version 01 (${v01.length} fields) should have fewer than version 10 (${v10.length} fields)`);
+  assert.ok(
+    v01.length < v10.length,
+    `Version 01 (${v01.length} fields) should have fewer than version 10 (${v10.length} fields)`
+  );
 });
 test("mandatory field count increases across versions", () => {
-  const v01mandatory = window.getFieldsForVersion("01").filter(f => f.required).length;
-  const v10mandatory = window.getFieldsForVersion("10").filter(f => f.required).length;
-  assert.ok(v10mandatory > v01mandatory,
-    `Version 10 mandatory (${v10mandatory}) should exceed version 01 (${v01mandatory})`);
+  const v01mandatory = window.getFieldsForVersion("01").filter((f) => f.required).length;
+  const v10mandatory = window.getFieldsForVersion("10").filter((f) => f.required).length;
+  assert.ok(
+    v10mandatory > v01mandatory,
+    `Version 10 mandatory (${v10mandatory}) should exceed version 01 (${v01mandatory})`
+  );
 });
 /* ============================================================
    PDF417 (bwip-js) — ERROR CORRECTION OPTIONS
@@ -859,7 +1010,9 @@ test("buildPayloadObject preserves all provided field values", () => {
 test("version 01 payload uses DAA (full name) field and correct formats", () => {
   const fields = window.getFieldsForVersion("01");
   const dataObj = { state: "VA", version: "01" };
-  fields.forEach(f => { dataObj[f.code] = ""; });
+  fields.forEach((f) => {
+    dataObj[f.code] = "";
+  });
 
   // Fill v01 mandatory fields
   dataObj.DAA = "DOE,JOHN,M";
@@ -872,7 +1025,7 @@ test("version 01 payload uses DAA (full name) field and correct formats", () => 
   // V01 uses YYYYMMDD and M/F sex code
   dataObj.DBA = "20301231"; // YYYYMMDD
   dataObj.DBB = "19900115"; // YYYYMMDD
-  dataObj.DBC = "M";        // Male
+  dataObj.DBC = "M"; // Male
 
   const payload = window.generateAAMVAPayload("VA", "01", fields, dataObj);
   const decoded = window.AAMVA_DECODER.decode(payload);
@@ -886,7 +1039,7 @@ test("version 01 payload uses DAA (full name) field and correct formats", () => 
 test("validateFieldValue validates YYYYMMDD for version 01 fields", () => {
   // We need to fetch the actual field definition from Version 01 which has the dateFormat prop
   const v01fields = window.getFieldsForVersion("01");
-  const dbb = v01fields.find(f => f.code === "DBB");
+  const dbb = v01fields.find((f) => f.code === "DBB");
 
   assert.ok(dbb.dateFormat === "YYYYMMDD", "V01 DBB should have YYYYMMDD format");
   assert.ok(window.validateFieldValue(dbb, "19900115"), "Should accept YYYYMMDD");
@@ -895,7 +1048,7 @@ test("validateFieldValue validates YYYYMMDD for version 01 fields", () => {
 
 test("validateFieldValue accepts version-specific options (V01 Sex Code M/F)", () => {
   const v01fields = window.getFieldsForVersion("01");
-  const dbc = v01fields.find(f => f.code === "DBC");
+  const dbc = v01fields.find((f) => f.code === "DBC");
 
   assert.ok(window.validateFieldValue(dbc, "M"), "Should accept M");
   assert.ok(window.validateFieldValue(dbc, "F"), "Should accept F");
@@ -935,8 +1088,22 @@ test("decoder describeFields produces human-readable output", () => {
    ENCODER — MULTIPLE ERROR CORRECTION LEVELS
    ============================================================ */
 test("higher EC levels increase PDF417 symbol height in bwip-js output", () => {
-  const svgEc2 = window.bwipjs.toSVG({ bcid: "pdf417", text: "TEST", columns: 4, eclevel: 2, compact: true, scale: 1 });
-  const svgEc6 = window.bwipjs.toSVG({ bcid: "pdf417", text: "TEST", columns: 4, eclevel: 6, compact: true, scale: 1 });
+  const svgEc2 = window.bwipjs.toSVG({
+    bcid: "pdf417",
+    text: "TEST",
+    columns: 4,
+    eclevel: 2,
+    compact: true,
+    scale: 1
+  });
+  const svgEc6 = window.bwipjs.toSVG({
+    bcid: "pdf417",
+    text: "TEST",
+    columns: 4,
+    eclevel: 6,
+    compact: true,
+    scale: 1
+  });
   const h2 = Number(svgEc2.match(/viewBox="0 0 \d+ (\d+)"/)[1]);
   const h6 = Number(svgEc6.match(/viewBox="0 0 \d+ (\d+)"/)[1]);
   assert.ok(h6 >= h2, `EC 6 height (${h6}) should be >= EC 2 height (${h2})`);
@@ -955,17 +1122,35 @@ test("validateFieldValue accepts only MMDDYYYY format dates", () => {
   assert.ok(window.validateFieldValue(field, "12312030"), "Dec 31 2030 is valid MMDDYYYY");
   assert.ok(window.validateFieldValue(field, "02282000"), "Feb 28 2000 is valid MMDDYYYY");
   // YYYYMMDD must be rejected — month byte would read as 19, 20, etc. on scanners
-  assert.equal(window.validateFieldValue(field, "19900115"), false, "19900115 (YYYYMMDD) must be rejected");
-  assert.equal(window.validateFieldValue(field, "20301231"), false, "20301231 (YYYYMMDD) must be rejected");
-  assert.equal(window.validateFieldValue(field, "20200101"), false, "20200101 (YYYYMMDD) must be rejected");
+  assert.equal(
+    window.validateFieldValue(field, "19900115"),
+    false,
+    "19900115 (YYYYMMDD) must be rejected"
+  );
+  assert.equal(
+    window.validateFieldValue(field, "20301231"),
+    false,
+    "20301231 (YYYYMMDD) must be rejected"
+  );
+  assert.equal(
+    window.validateFieldValue(field, "20200101"),
+    false,
+    "20200101 (YYYYMMDD) must be rejected"
+  );
 });
 test("generateAAMVAPayload encodes dates in MMDDYYYY format", () => {
   const { fields, dataObj } = makeTestData("CA", "10");
   fillV09TestData(dataObj);
   const payload = window.generateAAMVAPayload("CA", "10", fields, dataObj);
   // DBB should contain the MMDDYYYY date, not YYYYMMDD
-  assert.ok(payload.includes("DBB01011990"), "DBB field should use MMDDYYYY (01011990 = Jan 1 1990)");
-  assert.ok(payload.includes("DBA12312030"), "DBA field should use MMDDYYYY (12312030 = Dec 31 2030)");
+  assert.ok(
+    payload.includes("DBB01011990"),
+    "DBB field should use MMDDYYYY (01011990 = Jan 1 1990)"
+  );
+  assert.ok(
+    payload.includes("DBA12312030"),
+    "DBA field should use MMDDYYYY (12312030 = Dec 31 2030)"
+  );
   assert.ok(!payload.includes("DBB19901"), "Payload must not contain YYYYMMDD date 19901...");
 });
 test("bwip-js renders AAMVA payload with MMDDYYYY dates without error", () => {
@@ -1011,7 +1196,10 @@ test("generateAAMVAPayload strips hyphen and pads ZIP+4 to 11 characters", () =>
   dataObj.DAK = "10001-1234";
   const payload = window.generateAAMVAPayload("NY", "10", fields, dataObj);
   // Hyphen stripped, padded to 11: "100011234  "
-  assert.ok(payload.includes("DAK100011234  "), "ZIP+4 with hyphen should be stripped and padded to 11 chars");
+  assert.ok(
+    payload.includes("DAK100011234  "),
+    "ZIP+4 with hyphen should be stripped and padded to 11 chars"
+  );
 });
 /* ============================================================
    MIDDLE NAME — OPTIONAL PER AAMVA CDS
@@ -1021,15 +1209,18 @@ test("generateAAMVAPayload strips hyphen and pads ZIP+4 to 11 characters", () =>
 test("DAD (Middle Name) is optional in all versions 04 through 10", () => {
   for (const ver of ["04", "08", "09", "10"]) {
     const fields = window.getFieldsForVersion(ver);
-    const dad = fields.find(f => f.code === "DAD");
+    const dad = fields.find((f) => f.code === "DAD");
     assert.ok(dad, `Version ${ver} should include DAD field`);
-    assert.ok(!dad.required, `Version ${ver} DAD should NOT be required (it is optional per AAMVA CDS)`);
+    assert.ok(
+      !dad.required,
+      `Version ${ver} DAD should NOT be required (it is optional per AAMVA CDS)`
+    );
   }
 });
 test("generateAAMVAPayload accepts versions 04+ without middle name", () => {
   const { fields, dataObj } = makeTestData("NY", "10");
   fillV09TestData(dataObj);
-  dataObj.DAD = "";  // No middle name
+  dataObj.DAD = ""; // No middle name
   // Should not throw — middle name is optional
   const payload = window.generateAAMVAPayload("NY", "10", fields, dataObj);
   assert.ok(payload.includes("DCSVE"), "Should still include last name");
@@ -1040,7 +1231,7 @@ test("generateAAMVAPayload accepts versions 04+ without middle name", () => {
    ============================================================ */
 test("DCU (Name Suffix) is optional in version 02", () => {
   const fields = window.getFieldsForVersion("02");
-  const dcu = fields.find(f => f.code === "DCU");
+  const dcu = fields.find((f) => f.code === "DCU");
   assert.ok(dcu, "Version 02 should include DCU");
   assert.ok(!dcu.required, "Version 02 DCU should NOT be required");
 });
@@ -1052,7 +1243,7 @@ test("generateAAMVAPayload enforces uppercase for string fields", () => {
   const { fields, dataObj } = makeTestData("CA", "10");
   fillV09TestData(dataObj);
   dataObj.DCS = "smith"; // lowercase
-  dataObj.DAC = "jane";  // lowercase
+  dataObj.DAC = "jane"; // lowercase
   const payload = window.generateAAMVAPayload("CA", "10", fields, dataObj);
   assert.ok(payload.includes("DCSSMITH"), "DCS should be uppercase");
   assert.ok(payload.includes("DACJANE"), "DAC should be uppercase");
@@ -1074,7 +1265,9 @@ test("generateAAMVAPayload enforces DAJ matches state", () => {
 test("generateAAMVAPayload rejects invalid sex code for version 01 (must be M or F, not 1/2/9)", () => {
   const fields = window.getFieldsForVersion("01");
   const dataObj = { state: "VA", version: "01" };
-  fields.forEach(f => { dataObj[f.code] = ""; });
+  fields.forEach((f) => {
+    dataObj[f.code] = "";
+  });
   dataObj.DAA = "DOE,JOHN,M";
   dataObj.DAG = "123 MAIN ST";
   dataObj.DAI = "RICHMOND";
@@ -1083,17 +1276,23 @@ test("generateAAMVAPayload rejects invalid sex code for version 01 (must be M or
   dataObj.DAQ = "T12345678";
   dataObj.DBA = "20301231"; // YYYYMMDD (correct for V01)
   dataObj.DBB = "19900115"; // YYYYMMDD (correct for V01)
-  dataObj.DBC = "1";        // INVALID for V01 — numeric codes are for V02+
+  dataObj.DBC = "1"; // INVALID for V01 — numeric codes are for V02+
 
-  assert.throws(() => {
-    window.generateAAMVAPayload("VA", "01", fields, dataObj);
-  }, /Invalid field values/, "Generator must reject numeric sex code for version 01");
+  assert.throws(
+    () => {
+      window.generateAAMVAPayload("VA", "01", fields, dataObj);
+    },
+    /Invalid field values/,
+    "Generator must reject numeric sex code for version 01"
+  );
 });
 
 test("generateAAMVAPayload rejects MMDDYYYY date format for version 01 (requires YYYYMMDD)", () => {
   const fields = window.getFieldsForVersion("01");
   const dataObj = { state: "VA", version: "01" };
-  fields.forEach(f => { dataObj[f.code] = ""; });
+  fields.forEach((f) => {
+    dataObj[f.code] = "";
+  });
   dataObj.DAA = "DOE,JOHN,M";
   dataObj.DAG = "123 MAIN ST";
   dataObj.DAI = "RICHMOND";
@@ -1104,9 +1303,13 @@ test("generateAAMVAPayload rejects MMDDYYYY date format for version 01 (requires
   dataObj.DBB = "01151990"; // INVALID: MMDDYYYY format passed to a YYYYMMDD field
   dataObj.DBC = "M";
 
-  assert.throws(() => {
-    window.generateAAMVAPayload("VA", "01", fields, dataObj);
-  }, /Invalid field values/, "Generator must reject MMDDYYYY date in a V01 YYYYMMDD date field");
+  assert.throws(
+    () => {
+      window.generateAAMVAPayload("VA", "01", fields, dataObj);
+    },
+    /Invalid field values/,
+    "Generator must reject MMDDYYYY date in a V01 YYYYMMDD date field"
+  );
 });
 
 /* ============================================================
@@ -1116,18 +1319,29 @@ test("generateAAMVAPayload rejects MMDDYYYY date format for version 01 (requires
    ============================================================ */
 test("version 02 uses DCT (not DAC) for given names", () => {
   const fields = window.getFieldsForVersion("02");
-  assert.ok(fields.some(f => f.code === "DCT"), "Version 02 should have DCT (Customer Given Names)");
-  assert.ok(!fields.some(f => f.code === "DAC"), "Version 02 should NOT have DAC (introduced in v03)");
-  assert.ok(!fields.some(f => f.code === "DAD"), "Version 02 should NOT have DAD (introduced in v03)");
+  assert.ok(
+    fields.some((f) => f.code === "DCT"),
+    "Version 02 should have DCT (Customer Given Names)"
+  );
+  assert.ok(
+    !fields.some((f) => f.code === "DAC"),
+    "Version 02 should NOT have DAC (introduced in v03)"
+  );
+  assert.ok(
+    !fields.some((f) => f.code === "DAD"),
+    "Version 02 should NOT have DAD (introduced in v03)"
+  );
 });
 
 test("generateAAMVAPayload version 02 round-trip preserves DCT field", () => {
   const fields = window.getFieldsForVersion("02");
   const dataObj = { state: "NY", version: "02" };
-  fields.forEach(f => { dataObj[f.code] = ""; });
+  fields.forEach((f) => {
+    dataObj[f.code] = "";
+  });
 
   // V02 mandatory fields — dates are MMDDYYYY, sex code is 1/2/9
-  dataObj.DCT = "JOHN PAUL";   // Given Names (V02 uses DCT, not DAC)
+  dataObj.DCT = "JOHN PAUL"; // Given Names (V02 uses DCT, not DAC)
   dataObj.DCS = "SMITH";
   dataObj.DAG = "123 MAIN ST";
   dataObj.DAI = "NEW YORK";
@@ -1139,7 +1353,7 @@ test("generateAAMVAPayload version 02 round-trip preserves DCT field", () => {
   dataObj.DCD = "NONE";
   dataObj.DBA = "12312030"; // MMDDYYYY
   dataObj.DBB = "01011990"; // MMDDYYYY
-  dataObj.DBC = "1";        // V02+ uses numeric sex codes
+  dataObj.DBC = "1"; // V02+ uses numeric sex codes
   dataObj.DBD = "01012020"; // MMDDYYYY
   dataObj.DAU = "510";
   dataObj.DAY = "BRO";
@@ -1170,17 +1384,22 @@ test("validateAAMVAPayloadStructure accepts ID subfile type for identification c
   // Construct a minimal synthetic AAMVA ID-card payload manually.
   // Header (19 bytes) + numEntries (2) + directory (10) + subfile (14) = 45 bytes total.
   const idPayload =
-    "@\n\x1e\rANSI " +      // 9 bytes: compliance indicator + separators + file type
-    "636001" +               // 6 bytes: NY IIN
-    "10" +                   // 2 bytes: AAMVA version 10
-    "00" +                   // 2 bytes: jurisdiction version
-    "01" +                   // 2 bytes: number of directory entries
-    "ID" + "0031" + "0014" + // 10 bytes: directory entry (type=ID, offset=31, length=14)
-    "IDDBB01011990\r";       // 14 bytes: subfile content
+    "@\n\x1e\rANSI " + // 9 bytes: compliance indicator + separators + file type
+    "636001" + // 6 bytes: NY IIN
+    "10" + // 2 bytes: AAMVA version 10
+    "00" + // 2 bytes: jurisdiction version
+    "01" + // 2 bytes: number of directory entries
+    "ID" +
+    "0031" +
+    "0014" + // 10 bytes: directory entry (type=ID, offset=31, length=14)
+    "IDDBB01011990\r"; // 14 bytes: subfile content
 
   const result = window.validateAAMVAPayloadStructure(idPayload);
-  assert.deepEqual(result, { ok: true },
-    "Validator should accept ID subfile type for AAMVA identification card payloads");
+  assert.deepEqual(
+    result,
+    { ok: true },
+    "Validator should accept ID subfile type for AAMVA identification card payloads"
+  );
 });
 
 /* ============================================================
@@ -1219,7 +1438,10 @@ test("golden vector: CA v09 — minimal required fields produce valid payload", 
   const payload = window.generateAAMVAPayload("CA", "09", fields, dataObj);
 
   // Header structure
-  assert.ok(payload.startsWith("@\n\x1e\rANSI "), "payload must start with AAMVA compliance header");
+  assert.ok(
+    payload.startsWith("@\n\x1e\rANSI "),
+    "payload must start with AAMVA compliance header"
+  );
   assert.ok(payload.includes("636014"), "CA IIN 636014 must appear in header");
   assert.ok(payload.includes("09"), "version 09 must appear in header");
 
@@ -1232,7 +1454,11 @@ test("golden vector: CA v09 — minimal required fields produce valid payload", 
 
   // Structural validation
   const validation = window.validateAAMVAPayloadStructure(payload);
-  assert.deepEqual(validation, { ok: true }, "structural validator must accept generated CA v09 payload");
+  assert.deepEqual(
+    validation,
+    { ok: true },
+    "structural validator must accept generated CA v09 payload"
+  );
 
   // Round-trip decode
   const decoded = window.AAMVA_DECODER.decode(payload);
@@ -1333,11 +1559,27 @@ test("golden vector: payload directory offset is always 31 (fixed header size)",
   // @(1) + \n(1) + \x1e(1) + \r(1) + ANSI (5) + IIN(6) + ver(2) + jver(2) + numEntries(2) + dirEntry(10) = 31
   const fields = window.getFieldsForVersion("09");
   const dataObj = {
-    DCA: "C", DCB: "NONE", DCD: "NONE",
-    DBA: "01012030", DCS: "TEST", DAC: "USER", DBD: "01012020", DBB: "01011990",
-    DBC: "1", DAY: "BRO", DAU: "509", DAG: "1 A ST", DAI: "CITY", DAJ: "CA",
-    DAK: "90000", DAQ: "A0000001", DCF: "DISC0001", DCG: "USA",
-    DDE: "N", DDF: "N", DDG: "N"
+    DCA: "C",
+    DCB: "NONE",
+    DCD: "NONE",
+    DBA: "01012030",
+    DCS: "TEST",
+    DAC: "USER",
+    DBD: "01012020",
+    DBB: "01011990",
+    DBC: "1",
+    DAY: "BRO",
+    DAU: "509",
+    DAG: "1 A ST",
+    DAI: "CITY",
+    DAJ: "CA",
+    DAK: "90000",
+    DAQ: "A0000001",
+    DCF: "DISC0001",
+    DCG: "USA",
+    DDE: "N",
+    DDF: "N",
+    DDG: "N"
   };
 
   const payload = window.generateAAMVAPayload("CA", "09", fields, dataObj);
@@ -1346,18 +1588,37 @@ test("golden vector: payload directory offset is always 31 (fixed header size)",
   // The offset field is bytes 23..26 and should always be "0031"
   const dirEntry = payload.substring(21, 31);
   assert.equal(dirEntry.substring(0, 2), "DL", "directory entry type should be DL");
-  assert.equal(dirEntry.substring(2, 6), "0031", "subfile offset must always be 0031 (fixed 31-byte header)");
+  assert.equal(
+    dirEntry.substring(2, 6),
+    "0031",
+    "subfile offset must always be 0031 (fixed 31-byte header)"
+  );
 });
 
 test("golden vector: DAK postal code is always exactly 11 chars in payload", () => {
   const fields = window.getFieldsForVersion("09");
   const dataObj = {
-    DCA: "C", DCB: "NONE", DCD: "NONE",
-    DBA: "01012030", DCS: "ZIPTEST", DAC: "USER", DBD: "01012020", DBB: "01011990",
-    DBC: "1", DAY: "BRO", DAU: "509", DAG: "1 A ST", DAI: "CITY", DAJ: "CA",
+    DCA: "C",
+    DCB: "NONE",
+    DCD: "NONE",
+    DBA: "01012030",
+    DCS: "ZIPTEST",
+    DAC: "USER",
+    DBD: "01012020",
+    DBB: "01011990",
+    DBC: "1",
+    DAY: "BRO",
+    DAU: "509",
+    DAG: "1 A ST",
+    DAI: "CITY",
+    DAJ: "CA",
     DAK: "90210",
-    DAQ: "A0000002", DCF: "DISC0002", DCG: "USA",
-    DDE: "N", DDF: "N", DDG: "N"
+    DAQ: "A0000002",
+    DCF: "DISC0002",
+    DCG: "USA",
+    DDE: "N",
+    DDF: "N",
+    DDG: "N"
   };
 
   const payload = window.generateAAMVAPayload("CA", "09", fields, dataObj);
@@ -1389,7 +1650,10 @@ test("state exclusion entries contain only valid field codes", () => {
   for (const [state, excluded] of Object.entries(window.AAMVA_STATE_EXCLUDED_FIELDS)) {
     assert.ok(Array.isArray(excluded), `${state} exclusions should be an array`);
     for (const code of excluded) {
-      assert.ok(allCodes.has(code), `${state} excluded field "${code}" must be a valid AAMVA field code`);
+      assert.ok(
+        allCodes.has(code),
+        `${state} excluded field "${code}" must be a valid AAMVA field code`
+      );
     }
   }
 });
@@ -1400,7 +1664,7 @@ test("state exclusions never exclude required fields", () => {
     if (!stateDef) continue;
     const version = stateDef.aamvaVersion;
     const fields = window.getFieldsForVersion(version);
-    const requiredCodes = fields.filter(f => f.required).map(f => f.code);
+    const requiredCodes = fields.filter((f) => f.required).map((f) => f.code);
     for (const code of excluded) {
       assert.ok(
         !requiredCodes.includes(code),
@@ -1413,7 +1677,7 @@ test("state exclusions never exclude required fields", () => {
 test("getFieldsForStateAndVersion filters excluded optional fields", () => {
   // NY excludes DAW (weight) — it's an optional field in v09
   const nyFields = window.getFieldsForStateAndVersion("NY", "09");
-  const nyCodes = nyFields.map(f => f.code);
+  const nyCodes = nyFields.map((f) => f.code);
   assert.ok(!nyCodes.includes("DAW"), "NY should not include DAW (weight)");
   assert.ok(!nyCodes.includes("DAZ"), "NY should not include DAZ (hair color)");
   // But required fields like DCS should still be present
@@ -1422,16 +1686,19 @@ test("getFieldsForStateAndVersion filters excluded optional fields", () => {
 });
 
 test("getFieldsForStateAndVersion keeps all required fields", () => {
-  for (const [state, excluded] of Object.entries(window.AAMVA_STATE_EXCLUDED_FIELDS)) {
+  for (const [state, _excluded] of Object.entries(window.AAMVA_STATE_EXCLUDED_FIELDS)) {
     const stateDef = window.AAMVA_STATES[state];
     if (!stateDef) continue;
     const version = stateDef.aamvaVersion;
     const filtered = window.getFieldsForStateAndVersion(state, version);
     const allFields = window.getFieldsForVersion(version);
-    const requiredCodes = allFields.filter(f => f.required).map(f => f.code);
-    const filteredCodes = filtered.map(f => f.code);
+    const requiredCodes = allFields.filter((f) => f.required).map((f) => f.code);
+    const filteredCodes = filtered.map((f) => f.code);
     for (const code of requiredCodes) {
-      assert.ok(filteredCodes.includes(code), `${state}: required field ${code} must survive filtering`);
+      assert.ok(
+        filteredCodes.includes(code),
+        `${state}: required field ${code} must survive filtering`
+      );
     }
   }
 });

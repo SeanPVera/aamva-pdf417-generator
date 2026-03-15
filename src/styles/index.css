@@ -1,3 +1,51 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ─── DMV Blue theme ─────────────────────────────────────────────────────── */
+/* Applied when <html data-theme="dmv"> is set.
+   Overrides the default light palette with a government-style navy/slate look. */
+html[data-theme="dmv"] body {
+  background-color: #edf1f6;
+}
+html[data-theme="dmv"] header {
+  background-color: #1b3568 !important;
+}
+html[data-theme="dmv"] .dmv-sidebar {
+  background-color: #dce6f0 !important;
+  border-color: #b8c9da !important;
+}
+html[data-theme="dmv"] .dmv-main {
+  background-color: #ffffff !important;
+  border-color: #c3d0dc !important;
+}
+html[data-theme="dmv"] .dmv-preview {
+  background-color: #dce6f0 !important;
+  border-color: #b8c9da !important;
+}
+html[data-theme="dmv"] .dmv-badge {
+  background-color: #14295a !important;
+  border-color: #243f7a !important;
+}
+
+/* ─── Scrollbar polish ───────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+html.dark ::-webkit-scrollbar-thumb {
+  background: #475569;
+}
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
