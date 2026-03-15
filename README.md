@@ -28,6 +28,7 @@ This project is designed for **local, offline-oriented use** and runs as a React
 - [JSON import format](#json-import-format)
 - [Troubleshooting](#troubleshooting)
 - [Production readiness checklist](#production-readiness-checklist)
+- [Next-level roadmap (execution focused)](#next-level-roadmap-execution-focused)
 - [Developer notes](#developer-notes)
 - [Project structure](#project-structure)
 - [License](#license)
@@ -382,6 +383,81 @@ npm run format:check
 npm test
 npm audit
 ```
+
+---
+
+## Next-level roadmap (execution focused)
+
+If the goal is to move from a capable local generator to a trusted, production-adjacent platform, execute in this order.
+
+### Accuracy check: mapping roadmap to known limitations
+
+This roadmap is intentionally aligned to the limitations listed above so each workstream closes a specific gap:
+
+| Known limitation | Roadmap coverage |
+| --- | --- |
+| Not a government-certified implementation | Certification-readiness track + release governance, compliance matrix, and auditable notes. |
+| Schema coverage/rule-depth gaps | Conformance harness, jurisdiction rule packs, and version migration helpers. |
+| Validation is lightweight | Validation hardening with cross-field checks + warning/error severity + strict profile expansion. |
+| Jurisdiction support depth varies | State/territory override modules and a published rule-coverage matrix. |
+| No backend persistence | Intentional browser-first posture, plus secure import/export and configurable local retention controls. |
+| No cryptographic trust layer | Optional signing/verification layer and key-management hardening in Electron mode. |
+| Limited E2E/device testing | Scanner realism program + browser/device matrix + CI gating on conformance checks. |
+
+### Sequenced execution plan
+
+1. **Define product tiers and success metrics (Week 1)**
+   - Split the product into explicit modes: *Educational*, *QA/Conformance*, and *Internal Operational*.
+   - Track measurable targets (example): generation success rate, scanner round-trip pass rate, export reliability, validation false-positive/false-negative rates.
+   - Publish a lightweight scorecard in the repo so quality changes are visible per release.
+
+2. **Build a conformance harness (Weeks 1–3)**
+   - Add canonical AAMVA fixtures by version (`01`–`10`) and jurisdiction scenarios.
+   - Create round-trip tests: **input → payload → barcode → scan/decode → semantic compare**.
+   - Add snapshot testing for payload text and symbol parameters so regressions are caught early.
+
+3. **Strengthen jurisdiction rule packs (Weeks 2–6)**
+   - Introduce jurisdiction override modules with explicit required fields, date rules, and warning/error policy.
+   - Add strict mode profiles per jurisdiction and a matrix report showing rule coverage depth.
+   - Include migration helpers that safely remap fields when changing AAMVA version.
+
+4. **Invest in scanner realism (Weeks 3–6)**
+   - Add image quality stress tests (blur, skew, glare, low contrast) against generated barcodes.
+   - Validate scanner behavior on iOS Safari, Android Chrome, desktop webcams, and uploaded photos.
+   - Track scan latency and decode reliability across device classes.
+
+5. **Ship security and data lifecycle controls (Weeks 4–8)**
+   - Add optional encrypted project/session export using a passphrase-derived key.
+   - For Electron mode, store sensitive secrets in OS credential stores.
+   - Add retention settings (session-only, timed wipe) and explicit user-facing privacy notices.
+
+6. **Operationalize release discipline (Weeks 5–8)**
+   - Enforce CI quality gates: lint, format, unit tests, conformance suite, and package build checks.
+   - Add signed release artifacts, changelogs, and compliance-impact labels in PRs.
+   - Gate production-tagged releases on zero critical defects and target pass-rate thresholds.
+
+7. **Improve enterprise adoption readiness (Weeks 6–10)**
+   - Add import/export compatibility docs and versioned schema contracts.
+   - Provide audit logs for key user actions (generate/export/import) in desktop mode.
+   - Add role-based configuration toggles for strict mode defaults and data retention policies.
+
+### Recommended KPI dashboard
+
+Track these in CI and release notes:
+
+- **Conformance pass rate** (by version and jurisdiction)
+- **Scanner round-trip success rate** (by device/browser)
+- **Median decode latency**
+- **Validation precision/recall** (where labeled fixtures exist)
+- **Export integrity pass rate** (PNG/SVG/PDF)
+- **Regression escape rate** (issues found post-release)
+
+### Practical first milestone (30 days)
+
+- Ship conformance harness + 100+ fixtures.
+- Enforce CI quality gates on every PR.
+- Publish first coverage matrix and KPI baseline.
+- Add strict mode toggle backed by at least 5 high-priority jurisdiction rule packs.
 
 ---
 
