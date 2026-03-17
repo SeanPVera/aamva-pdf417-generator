@@ -70,7 +70,7 @@ export const useFormStore = create<FormState>()(
       strictMode: false,
       subfileType: "DL",
       fields: {},
-      theme: "light",
+      theme: "dark",
       _history: [],
       _future: [],
 
