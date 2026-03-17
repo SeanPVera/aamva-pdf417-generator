@@ -18,6 +18,7 @@ const WebcamScanner = React.lazy(() =>
 
 function App() {
   const [isScanning, setIsScanning] = React.useState(false);
+  const [mobilePanel, setMobilePanel] = React.useState<"config" | "form" | "preview">("form");
   const { state, version, strictMode, fields, setField, theme, undo, redo, canUndo, canRedo } =
     useFormStore();
   const schemaFields = getFieldsForStateAndVersion(state, version);
@@ -74,13 +75,43 @@ function App() {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-sans">
+    <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-sans">
       <Header onStartScan={() => setIsScanning(true)} />
 
-      <main className="flex flex-1 overflow-hidden">
-        <Sidebar />
+      <nav
+        className="lg:hidden sticky top-[60px] z-10 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700"
+        aria-label="Mobile panel navigation"
+      >
+        <div className="grid grid-cols-3 gap-2 p-2">
+          {[
+            { key: "config", label: "Config" },
+            { key: "form", label: "Fields" },
+            { key: "preview", label: "Preview" }
+          ].map((panel) => (
+            <button
+              key={panel.key}
+              type="button"
+              onClick={() => setMobilePanel(panel.key as "config" | "form" | "preview")}
+              className={`rounded-md px-3 py-2 text-sm font-medium transition ${
+                mobilePanel === panel.key
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200"
+              }`}
+            >
+              {panel.label}
+            </button>
+          ))}
+        </div>
+      </nav>
 
-        <div className="dmv-main flex-1 flex flex-col overflow-y-auto bg-white dark:bg-gray-800 m-4 rounded shadow-sm border border-gray-200 dark:border-gray-700">
+      <main className="flex flex-1 flex-col lg:flex-row overflow-visible lg:overflow-hidden gap-0 lg:gap-0">
+        <Sidebar mobileHidden={mobilePanel !== "config"} />
+
+        <div
+          className={`dmv-main flex-1 flex flex-col overflow-y-auto bg-white dark:bg-gray-800 m-2 lg:m-4 rounded shadow-sm border border-gray-200 dark:border-gray-700 ${
+            mobilePanel !== "form" ? "hidden lg:flex" : "flex"
+          }`}
+        >
           <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
             <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
               Payload Fields
@@ -90,7 +121,7 @@ function App() {
             </div>
           </div>
 
-          <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="p-4 lg:p-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 lg:gap-6">
             {schemaFields.map((field) => {
               const value = fields[field.code] || "";
               const isValid = validateFieldValue(field, value, state, strictMode);
@@ -225,7 +256,7 @@ function App() {
           </div>
         </div>
 
-        <BarcodePreview />
+        <BarcodePreview mobileHidden={mobilePanel !== "preview"} />
       </main>
 
       {isScanning && (
