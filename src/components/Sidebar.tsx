@@ -4,7 +4,11 @@ import { AAMVA_STATES, isJurisdictionSupported } from "../core/states";
 import { AAMVA_VERSIONS, getFieldsForStateAndVersion } from "../core/schema";
 import { VersionBrowser } from "./VersionBrowser";
 
-export const Sidebar: React.FC = () => {
+interface SidebarProps {
+  mobileHidden?: boolean;
+}
+
+export const Sidebar: React.FC<SidebarProps> = ({ mobileHidden = false }) => {
   const {
     state,
     version,
@@ -30,7 +34,9 @@ export const Sidebar: React.FC = () => {
 
   return (
     <aside
-      className="dmv-sidebar w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col h-full overflow-y-auto p-4 shadow-sm"
+      className={`dmv-sidebar w-full lg:w-64 bg-white dark:bg-gray-800 border-b lg:border-b-0 lg:border-r border-gray-200 dark:border-gray-700 flex flex-col max-h-[45vh] lg:max-h-none overflow-y-auto p-4 shadow-sm ${
+        mobileHidden ? "hidden lg:flex" : "flex"
+      }`}
       aria-label="Configuration"
     >
       <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">Configuration</h2>

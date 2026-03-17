@@ -68,7 +68,11 @@ function CollapsibleSection({
   );
 }
 
-export const BarcodePreview: React.FC = () => {
+interface BarcodePreviewProps {
+  mobileHidden?: boolean;
+}
+
+export const BarcodePreview: React.FC<BarcodePreviewProps> = ({ mobileHidden = false }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { state, version, fields, strictMode, subfileType } = useFormStore();
   const [error, setError] = useState<string | null>(null);
@@ -162,7 +166,9 @@ export const BarcodePreview: React.FC = () => {
 
   return (
     <aside
-      className="dmv-preview w-80 bg-gray-50 dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 p-4 flex flex-col gap-4 shadow-sm overflow-y-auto"
+      className={`dmv-preview w-full lg:w-80 bg-gray-50 dark:bg-gray-800 border-t lg:border-t-0 lg:border-l border-gray-200 dark:border-gray-700 p-4 flex flex-col gap-4 shadow-sm overflow-y-auto ${
+        mobileHidden ? "hidden lg:flex" : "flex"
+      }`}
       aria-label="Barcode preview and diagnostics"
     >
       <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100">Preview</h2>
