@@ -39,18 +39,18 @@ function CollapsibleSection({
 }) {
   const [open, setOpen] = useState(defaultOpen);
   const badgeClasses = {
-    gray: "bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200",
+    gray: "bg-gray-200 dark:bg-[#333] text-gray-700 dark:text-gray-200",
     green: "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300",
     red: "bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300",
     blue: "bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300"
   }[badgeColor];
 
   return (
-    <div className="border border-gray-200 dark:border-gray-700 rounded-md overflow-hidden">
+    <div className="border border-gray-200 dark:border-dark-border rounded-md overflow-hidden">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="w-full flex items-center justify-between px-3 py-2 bg-gray-50 dark:bg-gray-700/60 hover:bg-gray-100 dark:hover:bg-gray-700 transition text-sm font-semibold text-gray-700 dark:text-gray-200"
+        className="w-full flex items-center justify-between px-3 py-2 bg-gray-50 dark:bg-dark-surface2 hover:bg-gray-100 dark:hover:bg-[#383838] transition-colors text-sm font-semibold text-gray-700 dark:text-gray-200"
         aria-expanded={open}
       >
         <span className="flex items-center gap-2">
@@ -63,7 +63,7 @@ function CollapsibleSection({
           </span>
         )}
       </button>
-      {open && <div className="px-3 py-2 bg-white dark:bg-gray-800">{children}</div>}
+      {open && <div className="px-3 py-2 bg-white dark:bg-dark-surface">{children}</div>}
     </div>
   );
 }
@@ -166,15 +166,17 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({ mobileHidden = f
 
   return (
     <aside
-      className={`dmv-preview w-full lg:w-80 bg-gray-50 dark:bg-gray-800 border-t lg:border-t-0 lg:border-l border-gray-200 dark:border-gray-700 p-4 flex flex-col gap-4 shadow-sm overflow-y-auto ${
+      className={`dmv-preview w-full lg:w-80 bg-gray-50 dark:bg-dark-surface border-t lg:border-t-0 lg:border-l border-gray-200 dark:border-dark-border z-10 p-4 flex flex-col gap-4 shadow-sm overflow-y-auto ${
         mobileHidden ? "hidden lg:flex" : "flex"
       }`}
       aria-label="Barcode preview and diagnostics"
     >
-      <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100">Preview</h2>
+      <h2 className="text-lg font-medium tracking-tight text-gray-900 dark:text-gray-100">
+        Preview
+      </h2>
 
       {/* Canvas */}
-      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-4 rounded-md flex items-center justify-center min-h-[150px] relative overflow-hidden">
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-dark-border p-4 rounded-md flex items-center justify-center min-h-[150px] relative overflow-hidden">
         <canvas ref={canvasRef} className="max-w-full" aria-label="PDF417 barcode preview" />
         {error && (
           <div
@@ -192,7 +194,7 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({ mobileHidden = f
           onClick={handleExportPNG}
           disabled={!!error || !payloadStr}
           aria-label="Export barcode as PNG"
-          className="flex-1 flex items-center justify-center gap-1.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed text-white py-1.5 rounded shadow text-sm font-medium transition"
+          className="flex-1 flex items-center justify-center gap-1.5 bg-brand-600 hover:bg-brand-700 disabled:opacity-40 disabled:cursor-not-allowed text-white py-1.5 rounded shadow text-sm font-medium transition"
         >
           <FileImage size={14} />
           PNG
@@ -201,7 +203,7 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({ mobileHidden = f
           onClick={handleExportSVG}
           disabled={!!error || !payloadStr}
           aria-label="Export barcode as SVG"
-          className="flex-1 flex items-center justify-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed text-white py-1.5 rounded shadow text-sm font-medium transition"
+          className="flex-1 flex items-center justify-center gap-1.5 bg-gray-800 hover:bg-gray-900 dark:bg-dark-surface2 dark:hover:bg-[#383838] disabled:opacity-40 disabled:cursor-not-allowed text-white py-1.5 rounded shadow text-sm font-medium transition"
         >
           <FileCode2 size={14} />
           SVG

@@ -34,12 +34,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileHidden = false }) => {
 
   return (
     <aside
-      className={`dmv-sidebar w-full lg:w-64 bg-white dark:bg-gray-800 border-b lg:border-b-0 lg:border-r border-gray-200 dark:border-gray-700 flex flex-col max-h-[45vh] lg:max-h-none overflow-y-auto p-4 shadow-sm ${
+      className={`dmv-sidebar w-full lg:w-64 bg-white dark:bg-dark-surface border-b lg:border-b-0 lg:border-r border-gray-200 dark:border-dark-border z-10 flex flex-col max-h-[45vh] lg:max-h-none overflow-y-auto p-4 shadow-sm ${
         mobileHidden ? "hidden lg:flex" : "flex"
       }`}
       aria-label="Configuration"
     >
-      <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">Configuration</h2>
+      <h2 className="text-lg font-medium tracking-tight text-gray-900 dark:text-gray-100 mb-4">
+        Configuration
+      </h2>
 
       <div className="space-y-4 flex-1">
         {/* State / Territory */}
@@ -54,7 +56,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileHidden = false }) => {
             id="state-select"
             value={state}
             onChange={handleStateChange}
-            className="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm p-2 border"
+            className="w-full w-full border-gray-300 dark:border-[#555] dark:bg-dark-surface2 dark:text-gray-100 rounded-lg shadow-sm focus:ring-brand-500 focus:border-brand-500 text-sm p-2.5 border transition-colors"
             aria-label="Select state or territory"
           >
             {Object.keys(AAMVA_STATES)
@@ -83,7 +85,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileHidden = false }) => {
             id="version-select"
             value={version}
             onChange={handleVersionChange}
-            className="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm p-2 border"
+            className="w-full w-full border-gray-300 dark:border-[#555] dark:bg-dark-surface2 dark:text-gray-100 rounded-lg shadow-sm focus:ring-brand-500 focus:border-brand-500 text-sm p-2.5 border transition-colors"
             aria-label="Select AAMVA version"
           >
             {Object.keys(AAMVA_VERSIONS).map((v) => (
@@ -106,7 +108,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileHidden = false }) => {
             id="subfile-select"
             value={subfileType}
             onChange={(e) => setSubfileType(e.target.value as "DL" | "ID")}
-            className="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm p-2 border"
+            className="w-full w-full border-gray-300 dark:border-[#555] dark:bg-dark-surface2 dark:text-gray-100 rounded-lg shadow-sm focus:ring-brand-500 focus:border-brand-500 text-sm p-2.5 border transition-colors"
             aria-label="Select subfile type"
           >
             <option value="DL">Driver's License (DL)</option>
@@ -121,7 +123,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileHidden = false }) => {
             type="checkbox"
             checked={strictMode}
             onChange={(e) => setStrictMode(e.target.checked)}
-            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600 rounded"
+            className="h-4 w-4 text-brand-600 focus:ring-brand-500 border-gray-300 dark:border-[#555] dark:bg-dark-surface2 transition-colors rounded"
             aria-describedby="strictMode-desc"
           />
           <label
@@ -137,7 +139,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileHidden = false }) => {
       </div>
 
       {/* Schema Info */}
-      <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700 space-y-3">
+      <div className="mt-6 pt-4 border-t border-gray-200 dark:border-dark-border space-y-3">
         <div>
           <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Schema Info</h3>
           <div className="flex gap-3 text-xs text-gray-500 dark:text-gray-400">

@@ -1,3 +1,6 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -48,4 +51,54 @@ html.dark ::-webkit-scrollbar-thumb {
 }
 html.dark ::-webkit-scrollbar-thumb:hover {
   background: #64748b;
+}
+
+/* Fallback to Inter / Roboto to match Google Sans feel closely if not installed */
+
+body {
+  @apply font-sans antialiased bg-gray-50 text-gray-900;
+}
+
+html.dark body {
+  @apply bg-[#121212] text-gray-200;
+}
+
+/* Base Form Control Resets for modern look */
+input,
+select,
+textarea {
+  @apply transition-colors duration-200;
+}
+
+/* Floating Label Support */
+.float-label-input:focus ~ label,
+.float-label-input:not(:placeholder-shown) ~ label {
+  @apply text-xs -translate-y-3 scale-75;
+}
+
+html.dark .float-label-input:focus ~ label {
+  @apply text-brand-400;
+}
+
+.float-label-input:focus ~ label {
+  @apply text-brand-500;
+}
+
+html.dark ::-webkit-scrollbar-thumb {
+  background: #333333;
+}
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: #555555;
+}
+html.dark ::-webkit-scrollbar-track {
+  background: #121212;
+}
+
+/* Smooth transition for theme toggling and general layout */
+body,
+header,
+aside,
+main,
+div {
+  @apply transition-colors duration-300 ease-in-out;
 }
