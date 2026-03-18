@@ -82,14 +82,14 @@ export const Header: React.FC<HeaderProps> = ({ onStartScan }) => {
   };
 
   return (
-    <header className="bg-blue-700 text-white shadow-md z-10 sticky top-0 px-4 py-2.5 flex items-center justify-between gap-4">
+    <header className="bg-white dark:bg-dark-surface text-gray-900 dark:text-gray-100 shadow-sm border-b border-gray-200 dark:border-dark-border z-10 sticky top-0 px-4 py-2.5 flex items-center justify-between gap-4">
       {/* Brand */}
       <div className="flex items-center space-x-3 shrink-0">
-        <ShieldCheck className="h-5 w-5" />
+        <ShieldCheck className="h-5 w-5 text-brand-600 dark:text-brand-400" />
         <h1 className="text-lg font-bold tracking-wide whitespace-nowrap">
           AAMVA PDF417 Generator
         </h1>
-        <span className="dmv-badge bg-blue-800 text-xs py-0.5 px-2 rounded-full border border-blue-600 whitespace-nowrap">
+        <span className="dmv-badge bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300 text-xs py-0.5 px-2 rounded-full border border-brand-200 dark:border-brand-800/50 whitespace-nowrap">
           Professional Grade
         </span>
       </div>
@@ -102,7 +102,7 @@ export const Header: React.FC<HeaderProps> = ({ onStartScan }) => {
           disabled={!canUndo()}
           title="Undo (Ctrl+Z)"
           aria-label="Undo last field change"
-          className="flex items-center gap-1 hover:bg-blue-600 disabled:opacity-40 disabled:cursor-not-allowed px-2 py-1.5 rounded transition text-sm"
+          className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 disabled:opacity-40 disabled:cursor-not-allowed px-2 py-1.5 rounded transition text-sm"
         >
           <Undo2 size={15} />
         </button>
@@ -111,15 +111,15 @@ export const Header: React.FC<HeaderProps> = ({ onStartScan }) => {
           disabled={!canRedo()}
           title="Redo (Ctrl+Shift+Z)"
           aria-label="Redo field change"
-          className="flex items-center gap-1 hover:bg-blue-600 disabled:opacity-40 disabled:cursor-not-allowed px-2 py-1.5 rounded transition text-sm"
+          className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 disabled:opacity-40 disabled:cursor-not-allowed px-2 py-1.5 rounded transition text-sm"
         >
           <Redo2 size={15} />
         </button>
 
-        <div className="w-px h-5 bg-blue-500 mx-1" />
+        <div className="w-px h-5 bg-gray-200 dark:bg-dark-border mx-1" />
 
         {/* Theme toggle */}
-        <div className="flex items-center rounded overflow-hidden border border-blue-500">
+        <div className="flex items-center rounded overflow-hidden border border-gray-200 dark:border-dark-border">
           {THEMES.map((t) => (
             <button
               key={t}
@@ -127,7 +127,9 @@ export const Header: React.FC<HeaderProps> = ({ onStartScan }) => {
               title={`${THEME_LABELS[t].label} theme`}
               aria-pressed={theme === t}
               className={`flex items-center gap-1 px-2 py-1.5 text-xs transition ${
-                theme === t ? "bg-blue-500 font-semibold" : "hover:bg-blue-600"
+                theme === t
+                  ? "bg-blue-500 font-semibold"
+                  : "hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300"
               }`}
             >
               {THEME_LABELS[t].icon}
@@ -136,12 +138,12 @@ export const Header: React.FC<HeaderProps> = ({ onStartScan }) => {
           ))}
         </div>
 
-        <div className="w-px h-5 bg-blue-500 mx-1" />
+        <div className="w-px h-5 bg-gray-200 dark:bg-dark-border mx-1" />
 
         {/* Scan */}
         <button
           onClick={onStartScan}
-          className="flex items-center gap-1 hover:bg-blue-600 px-2 py-1.5 rounded transition text-sm"
+          className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 px-2 py-1.5 rounded transition text-sm"
           title="Scan Barcode from Webcam"
           aria-label="Open barcode scanner"
         >
@@ -160,7 +162,7 @@ export const Header: React.FC<HeaderProps> = ({ onStartScan }) => {
         />
         <button
           onClick={() => importRef.current?.click()}
-          className="flex items-center gap-1 hover:bg-blue-600 px-2 py-1.5 rounded transition text-sm"
+          className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 px-2 py-1.5 rounded transition text-sm"
           title="Import JSON Profile"
           aria-label="Import JSON payload file"
         >
@@ -171,7 +173,7 @@ export const Header: React.FC<HeaderProps> = ({ onStartScan }) => {
         {/* Export JSON */}
         <button
           onClick={handleExportJson}
-          className="flex items-center gap-1 hover:bg-blue-600 px-2 py-1.5 rounded transition text-sm"
+          className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 px-2 py-1.5 rounded transition text-sm"
           title="Export JSON Profile"
           aria-label="Export current fields as JSON"
         >

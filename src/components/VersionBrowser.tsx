@@ -12,11 +12,11 @@ export const VersionBrowser: React.FC = () => {
   const requiredCount = versionDef?.fields.filter((f) => f.required).length ?? 0;
 
   return (
-    <div className="border border-gray-200 dark:border-gray-700 rounded-md overflow-hidden">
+    <div className="border border-gray-200 dark:border-dark-border rounded-md overflow-hidden">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="w-full flex items-center justify-between px-3 py-2 bg-gray-50 dark:bg-gray-700/60 hover:bg-gray-100 dark:hover:bg-gray-700 transition text-sm font-semibold text-gray-700 dark:text-gray-200"
+        className="w-full flex items-center justify-between px-3 py-2 bg-gray-50 dark:bg-dark-surface2 hover:bg-gray-100 dark:hover:bg-[#383838] transition text-sm font-semibold text-gray-700 dark:text-gray-200"
         aria-expanded={open}
         aria-controls="version-browser-panel"
       >
@@ -28,7 +28,7 @@ export const VersionBrowser: React.FC = () => {
       </button>
 
       {open && (
-        <div id="version-browser-panel" className="p-3 bg-white dark:bg-gray-800 space-y-3">
+        <div id="version-browser-panel" className="p-3 bg-white dark:bg-dark-surface space-y-3">
           {/* Version picker */}
           <div>
             <label
@@ -73,7 +73,7 @@ export const VersionBrowser: React.FC = () => {
                 </span>
               </div>
 
-              <div className="overflow-auto max-h-64 rounded border border-gray-200 dark:border-gray-700">
+              <div className="overflow-auto max-h-64 rounded border border-gray-200 dark:border-dark-border">
                 <table
                   className="w-full text-xs border-collapse"
                   aria-label={`Fields for AAMVA version ${browsedVersion}`}

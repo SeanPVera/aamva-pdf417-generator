@@ -75,7 +75,7 @@ function App() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-sans">
+    <div className="flex flex-col min-h-screen bg-white dark:bg-[#121212] text-gray-900 dark:text-gray-200 font-sans">
       <Header onStartScan={() => setIsScanning(true)} />
 
       <nav
@@ -108,7 +108,7 @@ function App() {
         <Sidebar mobileHidden={mobilePanel !== "config"} />
 
         <div
-          className={`dmv-main flex-1 flex flex-col overflow-y-auto bg-white dark:bg-gray-800 m-2 lg:m-4 rounded shadow-sm border border-gray-200 dark:border-gray-700 ${
+          className={`dmv-main flex-1 flex flex-col overflow-y-auto bg-white dark:bg-[#1E1E1E] m-2 lg:m-4 rounded-xl shadow-google dark:shadow-none border border-gray-200 dark:border-[#333333] ${
             mobilePanel !== "form" ? "hidden lg:flex" : "flex"
           }`}
         >
@@ -121,119 +121,123 @@ function App() {
             </div>
           </div>
 
-          <div className="p-4 lg:p-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 lg:gap-6">
+          <div className="p-4 lg:p-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6 lg:gap-8">
             {schemaFields.map((field) => {
               const value = fields[field.code] || "";
               const isValid = validateFieldValue(field, value, state, strictMode);
               const hasError = !!(value && !isValid);
               const errorId = `error-${field.code}`;
 
+              // Google Material Design style base classes
+              const baseInputClass =
+                "block w-full px-3 pt-5 pb-2 text-sm text-gray-900 bg-gray-100 dark:bg-[#2C2C2C] border-0 border-b-2 appearance-none dark:text-gray-100 focus:outline-none focus:ring-0 peer transition-all duration-200 ease-in-out rounded-t-md pr-16";
+              const normalClass = `${baseInputClass} border-gray-300 dark:border-[#555] focus:border-brand-500`;
+              const errorClass = `${baseInputClass} border-red-500 focus:border-red-500`;
+              const finalClass = hasError ? errorClass : normalClass;
+
+              const labelClass = `absolute text-sm duration-300 transform top-4 z-10 origin-[0] left-3 pointer-events-none ${
+                hasError
+                  ? "text-red-500"
+                  : "text-gray-500 dark:text-gray-400 peer-focus:text-brand-500 peer-focus:dark:text-brand-400"
+              } truncate w-[85%]`;
+
               return (
                 <div key={field.code} className="flex flex-col relative group">
-                  <label
-                    htmlFor={field.code}
-                    className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1 flex justify-between items-center"
-                  >
-                    <span>
-                      {field.code} — {field.label}
-                    </span>
-                    {field.required && (
-                      <span className="text-red-500" aria-hidden="true" title="Required">
-                        *
-                      </span>
-                    )}
-                  </label>
-
                   {field.options ? (
-                    <select
-                      id={field.code}
-                      value={value}
-                      onChange={(e) => handleChange(field.code, e.target.value)}
-                      aria-required={field.required}
-                      aria-invalid={hasError}
-                      aria-describedby={hasError ? errorId : undefined}
-                      className={`border rounded p-2 text-sm focus:ring-blue-500 outline-none transition-shadow dark:bg-gray-700 dark:text-gray-100 ${
-                        hasError
-                          ? "border-red-500 bg-red-50 dark:bg-red-900/30 focus:ring-red-500"
-                          : "border-gray-300 dark:border-gray-600 focus:ring-1"
-                      }`}
-                    >
-                      <option value="">Select…</option>
-                      {field.options.map((opt) => (
-                        <option key={opt.value} value={opt.value}>
-                          {opt.label}
+                    <div className="relative">
+                      <select
+                        id={field.code}
+                        value={value}
+                        onChange={(e) => handleChange(field.code, e.target.value)}
+                        aria-required={field.required}
+                        aria-invalid={hasError}
+                        aria-describedby={hasError ? errorId : undefined}
+                        className={finalClass + (value ? "" : " text-transparent")}
+                      >
+                        <option value="" disabled className="text-gray-500 dark:text-gray-400">
+                          Select...
                         </option>
-                      ))}
-                    </select>
+                        {field.options.map((opt) => (
+                          <option
+                            key={opt.value}
+                            value={opt.value}
+                            className="text-gray-900 dark:text-gray-100 bg-white dark:bg-dark-surface"
+                          >
+                            {opt.label}
+                          </option>
+                        ))}
+                      </select>
+                      <label htmlFor={field.code} className={labelClass.replace("transform top-4", "transform -translate-y-3 scale-75 top-4")}>
+                        {field.code} — {field.label}{" "}
+                        {field.required && <span className="text-red-500">*</span>}
+                      </label>
+                    </div>
                   ) : field.type === "date" ? (
-                    <div className="flex space-x-1">
+                    <div className="relative flex">
                       <input
                         type="text"
                         id={field.code}
                         value={value}
-                        placeholder={field.dateFormat || "MMDDYYYY"}
+                        placeholder=" "
                         onChange={(e) => handleChange(field.code, e.target.value)}
                         maxLength={8}
                         aria-required={field.required}
                         aria-invalid={hasError}
                         aria-describedby={hasError ? errorId : undefined}
-                        className={`flex-1 min-w-0 border rounded p-2 text-sm focus:ring-blue-500 outline-none transition-shadow dark:bg-gray-700 dark:text-gray-100 ${
-                          hasError
-                            ? "border-red-500 bg-red-50 dark:bg-red-900/30 focus:ring-red-500"
-                            : "border-gray-300 dark:border-gray-600 focus:ring-1"
-                        }`}
+                        className={`${finalClass} float-label-input`}
                       />
+                      <label htmlFor={field.code} className={labelClass.replace("transform top-4", "transform -translate-y-3 scale-75 top-4")}>
+                        {field.code} — {field.label}{" "}
+                        {field.required && <span className="text-red-500">*</span>}
+                      </label>
                       {field.code === "DDB" && (
                         <button
                           type="button"
                           onClick={() => handleGenerate(field.code)}
-                          className="text-xs font-medium bg-gray-100 hover:bg-gray-200 dark:bg-gray-600 dark:hover:bg-gray-500 border border-gray-300 dark:border-gray-500 rounded px-2 text-gray-700 dark:text-gray-200 transition-colors"
+                          className="absolute right-1.5 top-2 bottom-2 text-[10px] font-medium bg-gray-200 hover:bg-gray-300 dark:bg-[#444] dark:hover:bg-[#555] rounded px-2 text-gray-700 dark:text-gray-200 transition-colors z-20 shadow-sm"
                           title="Generate Card Revision Date"
-                          aria-label={`Generate value for ${field.label}`}
                         >
                           Gen
                         </button>
                       )}
                     </div>
                   ) : (
-                    <div className="flex space-x-1">
+                    <div className="relative flex">
                       <input
                         type="text"
                         id={field.code}
                         value={value}
-                        placeholder={field.label}
+                        placeholder=" "
                         onChange={(e) => handleChange(field.code, e.target.value)}
                         aria-required={field.required}
                         aria-invalid={hasError}
                         aria-describedby={hasError ? errorId : undefined}
-                        className={`flex-1 min-w-0 border rounded p-2 text-sm focus:ring-blue-500 outline-none transition-shadow dark:bg-gray-700 dark:text-gray-100 ${
-                          hasError
-                            ? "border-red-500 bg-red-50 dark:bg-red-900/30 focus:ring-red-500"
-                            : "border-gray-300 dark:border-gray-600 focus:ring-1"
-                        }`}
+                        className={`${finalClass} float-label-input`}
                       />
-                      {(field.code === "DCF" || field.code === "DAQ") && (
-                        <button
-                          type="button"
-                          onClick={() => handleGenerate(field.code)}
-                          className="text-xs font-medium bg-gray-100 hover:bg-gray-200 dark:bg-gray-600 dark:hover:bg-gray-500 border border-gray-300 dark:border-gray-500 rounded px-2 text-gray-700 dark:text-gray-200 transition-colors"
-                          title="Generate Auto Value"
-                          aria-label={`Generate value for ${field.label}`}
-                        >
-                          Gen
-                        </button>
-                      )}
-                      {(field.code === "DCB" || field.code === "DCD") && (
-                        <button
-                          type="button"
-                          onClick={() => handleChange(field.code, "NONE")}
-                          className="text-xs font-medium bg-gray-100 hover:bg-gray-200 dark:bg-gray-600 dark:hover:bg-gray-500 border border-gray-300 dark:border-gray-500 rounded px-2 text-gray-700 dark:text-gray-200 transition-colors"
-                          title="Set to NONE"
-                          aria-label={`Set ${field.label} to NONE`}
-                        >
-                          None
-                        </button>
-                      )}
+                      <label htmlFor={field.code} className={labelClass.replace("transform top-4", "transform -translate-y-3 scale-75 top-4")}>
+                        {field.code} — {field.label}{" "}
+                        {field.required && <span className="text-red-500">*</span>}
+                      </label>
+                      <div className="absolute right-1.5 top-2 bottom-2 flex gap-1 z-20">
+                        {(field.code === "DCF" || field.code === "DAQ") && (
+                          <button
+                            type="button"
+                            onClick={() => handleGenerate(field.code)}
+                            className="text-[10px] font-medium bg-gray-200 hover:bg-gray-300 dark:bg-[#444] dark:hover:bg-[#555] rounded px-2 text-gray-700 dark:text-gray-200 transition-colors shadow-sm"
+                          >
+                            Gen
+                          </button>
+                        )}
+                        {(field.code === "DCB" || field.code === "DCD") && (
+                          <button
+                            type="button"
+                            onClick={() => handleChange(field.code, "NONE")}
+                            className="text-[10px] font-medium bg-gray-200 hover:bg-gray-300 dark:bg-[#444] dark:hover:bg-[#555] rounded px-2 text-gray-700 dark:text-gray-200 transition-colors shadow-sm"
+                          >
+                            None
+                          </button>
+                        )}
+                      </div>
                     </div>
                   )}
 
@@ -241,16 +245,15 @@ function App() {
                     <span
                       id={errorId}
                       role="alert"
-                      className="mt-1 text-red-500 text-[10px] font-medium"
+                      className="mt-1 text-red-500 text-[10px] font-medium absolute -bottom-4 left-0"
                     >
-                      Invalid format
+                      Invalid format {field.dateFormat ? `(e.g. ${field.dateFormat})` : ""}
                     </span>
                   )}
                 </div>
               );
             })}
           </div>
-
           <div className="mt-auto">
             <BatchProcessor />
           </div>
