@@ -107,9 +107,7 @@ export function generateAAMVAPayload(
       dataObj[field.code] = val
         .normalize("NFKD")
         .replace(/[\u0300-\u036f]/g, "")
-        .replace(/[^\x20-\x7e]/g, "")
-        // eslint-disable-next-line no-control-regex
-        .replace(/[\x00-\x1f\x7f]/g, "");
+        .replace(/[^\x20-\x7e]/g, "");
     }
   }
 
