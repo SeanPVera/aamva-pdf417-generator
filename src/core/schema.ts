@@ -236,10 +236,22 @@ export const AAMVA_VERSIONS: Record<string, AAMVAVersionDef> = {
       { code: "DCA", label: "Vehicle Class", type: "string", required: true },
       { code: "DCB", label: "Restriction Codes", type: "string", required: true },
       { code: "DCD", label: "Endorsement Codes", type: "string", required: true },
-      { code: "DBA", label: "Expiration Date", type: "date", required: true },
-      { code: "DBB", label: "Date of Birth", type: "date", required: true },
+      {
+        code: "DBA",
+        label: "Expiration Date",
+        type: "date",
+        required: true,
+        dateFormat: "MMDDYYYY"
+      },
+      { code: "DBB", label: "Date of Birth", type: "date", required: true, dateFormat: "MMDDYYYY" },
       { code: "DBC", label: "Sex", type: "char", required: true },
-      { code: "DBD", label: "Document Issue Date", type: "date", required: true },
+      {
+        code: "DBD",
+        label: "Document Issue Date",
+        type: "date",
+        required: true,
+        dateFormat: "MMDDYYYY"
+      },
       { code: "DAU", label: "Height", type: "string", required: true },
       { code: "DAY", label: "Eye Color", type: "string", required: true },
       { code: "DCF", label: "Document Discriminator", type: "string", required: true },
@@ -266,10 +278,22 @@ export const AAMVA_VERSIONS: Record<string, AAMVAVersionDef> = {
       { code: "DCA", label: "Vehicle Class", type: "string", required: true },
       { code: "DCB", label: "Restriction Codes", type: "string", required: true },
       { code: "DCD", label: "Endorsement Codes", type: "string", required: true },
-      { code: "DBA", label: "Expiration Date", type: "date", required: true },
-      { code: "DBB", label: "Date of Birth", type: "date", required: true },
+      {
+        code: "DBA",
+        label: "Expiration Date",
+        type: "date",
+        required: true,
+        dateFormat: "MMDDYYYY"
+      },
+      { code: "DBB", label: "Date of Birth", type: "date", required: true, dateFormat: "MMDDYYYY" },
       { code: "DBC", label: "Sex", type: "char", required: true },
-      { code: "DBD", label: "Document Issue Date", type: "date", required: true },
+      {
+        code: "DBD",
+        label: "Document Issue Date",
+        type: "date",
+        required: true,
+        dateFormat: "MMDDYYYY"
+      },
       { code: "DAU", label: "Height", type: "string", required: true },
       { code: "DAY", label: "Eye Color", type: "string", required: true },
       { code: "DCF", label: "Document Discriminator", type: "string", required: true },
@@ -285,12 +309,24 @@ export const AAMVA_VERSIONS: Record<string, AAMVAVersionDef> = {
       { code: "DCA", label: "Vehicle Class", type: "string", required: true },
       { code: "DCB", label: "Restriction Codes", type: "string", required: true },
       { code: "DCD", label: "Endorsement Codes", type: "string", required: true },
-      { code: "DBA", label: "Expiration Date", type: "date", required: true },
+      {
+        code: "DBA",
+        label: "Expiration Date",
+        type: "date",
+        required: true,
+        dateFormat: "MMDDYYYY"
+      },
       { code: "DCS", label: "Customer Family Name", type: "string", required: true },
       { code: "DAC", label: "Customer First Name", type: "string", required: true },
       { code: "DAD", label: "Customer Middle Name", type: "string" },
-      { code: "DBD", label: "Document Issue Date", type: "date", required: true },
-      { code: "DBB", label: "Date of Birth", type: "date", required: true },
+      {
+        code: "DBD",
+        label: "Document Issue Date",
+        type: "date",
+        required: true,
+        dateFormat: "MMDDYYYY"
+      },
+      { code: "DBB", label: "Date of Birth", type: "date", required: true, dateFormat: "MMDDYYYY" },
       { code: "DBC", label: "Sex", type: "char", required: true },
       { code: "DAY", label: "Eye Color", type: "string", required: true },
       { code: "DAU", label: "Height", type: "string", required: true },
@@ -310,7 +346,7 @@ export const AAMVA_VERSIONS: Record<string, AAMVAVersionDef> = {
       { code: "DAZ", label: "Hair Color", type: "string" },
       { code: "DCL", label: "Race/Ethnicity", type: "string" },
       { code: "DDA", label: "Compliance Type", type: "string" },
-      { code: "DDB", label: "Card Revision Date", type: "date" }
+      { code: "DDB", label: "Card Revision Date", type: "date", dateFormat: "MMDDYYYY" }
     ]
   },
   "08": {
@@ -319,12 +355,24 @@ export const AAMVA_VERSIONS: Record<string, AAMVAVersionDef> = {
       { code: "DCA", label: "Vehicle Class", type: "string", required: true },
       { code: "DCB", label: "Restriction Codes", type: "string", required: true },
       { code: "DCD", label: "Endorsement Codes", type: "string", required: true },
-      { code: "DBA", label: "Expiration Date", type: "date", required: true },
+      {
+        code: "DBA",
+        label: "Expiration Date",
+        type: "date",
+        required: true,
+        dateFormat: "MMDDYYYY"
+      },
       { code: "DCS", label: "Customer Family Name", type: "string", required: true },
       { code: "DAC", label: "Customer First Name", type: "string", required: true },
       { code: "DAD", label: "Customer Middle Name", type: "string" },
-      { code: "DBD", label: "Document Issue Date", type: "date", required: true },
-      { code: "DBB", label: "Date of Birth", type: "date", required: true },
+      {
+        code: "DBD",
+        label: "Document Issue Date",
+        type: "date",
+        required: true,
+        dateFormat: "MMDDYYYY"
+      },
+      { code: "DBB", label: "Date of Birth", type: "date", required: true, dateFormat: "MMDDYYYY" },
       { code: "DBC", label: "Sex", type: "char", required: true },
       { code: "DAY", label: "Eye Color", type: "string", required: true },
       { code: "DAU", label: "Height", type: "string", required: true },
@@ -344,7 +392,7 @@ export const AAMVA_VERSIONS: Record<string, AAMVAVersionDef> = {
       { code: "DAZ", label: "Hair Color", type: "string" },
       { code: "DCL", label: "Race/Ethnicity", type: "string" },
       { code: "DDA", label: "Compliance Type", type: "string" },
-      { code: "DDB", label: "Card Revision Date", type: "date" },
+      { code: "DDB", label: "Card Revision Date", type: "date", dateFormat: "MMDDYYYY" },
       { code: "DDK", label: "Organ Donor Indicator", type: "string" },
       { code: "DDL", label: "Veteran Indicator", type: "string" }
     ]
@@ -355,12 +403,24 @@ export const AAMVA_VERSIONS: Record<string, AAMVAVersionDef> = {
       { code: "DCA", label: "Vehicle Class", type: "string", required: true },
       { code: "DCB", label: "Restriction Codes", type: "string", required: true },
       { code: "DCD", label: "Endorsement Codes", type: "string", required: true },
-      { code: "DBA", label: "Expiration Date", type: "date", required: true },
+      {
+        code: "DBA",
+        label: "Expiration Date",
+        type: "date",
+        required: true,
+        dateFormat: "MMDDYYYY"
+      },
       { code: "DCS", label: "Customer Family Name", type: "string", required: true },
       { code: "DAC", label: "Customer First Name", type: "string", required: true },
       { code: "DAD", label: "Customer Middle Name", type: "string" },
-      { code: "DBD", label: "Document Issue Date", type: "date", required: true },
-      { code: "DBB", label: "Date of Birth", type: "date", required: true },
+      {
+        code: "DBD",
+        label: "Document Issue Date",
+        type: "date",
+        required: true,
+        dateFormat: "MMDDYYYY"
+      },
+      { code: "DBB", label: "Date of Birth", type: "date", required: true, dateFormat: "MMDDYYYY" },
       { code: "DBC", label: "Sex", type: "char", required: true },
       { code: "DAY", label: "Eye Color", type: "string", required: true },
       { code: "DAU", label: "Height", type: "string", required: true },
@@ -380,7 +440,7 @@ export const AAMVA_VERSIONS: Record<string, AAMVAVersionDef> = {
       { code: "DAZ", label: "Hair Color", type: "string" },
       { code: "DCL", label: "Race/Ethnicity", type: "string" },
       { code: "DDA", label: "Compliance Type", type: "string" },
-      { code: "DDB", label: "Card Revision Date", type: "date" },
+      { code: "DDB", label: "Card Revision Date", type: "date", dateFormat: "MMDDYYYY" },
       { code: "DDK", label: "Organ Donor Indicator", type: "string" },
       { code: "DDL", label: "Veteran Indicator", type: "string" }
     ]
@@ -391,12 +451,24 @@ export const AAMVA_VERSIONS: Record<string, AAMVAVersionDef> = {
       { code: "DCA", label: "Vehicle Class", type: "string", required: true },
       { code: "DCB", label: "Restriction Codes", type: "string", required: true },
       { code: "DCD", label: "Endorsement Codes", type: "string", required: true },
-      { code: "DBA", label: "Expiration Date", type: "date", required: true },
+      {
+        code: "DBA",
+        label: "Expiration Date",
+        type: "date",
+        required: true,
+        dateFormat: "MMDDYYYY"
+      },
       { code: "DCS", label: "Customer Family Name", type: "string", required: true },
       { code: "DAC", label: "Customer First Name", type: "string", required: true },
       { code: "DAD", label: "Customer Middle Name", type: "string" },
-      { code: "DBD", label: "Document Issue Date", type: "date", required: true },
-      { code: "DBB", label: "Date of Birth", type: "date", required: true },
+      {
+        code: "DBD",
+        label: "Document Issue Date",
+        type: "date",
+        required: true,
+        dateFormat: "MMDDYYYY"
+      },
+      { code: "DBB", label: "Date of Birth", type: "date", required: true, dateFormat: "MMDDYYYY" },
       { code: "DBC", label: "Sex", type: "char", required: true },
       { code: "DAY", label: "Eye Color", type: "string", required: true },
       { code: "DAU", label: "Height", type: "string", required: true },
@@ -416,7 +488,7 @@ export const AAMVA_VERSIONS: Record<string, AAMVAVersionDef> = {
       { code: "DAZ", label: "Hair Color", type: "string" },
       { code: "DCL", label: "Race/Ethnicity", type: "string" },
       { code: "DDA", label: "Compliance Type", type: "string" },
-      { code: "DDB", label: "Card Revision Date", type: "date" },
+      { code: "DDB", label: "Card Revision Date", type: "date", dateFormat: "MMDDYYYY" },
       { code: "DDK", label: "Organ Donor Indicator", type: "string" },
       { code: "DDL", label: "Veteran Indicator", type: "string" }
     ]
@@ -429,7 +501,7 @@ export function getFieldsForVersion(v: string): AAMVAField[] {
 
 export function getFieldsForStateAndVersion(stateCode: string, v: string): AAMVAField[] {
   const allFields = getFieldsForVersion(v);
-  if (!stateCode || !AAMVA_STATE_EXCLUDED_FIELDS) return allFields;
+  if (!stateCode) return allFields;
 
   const excluded = AAMVA_STATE_EXCLUDED_FIELDS[stateCode];
   if (!excluded || excluded.length === 0) return allFields;

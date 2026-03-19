@@ -50,17 +50,32 @@ export const BatchProcessor: React.FC = () => {
     }
   };
 
+  const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
+  const MAX_ROW_COUNT = 500;
+
   const processBatch = async () => {
     if (!file) return;
     setProcessing(true);
     setResults(null);
 
     try {
+      if (file.size > MAX_FILE_SIZE_BYTES) {
+        throw new Error(
+          `File is too large (${(file.size / 1024 / 1024).toFixed(1)} MB). Maximum allowed size is 5 MB.`
+        );
+      }
+
       const text = await file.text();
       const raw: unknown = JSON.parse(text);
 
       if (!Array.isArray(raw)) {
         throw new Error("JSON file must contain an array of objects.");
+      }
+
+      if (raw.length > MAX_ROW_COUNT) {
+        throw new Error(
+          `Batch contains ${raw.length} rows, which exceeds the maximum of ${MAX_ROW_COUNT}.`
+        );
       }
 
       const data = raw as BatchEntry[];

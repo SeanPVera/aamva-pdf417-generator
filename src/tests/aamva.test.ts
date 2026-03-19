@@ -586,7 +586,8 @@ test("generateAAMVAPayload rejects unknown state and version", () => {
   }, /Unsupported AAMVA version/);
 });
 
-test.skip("generateAAMVAPayload rejects unsupported territories", () => {
+test("generateAAMVAPayload accepts supported territories (AS, GU, VI, PR)", () => {
+  // Territories are fully supported for generation; isJurisdictionSupported returns true.
   const fields = window.getFieldsForVersion("09");
   const dataObj = {
     DCS: "DOE",
@@ -601,17 +602,21 @@ test.skip("generateAAMVAPayload rejects unsupported territories", () => {
     DAI: "PAGO PAGO",
     DAJ: "AS",
     DAK: "96799",
-    DAQ: "A12345",
+    DAQ: "123456789",
     DCA: "D",
     DCB: "NONE",
     DCD: "NONE",
     DCF: "ABC123",
-    DCG: "USA"
+    DCG: "USA",
+    DDE: "N",
+    DDF: "N",
+    DDG: "N"
   };
 
-  assert.throws(() => {
-    window.generateAAMVAPayload("AS", "09", fields, dataObj);
-  }, /Unsupported jurisdiction/);
+  const payload = window.generateAAMVAPayload("AS", "09", fields, dataObj);
+  assert.ok(payload.includes("604427"), "AS payload should contain IIN 604427");
+  const result = window.validateAAMVAPayloadStructure(payload);
+  assert.deepEqual(result, { ok: true }, "Territory payload must pass structural validation");
 });
 
 test("validateAAMVAPayloadStructure accepts valid generated payload", () => {

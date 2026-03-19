@@ -2,16 +2,20 @@ import { create } from "zustand";
 import { persist, StateStorage, createJSONStorage } from "zustand/middleware";
 import CryptoJS from "crypto-js";
 
-const ENCRYPTION_KEY_STORAGE_KEY = "aamva_form_encryption_key_v1";
+const ENCRYPTION_KEY_SESSION_KEY = "aamva_form_encryption_key_v1";
 
+// The key is kept in sessionStorage (cleared when the tab closes) so it is
+// never persisted alongside the ciphertext in localStorage.  Storing the key
+// and the data in the same persistent store would make the encryption
+// trivially bypassable.
 function getOrCreateSecretKey(): string {
-  const existingKey = localStorage.getItem(ENCRYPTION_KEY_STORAGE_KEY);
+  const existingKey = sessionStorage.getItem(ENCRYPTION_KEY_SESSION_KEY);
   if (existingKey) return existingKey;
 
   const randomBytes = new Uint8Array(32);
   crypto.getRandomValues(randomBytes);
   const newKey = Array.from(randomBytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
-  localStorage.setItem(ENCRYPTION_KEY_STORAGE_KEY, newKey);
+  sessionStorage.setItem(ENCRYPTION_KEY_SESSION_KEY, newKey);
   return newKey;
 }
 
