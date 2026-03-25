@@ -145,7 +145,7 @@ export const useFormStore = create<FormState>()(
         version: s.version,
         strictMode: s.strictMode,
         subfileType: s.subfileType,
-        fields: s.fields,
+        // Do not persist PII-bearing payload fields; keep only non-sensitive preferences.
         theme: s.theme
       })
     }
