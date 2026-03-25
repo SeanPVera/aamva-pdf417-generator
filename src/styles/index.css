@@ -53,7 +53,6 @@ html.dark ::-webkit-scrollbar-thumb:hover {
   background: #64748b;
 }
 
-
 /* Fallback to Inter / Roboto to match Google Sans feel closely if not installed */
 
 body {
