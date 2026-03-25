@@ -167,7 +167,13 @@ function App() {
                           </option>
                         ))}
                       </select>
-                      <label htmlFor={field.code} className={labelClass.replace("transform top-4", "transform -translate-y-3 scale-75 top-4")}>
+                      <label
+                        htmlFor={field.code}
+                        className={labelClass.replace(
+                          "transform top-4",
+                          "transform -translate-y-3 scale-75 top-4"
+                        )}
+                      >
                         {field.code} — {field.label}{" "}
                         {field.required && <span className="text-red-500">*</span>}
                       </label>
@@ -186,7 +192,13 @@ function App() {
                         aria-describedby={hasError ? errorId : undefined}
                         className={`${finalClass} float-label-input`}
                       />
-                      <label htmlFor={field.code} className={labelClass.replace("transform top-4", "transform -translate-y-3 scale-75 top-4")}>
+                      <label
+                        htmlFor={field.code}
+                        className={labelClass.replace(
+                          "transform top-4",
+                          "transform -translate-y-3 scale-75 top-4"
+                        )}
+                      >
                         {field.code} — {field.label}{" "}
                         {field.required && <span className="text-red-500">*</span>}
                       </label>
@@ -214,7 +226,13 @@ function App() {
                         aria-describedby={hasError ? errorId : undefined}
                         className={`${finalClass} float-label-input`}
                       />
-                      <label htmlFor={field.code} className={labelClass.replace("transform top-4", "transform -translate-y-3 scale-75 top-4")}>
+                      <label
+                        htmlFor={field.code}
+                        className={labelClass.replace(
+                          "transform top-4",
+                          "transform -translate-y-3 scale-75 top-4"
+                        )}
+                      >
                         {field.code} — {field.label}{" "}
                         {field.required && <span className="text-red-500">*</span>}
                       </label>
