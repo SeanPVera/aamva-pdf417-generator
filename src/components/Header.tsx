@@ -102,7 +102,7 @@ export const Header: React.FC<HeaderProps> = ({ onStartScan }) => {
           disabled={!canUndo()}
           title="Undo (Ctrl+Z)"
           aria-label="Undo last field change"
-          className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 disabled:opacity-40 disabled:cursor-not-allowed px-2 py-1.5 rounded transition text-sm"
+          className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 disabled:opacity-40 disabled:cursor-not-allowed px-2 py-1.5 rounded transition text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
         >
           <Undo2 size={15} />
         </button>
@@ -111,7 +111,7 @@ export const Header: React.FC<HeaderProps> = ({ onStartScan }) => {
           disabled={!canRedo()}
           title="Redo (Ctrl+Shift+Z)"
           aria-label="Redo field change"
-          className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 disabled:opacity-40 disabled:cursor-not-allowed px-2 py-1.5 rounded transition text-sm"
+          className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 disabled:opacity-40 disabled:cursor-not-allowed px-2 py-1.5 rounded transition text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
         >
           <Redo2 size={15} />
         </button>
@@ -119,16 +119,16 @@ export const Header: React.FC<HeaderProps> = ({ onStartScan }) => {
         <div className="w-px h-5 bg-gray-200 dark:bg-dark-border mx-1" />
 
         {/* Theme toggle */}
-        <div className="flex items-center rounded overflow-hidden border border-gray-200 dark:border-dark-border">
+        <div className="flex items-center rounded overflow-hidden border border-gray-200 dark:border-dark-border focus-within:ring-2 focus-within:ring-brand-500">
           {THEMES.map((t) => (
             <button
               key={t}
               onClick={() => setTheme(t)}
               title={`${THEME_LABELS[t].label} theme`}
               aria-pressed={theme === t}
-              className={`flex items-center gap-1 px-2 py-1.5 text-xs transition ${
+              className={`flex items-center gap-1 px-2 py-1.5 text-xs transition focus:outline-none ${
                 theme === t
-                  ? "bg-blue-500 font-semibold"
+                  ? "bg-blue-500 font-semibold text-white"
                   : "hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300"
               }`}
             >
@@ -143,7 +143,7 @@ export const Header: React.FC<HeaderProps> = ({ onStartScan }) => {
         {/* Scan */}
         <button
           onClick={onStartScan}
-          className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 px-2 py-1.5 rounded transition text-sm"
+          className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 px-2 py-1.5 rounded transition text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           title="Scan Barcode from Webcam"
           aria-label="Open barcode scanner"
         >
@@ -159,10 +159,11 @@ export const Header: React.FC<HeaderProps> = ({ onStartScan }) => {
           onChange={handleImportJson}
           className="hidden"
           aria-hidden="true"
+          tabIndex={-1}
         />
         <button
           onClick={() => importRef.current?.click()}
-          className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 px-2 py-1.5 rounded transition text-sm"
+          className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 px-2 py-1.5 rounded transition text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           title="Import JSON Profile"
           aria-label="Import JSON payload file"
         >
@@ -173,7 +174,7 @@ export const Header: React.FC<HeaderProps> = ({ onStartScan }) => {
         {/* Export JSON */}
         <button
           onClick={handleExportJson}
-          className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 px-2 py-1.5 rounded transition text-sm"
+          className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 px-2 py-1.5 rounded transition text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           title="Export JSON Profile"
           aria-label="Export current fields as JSON"
         >
@@ -184,7 +185,7 @@ export const Header: React.FC<HeaderProps> = ({ onStartScan }) => {
         {/* Clear PII */}
         <button
           onClick={handleClearData}
-          className="flex items-center gap-1 bg-red-600 hover:bg-red-700 px-2 py-1.5 rounded transition text-sm"
+          className="flex items-center gap-1 bg-red-600 hover:bg-red-700 text-white px-2 py-1.5 rounded transition text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-1 focus-visible:ring-offset-white dark:focus-visible:ring-offset-dark-surface"
           title="Securely Clear Memory"
           aria-label="Clear all PII from memory and storage"
         >
