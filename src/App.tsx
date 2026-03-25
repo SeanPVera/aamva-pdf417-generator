@@ -130,7 +130,7 @@ function App() {
 
               // Google Material Design style base classes
               const baseInputClass =
-                "block w-full px-3 pt-5 pb-2 text-sm text-gray-900 bg-gray-100 dark:bg-[#2C2C2C] border-0 border-b-2 appearance-none dark:text-gray-100 focus:outline-none focus:ring-0 peer transition-all duration-200 ease-in-out rounded-t-md pr-16";
+                "block w-full px-3 pt-5 pb-2 text-sm text-gray-900 bg-gray-100 dark:bg-[#2C2C2C] border-0 border-b-2 appearance-none dark:text-gray-100 focus:outline-none focus:ring-0 peer transition-all duration-200 ease-in-out rounded-t-md pr-16 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-500";
               const normalClass = `${baseInputClass} border-gray-300 dark:border-[#555] focus:border-brand-500`;
               const errorClass = `${baseInputClass} border-red-500 focus:border-red-500`;
               const finalClass = hasError ? errorClass : normalClass;
@@ -184,7 +184,7 @@ function App() {
                         type="text"
                         id={field.code}
                         value={value}
-                        placeholder=" "
+                        placeholder={field.dateFormat || " "}
                         onChange={(e) => handleChange(field.code, e.target.value)}
                         maxLength={8}
                         aria-required={field.required}
@@ -206,7 +206,7 @@ function App() {
                         <button
                           type="button"
                           onClick={() => handleGenerate(field.code)}
-                          className="absolute right-1.5 top-2 bottom-2 text-[10px] font-medium bg-gray-200 hover:bg-gray-300 dark:bg-[#444] dark:hover:bg-[#555] rounded px-2 text-gray-700 dark:text-gray-200 transition-colors z-20 shadow-sm"
+                          className="absolute right-1.5 top-2 bottom-2 text-[10px] font-medium bg-gray-200 hover:bg-gray-300 dark:bg-[#444] dark:hover:bg-[#555] rounded px-2 text-gray-700 dark:text-gray-200 transition-colors z-20 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                           title="Generate Card Revision Date"
                         >
                           Gen
@@ -219,7 +219,7 @@ function App() {
                         type="text"
                         id={field.code}
                         value={value}
-                        placeholder=" "
+                        placeholder={field.dateFormat || " "}
                         onChange={(e) => handleChange(field.code, e.target.value)}
                         aria-required={field.required}
                         aria-invalid={hasError}
@@ -241,7 +241,7 @@ function App() {
                           <button
                             type="button"
                             onClick={() => handleGenerate(field.code)}
-                            className="text-[10px] font-medium bg-gray-200 hover:bg-gray-300 dark:bg-[#444] dark:hover:bg-[#555] rounded px-2 text-gray-700 dark:text-gray-200 transition-colors shadow-sm"
+                            className="text-[10px] font-medium bg-gray-200 hover:bg-gray-300 dark:bg-[#444] dark:hover:bg-[#555] rounded px-2 text-gray-700 dark:text-gray-200 transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                           >
                             Gen
                           </button>
@@ -250,7 +250,7 @@ function App() {
                           <button
                             type="button"
                             onClick={() => handleChange(field.code, "NONE")}
-                            className="text-[10px] font-medium bg-gray-200 hover:bg-gray-300 dark:bg-[#444] dark:hover:bg-[#555] rounded px-2 text-gray-700 dark:text-gray-200 transition-colors shadow-sm"
+                            className="text-[10px] font-medium bg-gray-200 hover:bg-gray-300 dark:bg-[#444] dark:hover:bg-[#555] rounded px-2 text-gray-700 dark:text-gray-200 transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                           >
                             None
                           </button>
