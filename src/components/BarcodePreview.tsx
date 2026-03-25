@@ -50,7 +50,7 @@ function CollapsibleSection({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="w-full flex items-center justify-between px-3 py-2 bg-gray-50 dark:bg-dark-surface2 hover:bg-gray-100 dark:hover:bg-[#383838] transition-colors text-sm font-semibold text-gray-700 dark:text-gray-200"
+        className="w-full flex items-center justify-between px-3 py-2 bg-gray-50 dark:bg-dark-surface2 hover:bg-gray-100 dark:hover:bg-[#383838] transition-colors text-sm font-semibold text-gray-700 dark:text-gray-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-500"
         aria-expanded={open}
       >
         <span className="flex items-center gap-2">
@@ -194,7 +194,7 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({ mobileHidden = f
           onClick={handleExportPNG}
           disabled={!!error || !payloadStr}
           aria-label="Export barcode as PNG"
-          className="flex-1 flex items-center justify-center gap-1.5 bg-brand-600 hover:bg-brand-700 disabled:opacity-40 disabled:cursor-not-allowed text-white py-1.5 rounded shadow text-sm font-medium transition"
+          className="flex-1 flex items-center justify-center gap-1.5 bg-brand-600 hover:bg-brand-700 disabled:opacity-40 disabled:cursor-not-allowed text-white py-1.5 rounded shadow text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-1 focus-visible:ring-offset-white dark:focus-visible:ring-offset-dark-surface"
         >
           <FileImage size={14} />
           PNG
@@ -203,7 +203,7 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({ mobileHidden = f
           onClick={handleExportSVG}
           disabled={!!error || !payloadStr}
           aria-label="Export barcode as SVG"
-          className="flex-1 flex items-center justify-center gap-1.5 bg-gray-800 hover:bg-gray-900 dark:bg-dark-surface2 dark:hover:bg-[#383838] disabled:opacity-40 disabled:cursor-not-allowed text-white py-1.5 rounded shadow text-sm font-medium transition"
+          className="flex-1 flex items-center justify-center gap-1.5 bg-gray-800 hover:bg-gray-900 dark:bg-dark-surface2 dark:hover:bg-[#383838] disabled:opacity-40 disabled:cursor-not-allowed text-white py-1.5 rounded shadow text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-1 focus-visible:ring-offset-white dark:focus-visible:ring-offset-dark-surface"
         >
           <FileCode2 size={14} />
           SVG
@@ -221,7 +221,7 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({ mobileHidden = f
           readOnly
           value={payloadStr}
           aria-label="Raw AAMVA payload string"
-          className="w-full h-32 p-2 border border-gray-200 dark:border-gray-600 rounded bg-gray-50 dark:bg-gray-900 text-xs font-mono text-gray-700 dark:text-gray-300 resize-none"
+          className="w-full h-32 p-2 border border-gray-200 dark:border-gray-600 rounded bg-gray-50 dark:bg-gray-900 text-xs font-mono text-gray-700 dark:text-gray-300 resize-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
         />
       </CollapsibleSection>
 

@@ -56,7 +56,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileHidden = false }) => {
             id="state-select"
             value={state}
             onChange={handleStateChange}
-            className="w-full w-full border-gray-300 dark:border-[#555] dark:bg-dark-surface2 dark:text-gray-100 rounded-lg shadow-sm focus:ring-brand-500 focus:border-brand-500 text-sm p-2.5 border transition-colors"
+            className="w-full w-full border-gray-300 dark:border-[#555] dark:bg-dark-surface2 dark:text-gray-100 rounded-lg shadow-sm focus:ring-brand-500 focus:border-brand-500 text-sm p-2.5 border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
             aria-label="Select state or territory"
           >
             {Object.keys(AAMVA_STATES)
@@ -85,7 +85,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileHidden = false }) => {
             id="version-select"
             value={version}
             onChange={handleVersionChange}
-            className="w-full w-full border-gray-300 dark:border-[#555] dark:bg-dark-surface2 dark:text-gray-100 rounded-lg shadow-sm focus:ring-brand-500 focus:border-brand-500 text-sm p-2.5 border transition-colors"
+            className="w-full w-full border-gray-300 dark:border-[#555] dark:bg-dark-surface2 dark:text-gray-100 rounded-lg shadow-sm focus:ring-brand-500 focus:border-brand-500 text-sm p-2.5 border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
             aria-label="Select AAMVA version"
           >
             {Object.keys(AAMVA_VERSIONS).map((v) => (
@@ -108,7 +108,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileHidden = false }) => {
             id="subfile-select"
             value={subfileType}
             onChange={(e) => setSubfileType(e.target.value as "DL" | "ID")}
-            className="w-full w-full border-gray-300 dark:border-[#555] dark:bg-dark-surface2 dark:text-gray-100 rounded-lg shadow-sm focus:ring-brand-500 focus:border-brand-500 text-sm p-2.5 border transition-colors"
+            className="w-full w-full border-gray-300 dark:border-[#555] dark:bg-dark-surface2 dark:text-gray-100 rounded-lg shadow-sm focus:ring-brand-500 focus:border-brand-500 text-sm p-2.5 border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
             aria-label="Select subfile type"
           >
             <option value="DL">Driver's License (DL)</option>
@@ -123,7 +123,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileHidden = false }) => {
             type="checkbox"
             checked={strictMode}
             onChange={(e) => setStrictMode(e.target.checked)}
-            className="h-4 w-4 text-brand-600 focus:ring-brand-500 border-gray-300 dark:border-[#555] dark:bg-dark-surface2 transition-colors rounded"
+            className="h-4 w-4 text-brand-600 focus:ring-brand-500 border-gray-300 dark:border-[#555] dark:bg-dark-surface2 transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-1 focus-visible:ring-offset-white dark:focus-visible:ring-offset-dark-surface"
             aria-describedby="strictMode-desc"
           />
           <label
