@@ -8,6 +8,8 @@
   "scripts": {
     "start": "electron .",
     "dev": "vite",
+    "easy": "npm install && npm run dev",
+    "easy:mobile": "npm install && npm run dev:mobile",
     "dev:mobile": "vite --host 0.0.0.0 --port 3000",
     "build": "vite build",
     "serve": "vite preview",
