@@ -16,7 +16,7 @@ This project is designed for **local, offline-oriented use** and runs as a React
 - [Known limitations](#known-limitations)
 - [Plan to address current limitations](#plan-to-address-current-limitations)
 - [Tech stack and architecture](#tech-stack-and-architecture)
-- [Quick start (no install)](#quick-start-no-install)
+- [Zero-BS quick start (copy/paste)](#zero-bs-quick-start-copypaste)
 - [Full install guide (college-student friendly)](#full-install-guide-college-student-friendly)
   - [Prerequisites](#prerequisites)
   - [Step 1: Download the project](#step-1-download-the-project)
@@ -141,16 +141,29 @@ Please read this section carefully if you need strict production-grade complianc
 
 ---
 
-## Quick start (no install)
+## Zero-BS quick start (copy/paste)
 
-If you only want to try the app:
+If you just want it running **as fast as possible**, do this:
 
-1. Download the repo.
-2. Install dependencies with `npm install`.
-3. Start the app with `npm run dev`.
-4. Open the local URL shown in terminal (usually `http://localhost:5173`).
+### Mac / Linux
 
-That is enough for most users.
+```bash
+git clone https://github.com/SeanPVera/aamva-pdf417-generator.git
+cd aamva-pdf417-generator
+npm run easy
+```
+
+### Windows (PowerShell)
+
+```powershell
+git clone https://github.com/SeanPVera/aamva-pdf417-generator.git
+cd aamva-pdf417-generator
+npm run easy
+```
+
+Then open **http://localhost:3000**.
+
+That one command installs dependencies (if needed) and starts the app.
 
 ---
 
@@ -198,11 +211,15 @@ cd aamva-pdf417-generator
 From the project folder:
 
 ```bash
+# easiest
+npm run easy
+
+# or explicit two-step
 npm install
 npm run dev
 ```
 
-Then open the URL shown in terminal (usually `http://localhost:5173`).
+Then open the URL shown in terminal (usually `http://localhost:3000`).
 
 ---
 
