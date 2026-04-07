@@ -92,7 +92,7 @@ function App() {
               key={panel.key}
               type="button"
               onClick={() => setMobilePanel(panel.key as "config" | "form" | "preview")}
-              className={`rounded-md px-3 py-2 text-sm font-medium transition ${
+              className={`rounded-md px-3 py-3 min-h-[44px] text-sm font-medium transition ${
                 mobilePanel === panel.key
                   ? "bg-blue-600 text-white"
                   : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200"
@@ -206,7 +206,7 @@ function App() {
                         <button
                           type="button"
                           onClick={() => handleGenerate(field.code)}
-                          className="absolute right-1.5 top-2 bottom-2 text-[10px] font-medium bg-gray-200 hover:bg-gray-300 dark:bg-[#444] dark:hover:bg-[#555] rounded px-2 text-gray-700 dark:text-gray-200 transition-colors z-20 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                          className="absolute right-1.5 top-1 bottom-1 text-xs font-medium bg-gray-200 hover:bg-gray-300 dark:bg-[#444] dark:hover:bg-[#555] rounded px-2.5 min-w-[44px] text-gray-700 dark:text-gray-200 transition-colors z-20 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                           title="Generate Card Revision Date"
                         >
                           Gen
@@ -241,7 +241,7 @@ function App() {
                           <button
                             type="button"
                             onClick={() => handleGenerate(field.code)}
-                            className="text-[10px] font-medium bg-gray-200 hover:bg-gray-300 dark:bg-[#444] dark:hover:bg-[#555] rounded px-2 text-gray-700 dark:text-gray-200 transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                            className="text-xs font-medium bg-gray-200 hover:bg-gray-300 dark:bg-[#444] dark:hover:bg-[#555] rounded px-2.5 min-w-[44px] min-h-[36px] text-gray-700 dark:text-gray-200 transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                           >
                             Gen
                           </button>
@@ -250,7 +250,7 @@ function App() {
                           <button
                             type="button"
                             onClick={() => handleChange(field.code, "NONE")}
-                            className="text-[10px] font-medium bg-gray-200 hover:bg-gray-300 dark:bg-[#444] dark:hover:bg-[#555] rounded px-2 text-gray-700 dark:text-gray-200 transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                            className="text-xs font-medium bg-gray-200 hover:bg-gray-300 dark:bg-[#444] dark:hover:bg-[#555] rounded px-2.5 min-w-[44px] min-h-[36px] text-gray-700 dark:text-gray-200 transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                           >
                             None
                           </button>

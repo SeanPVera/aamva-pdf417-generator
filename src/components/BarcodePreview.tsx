@@ -13,6 +13,7 @@ import { generateAAMVAPayload } from "../core/generator";
 import { getFieldsForStateAndVersion } from "../core/schema";
 import { decodeAAMVA } from "../core/decoder";
 import { getValidationIssues } from "../core/validation";
+import { downloadBlob } from "../core/downloadUtils";
 
 const BWIP_OPTIONS = {
   bcid: "pdf417",
@@ -112,11 +113,9 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({ mobileHidden = f
 
   const handleExportPNG = () => {
     if (!canvasRef.current || error) return;
-    const url = canvasRef.current.toDataURL("image/png");
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `barcode_${state}_${version}.png`;
-    a.click();
+    canvasRef.current.toBlob((blob) => {
+      if (blob) downloadBlob(blob, `barcode_${state}_${version}.png`);
+    }, "image/png");
   };
 
   const handleExportSVG = () => {
@@ -130,12 +129,7 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({ mobileHidden = f
         text: payloadStr
       });
       const blob = new Blob([svgStr], { type: "image/svg+xml" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `barcode_${state}_${version}.svg`;
-      a.click();
-      URL.revokeObjectURL(url);
+      downloadBlob(blob, `barcode_${state}_${version}.svg`);
     } catch {
       // Fallback: wrap the canvas PNG in an SVG element
       if (!canvasRef.current) return;
@@ -144,12 +138,7 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({ mobileHidden = f
       const pngData = canvasRef.current.toDataURL("image/png");
       const fallbackSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><image href="${pngData}" width="${w}" height="${h}"/></svg>`;
       const blob = new Blob([fallbackSvg], { type: "image/svg+xml" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `barcode_${state}_${version}.svg`;
-      a.click();
-      URL.revokeObjectURL(url);
+      downloadBlob(blob, `barcode_${state}_${version}.svg`);
     }
   };
 

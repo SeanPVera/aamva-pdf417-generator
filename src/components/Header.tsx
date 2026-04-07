@@ -12,6 +12,7 @@ import {
   Building2
 } from "lucide-react";
 import { useFormStore, Theme } from "../hooks/useFormStore";
+import { downloadBlob } from "../core/downloadUtils";
 
 interface HeaderProps {
   onStartScan: () => void;
@@ -44,12 +45,7 @@ export const Header: React.FC<HeaderProps> = ({ onStartScan }) => {
   const handleExportJson = () => {
     const data = { state, version, ...fields };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `aamva_${state}_${version}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
+    downloadBlob(blob, `aamva_${state}_${version}.json`);
   };
 
   const handleImportJson = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -102,7 +98,7 @@ export const Header: React.FC<HeaderProps> = ({ onStartScan }) => {
           disabled={!canUndo()}
           title="Undo (Ctrl+Z)"
           aria-label="Undo last field change"
-          className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 disabled:opacity-40 disabled:cursor-not-allowed px-2 py-1.5 rounded transition text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 disabled:opacity-40 disabled:cursor-not-allowed px-2.5 py-2.5 min-w-[44px] min-h-[44px] justify-center rounded transition text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
         >
           <Undo2 size={15} />
         </button>
@@ -111,7 +107,7 @@ export const Header: React.FC<HeaderProps> = ({ onStartScan }) => {
           disabled={!canRedo()}
           title="Redo (Ctrl+Shift+Z)"
           aria-label="Redo field change"
-          className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 disabled:opacity-40 disabled:cursor-not-allowed px-2 py-1.5 rounded transition text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 disabled:opacity-40 disabled:cursor-not-allowed px-2.5 py-2.5 min-w-[44px] min-h-[44px] justify-center rounded transition text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
         >
           <Redo2 size={15} />
         </button>
@@ -126,7 +122,7 @@ export const Header: React.FC<HeaderProps> = ({ onStartScan }) => {
               onClick={() => setTheme(t)}
               title={`${THEME_LABELS[t].label} theme`}
               aria-pressed={theme === t}
-              className={`flex items-center gap-1 px-2 py-1.5 text-xs transition focus:outline-none ${
+              className={`flex items-center gap-1 px-2.5 py-2.5 min-h-[44px] text-xs transition focus:outline-none ${
                 theme === t
                   ? "bg-blue-500 font-semibold text-white"
                   : "hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300"
@@ -143,7 +139,7 @@ export const Header: React.FC<HeaderProps> = ({ onStartScan }) => {
         {/* Scan */}
         <button
           onClick={onStartScan}
-          className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 px-2 py-1.5 rounded transition text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 px-2.5 py-2.5 min-h-[44px] rounded transition text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           title="Scan Barcode from Webcam"
           aria-label="Open barcode scanner"
         >
@@ -163,7 +159,7 @@ export const Header: React.FC<HeaderProps> = ({ onStartScan }) => {
         />
         <button
           onClick={() => importRef.current?.click()}
-          className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 px-2 py-1.5 rounded transition text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 px-2.5 py-2.5 min-h-[44px] rounded transition text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           title="Import JSON Profile"
           aria-label="Import JSON payload file"
         >
@@ -174,7 +170,7 @@ export const Header: React.FC<HeaderProps> = ({ onStartScan }) => {
         {/* Export JSON */}
         <button
           onClick={handleExportJson}
-          className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 px-2 py-1.5 rounded transition text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 px-2.5 py-2.5 min-h-[44px] rounded transition text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           title="Export JSON Profile"
           aria-label="Export current fields as JSON"
         >
@@ -185,7 +181,7 @@ export const Header: React.FC<HeaderProps> = ({ onStartScan }) => {
         {/* Clear PII */}
         <button
           onClick={handleClearData}
-          className="flex items-center gap-1 bg-red-600 hover:bg-red-700 text-white px-2 py-1.5 rounded transition text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-1 focus-visible:ring-offset-white dark:focus-visible:ring-offset-dark-surface"
+          className="flex items-center gap-1 bg-red-600 hover:bg-red-700 text-white px-2.5 py-2.5 min-h-[44px] rounded transition text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-1 focus-visible:ring-offset-white dark:focus-visible:ring-offset-dark-surface"
           title="Securely Clear Memory"
           aria-label="Clear all PII from memory and storage"
         >

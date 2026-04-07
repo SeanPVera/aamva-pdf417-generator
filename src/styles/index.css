@@ -70,6 +70,43 @@ textarea {
   @apply transition-colors duration-200;
 }
 
+/* ─── iOS fixes ──────────────────────────────────────────────────────────── */
+
+/* Prevent iOS Safari from zooming in on focused inputs (threshold is 16px) */
+@media (hover: none) and (pointer: coarse) {
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
+
+/* Remove the default blue tap-flash on all interactive elements */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Eliminate the 300ms tap delay on buttons and links */
+button,
+a,
+[role="button"],
+select,
+input[type="checkbox"],
+input[type="radio"] {
+  touch-action: manipulation;
+}
+
+/* Safe-area padding for notched/Dynamic-Island iPhones */
+header {
+  padding-top: max(0.625rem, calc(0.625rem + env(safe-area-inset-top)));
+  padding-left: max(1rem, calc(1rem + env(safe-area-inset-left)));
+  padding-right: max(1rem, calc(1rem + env(safe-area-inset-right)));
+}
+
+body {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
 /* Floating Label Support */
 .float-label-input:focus ~ label,
 .float-label-input:not(:placeholder-shown) ~ label {
