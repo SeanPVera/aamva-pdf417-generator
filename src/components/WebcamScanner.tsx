@@ -4,6 +4,15 @@ import { decodeAAMVA } from "../core/decoder";
 import { Camera, X, AlertTriangle, ImagePlus, Video } from "lucide-react";
 import { useFormStore } from "../hooks/useFormStore";
 
+// iOS Safari does not support the getUserMedia-based live scanner reliably.
+// Detect it so we can default to the photo-upload path instead.
+function detectIOS(): boolean {
+  return (
+    /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)
+  );
+}
+
 interface WebcamScannerProps {
   onClose: () => void;
 }
@@ -16,6 +25,7 @@ export function WebcamScanner({ onClose }: WebcamScannerProps) {
   const [imageScanning, setImageScanning] = useState(false);
   const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
   const [selectedDeviceId, setSelectedDeviceId] = useState<string>("");
+  const isIOS = detectIOS();
   const loadJson = useFormStore((s) => s.loadJson);
   const setStateVersion = useFormStore((s) => s.setStateVersion);
 
@@ -34,8 +44,9 @@ export function WebcamScanner({ onClose }: WebcamScannerProps) {
     [loadJson, onClose, setStateVersion]
   );
 
-  // Load available cameras once on mount
+  // Load available cameras once on mount (skip on iOS — prefer photo-upload path)
   useEffect(() => {
+    if (isIOS) return;
     BrowserPDF417Reader.listVideoInputDevices()
       .then((devs) => {
         setDevices(devs);
@@ -47,11 +58,11 @@ export function WebcamScanner({ onClose }: WebcamScannerProps) {
       .catch(() => {
         // Permission not yet granted — scanner start will surface the real error
       });
-  }, []);
+  }, [isIOS]);
 
-  // Start/restart scanner whenever selectedDeviceId changes
+  // Start/restart scanner whenever selectedDeviceId changes (not used on iOS)
   useEffect(() => {
-    if (!selectedDeviceId) return;
+    if (!selectedDeviceId || isIOS) return;
 
     let reader: BrowserPDF417Reader | null = null;
     let controls: { stop: () => void } | null = null;
@@ -119,9 +130,12 @@ export function WebcamScanner({ onClose }: WebcamScannerProps) {
       role="dialog"
       aria-modal="true"
       aria-label="Scan DL/ID Barcode"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-slate-900/80 backdrop-blur-sm"
+      style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
-      <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-2xl max-w-lg w-full relative">
+      <div className="bg-white dark:bg-slate-800 p-6 rounded-t-2xl sm:rounded-xl shadow-2xl max-w-lg w-full relative"
+        style={{ paddingBottom: "max(1.5rem, calc(1.5rem + env(safe-area-inset-bottom)))" }}
+      >
         <button
           onClick={onClose}
           aria-label="Close scanner"
@@ -170,50 +184,72 @@ export function WebcamScanner({ onClose }: WebcamScannerProps) {
           </div>
         )}
 
-        <div className="relative aspect-video bg-black rounded-lg overflow-hidden flex items-center justify-center">
-          <video
-            ref={videoRef}
-            className="w-full h-full object-cover"
-            aria-label="Camera feed for barcode scanning"
-          />
-          {scanning && !error && (
-            <div className="absolute inset-0 border-2 border-blue-500/50 flex items-center justify-center pointer-events-none">
-              <div className="w-3/4 h-1/3 border border-red-500/80 rounded relative" aria-hidden>
-                <div className="absolute inset-0 bg-red-500/10 animate-pulse" />
-              </div>
+        <input
+          ref={imageInputRef}
+          type="file"
+          accept="image/*"
+          onChange={handleImageSelection}
+          className="hidden"
+          aria-label="Select image for barcode scanning"
+        />
+
+        {isIOS ? (
+          /* iOS: skip live camera — just show the photo/camera button prominently */
+          <div className="flex flex-col items-center gap-4 py-4">
+            <button
+              type="button"
+              onClick={() => imageInputRef.current?.click()}
+              disabled={imageScanning}
+              className="inline-flex items-center justify-center gap-2 w-full rounded-xl bg-blue-600 hover:bg-blue-700 active:bg-blue-800 px-6 py-4 min-h-[56px] text-base font-semibold text-white shadow disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+              aria-busy={imageScanning}
+            >
+              <ImagePlus className="h-5 w-5" aria-hidden />
+              {imageScanning ? "Scanning image…" : "Open Camera / Choose Photo"}
+            </button>
+            <p className="text-center text-sm text-slate-500 dark:text-slate-400">
+              Tap above to take a photo of the PDF417 barcode or pick one from your library.
+              The form will auto-fill when decoded.
+            </p>
+          </div>
+        ) : (
+          <>
+            <div className="relative aspect-video bg-black rounded-lg overflow-hidden flex items-center justify-center">
+              <video
+                ref={videoRef}
+                className="w-full h-full object-cover"
+                aria-label="Camera feed for barcode scanning"
+              />
+              {scanning && !error && (
+                <div className="absolute inset-0 border-2 border-blue-500/50 flex items-center justify-center pointer-events-none">
+                  <div className="w-3/4 h-1/3 border border-red-500/80 rounded relative" aria-hidden>
+                    <div className="absolute inset-0 bg-red-500/10 animate-pulse" />
+                  </div>
+                </div>
+              )}
             </div>
-          )}
-        </div>
 
-        <div className="mt-4 flex flex-wrap items-center gap-3">
-          <input
-            ref={imageInputRef}
-            type="file"
-            accept="image/*"
-            capture="environment"
-            onChange={handleImageSelection}
-            className="hidden"
-            aria-label="Select image for barcode scanning"
-          />
-          <button
-            type="button"
-            onClick={() => imageInputRef.current?.click()}
-            disabled={imageScanning}
-            className="inline-flex items-center gap-2 rounded border border-slate-300 dark:border-slate-600 px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-60 disabled:cursor-not-allowed"
-            aria-busy={imageScanning}
-          >
-            <ImagePlus className="h-4 w-4" aria-hidden />
-            {imageScanning ? "Scanning image…" : "Use photo (iPhone-friendly)"}
-          </button>
-          <span className="text-xs text-slate-500 dark:text-slate-400">
-            Pick from Photos or open camera directly on mobile.
-          </span>
-        </div>
+            <div className="mt-4 flex flex-wrap items-center gap-3">
+              <button
+                type="button"
+                onClick={() => imageInputRef.current?.click()}
+                disabled={imageScanning}
+                className="inline-flex items-center gap-2 rounded border border-slate-300 dark:border-slate-600 px-3 py-2 min-h-[44px] text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-60 disabled:cursor-not-allowed"
+                aria-busy={imageScanning}
+              >
+                <ImagePlus className="h-4 w-4" aria-hidden />
+                {imageScanning ? "Scanning image…" : "Use photo instead"}
+              </button>
+              <span className="text-xs text-slate-500 dark:text-slate-400">
+                Pick from Photos or open camera directly on mobile.
+              </span>
+            </div>
 
-        <p className="text-center text-sm text-slate-500 dark:text-slate-400 mt-4">
-          Hold the PDF417 barcode steadily in front of the camera. The form will auto-fill when
-          successfully decoded.
-        </p>
+            <p className="text-center text-sm text-slate-500 dark:text-slate-400 mt-4">
+              Hold the PDF417 barcode steadily in front of the camera. The form will auto-fill when
+              successfully decoded.
+            </p>
+          </>
+        )}
       </div>
     </div>
   );

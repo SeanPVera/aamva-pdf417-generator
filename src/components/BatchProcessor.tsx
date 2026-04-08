@@ -4,6 +4,7 @@ import { generateAAMVAPayload } from "../core/generator";
 import { getFieldsForStateAndVersion } from "../core/schema";
 import { jsPDF } from "jspdf";
 import bwipjs from "bwip-js";
+import { downloadBlob } from "../core/downloadUtils";
 
 interface BatchEntry {
   state: string;
@@ -130,7 +131,8 @@ export const BatchProcessor: React.FC = () => {
       }
 
       if (successCount > 0) {
-        pdf.save("batch_export.pdf");
+        const pdfBlob = pdf.output("blob");
+        await downloadBlob(pdfBlob, "batch_export.pdf");
       }
 
       setResults({ success: successCount, failed: failedCount, errors });
