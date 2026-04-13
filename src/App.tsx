@@ -6,6 +6,7 @@ import { BatchProcessor } from "./components/BatchProcessor";
 import { useFormStore } from "./hooks/useFormStore";
 import { getFieldsForStateAndVersion } from "./core/schema";
 import { validateFieldValue } from "./core/validation";
+import { applyStateThemeToDocument } from "./core/stateThemes";
 import {
   generateStateDiscriminator,
   generateStateLicenseNumber,
@@ -39,6 +40,13 @@ function App() {
       html.removeAttribute("data-theme");
     }
   }, [theme]);
+
+  // Apply the jurisdiction-specific palette whenever the selected state
+  // changes. The palette is exposed as CSS custom properties on <html>
+  // (consumed by `header.state-themed`, `.state-themed-*` rules, etc.).
+  React.useEffect(() => {
+    applyStateThemeToDocument(state);
+  }, [state]);
 
   // Keyboard shortcuts: Ctrl/Cmd + Z = undo, Ctrl/Cmd + Shift + Z or Ctrl + Y = redo
   React.useEffect(() => {
@@ -92,7 +100,8 @@ function App() {
               key={panel.key}
               type="button"
               onClick={() => setMobilePanel(panel.key as "config" | "form" | "preview")}
-              className={`rounded-md px-3 py-2 text-sm font-medium transition ${
+              aria-current={mobilePanel === panel.key}
+              className={`state-themed-tab rounded-md px-3 py-2 text-sm font-medium transition ${
                 mobilePanel === panel.key
                   ? "bg-blue-600 text-white"
                   : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200"
