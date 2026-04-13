@@ -6,6 +6,7 @@ import { BatchProcessor } from "./components/BatchProcessor";
 import { useFormStore } from "./hooks/useFormStore";
 import { getFieldsForStateAndVersion } from "./core/schema";
 import { validateFieldValue } from "./core/validation";
+import { getPaletteForState } from "./core/stateThemes";
 import {
   generateStateDiscriminator,
   generateStateLicenseNumber,
@@ -26,19 +27,27 @@ function App() {
   // Apply theme class/attribute to <html> element
   React.useEffect(() => {
     const html = document.documentElement;
-    // Tailwind dark mode via class
+
     if (theme === "dark") {
       html.classList.add("dark");
     } else {
       html.classList.remove("dark");
     }
-    // DMV blue theme via data attribute
+
     if (theme === "dmv") {
       html.setAttribute("data-theme", "dmv");
     } else {
       html.removeAttribute("data-theme");
     }
-  }, [theme]);
+
+    const palette = getPaletteForState(state);
+    html.style.setProperty("--state-primary", palette.primary);
+    html.style.setProperty("--state-secondary", palette.secondary);
+    html.style.setProperty("--state-accent", palette.accent);
+    html.style.setProperty("--state-bg", palette.background);
+    html.style.setProperty("--state-surface", palette.surface);
+    html.style.setProperty("--state-border", palette.border);
+  }, [theme, state]);
 
   // Keyboard shortcuts: Ctrl/Cmd + Z = undo, Ctrl/Cmd + Shift + Z or Ctrl + Y = redo
   React.useEffect(() => {

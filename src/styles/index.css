@@ -5,30 +5,42 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --state-primary: #1b3568;
+  --state-secondary: #dce6f0;
+  --state-accent: #b22234;
+  --state-bg: #edf1f6;
+  --state-surface: #ffffff;
+  --state-border: #b8c9da;
+}
+
 /* ─── DMV Blue theme ─────────────────────────────────────────────────────── */
 /* Applied when <html data-theme="dmv"> is set.
    Overrides the default light palette with a government-style navy/slate look. */
 html[data-theme="dmv"] body {
-  background-color: #edf1f6;
+  background-color: var(--state-bg);
 }
 html[data-theme="dmv"] header {
-  background-color: #1b3568 !important;
+  background-color: var(--state-primary) !important;
+  border-color: var(--state-border) !important;
+  color: #ffffff !important;
 }
 html[data-theme="dmv"] .dmv-sidebar {
-  background-color: #dce6f0 !important;
-  border-color: #b8c9da !important;
+  background-color: var(--state-secondary) !important;
+  border-color: var(--state-border) !important;
 }
 html[data-theme="dmv"] .dmv-main {
-  background-color: #ffffff !important;
-  border-color: #c3d0dc !important;
+  background-color: var(--state-surface) !important;
+  border-color: var(--state-border) !important;
 }
 html[data-theme="dmv"] .dmv-preview {
-  background-color: #dce6f0 !important;
-  border-color: #b8c9da !important;
+  background-color: var(--state-secondary) !important;
+  border-color: var(--state-border) !important;
 }
 html[data-theme="dmv"] .dmv-badge {
-  background-color: #14295a !important;
-  border-color: #243f7a !important;
+  background-color: var(--state-accent) !important;
+  border-color: var(--state-primary) !important;
+  color: #ffffff !important;
 }
 
 /* ─── Scrollbar polish ───────────────────────────────────────────────────── */

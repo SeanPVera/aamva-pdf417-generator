@@ -20,7 +20,7 @@ interface HeaderProps {
 const THEME_LABELS: Record<Theme, { label: string; icon: React.ReactNode }> = {
   light: { label: "Light", icon: <Sun size={13} /> },
   dark: { label: "Dark", icon: <Moon size={13} /> },
-  dmv: { label: "DMV", icon: <Building2 size={13} /> }
+  dmv: { label: "State", icon: <Building2 size={13} /> }
 };
 
 const THEMES: Theme[] = ["light", "dark", "dmv"];
