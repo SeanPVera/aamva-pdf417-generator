@@ -20,12 +20,13 @@ export default defineConfig({
     emptyOutDir: true,
     rollupOptions: {
       output: {
-        manualChunks: {
-          react: ['react', 'react-dom'],
-          scanner: ['@zxing/browser', '@zxing/library'],
-          barcode: ['bwip-js'],
-          export: ['jspdf'],
-        },
+        manualChunks(id) {
+          if (id.includes("react-dom") || id.includes("react")) return "react";
+          if (id.includes("@zxing/browser") || id.includes("@zxing/library")) return "scanner";
+          if (id.includes("bwip-js")) return "barcode";
+          if (id.includes("jspdf")) return "export";
+          return undefined;
+        }
       },
     },
   },

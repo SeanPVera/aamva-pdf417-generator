@@ -165,3 +165,18 @@ main,
 div {
   @apply transition-colors duration-300 ease-in-out;
 }
+
+.header-toolbar {
+  scrollbar-width: none;
+}
+.header-toolbar::-webkit-scrollbar {
+  display: none;
+}
+
+.app-shell {
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
