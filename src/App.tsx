@@ -83,14 +83,14 @@ function App() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-white dark:bg-[#121212] text-gray-900 dark:text-gray-200 font-sans">
+    <div className="app-shell flex flex-col min-h-screen bg-white dark:bg-[#121212] text-gray-900 dark:text-gray-200 font-sans">
       <Header onStartScan={() => setIsScanning(true)} />
 
       <nav
-        className="lg:hidden sticky top-[60px] z-10 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700"
+        className="lg:hidden z-10 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-2 pb-2 pt-1"
         aria-label="Mobile panel navigation"
       >
-        <div className="grid grid-cols-3 gap-2 p-2">
+        <div className="grid grid-cols-3 gap-2">
           {[
             { key: "config", label: "Config" },
             { key: "form", label: "Fields" },
@@ -113,11 +113,11 @@ function App() {
         </div>
       </nav>
 
-      <main className="flex flex-1 flex-col lg:flex-row overflow-visible lg:overflow-hidden gap-0 lg:gap-0">
+      <main className="flex flex-1 flex-col lg:flex-row overflow-visible lg:overflow-hidden gap-0 lg:gap-0 pb-safe">
         <Sidebar mobileHidden={mobilePanel !== "config"} />
 
         <div
-          className={`dmv-main flex-1 flex flex-col overflow-y-auto bg-white dark:bg-[#1E1E1E] m-2 lg:m-4 rounded-xl shadow-google dark:shadow-none border border-gray-200 dark:border-[#333333] ${
+          className={`dmv-main flex-1 flex flex-col overflow-y-auto bg-white dark:bg-[#1E1E1E] m-2 lg:m-4 rounded-xl shadow-google dark:shadow-none border border-gray-200 dark:border-[#333333] min-h-[40vh] ${
             mobilePanel !== "form" ? "hidden lg:flex" : "flex"
           }`}
         >
