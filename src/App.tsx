@@ -11,6 +11,7 @@ import {
   generateStateLicenseNumber,
   generateStateCardRevisionDate
 } from "./core/generator";
+import { getPaletteForState } from "./core/stateThemes";
 
 const WebcamScanner = React.lazy(() =>
   import("./components/WebcamScanner").then((module) => ({ default: module.WebcamScanner }))
@@ -23,22 +24,31 @@ function App() {
     useFormStore();
   const schemaFields = getFieldsForStateAndVersion(state, version);
 
-  // Apply theme class/attribute to <html> element
+  // Apply global theme + state palette to <html> element
   React.useEffect(() => {
     const html = document.documentElement;
-    // Tailwind dark mode via class
+
     if (theme === "dark") {
       html.classList.add("dark");
     } else {
       html.classList.remove("dark");
     }
-    // DMV blue theme via data attribute
+
     if (theme === "dmv") {
       html.setAttribute("data-theme", "dmv");
     } else {
       html.removeAttribute("data-theme");
     }
-  }, [theme]);
+
+    const palette = getPaletteForState(state);
+    html.setAttribute("data-state-theme", state);
+    html.style.setProperty("--state-primary", palette.primary);
+    html.style.setProperty("--state-secondary", palette.secondary);
+    html.style.setProperty("--state-accent", palette.accent);
+    html.style.setProperty("--state-background", palette.background);
+    html.style.setProperty("--state-surface", palette.surface);
+    html.style.setProperty("--state-badge", palette.badge);
+  }, [theme, state]);
 
   // Keyboard shortcuts: Ctrl/Cmd + Z = undo, Ctrl/Cmd + Shift + Z or Ctrl + Y = redo
   React.useEffect(() => {
@@ -94,7 +104,7 @@ function App() {
               onClick={() => setMobilePanel(panel.key as "config" | "form" | "preview")}
               className={`rounded-md px-3 py-2 text-sm font-medium transition ${
                 mobilePanel === panel.key
-                  ? "bg-blue-600 text-white"
+                  ? "state-primary-bg text-white"
                   : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200"
               }`}
             >
