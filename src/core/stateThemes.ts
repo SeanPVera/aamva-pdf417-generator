@@ -1,8 +1,9 @@
 /**
  * State-specific color palettes.
  *
- * Each jurisdiction has a curated palette derived from its flag and/or
- * official state branding (primary field color + a complementary accent).
+ * Each jurisdiction has a palette aligned to official state colors where
+ * designated by law. If a state has no statutory colors, we use a best-guess
+ * palette derived from the state flag, seal, or widely used civic branding.
  * The palette is used to theme the application header, badges and accent
  * surfaces whenever the user selects a state.
  *
@@ -37,7 +38,7 @@ export const DEFAULT_STATE_THEME: StateTheme = {
 };
 
 export const STATE_THEMES: Record<string, StateTheme> = {
-  // Alabama — Crimson saltire on white
+  // Alabama — best guess from flag (no statutory state color pair)
   AL: {
     primary: "#A60F2D",
     primaryDark: "#7A0A20",
@@ -46,7 +47,7 @@ export const STATE_THEMES: Record<string, StateTheme> = {
     onAccent: "#1a1a1a",
     tint: "#f8e6ea"
   },
-  // Alaska — Blue field, gold Big Dipper
+  // Alaska — best guess from flag (no statutory state color pair)
   AK: {
     primary: "#0F204B",
     primaryDark: "#081433",
@@ -55,16 +56,16 @@ export const STATE_THEMES: Record<string, StateTheme> = {
     onAccent: "#1a1a1a",
     tint: "#dce1ee"
   },
-  // Arizona — Copper sunset over blue
+  // Arizona — official state colors: blue + old gold
   AZ: {
-    primary: "#CE1126",
-    primaryDark: "#97001C",
-    accent: "#FFC72C",
+    primary: "#0A3161",
+    primaryDark: "#072448",
+    accent: "#C9A227",
     onPrimary: "#ffffff",
     onAccent: "#1a1a1a",
-    tint: "#fae4e6"
+    tint: "#dde5f0"
   },
-  // Arkansas — Red/blue flag
+  // Arkansas — best guess from flag (no statutory state color pair)
   AR: {
     primary: "#BE0A30",
     primaryDark: "#8B0623",
@@ -73,14 +74,14 @@ export const STATE_THEMES: Record<string, StateTheme> = {
     onAccent: "#ffffff",
     tint: "#f8dfe3"
   },
-  // California — Bear Republic red on white
+  // California — official state colors: blue + gold
   CA: {
-    primary: "#002F6C",
-    primaryDark: "#001F47",
-    accent: "#B22234",
+    primary: "#003A70",
+    primaryDark: "#00264A",
+    accent: "#F2A900",
     onPrimary: "#ffffff",
-    onAccent: "#ffffff",
-    tint: "#dde3ee"
+    onAccent: "#1a1a1a",
+    tint: "#dbe4ed"
   },
   // Colorado — Red/blue/white with yellow 'C'
   CO: {
@@ -127,14 +128,14 @@ export const STATE_THEMES: Record<string, StateTheme> = {
     onAccent: "#ffffff",
     tint: "#f4dede"
   },
-  // Hawaii — Union Jack blue + red
+  // Hawaii — best guess (no statutory state color pair)
   HI: {
-    primary: "#002C6B",
-    primaryDark: "#001C47",
-    accent: "#BE0A30",
+    primary: "#B22234",
+    primaryDark: "#7E1624",
+    accent: "#FFD166",
     onPrimary: "#ffffff",
-    onAccent: "#ffffff",
-    tint: "#dae1ee"
+    onAccent: "#1a1a1a",
+    tint: "#f7e3e7"
   },
   // Idaho — Deep blue with gem-state gold
   ID: {
@@ -217,14 +218,14 @@ export const STATE_THEMES: Record<string, StateTheme> = {
     onAccent: "#1a1a1a",
     tint: "#f6e0dd"
   },
-  // Massachusetts — Pilgrim blue
+  // Massachusetts — official state colors: blue, green, cranberry
   MA: {
-    primary: "#14377D",
-    primaryDark: "#0C2458",
-    accent: "#FFCD00",
+    primary: "#1D3D8F",
+    primaryDark: "#132A64",
+    accent: "#7A9E3A",
     onPrimary: "#ffffff",
     onAccent: "#1a1a1a",
-    tint: "#dde0eb"
+    tint: "#dde2ef"
   },
   // Michigan — Maize and blue
   MI: {
@@ -280,14 +281,14 @@ export const STATE_THEMES: Record<string, StateTheme> = {
     onAccent: "#1a1a1a",
     tint: "#dae0ee"
   },
-  // Nevada — Silver State cobalt & silver
+  // Nevada — official state colors: silver + blue
   NV: {
-    primary: "#00205B",
-    primaryDark: "#00143D",
-    accent: "#A7A8AA",
+    primary: "#1D4F91",
+    primaryDark: "#143761",
+    accent: "#C0C0C0",
     onPrimary: "#ffffff",
     onAccent: "#1a1a1a",
-    tint: "#dadfed"
+    tint: "#dee5ef"
   },
   // New Hampshire — Live Free blue & red
   NH: {
@@ -298,14 +299,14 @@ export const STATE_THEMES: Record<string, StateTheme> = {
     onAccent: "#ffffff",
     tint: "#dadfea"
   },
-  // New Jersey — Buff on Jersey blue
+  // New Jersey — official state colors: Jersey blue + buff
   NJ: {
-    primary: "#F2A900",
-    primaryDark: "#B87F00",
-    accent: "#002868",
-    onPrimary: "#1a1a1a",
-    onAccent: "#ffffff",
-    tint: "#fcedcd"
+    primary: "#2484C6",
+    primaryDark: "#1A5E8D",
+    accent: "#E1B584",
+    onPrimary: "#ffffff",
+    onAccent: "#1a1a1a",
+    tint: "#ddeff9"
   },
   // New Mexico — Zia red on gold
   NM: {
@@ -316,14 +317,14 @@ export const STATE_THEMES: Record<string, StateTheme> = {
     onAccent: "#1a1a1a",
     tint: "#fae0e3"
   },
-  // New York — Empire State blue & gold
+  // New York — best guess (no statutory state color pair)
   NY: {
-    primary: "#1A2C5B",
-    primaryDark: "#0F1B3A",
-    accent: "#E6A800",
+    primary: "#1D3458",
+    primaryDark: "#12223A",
+    accent: "#D8A637",
     onPrimary: "#ffffff",
     onAccent: "#1a1a1a",
-    tint: "#dde0ea"
+    tint: "#dde2ea"
   },
   // North Carolina — Red/white/blue
   NC: {
@@ -343,32 +344,32 @@ export const STATE_THEMES: Record<string, StateTheme> = {
     onAccent: "#1a1a1a",
     tint: "#dae0ee"
   },
-  // Ohio — Burgee red/white/blue
+  // Ohio — best guess (no statutory state color pair)
   OH: {
-    primary: "#BF0A30",
-    primaryDark: "#8C0722",
-    accent: "#002868",
+    primary: "#002147",
+    primaryDark: "#00142F",
+    accent: "#BA0C2F",
     onPrimary: "#ffffff",
     onAccent: "#ffffff",
-    tint: "#f8dfe4"
+    tint: "#d9dfe8"
   },
-  // Oklahoma — Osage shield, sky blue & tan
+  // Oklahoma — official state colors: green + white
   OK: {
-    primary: "#3A5DAE",
-    primaryDark: "#264082",
-    accent: "#A87B53",
+    primary: "#1F5F3A",
+    primaryDark: "#153F27",
+    accent: "#FFFFFF",
     onPrimary: "#ffffff",
-    onAccent: "#ffffff",
-    tint: "#dee4f1"
+    onAccent: "#1F5F3A",
+    tint: "#dce8e1"
   },
-  // Oregon — Beaver State navy & gold
+  // Oregon — official state colors: navy blue + gold
   OR: {
-    primary: "#154733",
-    primaryDark: "#0C2B1F",
-    accent: "#FEE11A",
+    primary: "#0B1F5B",
+    primaryDark: "#07133B",
+    accent: "#D4AF37",
     onPrimary: "#ffffff",
     onAccent: "#1a1a1a",
-    tint: "#dde3df"
+    tint: "#dcdfeb"
   },
   // Pennsylvania — Keystone blue/gold
   PA: {
@@ -388,14 +389,14 @@ export const STATE_THEMES: Record<string, StateTheme> = {
     onAccent: "#1a1a1a",
     tint: "#dae0ee"
   },
-  // South Carolina — Indigo & Palmetto white
+  // South Carolina — official state color: indigo blue
   SC: {
-    primary: "#002868",
-    primaryDark: "#001945",
-    accent: "#FFFFFF",
+    primary: "#0047AB",
+    primaryDark: "#00327A",
+    accent: "#E6EEF9",
     onPrimary: "#ffffff",
-    onAccent: "#002868",
-    tint: "#dae0ee"
+    onAccent: "#1a1a1a",
+    tint: "#dfe8f7"
   },
   // South Dakota — Sun gold on sky blue
   SD: {
