@@ -9,6 +9,7 @@
   --state-primary: #1b3568;
   --state-secondary: #dce6f0;
   --state-accent: #b22234;
+  --state-accent-contrast: #ffffff;
   --state-bg: #edf1f6;
   --state-surface: #ffffff;
   --state-border: #b8c9da;
@@ -40,7 +41,7 @@ html[data-theme="dmv"] .dmv-preview {
 html[data-theme="dmv"] .dmv-badge {
   background-color: var(--state-accent) !important;
   border-color: var(--state-primary) !important;
-  color: #ffffff !important;
+  color: var(--state-accent-contrast) !important;
 }
 
 /* ─── Scrollbar polish ───────────────────────────────────────────────────── */

@@ -6,7 +6,7 @@ import { BatchProcessor } from "./components/BatchProcessor";
 import { useFormStore } from "./hooks/useFormStore";
 import { getFieldsForStateAndVersion } from "./core/schema";
 import { validateFieldValue } from "./core/validation";
-import { getPaletteForState } from "./core/stateThemes";
+import { getPaletteForState, getReadableTextColor } from "./core/stateThemes";
 import {
   generateStateDiscriminator,
   generateStateLicenseNumber,
@@ -44,6 +44,7 @@ function App() {
     html.style.setProperty("--state-primary", palette.primary);
     html.style.setProperty("--state-secondary", palette.secondary);
     html.style.setProperty("--state-accent", palette.accent);
+    html.style.setProperty("--state-accent-contrast", getReadableTextColor(palette.accent));
     html.style.setProperty("--state-bg", palette.background);
     html.style.setProperty("--state-surface", palette.surface);
     html.style.setProperty("--state-border", palette.border);

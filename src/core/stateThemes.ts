@@ -7,6 +7,8 @@ export interface StatePalette {
   border: string;
 }
 
+const HEX_COLOR_REGEX = /^#?([0-9a-f]{6})$/i;
+
 const DEFAULT_PALETTE: StatePalette = {
   primary: "#1b3568",
   secondary: "#dce6f0",
@@ -463,4 +465,45 @@ export const STATE_PALETTES: Record<string, StatePalette> = {
 
 export function getPaletteForState(stateCode: string): StatePalette {
   return STATE_PALETTES[stateCode] || DEFAULT_PALETTE;
+}
+
+function parseHexColor(color: string): [number, number, number] | null {
+  const match = color.trim().match(HEX_COLOR_REGEX);
+  if (!match) {
+    return null;
+  }
+
+  const hex = match[1];
+  const r = parseInt(hex.slice(0, 2), 16);
+  const g = parseInt(hex.slice(2, 4), 16);
+  const b = parseInt(hex.slice(4, 6), 16);
+  return [r, g, b];
+}
+
+function toLinearSrgb(channel: number): number {
+  const value = channel / 255;
+  return value <= 0.03928 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+}
+
+function getRelativeLuminance(color: string): number | null {
+  const rgb = parseHexColor(color);
+  if (!rgb) {
+    return null;
+  }
+
+  const [r, g, b] = rgb.map(toLinearSrgb);
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+export function getReadableTextColor(
+  backgroundColor: string,
+  darkTextColor = "#111827",
+  lightTextColor = "#ffffff"
+): string {
+  const luminance = getRelativeLuminance(backgroundColor);
+  if (luminance === null) {
+    return lightTextColor;
+  }
+
+  return luminance > 0.5 ? darkTextColor : lightTextColor;
 }
