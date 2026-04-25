@@ -6,6 +6,7 @@ import { BatchProcessor } from "./components/BatchProcessor";
 import { useFormStore } from "./hooks/useFormStore";
 import { getFieldsForStateAndVersion } from "./core/schema";
 import { validateFieldValue } from "./core/validation";
+import { applyStateThemeToDocument } from "./core/stateThemes";
 import {
   generateStateDiscriminator,
   generateStateLicenseNumber,
@@ -50,6 +51,13 @@ function App() {
     html.style.setProperty("--state-badge", palette.badge);
   }, [theme, state]);
 
+  // Apply the jurisdiction-specific palette whenever the selected state
+  // changes. The palette is exposed as CSS custom properties on <html>
+  // (consumed by `header.state-themed`, `.state-themed-*` rules, etc.).
+  React.useEffect(() => {
+    applyStateThemeToDocument(state);
+  }, [state]);
+
   // Keyboard shortcuts: Ctrl/Cmd + Z = undo, Ctrl/Cmd + Shift + Z or Ctrl + Y = redo
   React.useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
@@ -85,14 +93,14 @@ function App() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-white dark:bg-[#121212] text-gray-900 dark:text-gray-200 font-sans">
+    <div className="app-shell flex flex-col min-h-screen bg-white dark:bg-[#121212] text-gray-900 dark:text-gray-200 font-sans">
       <Header onStartScan={() => setIsScanning(true)} />
 
       <nav
-        className="lg:hidden sticky top-[60px] z-10 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700"
+        className="lg:hidden z-10 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-2 pb-2 pt-1"
         aria-label="Mobile panel navigation"
       >
-        <div className="grid grid-cols-3 gap-2 p-2">
+        <div className="grid grid-cols-3 gap-2">
           {[
             { key: "config", label: "Config" },
             { key: "form", label: "Fields" },
@@ -102,7 +110,8 @@ function App() {
               key={panel.key}
               type="button"
               onClick={() => setMobilePanel(panel.key as "config" | "form" | "preview")}
-              className={`rounded-md px-3 py-2 text-sm font-medium transition ${
+              aria-current={mobilePanel === panel.key}
+              className={`state-themed-tab rounded-md px-3 py-2 text-sm font-medium transition ${
                 mobilePanel === panel.key
                   ? "state-primary-bg text-white"
                   : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200"
@@ -114,11 +123,11 @@ function App() {
         </div>
       </nav>
 
-      <main className="flex flex-1 flex-col lg:flex-row overflow-visible lg:overflow-hidden gap-0 lg:gap-0">
+      <main className="flex flex-1 flex-col lg:flex-row overflow-visible lg:overflow-hidden gap-0 lg:gap-0 pb-safe">
         <Sidebar mobileHidden={mobilePanel !== "config"} />
 
         <div
-          className={`dmv-main flex-1 flex flex-col overflow-y-auto bg-white dark:bg-[#1E1E1E] m-2 lg:m-4 rounded-xl shadow-google dark:shadow-none border border-gray-200 dark:border-[#333333] ${
+          className={`dmv-main flex-1 flex flex-col overflow-y-auto bg-white dark:bg-[#1E1E1E] m-2 lg:m-4 rounded-xl shadow-google dark:shadow-none border border-gray-200 dark:border-[#333333] min-h-[40vh] ${
             mobilePanel !== "form" ? "hidden lg:flex" : "flex"
           }`}
         >

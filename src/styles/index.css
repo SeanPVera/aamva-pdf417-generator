@@ -6,12 +6,63 @@
 @tailwind utilities;
 
 :root {
-  --state-primary: #1b3568;
+  /* Core runtime theme (main branch system) */
+  --state-primary: #1a73e8;
+  --state-primary-dark: #1967d2;
+  --state-accent: #fbbc04;
+  --state-on-primary: #ffffff;
+  --state-on-accent: #1a1a1a;
+  --state-tint: #e8f0fe;
+
+  /* Extended palette (your DMV + layout system) */
   --state-secondary: #dce6f0;
-  --state-accent: #243f7a;
   --state-background: #edf1f6;
   --state-surface: #ffffff;
   --state-badge: #14295a;
+}
+
+/* ─── State-themed header & accents ──────────────────────────────────────── */
+/* The header always reflects the selected jurisdiction's flag colors. */
+header.state-themed {
+  background-color: var(--state-primary) !important;
+  color: var(--state-on-primary) !important;
+  border-bottom-color: var(--state-primary-dark) !important;
+}
+header.state-themed h1,
+header.state-themed .state-brand-text {
+  color: var(--state-on-primary);
+}
+header.state-themed .state-brand-icon {
+  color: var(--state-accent);
+}
+header.state-themed .state-badge {
+  background-color: var(--state-accent) !important;
+  color: var(--state-on-accent) !important;
+  border-color: var(--state-accent) !important;
+}
+header.state-themed button,
+header.state-themed .header-ctrl {
+  color: var(--state-on-primary);
+}
+header.state-themed button:hover:not(:disabled),
+header.state-themed .header-ctrl:hover:not(:disabled) {
+  background-color: color-mix(in srgb, var(--state-on-primary) 18%, transparent);
+}
+header.state-themed .state-toggle-group {
+  border-color: color-mix(in srgb, var(--state-on-primary) 30%, transparent);
+}
+header.state-themed .state-toggle-group button[aria-pressed="true"] {
+  background-color: var(--state-accent) !important;
+  color: var(--state-on-accent) !important;
+}
+header.state-themed .state-divider {
+  background-color: color-mix(in srgb, var(--state-on-primary) 25%, transparent);
+}
+
+/.state-themed-sidebar {
+  border-top-color: var(--state-primary) !important;
+  border-top-width: 3px !important;
+  border-top-style: solid !important;
 }
 
 /* ─── DMV Blue theme ─────────────────────────────────────────────────────── */
@@ -108,4 +159,19 @@ aside,
 main,
 div {
   @apply transition-colors duration-300 ease-in-out;
+}
+
+.header-toolbar {
+  scrollbar-width: none;
+}
+.header-toolbar::-webkit-scrollbar {
+  display: none;
+}
+
+.app-shell {
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0);
 }
