@@ -1,40 +1,32 @@
-# Pull Request Review & Live Review Setup
+# Live Pull Request Re-Review
 
-Date reviewed: 2026-04-19 (UTC)
+Date reviewed: 2026-04-25 (UTC)
+Repository: `SeanPVera/aamva-pdf417-generator`
 
-## Setup completed in this environment
+## Method used
 
-The following requested setup has already been done:
+Live data pulled from GitHub REST API:
+- `GET /pulls?state=open`
+- `GET /pulls/{number}`
+- `GET /pulls/{number}/files`
+- `GET /commits/{sha}/status`
 
-1. GitHub remote added:
-   ```bash
-   git remote add origin https://github.com/SeanPVera/aamva-pdf417-generator.git
-   ```
-2. GitHub CLI installed (`gh 2.45.0`).
+## Open PRs (current snapshot) and actions
 
-Current blocker to live PR review: GitHub authentication is still required.
+| PR | Current snapshot | Recommended action | Why |
+|---|---|---|---|
+| #57 — Add per-state color palettes and runtime theming | 1 commit, +129/-23, 4 files, `mergeable_state=dirty` | **Keep as primary theming PR, ask author to rebase/fix conflicts now** | Smallest theming surface and easiest to reason about; best candidate to merge once conflicts are resolved and checks are green. |
+| #56 — Add per-state color palettes and dynamic state theming | 2 commits, +579/-14, 5 files, `mergeable_state=dirty` | **Close as superseded by #57** | Overlapping feature with much larger diff and now conflict state; maintaining two competing theme PRs increases risk. |
+| #53 — Add comprehensive iOS Safari compatibility improvements | 1 commit, +210/-85, 8 files, `mergeable_state=dirty` | **Request author rebase + split into smaller PRs** | Broad/mobile-heavy change now conflicts with `main`; split into scanner fixes vs download behavior vs CSS safe-area changes for safer review. |
 
-## Final step you need to run
+## Immediate reviewer checklist
 
-```bash
-gh auth login
-```
+1. On **#57**: request rebase on current `main`, re-run `npm run lint`, `npx vitest run`, `npm run build`, then approve if visual regression is clean.
+2. On **#56**: comment “Superseded by #57 and currently conflicted; closing to avoid duplicate theming tracks,” then close.
+3. On **#53**: request conflict resolution and a split strategy (or at minimum an updated QA matrix for iOS Safari versions/devices) before further review.
 
-After login, live PR review commands will work:
+## Signals from live status data
 
-```bash
-gh pr list --state open --limit 30
-gh pr view <pr-number> --comments --web
-gh pr diff <pr-number>
-```
-
-## Optional API fallback (without `gh` auth session)
-
-Use a GitHub token with `repo` scope and call the API directly:
-
-```bash
-export GITHUB_TOKEN=<token>
-curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
-  -H "Accept: application/vnd.github+json" \
-  https://api.github.com/repos/SeanPVera/aamva-pdf417-generator/pulls?state=open
-```
+- Open PRs found: **#57, #56, #53**.
+- All three currently report **`mergeable_state=dirty`** (conflicts with `main`).
+- Commit status endpoint shows **`pending` with zero contexts** for each PR head SHA, so no CI pass/fail evidence is currently visible from the API snapshot.
