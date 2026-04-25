@@ -1,6 +1,7 @@
 import { AAMVA_STATES, isJurisdictionSupported } from "./states";
 import { AAMVA_VERSIONS, getMandatoryFields, AAMVAField } from "./schema";
 import { AAMVA_STATE_RULES, validateCrossFieldConsistency, validateFieldValue } from "./validation";
+import { validateAAMVAPayloadStructure } from "./decoder";
 
 export interface GenerateOptions {
   strictMode?: boolean;
@@ -69,6 +70,15 @@ export function generateAAMVAPayload(
   }
 
   if (!AAMVA_VERSIONS[version]) throw new Error(`Unsupported AAMVA version: ${version}`);
+
+  if (strictMode) {
+    const jurisdictionVersion = AAMVA_STATES[stateCode].aamvaVersion;
+    if (version !== jurisdictionVersion) {
+      throw new Error(
+        `Strict Mode: version ${version} does not match ${stateCode} compliance profile (${jurisdictionVersion})`
+      );
+    }
+  }
 
   if (AAMVA_STATE_RULES[stateCode]?.generators) {
     const generators = AAMVA_STATE_RULES[stateCode].generators!;
@@ -191,6 +201,15 @@ export function generateAAMVAPayload(
 
   const actualLength = textEncoder ? textEncoder.encode(subfileData).length : subfileData.length;
   if (actualLength !== length) throw new Error("AAMVA payload directory length mismatch.");
+
+  if (strictMode) {
+    const strictStructure = validateAAMVAPayloadStructure(payload, true);
+    if (!strictStructure.ok) {
+      throw new Error(
+        `Strict Mode: generated payload structure is invalid (${strictStructure.error})`
+      );
+    }
+  }
 
   return payload;
 }
