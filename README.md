@@ -22,7 +22,7 @@ This project is designed for **local, offline-oriented use** and runs as a React
   - [Step 1: Download the project](#step-1-download-the-project)
   - [Step 2: Open in browser mode](#step-2-open-in-browser-mode)
   - [Step 3: Run desktop mode with Electron](#step-3-run-desktop-mode-with-electron)
-  - [Step 4: Build distributables (optional)](#step-4-build-distributables-optional)
+  - [Step 4: Build one-click installers (optional)](#step-4-build-one-click-installers-optional)
 - [How to use the app](#how-to-use-the-app)
 - [iPhone setup guide (recommended)](#iphone-setup-guide-recommended)
 - [JSON import format](#json-import-format)
@@ -240,15 +240,29 @@ You should see a desktop window titled **AAMVA PDF417 Generator**.
 
 ---
 
-### Step 4: Build distributables (optional)
+### Step 4: Build one-click installers (optional)
 
-If you want packaged app artifacts:
+This project now ships Electron Builder targets for **Windows, macOS, and Linux** so each platform gets an installer-style artifact:
+
+- **Windows:** NSIS one-click installer (`.exe`)
+- **macOS:** DMG (`.dmg`)
+- **Linux:** AppImage (`.AppImage`) and Debian package (`.deb`)
+
+Use one command for the current host OS:
 
 ```bash
-npm run build
+npm run dist
 ```
 
-Build output is written to the `dist/` directory (as configured in `package.json`).
+Or force a specific platform target:
+
+```bash
+npm run dist:win
+npm run dist:mac
+npm run dist:linux
+```
+
+Installer artifacts are written to `dist_electron/`.
 
 ---
 

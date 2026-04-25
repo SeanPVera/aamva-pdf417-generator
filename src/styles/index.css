@@ -59,7 +59,7 @@ header.state-themed .state-divider {
   background-color: color-mix(in srgb, var(--state-on-primary) 25%, transparent);
 }
 
-/.state-themed-sidebar {
+.state-themed-sidebar {
   border-top-color: var(--state-primary) !important;
   border-top-width: 3px !important;
   border-top-style: solid !important;
@@ -109,13 +109,6 @@ html[data-state-theme] .state-primary-bg {
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
 }
-html.dark ::-webkit-scrollbar-thumb {
-  background: #475569;
-}
-html.dark ::-webkit-scrollbar-thumb:hover {
-  background: #64748b;
-}
-
 body {
   @apply font-sans antialiased bg-gray-50 text-gray-900;
 }
