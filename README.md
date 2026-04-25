@@ -17,6 +17,7 @@ This project is designed for **local, offline-oriented use** and runs as a React
 - [Plan to address current limitations](#plan-to-address-current-limitations)
 - [Tech stack and architecture](#tech-stack-and-architecture)
 - [Zero-BS quick start (copy/paste)](#zero-bs-quick-start-copypaste)
+- [One-click installer downloads](#one-click-installer-downloads)
 - [Full install guide (college-student friendly)](#full-install-guide-college-student-friendly)
   - [Prerequisites](#prerequisites)
   - [Step 1: Download the project](#step-1-download-the-project)
@@ -167,6 +168,25 @@ That one command installs dependencies (if needed) and starts the app.
 
 ---
 
+## One-click installer downloads
+
+If you want to install without running terminal commands, use the prebuilt desktop installers from GitHub Releases:
+
+- **Latest release page:** <https://github.com/SeanPVera/aamva-pdf417-generator/releases/latest>
+- **All releases:** <https://github.com/SeanPVera/aamva-pdf417-generator/releases>
+
+From the release page, download the artifact that matches your OS:
+
+| OS | File type | Notes |
+| --- | --- | --- |
+| Windows | `.exe` (NSIS) | One-click installer. |
+| macOS | `.dmg` | Drag app to Applications after opening DMG. |
+| Linux | `.AppImage` or `.deb` | Use AppImage for portable use; `.deb` for Debian/Ubuntu installs. |
+
+If you do not see an installer for your OS in the latest release, you can build it locally with the commands in [Step 4](#step-4-build-one-click-installers-optional).
+
+---
+
 ## Full install guide (college-student friendly)
 
 This section assumes zero setup experience.
@@ -241,6 +261,9 @@ You should see a desktop window titled **AAMVA PDF417 Generator**.
 ---
 
 ### Step 4: Build one-click installers (optional)
+
+> [!TIP]
+> If you prefer prebuilt files, check [One-click installer downloads](#one-click-installer-downloads) first.
 
 This project now ships Electron Builder targets for **Windows, macOS, and Linux** so each platform gets an installer-style artifact:
 
