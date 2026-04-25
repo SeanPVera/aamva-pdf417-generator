@@ -67,7 +67,7 @@ export const useFormStore = create<FormState>()(
     (set, get) => ({
       state: "CA",
       version: "10",
-      strictMode: false,
+      strictMode: true,
       subfileType: "DL",
       fields: {},
       theme: "dark",
