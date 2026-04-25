@@ -132,7 +132,7 @@ export const Header: React.FC<HeaderProps> = ({ onStartScan }) => {
               aria-pressed={theme === t}
               className={`flex items-center gap-1 px-2 py-1.5 text-xs transition focus:outline-none ${
                 theme === t
-                  ? "bg-blue-500 font-semibold text-white"
+                  ? "state-primary-bg font-semibold text-white"
                   : "hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300"
               }`}
             >
