@@ -552,9 +552,14 @@ export function applyStateThemeToDocument(code: string, doc: Document = document
   const root = doc.documentElement;
   root.style.setProperty("--state-primary", theme.primary);
   root.style.setProperty("--state-primary-dark", theme.primaryDark);
+  root.style.setProperty("--state-secondary", theme.tint);
   root.style.setProperty("--state-accent", theme.accent);
+  root.style.setProperty("--state-background", theme.tint);
+  root.style.setProperty("--state-surface", "#ffffff");
+  root.style.setProperty("--state-badge", theme.primaryDark);
   root.style.setProperty("--state-on-primary", theme.onPrimary);
   root.style.setProperty("--state-on-accent", theme.onAccent);
   root.style.setProperty("--state-tint", theme.tint);
   root.setAttribute("data-state", code);
+  root.setAttribute("data-state-theme", code);
 }

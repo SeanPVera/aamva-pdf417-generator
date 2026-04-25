@@ -12,7 +12,6 @@ import {
   generateStateLicenseNumber,
   generateStateCardRevisionDate
 } from "./core/generator";
-import { getPaletteForState } from "./core/stateThemes";
 
 const WebcamScanner = React.lazy(() =>
   import("./components/WebcamScanner").then((module) => ({ default: module.WebcamScanner }))
@@ -40,16 +39,7 @@ function App() {
     } else {
       html.removeAttribute("data-theme");
     }
-
-    const palette = getPaletteForState(state);
-    html.setAttribute("data-state-theme", state);
-    html.style.setProperty("--state-primary", palette.primary);
-    html.style.setProperty("--state-secondary", palette.secondary);
-    html.style.setProperty("--state-accent", palette.accent);
-    html.style.setProperty("--state-background", palette.background);
-    html.style.setProperty("--state-surface", palette.surface);
-    html.style.setProperty("--state-badge", palette.badge);
-  }, [theme, state]);
+  }, [theme]);
 
   // Apply the jurisdiction-specific palette whenever the selected state
   // changes. The palette is exposed as CSS custom properties on <html>
