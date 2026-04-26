@@ -177,11 +177,11 @@ If you want to install without running terminal commands, use the prebuilt deskt
 
 From the release page, download the artifact that matches your OS:
 
-| OS | File type | Notes |
-| --- | --- | --- |
-| Windows | `.exe` (NSIS) | One-click installer. |
-| macOS | `.dmg` | Drag app to Applications after opening DMG. |
-| Linux | `.AppImage` or `.deb` | Use AppImage for portable use; `.deb` for Debian/Ubuntu installs. |
+| OS      | File type             | Notes                                                             |
+| ------- | --------------------- | ----------------------------------------------------------------- |
+| Windows | `.exe` (NSIS)         | One-click installer.                                              |
+| macOS   | `.dmg`                | Drag app to Applications after opening DMG.                       |
+| Linux   | `.AppImage` or `.deb` | Use AppImage for portable use; `.deb` for Debian/Ubuntu installs. |
 
 If you do not see an installer for your OS in the latest release, you can build it locally with the commands in [Step 4](#step-4-build-one-click-installers-optional).
 
@@ -377,6 +377,7 @@ There is no rigid external API contract, but a practical file usually looks like
 ```
 
 Tips:
+
 - Date format depends on the selected AAMVA version: version 01 uses `YYYYMMDD`, versions 02+ use `MMDDYYYY`.
 - ZIP supports `12345` or `12345-6789`.
 - Field requirements vary by selected version.
@@ -448,20 +449,20 @@ If the goal is to move from a capable local generator to a trusted, production-a
 
 This roadmap is intentionally aligned to the limitations listed above so each workstream closes a specific gap:
 
-| Known limitation | Roadmap coverage |
-| --- | --- |
-| Not a government-certified implementation | Certification-readiness track + release governance, compliance matrix, and auditable notes. |
-| Schema coverage/rule-depth gaps | Conformance harness, jurisdiction rule packs, and version migration helpers. |
-| Validation is lightweight | Validation hardening with cross-field checks + warning/error severity + strict profile expansion. |
-| Jurisdiction support depth varies | State/territory override modules and a published rule-coverage matrix. |
-| No backend persistence | Intentional browser-first posture, plus secure import/export and configurable local retention controls. |
-| No cryptographic trust layer | Optional signing/verification layer and key-management hardening in Electron mode. |
-| Limited E2E/device testing | Scanner realism program + browser/device matrix + CI gating on conformance checks. |
+| Known limitation                          | Roadmap coverage                                                                                        |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| Not a government-certified implementation | Certification-readiness track + release governance, compliance matrix, and auditable notes.             |
+| Schema coverage/rule-depth gaps           | Conformance harness, jurisdiction rule packs, and version migration helpers.                            |
+| Validation is lightweight                 | Validation hardening with cross-field checks + warning/error severity + strict profile expansion.       |
+| Jurisdiction support depth varies         | State/territory override modules and a published rule-coverage matrix.                                  |
+| No backend persistence                    | Intentional browser-first posture, plus secure import/export and configurable local retention controls. |
+| No cryptographic trust layer              | Optional signing/verification layer and key-management hardening in Electron mode.                      |
+| Limited E2E/device testing                | Scanner realism program + browser/device matrix + CI gating on conformance checks.                      |
 
 ### Sequenced execution plan
 
 1. **Define product tiers and success metrics (Week 1)**
-   - Split the product into explicit modes: *Educational*, *QA/Conformance*, and *Internal Operational*.
+   - Split the product into explicit modes: _Educational_, _QA/Conformance_, and _Internal Operational_.
    - Track measurable targets (example): generation success rate, scanner round-trip pass rate, export reliability, validation false-positive/false-negative rates.
    - Publish a lightweight scorecard in the repo so quality changes are visible per release.
 
@@ -522,6 +523,8 @@ Track these in CI and release notes:
 - UI components are in `src/components/`, app composition in `src/App.tsx`.
 - State management and persistence are in `src/hooks/useFormStore.ts`.
 - Tests are in `src/tests/` and run with Vitest.
+- QA/conformance fixtures are defined in `src/tests/fixtures/aamvaFixtures.ts` and are synthetic-only by policy (`TEST*` markers, no real-person data).
+- Conformance coverage is enforced in `src/tests/qaConformance.test.ts` for payload generation, decoder round-trips, jurisdiction/version coverage, scanner-style input handling, export integrity, and regression safety.
 
 ---
 
