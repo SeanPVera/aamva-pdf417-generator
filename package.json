@@ -132,6 +132,7 @@
     ],
     "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
     "win": {
+      "icon": "build/icon.ico",
       "target": [
         {
           "target": "nsis",
@@ -147,6 +148,7 @@
       "allowToChangeInstallationDirectory": false
     },
     "mac": {
+      "icon": "build/icon.icns",
       "target": [
         {
           "target": "dmg",
@@ -159,6 +161,7 @@
       "category": "public.app-category.utilities"
     },
     "linux": {
+      "icon": "build/icons",
       "target": [
         "AppImage",
         "deb"
