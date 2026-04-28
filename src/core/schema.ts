@@ -438,7 +438,7 @@ export function getFieldsForStateAndVersion(stateCode: string, v: string): AAMVA
   return allFields.filter((f) => f.required || !excludedSet.has(f.code));
 }
 
-export function getMandatoryFields(stateCode: string, version: string): AAMVAField[] {
+export function getMandatoryFields(_stateCode: string, version: string): AAMVAField[] {
   const versionDef = AAMVA_VERSIONS[version];
   if (!versionDef) return [];
   return versionDef.fields.filter((f) => f.required);

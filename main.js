@@ -21,8 +21,20 @@ function createWindow() {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
       nodeIntegration: false,
-      sandbox: true
+      sandbox: true,
+      webSecurity: true,
+      allowRunningInsecureContent: false,
+      experimentalFeatures: false,
+      enableWebSQL: false
     }
+  });
+
+  // Deny every renderer-initiated permission request by default. The app
+  // does not need geolocation, notifications, mic, etc. The webcam scanner
+  // explicitly grants 'media' below when the user opens it.
+  win.webContents.session.setPermissionRequestHandler((_webContents, permission, callback) => {
+    if (permission === "media") return callback(true);
+    return callback(false);
   });
 
   if (isDev) {

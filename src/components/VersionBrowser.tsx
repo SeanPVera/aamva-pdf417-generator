@@ -43,12 +43,16 @@ export const VersionBrowser: React.FC = () => {
               onChange={(e) => setBrowsedVersion(e.target.value)}
               className="w-full text-xs border border-gray-300 dark:border-gray-600 rounded p-1.5 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100"
             >
-              {Object.keys(AAMVA_VERSIONS).map((v) => (
-                <option key={v} value={v}>
-                  {v} — {AAMVA_VERSIONS[v].name}
-                  {v === activeVersion ? " (active)" : ""}
-                </option>
-              ))}
+              {Object.keys(AAMVA_VERSIONS).map((v) => {
+                const versionDef = AAMVA_VERSIONS[v];
+                if (!versionDef) return null;
+                return (
+                  <option key={v} value={v}>
+                    {v} — {versionDef.name}
+                    {v === activeVersion ? " (active)" : ""}
+                  </option>
+                );
+              })}
             </select>
           </div>
 

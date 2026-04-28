@@ -1,0 +1,38 @@
+[
+  {
+    "name": "Initial JS (gzipped)",
+    "path": "dist/assets/index-*.js",
+    "limit": "30 KB",
+    "gzip": true
+  },
+  {
+    "name": "React vendor (gzipped)",
+    "path": "dist/assets/react-*.js",
+    "limit": "75 KB",
+    "gzip": true
+  },
+  {
+    "name": "Barcode renderer (bwip-js, gzipped)",
+    "path": "dist/assets/barcode-*.js",
+    "limit": "260 KB",
+    "gzip": true
+  },
+  {
+    "name": "Scanner (zxing, gzipped)",
+    "path": "dist/assets/scanner-*.js",
+    "limit": "130 KB",
+    "gzip": true
+  },
+  {
+    "name": "PDF export (jspdf, gzipped)",
+    "path": "dist/assets/export-*.js",
+    "limit": "150 KB",
+    "gzip": true
+  },
+  {
+    "name": "Total CSS (gzipped)",
+    "path": "dist/assets/*.css",
+    "limit": "20 KB",
+    "gzip": true
+  }
+]

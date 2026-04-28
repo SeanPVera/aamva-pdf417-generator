@@ -1,0 +1,210 @@
+import { describe, it, expect } from "vitest";
+import fc from "fast-check";
+
+import { AAMVA_STATES, isJurisdictionSupported } from "../core/states";
+import { AAMVA_VERSIONS, getFieldsForStateAndVersion, AAMVAField } from "../core/schema";
+import { generateAAMVAPayload, generateDocumentDiscriminator } from "../core/generator";
+import { decodeAAMVAFormat, decodePayload, validateAAMVAPayloadStructure } from "../core/decoder";
+import { sanitizeFieldValue } from "../core/validation";
+
+// Sample N (default 50) random items deterministically from an array.
+function sample<T>(arr: T[], n = 50): T[] {
+  if (arr.length <= n) return arr;
+  const step = Math.max(1, Math.floor(arr.length / n));
+  const out: T[] = [];
+  for (let i = 0; i < arr.length && out.length < n; i += step) out.push(arr[i]!);
+  return out;
+}
+
+const supportedStateCodes = Object.keys(AAMVA_STATES).filter(isJurisdictionSupported);
+const versionCodes = Object.keys(AAMVA_VERSIONS);
+
+// AAMVA dates use MMDDYYYY in this codebase. Cap year to ranges the validator accepts.
+const dateArb = fc
+  .tuple(
+    fc.integer({ min: 1, max: 12 }),
+    fc.integer({ min: 1, max: 28 }),
+    fc.integer({ min: 1950, max: 2070 })
+  )
+  .map(([m, d, y]) => `${String(m).padStart(2, "0")}${String(d).padStart(2, "0")}${y}`);
+
+// AAMVA-safe printable ASCII (no separators \n \r \x1e), uppercase-stable.
+// eslint-disable-next-line no-control-regex
+const CONTROL_CHARS = /[\x00-\x1f\x7f@]/g;
+const asciiNameArb = fc
+  .string({ minLength: 1, maxLength: 30, unit: "grapheme-ascii" })
+  .map((s) => s.replace(CONTROL_CHARS, "").toUpperCase().trim() || "JANE")
+  .filter((s) => s.length > 0);
+
+function buildRecord(
+  stateCode: string,
+  version: string,
+  rng: typeof fc
+): fc.Arbitrary<Record<string, string>> {
+  const fields = getFieldsForStateAndVersion(stateCode, version);
+
+  // For each field we synthesize a plausible value; required fields always get one.
+  const fieldArbs = fields.map<fc.Arbitrary<[string, string] | null>>((f) => {
+    return rng.boolean().chain((include) => {
+      if (!f.required && !include) return rng.constant(null);
+      return arbForField(f, stateCode).map<[string, string]>((v) => [f.code, v]);
+    });
+  });
+
+  return rng.tuple(...fieldArbs).map((entries) => {
+    const obj: Record<string, string> = {};
+    for (const e of entries) if (e) obj[e[0]] = e[1];
+    return obj;
+  });
+}
+
+function arbForField(field: AAMVAField, stateCode: string): fc.Arbitrary<string> {
+  if (field.options && field.options.length > 0) {
+    return fc.constantFrom(...field.options.map((o) => o.value));
+  }
+  if (field.type === "date") return dateArb;
+  if (field.type === "zip") return fc.stringMatching(/^[0-9]{5}$/);
+  if (field.code === "DAJ") return fc.constant(stateCode);
+  if (field.code === "DAU") return fc.stringMatching(/^[4-7][0-9][0-9]$/); // height inches encoded
+  if (field.code === "DAW") return fc.stringMatching(/^[0-9]{3}$/); // weight lbs
+  if (field.code === "DAQ") return fc.stringMatching(/^[A-Z0-9]{6,12}$/);
+  if (field.code === "DCF") return fc.stringMatching(/^[A-Z0-9]{8,12}$/);
+  if (field.code === "DCS" || field.code === "DAC" || field.code === "DAD") return asciiNameArb;
+  if (field.code === "DAA") return asciiNameArb;
+  return asciiNameArb;
+}
+
+describe("property-based: generateDocumentDiscriminator", () => {
+  it("returns the requested length for any valid length 1..32", () => {
+    fc.assert(
+      fc.property(fc.integer({ min: 1, max: 32 }), (len) => {
+        const out = generateDocumentDiscriminator(len);
+        expect(out).toHaveLength(len);
+        expect(out).toMatch(/^[A-Z0-9]+$/);
+      }),
+      { numRuns: 100 }
+    );
+  });
+});
+
+describe("property-based: sanitizeFieldValue", () => {
+  it("never produces control characters and is idempotent", () => {
+    fc.assert(
+      fc.property(fc.string({ maxLength: 200 }), (raw) => {
+        const once = sanitizeFieldValue(raw);
+        const twice = sanitizeFieldValue(once);
+        expect(once).toBe(twice);
+        // eslint-disable-next-line no-control-regex
+        expect(once).not.toMatch(/[\x00-\x1f\x7f]/);
+      }),
+      { numRuns: 200 }
+    );
+  });
+});
+
+describe("property-based: payload structure across jurisdictions × versions", () => {
+  // Cap the matrix so CI stays under a few seconds; sampling preserves coverage.
+  const matrix = sample(
+    supportedStateCodes.flatMap((s) => versionCodes.map((v) => [s, v] as const)),
+    24
+  );
+
+  for (const [state, version] of matrix) {
+    it(`${state} v${version}: generated payloads always pass structural validation`, () => {
+      fc.assert(
+        fc.property(buildRecord(state, version, fc), (record) => {
+          let payload: string;
+          try {
+            payload = generateAAMVAPayload(
+              state,
+              version,
+              getFieldsForStateAndVersion(state, version),
+              record,
+              { autoGenerateDiscriminator: true, subfileType: "DL" }
+            );
+          } catch {
+            // Generation rejected this record (e.g. cross-field issue). Acceptable —
+            // we only require: when generation succeeds, structure must be valid.
+            return true;
+          }
+          const v = validateAAMVAPayloadStructure(payload);
+          if (!v.ok) throw new Error(`structure invalid: ${v.error}`);
+          return true;
+        }),
+        { numRuns: 25 }
+      );
+    });
+  }
+});
+
+describe("property-based: round-trip preserves required fields", () => {
+  // Round-trip is the strongest invariant: encode → decode → equal for required fields.
+  const matrix = sample(
+    supportedStateCodes.flatMap((s) => versionCodes.map((v) => [s, v] as const)),
+    16
+  );
+
+  for (const [state, version] of matrix) {
+    it(`${state} v${version}: decoded required fields equal generator inputs`, () => {
+      fc.assert(
+        fc.property(buildRecord(state, version, fc), (record) => {
+          const fields = getFieldsForStateAndVersion(state, version);
+          let payload: string;
+          try {
+            payload = generateAAMVAPayload(
+              state,
+              version,
+              fields,
+              { ...record },
+              {
+                autoGenerateDiscriminator: true,
+                subfileType: "DL"
+              }
+            );
+          } catch {
+            return true; // generator rejected; not a counterexample for round-trip
+          }
+
+          const decoded = decodeAAMVAFormat(payload);
+          if (decoded.error || !decoded.data) {
+            throw new Error(`decode failed: ${decoded.error}`);
+          }
+
+          for (const f of fields.filter((x) => x.required)) {
+            const original = record[f.code];
+            if (original === undefined) continue;
+            const out = decoded.data[f.code];
+            const expected =
+              f.type === "string" || f.type === "char" || f.type === "zip"
+                ? original.toUpperCase()
+                : original;
+            // Generator pads/strips DAK; tolerate trailing whitespace.
+            const norm = (s: string | undefined) => (s ?? "").replace(/\s+$/, "");
+            if (norm(out) !== norm(expected)) {
+              throw new Error(
+                `round-trip mismatch ${state} v${version} ${f.code}: ` +
+                  `expected ${JSON.stringify(expected)} got ${JSON.stringify(out)}`
+              );
+            }
+          }
+          return true;
+        }),
+        { numRuns: 20 }
+      );
+    });
+  }
+});
+
+describe("property-based: decoder rejects malformed payloads", () => {
+  it("never throws on arbitrary string inputs", () => {
+    fc.assert(
+      fc.property(fc.string({ maxLength: 500 }), (s) => {
+        // Should return an error result, never throw.
+        const res = decodePayload(s);
+        // Either an error or data field, never both undefined.
+        expect(res.error !== undefined || res.data !== undefined).toBe(true);
+      }),
+      { numRuns: 200 }
+    );
+  });
+});

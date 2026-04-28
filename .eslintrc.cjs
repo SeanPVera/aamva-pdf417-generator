@@ -14,12 +14,20 @@ module.exports = {
       'warn',
       { allowConstantExport: true },
     ],
-    // Warn on any — forces explicit typing decisions
-    '@typescript-eslint/no-explicit-any': 'warn',
-    // Warn on unused vars; leading underscore prefix signals intentional omission
+    // Disallow any in production code; explicit Unknown or typed alternatives required.
+    '@typescript-eslint/no-explicit-any': 'error',
+    // Unused vars are errors; leading underscore prefix signals intentional omission.
     '@typescript-eslint/no-unused-vars': [
-      'warn',
+      'error',
       { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
     ],
   },
+  overrides: [
+    {
+      files: ['src/tests/**/*.{ts,tsx}'],
+      rules: {
+        '@typescript-eslint/no-explicit-any': 'off',
+      },
+    },
+  ],
 }

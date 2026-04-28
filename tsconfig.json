@@ -8,6 +8,7 @@
 
     /* Bundler mode */
     "moduleResolution": "bundler",
+    "customConditions": ["browser"],
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
@@ -18,8 +19,17 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+
+    "baseUrl": ".",
+    "paths": {
+      "@aamva/core": ["./src/core/index.ts"],
+      "@aamva/core/*": ["./src/core/*"]
+    }
   },
   "include": ["src"],
+  "exclude": ["src/tests", "src/**/*.test.ts", "src/**/*.test.tsx", "src/setupTests.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
