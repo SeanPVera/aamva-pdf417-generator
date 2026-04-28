@@ -1,6 +1,7 @@
 node_modules/
 .DS_Store
 /dist
+/dist_electron
 /out
 /*.log
 *.pid
@@ -8,3 +9,6 @@ verify_v01.js
 playwright-report/
 test-results/
 coverage/
+.env
+.env.local
+.env.*.local
