@@ -8,13 +8,14 @@ interface Props {
 interface State {
   hasError: boolean;
   error: Error | null;
+  componentStack: string | null;
   copied: boolean;
 }
 
 export class ErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    this.state = { hasError: false, error: null, copied: false };
+    this.state = { hasError: false, error: null, componentStack: null, copied: false };
   }
 
   static getDerivedStateFromError(error: Error): Partial<State> {
@@ -23,10 +24,17 @@ export class ErrorBoundary extends Component<Props, State> {
 
   override componentDidCatch(error: Error, info: ErrorInfo) {
     console.error("[ErrorBoundary]", error, info.componentStack);
+    this.setState({ componentStack: info.componentStack ?? null });
   }
 
   handleCopy = () => {
-    const text = `${this.state.error?.message}\n\n${this.state.error?.stack ?? ""}`;
+    const { error, componentStack } = this.state;
+    const parts = [
+      error?.message ?? "",
+      error?.stack ?? "",
+      componentStack ? `Component stack:${componentStack}` : ""
+    ].filter(Boolean);
+    const text = parts.join("\n\n");
     navigator.clipboard.writeText(text).then(() => {
       this.setState({ copied: true });
       setTimeout(() => this.setState({ copied: false }), 2000);

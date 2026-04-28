@@ -1,8 +1,6 @@
 import React from "react";
 import { Sidebar } from "./components/Sidebar";
-import { BarcodePreview } from "./components/BarcodePreview";
 import { Header } from "./components/Header";
-import { BatchProcessor } from "./components/BatchProcessor";
 import { useFormStore } from "./hooks/useFormStore";
 import { getFieldsForStateAndVersion } from "./core/schema";
 import { validateFieldValue } from "./core/validation";
@@ -13,8 +11,16 @@ import {
   generateStateCardRevisionDate
 } from "./core/generator";
 
+// Heavy bundles (bwip-js ~250kB, jspdf ~150kB, zxing ~170kB) are loaded on
+// demand so the initial paint doesn't pay for tooling the user may never open.
 const WebcamScanner = React.lazy(() =>
   import("./components/WebcamScanner").then((module) => ({ default: module.WebcamScanner }))
+);
+const BarcodePreview = React.lazy(() =>
+  import("./components/BarcodePreview").then((module) => ({ default: module.BarcodePreview }))
+);
+const BatchProcessor = React.lazy(() =>
+  import("./components/BatchProcessor").then((module) => ({ default: module.BatchProcessor }))
 );
 
 function App() {
@@ -282,11 +288,15 @@ function App() {
             })}
           </div>
           <div className="mt-auto">
-            <BatchProcessor />
+            <React.Suspense fallback={null}>
+              <BatchProcessor />
+            </React.Suspense>
           </div>
         </div>
 
-        <BarcodePreview mobileHidden={mobilePanel !== "preview"} />
+        <React.Suspense fallback={null}>
+          <BarcodePreview mobileHidden={mobilePanel !== "preview"} />
+        </React.Suspense>
       </main>
 
       {isScanning && (

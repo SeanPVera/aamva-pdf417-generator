@@ -1,39 +1,12 @@
 import { create } from "zustand";
-import { persist, StateStorage, createJSONStorage } from "zustand/middleware";
-import CryptoJS from "crypto-js";
+import { persist, createJSONStorage } from "zustand/middleware";
 
-const ENCRYPTION_KEY_STORAGE_KEY = "aamva_form_encryption_key_v1";
-
-function getOrCreateSecretKey(): string {
-  const existingKey = localStorage.getItem(ENCRYPTION_KEY_STORAGE_KEY);
-  if (existingKey) return existingKey;
-
-  const randomBytes = new Uint8Array(32);
-  crypto.getRandomValues(randomBytes);
-  const newKey = Array.from(randomBytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
-  localStorage.setItem(ENCRYPTION_KEY_STORAGE_KEY, newKey);
-  return newKey;
-}
-
-const encryptedStorage: StateStorage = {
-  getItem: (name: string): string | null => {
-    const encrypted = localStorage.getItem(name);
-    if (!encrypted) return null;
-    try {
-      const decrypted = CryptoJS.AES.decrypt(encrypted, getOrCreateSecretKey());
-      return decrypted.toString(CryptoJS.enc.Utf8);
-    } catch {
-      return null;
-    }
-  },
-  setItem: (name: string, value: string): void => {
-    const encrypted = CryptoJS.AES.encrypt(value, getOrCreateSecretKey()).toString();
-    localStorage.setItem(name, encrypted);
-  },
-  removeItem: (name: string): void => {
-    localStorage.removeItem(name);
-  }
-};
+// Persisted state intentionally excludes the AAMVA `fields` payload, so no PII
+// is ever written to disk. Only UI preferences (state, version, strict mode,
+// subfile type, theme) are persisted — see `partialize` below. Earlier versions
+// of this file wrapped localStorage in CryptoJS AES, but the key was kept in
+// plaintext localStorage next to the ciphertext, providing no real protection
+// against same-origin access. Plain localStorage is the honest choice.
 
 export type Theme = "light" | "dark" | "dmv";
 
@@ -137,15 +110,15 @@ export const useFormStore = create<FormState>()(
       canRedo: () => get()._future.length > 0
     }),
     {
-      name: "aamva_form_data_secure",
-      storage: createJSONStorage(() => encryptedStorage),
-      // Do not persist undo/redo stacks
+      name: "aamva_form_prefs_v2",
+      storage: createJSONStorage(() => localStorage),
+      // Persist only non-sensitive UI preferences. AAMVA payload `fields`,
+      // undo/redo stacks are intentionally excluded.
       partialize: (s) => ({
         state: s.state,
         version: s.version,
         strictMode: s.strictMode,
         subfileType: s.subfileType,
-        // Do not persist PII-bearing payload fields; keep only non-sensitive preferences.
         theme: s.theme
       })
     }
