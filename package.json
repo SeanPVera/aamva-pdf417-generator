@@ -5,6 +5,30 @@
   "author": "Sean Vera",
   "license": "MIT",
   "main": "main.js",
+  "homepage": "https://github.com/SeanPVera/aamva-pdf417-generator#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SeanPVera/aamva-pdf417-generator.git"
+  },
+  "bugs": {
+    "url": "https://github.com/SeanPVera/aamva-pdf417-generator/issues"
+  },
+  "keywords": [
+    "aamva",
+    "pdf417",
+    "barcode",
+    "drivers-license",
+    "dl-id",
+    "react",
+    "typescript",
+    "vite",
+    "electron",
+    "client-side",
+    "offline"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
     "start": "electron .",
     "dev": "vite",

@@ -78,6 +78,7 @@ Please read this section carefully if you need strict production-grade complianc
 
 - **Not a government-certified implementation.**
   - The project is practical and useful for testing workflows, but it is not presented as a certified issuer system.
+  - Implementation coverage is tracked in [`docs/AAMVA_COMPLIANCE_MATRIX.md`](docs/AAMVA_COMPLIANCE_MATRIX.md).
 - **Schema coverage is limited to versions defined in code.**
   - Current keys include versions `01` through `10`, covering legacy (DL/ID-2000) through modern (DL/ID-2020) entries.
 - **Validation is intentionally lightweight.**

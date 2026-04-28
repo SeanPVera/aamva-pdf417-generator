@@ -1,3 +1,8 @@
+// Regenerates the conformance test vectors under src/core/conformance/vectors/.
+// Run with `node scripts/gen-vectors.mjs` after intentional encoder changes;
+// the vectors are checked in and serve as byte-for-byte regression baselines.
+// All inputs are synthetic — never use real PII.
+
 import { generateAAMVAPayload } from "../src/core/generator.ts";
 import { getFieldsForStateAndVersion } from "../src/core/schema.ts";
 import { writeFileSync, mkdirSync } from "node:fs";
