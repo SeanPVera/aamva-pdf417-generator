@@ -5,3 +5,6 @@ node_modules/
 /*.log
 *.pid
 verify_v01.js
+playwright-report/
+test-results/
+coverage/

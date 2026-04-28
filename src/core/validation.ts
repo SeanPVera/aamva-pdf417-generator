@@ -145,11 +145,13 @@ export const AAMVA_STATE_RULES: Record<string, StateRules> = (() => {
 
   for (const state of Object.keys(rules)) {
     const stateDef = AAMVA_STATES[state];
-    if (!stateDef || !rules[state].generators) continue;
+    const rule = rules[state];
+    if (!stateDef || !rule || !rule.generators) continue;
     const ver = stateDef.aamvaVersion;
     const range = VERSION_ERA_RANGES[ver] || VERSION_ERA_RANGES["09"];
-    rules[state].generators!.DDB = (issueDateStr?: string) =>
-      randomDateInRange(range[0], range[1], issueDateStr);
+    if (!range) continue;
+    const [start, end] = range;
+    rule.generators.DDB = (issueDateStr?: string) => randomDateInRange(start, end, issueDateStr);
   }
 
   return rules;

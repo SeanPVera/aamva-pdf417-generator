@@ -301,8 +301,8 @@ export const STATE_THEMES: Record<string, StateTheme> = {
   },
   // New Jersey — official state colors: Jersey blue + buff
   NJ: {
-    primary: "#2484C6",
-    primaryDark: "#1A5E8D",
+    primary: "#1F73AE",
+    primaryDark: "#155487",
     accent: "#E1B584",
     onPrimary: "#ffffff",
     onAccent: "#1a1a1a",

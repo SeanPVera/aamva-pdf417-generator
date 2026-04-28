@@ -44,8 +44,9 @@ export const BatchProcessor: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      setFile(e.target.files[0]);
+    const picked = e.target.files?.[0];
+    if (picked) {
+      setFile(picked);
       setResults(null);
     }
   };
@@ -78,7 +79,7 @@ export const BatchProcessor: React.FC = () => {
       for (let i = 0; i < data.length; i++) {
         const row = data[i];
         try {
-          if (!row.state || !row.version) {
+          if (!row || !row.state || !row.version) {
             throw new Error(`Row ${i + 1}: Missing 'state' or 'version'`);
           }
 
@@ -98,10 +99,10 @@ export const BatchProcessor: React.FC = () => {
             bcid: "pdf417",
             text: payload,
             scale: 3,
-            columns: 5,
-            eclevel: 5,
             paddingwidth: 2,
-            paddingheight: 2
+            paddingheight: 2,
+            // bwip-js accepts these options at runtime but omits them from RenderOptions
+            ...({ eclevel: 5 } as Record<string, number>)
           });
 
           const imgData = canvas.toDataURL("image/png");

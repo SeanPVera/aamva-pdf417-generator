@@ -39,10 +39,8 @@ export function WebcamScanner({ onClose }: WebcamScannerProps) {
     BrowserPDF417Reader.listVideoInputDevices()
       .then((devs) => {
         setDevices(devs);
-        // Default: prefer rear-facing camera (last device, same heuristic as before)
-        if (devs.length > 0) {
-          setSelectedDeviceId(devs[devs.length - 1].deviceId);
-        }
+        const last = devs[devs.length - 1];
+        if (last) setSelectedDeviceId(last.deviceId);
       })
       .catch(() => {
         // Permission not yet granted — scanner start will surface the real error

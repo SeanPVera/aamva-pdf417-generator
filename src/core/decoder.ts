@@ -137,6 +137,7 @@ export function describeFields(obj: Record<string, string>): string {
   }
 
   const def = AAMVA_VERSIONS[obj.version];
+  if (!def) return "Unknown version — cannot map fields.\n" + JSON.stringify(obj, null, 2);
   const lines = [`AAMVA ${def.name}`, ""];
 
   def.fields.forEach((f) => {

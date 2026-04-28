@@ -17,7 +17,7 @@ export function generateDocumentDiscriminator(length = 12): string {
     const bytes = new Uint8Array(length);
     crypto.getRandomValues(bytes);
     for (let i = 0; i < length; i++) {
-      chars.push(charset[bytes[i] % charset.length]);
+      chars.push(charset[(bytes[i] ?? 0) % charset.length]);
     }
   } else {
     for (let i = 0; i < length; i++) {
@@ -111,8 +111,9 @@ export function generateAAMVAPayload(
   }
 
   for (const field of fields) {
-    if (dataObj[field.code]) {
-      let val = dataObj[field.code];
+    const raw = dataObj[field.code];
+    if (raw) {
+      let val = raw;
       if (["string", "char", "zip"].includes(field.type)) val = val.toUpperCase();
       dataObj[field.code] = val
         .normalize("NFKD")

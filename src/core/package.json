@@ -1,0 +1,20 @@
+{
+  "name": "@aamva/core",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AAMVA DL/ID schema, generator, decoder, validator. Framework-free, browser/Node compatible.",
+  "type": "module",
+  "main": "./index.ts",
+  "types": "./index.ts",
+  "exports": {
+    ".": "./index.ts",
+    "./schema": "./schema.ts",
+    "./states": "./states.ts",
+    "./generator": "./generator.ts",
+    "./decoder": "./decoder.ts",
+    "./validation": "./validation.ts",
+    "./stateThemes": "./stateThemes.ts"
+  },
+  "sideEffects": false,
+  "license": "MIT"
+}
