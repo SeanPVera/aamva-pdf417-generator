@@ -1,6 +1,10 @@
 import React from "react";
+import { Copy, X as XIcon } from "lucide-react";
 import { Sidebar } from "./components/Sidebar";
 import { Header } from "./components/Header";
+import { ShortcutsModal } from "./components/ShortcutsModal";
+import { CompareView } from "./components/CompareView";
+import { useToast } from "./components/Toast";
 import { useFormStore } from "./hooks/useFormStore";
 import { getFieldsForStateAndVersion } from "./core/schema";
 import { evaluateFieldValue } from "./core/validation";
@@ -25,10 +29,13 @@ const BatchProcessor = React.lazy(() =>
 
 function App() {
   const [isScanning, setIsScanning] = React.useState(false);
+  const [shortcutsOpen, setShortcutsOpen] = React.useState(false);
+  const [compareOpen, setCompareOpen] = React.useState(false);
   const [mobilePanel, setMobilePanel] = React.useState<"config" | "form" | "preview">("form");
   const { state, version, strictMode, fields, setField, theme, undo, redo, canUndo, canRedo } =
     useFormStore();
   const schemaFields = getFieldsForStateAndVersion(state, version);
+  const toast = useToast();
 
   // Apply global theme + state palette to <html> element
   React.useEffect(() => {
@@ -54,9 +61,27 @@ function App() {
     applyStateThemeToDocument(state);
   }, [state]);
 
-  // Keyboard shortcuts: Ctrl/Cmd + Z = undo, Ctrl/Cmd + Shift + Z or Ctrl + Y = redo
+  // Keyboard shortcuts:
+  //  Ctrl/Cmd + Z          = undo
+  //  Ctrl/Cmd + Shift + Z  = redo
+  //  Ctrl + Y              = redo
+  //  ?                     = open shortcuts cheat sheet
   React.useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      const isTyping =
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.tagName === "SELECT" ||
+          target.isContentEditable);
+
+      if (e.key === "?" && !isTyping) {
+        e.preventDefault();
+        setShortcutsOpen(true);
+        return;
+      }
+
       const mod = e.ctrlKey || e.metaKey;
       if (!mod) return;
 
@@ -88,9 +113,44 @@ function App() {
       handleChange(code, generateStateCardRevisionDate(state, fields["DBD"]) || "");
   };
 
+  const handleCopyField = async (code: string, value: string) => {
+    if (!value) return;
+    try {
+      await navigator.clipboard.writeText(value);
+      toast.success(`Copied ${code}`);
+    } catch {
+      toast.error(`Could not copy ${code}`);
+    }
+  };
+
+  const handleResetField = (code: string) => {
+    handleChange(code, "");
+    toast.info(`Reset ${code}`);
+  };
+
+  const handleScrollToField = (code: string) => {
+    // On mobile, the form column may be hidden — switch to it first.
+    setMobilePanel("form");
+    // Defer to allow the panel to become visible.
+    requestAnimationFrame(() => {
+      const el = document.getElementById(code);
+      if (!el) return;
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      try {
+        el.focus({ preventScroll: true });
+      } catch {
+        el.focus();
+      }
+    });
+  };
+
   return (
     <div className="app-shell flex flex-col min-h-screen bg-white dark:bg-[#121212] text-gray-900 dark:text-gray-200 font-sans">
-      <Header onStartScan={() => setIsScanning(true)} />
+      <Header
+        onStartScan={() => setIsScanning(true)}
+        onOpenShortcuts={() => setShortcutsOpen(true)}
+        onOpenCompare={() => setCompareOpen(true)}
+      />
 
       <nav
         className="lg:hidden z-10 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-2 pb-2 pt-1"
@@ -144,6 +204,8 @@ function App() {
               const hasError = !!value && !evalResult.ok && !isWarning;
               const showAdvisory = hasError || isWarning;
               const errorId = `error-${field.code}`;
+              const isResettable =
+                field.code === "DCF" || field.code === "DAQ" || field.code === "DDB";
 
               // Google Material Design style base classes
               const baseInputClass =
@@ -161,8 +223,21 @@ function App() {
                     : "text-gray-500 dark:text-gray-400 peer-focus:text-brand-500 peer-focus:dark:text-brand-400"
               } truncate w-[85%]`;
 
+              const copyIcon = value ? (
+                <button
+                  type="button"
+                  onClick={() => handleCopyField(field.code, value)}
+                  aria-label={`Copy ${field.code} value`}
+                  title={`Copy ${field.code}`}
+                  className="field-hover-action absolute -top-1 right-1 z-30 p-1 rounded text-gray-500 hover:text-brand-500 dark:text-gray-400 dark:hover:text-brand-400 bg-white/70 dark:bg-dark-surface/70 backdrop-blur-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                >
+                  <Copy size={12} />
+                </button>
+              ) : null;
+
               return (
                 <div key={field.code} className="flex flex-col relative group">
+                  {copyIcon}
                   {field.options ? (
                     <div className="relative">
                       <select
@@ -222,17 +297,29 @@ function App() {
                         {field.code} — {field.label}{" "}
                         {field.required && <span className="text-red-500">*</span>}
                       </label>
-                      {field.code === "DDB" && (
-                        <button
-                          type="button"
-                          onClick={() => handleGenerate(field.code)}
-                          className="absolute right-1.5 top-2 bottom-2 text-xs font-medium bg-gray-200 hover:bg-gray-300 dark:bg-[#444] dark:hover:bg-[#555] rounded px-2 text-gray-700 dark:text-gray-200 transition-colors z-20 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-                          title="Generate Card Revision Date"
-                          aria-label="Generate Card Revision Date"
-                        >
-                          Gen
-                        </button>
-                      )}
+                      <div className="absolute right-1.5 top-2 bottom-2 flex gap-1 z-20">
+                        {field.code === "DDB" && (
+                          <button
+                            type="button"
+                            onClick={() => handleGenerate(field.code)}
+                            className="text-[10px] font-medium bg-gray-200 hover:bg-gray-300 dark:bg-[#444] dark:hover:bg-[#555] rounded px-2 text-gray-700 dark:text-gray-200 transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                            title="Generate Card Revision Date"
+                          >
+                            Gen
+                          </button>
+                        )}
+                        {isResettable && value && (
+                          <button
+                            type="button"
+                            onClick={() => handleResetField(field.code)}
+                            aria-label={`Reset ${field.code}`}
+                            title={`Reset ${field.code}`}
+                            className="flex items-center justify-center w-5 bg-gray-200 hover:bg-red-100 dark:bg-[#444] dark:hover:bg-red-900/40 rounded text-gray-700 hover:text-red-600 dark:text-gray-200 dark:hover:text-red-400 transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                          >
+                            <XIcon size={11} />
+                          </button>
+                        )}
+                      </div>
                     </div>
                   ) : (
                     <div className="relative flex">
@@ -280,6 +367,17 @@ function App() {
                             None
                           </button>
                         )}
+                        {isResettable && value && (
+                          <button
+                            type="button"
+                            onClick={() => handleResetField(field.code)}
+                            aria-label={`Reset ${field.code}`}
+                            title={`Reset ${field.code}`}
+                            className="flex items-center justify-center w-5 bg-gray-200 hover:bg-red-100 dark:bg-[#444] dark:hover:bg-red-900/40 rounded text-gray-700 hover:text-red-600 dark:text-gray-200 dark:hover:text-red-400 transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                          >
+                            <XIcon size={11} />
+                          </button>
+                        )}
                       </div>
                     </div>
                   )}
@@ -311,7 +409,10 @@ function App() {
         </div>
 
         <React.Suspense fallback={null}>
-          <BarcodePreview mobileHidden={mobilePanel !== "preview"} />
+          <BarcodePreview
+            mobileHidden={mobilePanel !== "preview"}
+            onScrollToField={handleScrollToField}
+          />
         </React.Suspense>
       </main>
 
@@ -320,6 +421,9 @@ function App() {
           <WebcamScanner onClose={() => setIsScanning(false)} />
         </React.Suspense>
       )}
+
+      <ShortcutsModal open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
+      <CompareView open={compareOpen} onClose={() => setCompareOpen(false)} />
     </div>
   );
 }

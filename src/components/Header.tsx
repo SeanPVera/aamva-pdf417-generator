@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   ShieldCheck,
   Camera,
@@ -9,13 +9,21 @@ import {
   Redo2,
   Sun,
   Moon,
-  Building2
+  Building2,
+  Sparkles,
+  Keyboard,
+  GitCompare,
+  ChevronDown
 } from "lucide-react";
 import { useFormStore, Theme } from "../hooks/useFormStore";
 import { InstallPrompt } from "./InstallPrompt";
+import { useToast } from "./Toast";
+import { QUICK_FILL_PRESETS } from "../core/presets";
 
 interface HeaderProps {
   onStartScan: () => void;
+  onOpenShortcuts: () => void;
+  onOpenCompare: () => void;
 }
 
 const THEME_LABELS: Record<Theme, { label: string; icon: React.ReactNode }> = {
@@ -26,7 +34,7 @@ const THEME_LABELS: Record<Theme, { label: string; icon: React.ReactNode }> = {
 
 const THEMES: Theme[] = ["light", "dark", "dmv"];
 
-export const Header: React.FC<HeaderProps> = ({ onStartScan }) => {
+export const Header: React.FC<HeaderProps> = ({ onStartScan, onOpenShortcuts, onOpenCompare }) => {
   const {
     clearFields,
     fields,
@@ -41,6 +49,27 @@ export const Header: React.FC<HeaderProps> = ({ onStartScan }) => {
     canRedo
   } = useFormStore();
   const importRef = useRef<HTMLInputElement>(null);
+  const presetsRef = useRef<HTMLDivElement>(null);
+  const [presetsOpen, setPresetsOpen] = useState(false);
+  const toast = useToast();
+
+  useEffect(() => {
+    if (!presetsOpen) return;
+    const onClick = (e: MouseEvent) => {
+      if (presetsRef.current && !presetsRef.current.contains(e.target as Node)) {
+        setPresetsOpen(false);
+      }
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setPresetsOpen(false);
+    };
+    window.addEventListener("mousedown", onClick);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("mousedown", onClick);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [presetsOpen]);
 
   const handleExportJson = () => {
     const data = { state, version, ...fields };
@@ -51,6 +80,7 @@ export const Header: React.FC<HeaderProps> = ({ onStartScan }) => {
     a.download = `aamva_${state}_${version}.json`;
     a.click();
     URL.revokeObjectURL(url);
+    toast.success(`Exported ${a.download}`);
   };
 
   const handleImportJson = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -62,11 +92,12 @@ export const Header: React.FC<HeaderProps> = ({ onStartScan }) => {
         const parsed = JSON.parse(evt.target?.result as string);
         if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
           loadJson(parsed as Record<string, string>);
+          toast.success(`Imported ${file.name}`);
         } else {
-          alert("Invalid JSON: expected a single payload object.");
+          toast.error("Invalid JSON: expected a single payload object.");
         }
       } catch {
-        alert("Failed to parse JSON file. Check the file format.");
+        toast.error("Failed to parse JSON file. Check the file format.");
       }
     };
     reader.readAsText(file);
@@ -79,7 +110,16 @@ export const Header: React.FC<HeaderProps> = ({ onStartScan }) => {
       clearFields();
       // Must match the persist name in useFormStore
       localStorage.removeItem("aamva_form_data_secure");
+      toast.success("Cleared all PII fields");
     }
+  };
+
+  const handleApplyPreset = (presetId: string) => {
+    const preset = QUICK_FILL_PRESETS.find((p) => p.id === presetId);
+    if (!preset) return;
+    loadJson({ state: preset.state, version: preset.version, ...preset.fields });
+    setPresetsOpen(false);
+    toast.success(`Loaded preset: ${preset.label}`);
   };
 
   return (
@@ -144,6 +184,61 @@ export const Header: React.FC<HeaderProps> = ({ onStartScan }) => {
 
         <div className="state-divider w-px h-5 bg-gray-200 dark:bg-dark-border mx-1" />
 
+        {/* Quick Fill Presets */}
+        <div className="relative" ref={presetsRef}>
+          <button
+            onClick={() => setPresetsOpen((v) => !v)}
+            title="Quick fill from a preset profile"
+            aria-haspopup="menu"
+            aria-expanded={presetsOpen}
+            className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 px-2 py-1.5 rounded transition text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          >
+            <Sparkles size={15} />
+            <span className="hidden sm:inline">Presets</span>
+            <ChevronDown size={12} />
+          </button>
+          {presetsOpen && (
+            <div
+              role="menu"
+              className="absolute right-0 mt-1 w-72 bg-white dark:bg-dark-surface border border-gray-200 dark:border-dark-border rounded-md shadow-lg z-30 overflow-hidden"
+            >
+              <div className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 border-b border-gray-100 dark:border-dark-border">
+                Quick Fill Presets
+              </div>
+              <ul>
+                {QUICK_FILL_PRESETS.map((p) => (
+                  <li key={p.id}>
+                    <button
+                      type="button"
+                      role="menuitem"
+                      onClick={() => handleApplyPreset(p.id)}
+                      className="w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-sm text-gray-800 dark:text-gray-100 focus-visible:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-dark-surface2"
+                    >
+                      <div className="font-medium">{p.label}</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">
+                        {p.description}
+                      </div>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+
+        {/* Compare */}
+        <button
+          onClick={onOpenCompare}
+          className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 px-2 py-1.5 rounded transition text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          title="Compare two payloads side-by-side"
+          aria-label="Compare two payloads"
+        >
+          <GitCompare size={15} />
+          <span className="hidden sm:inline">Compare</span>
+        </button>
+
+        <div className="state-divider w-px h-5 bg-gray-200 dark:bg-dark-border mx-1" />
+
         {/* Scan */}
         <button
           onClick={onStartScan}
@@ -184,6 +279,16 @@ export const Header: React.FC<HeaderProps> = ({ onStartScan }) => {
         >
           <Download size={15} />
           <span className="hidden sm:inline">Export JSON</span>
+        </button>
+
+        {/* Shortcuts */}
+        <button
+          onClick={onOpenShortcuts}
+          className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 px-2 py-1.5 rounded transition text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          title="Keyboard shortcuts (?)"
+          aria-label="Show keyboard shortcuts"
+        >
+          <Keyboard size={15} />
         </button>
 
         {/* Clear PII */}
