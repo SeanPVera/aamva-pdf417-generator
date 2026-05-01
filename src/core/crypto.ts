@@ -10,34 +10,35 @@ export function secureGetRandomInt(max: number): number {
     throw new Error("max cannot exceed Number.MAX_SAFE_INTEGER");
   }
 
-  if (typeof crypto !== "undefined" && typeof crypto.getRandomValues === "function") {
+  const cryptoObj = typeof globalThis.crypto !== "undefined" ? globalThis.crypto : undefined;
+  if (cryptoObj && typeof cryptoObj.getRandomValues === "function") {
     // Rejection sampling implementation to avoid modulo bias
     // Optimization for small values
     if (max <= 256) {
       const arr = new Uint8Array(1);
       const limit = 256 - (256 % max);
       while (true) {
-        crypto.getRandomValues(arr);
+        cryptoObj.getRandomValues(arr);
         const val = arr[0];
-        if (val !== undefined && val < limit) return val % max;
+        if (typeof val === "number" && val < limit) return val % max;
       }
     }
     if (max <= 65536) {
       const arr = new Uint16Array(1);
       const limit = 65536 - (65536 % max);
       while (true) {
-        crypto.getRandomValues(arr);
+        cryptoObj.getRandomValues(arr);
         const val = arr[0];
-        if (val !== undefined && val < limit) return val % max;
+        if (typeof val === "number" && val < limit) return val % max;
       }
     }
     if (max <= 4294967296) {
       const arr = new Uint32Array(1);
       const limit = 4294967296 - (4294967296 % max);
       while (true) {
-        crypto.getRandomValues(arr);
+        cryptoObj.getRandomValues(arr);
         const val = arr[0];
-        if (val !== undefined && val < limit) return val % max;
+        if (typeof val === "number" && val < limit) return val % max;
       }
     }
 
@@ -56,12 +57,12 @@ export function secureGetRandomInt(max: number): number {
     const powerOfTwo = Math.pow(2, bits);
 
     while (true) {
-      crypto.getRandomValues(arr);
+      cryptoObj.getRandomValues(arr);
       // Construct a 53-bit integer
       const low = arr[0];
       const high = arr[1];
 
-      if (low === undefined || high === undefined) continue;
+      if (typeof low !== "number" || typeof high !== "number") continue;
 
       const highMasked = high & 0x1fffff; // 21 bits
       // value will be between 0 and 2^53 - 1
