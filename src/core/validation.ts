@@ -1,15 +1,20 @@
 import { AAMVAField, AAMVA_FIELD_OPTIONS, AAMVA_FIELD_LIMITS } from "./schema";
 import { AAMVA_STATES } from "./states";
+import {
+  JURISDICTION_RULE_PACKS,
+  getEffectiveDateRules,
+  getJurisdictionRulePack,
+  Severity
+} from "./jurisdictionRules";
 
 export interface ValidationIssue {
   code: string;
   label: string;
   message: string;
+  severity: Severity;
 }
 
-export interface CrossFieldValidationIssue extends ValidationIssue {
-  severity: "warning" | "error";
-}
+export type CrossFieldValidationIssue = ValidationIssue;
 
 export type ValidatorFunc = (val: string) => boolean;
 export type GeneratorFunc = (arg?: string) => string;
@@ -253,9 +258,39 @@ function getDateFormatForCode(fields: AAMVAField[], code: string): "MMDDYYYY" | 
   return dateField?.dateFormat === "YYYYMMDD" ? "YYYYMMDD" : "MMDDYYYY";
 }
 
+function ageAtDate(birth: Date, target: Date): number {
+  return (
+    target.getUTCFullYear() -
+    birth.getUTCFullYear() -
+    (target.getUTCMonth() < birth.getUTCMonth() ||
+    (target.getUTCMonth() === birth.getUTCMonth() && target.getUTCDate() < birth.getUTCDate())
+      ? 1
+      : 0)
+  );
+}
+
+function diffYears(start: Date, end: Date): number {
+  const years = end.getUTCFullYear() - start.getUTCFullYear();
+  const cmp = end.getUTCMonth() - start.getUTCMonth() || end.getUTCDate() - start.getUTCDate();
+  return cmp < 0 ? years - 1 : years;
+}
+
+/**
+ * Returns the highest-tier vehicle classes encoded in DCA. AAMVA permits
+ * comma- or pipe-separated tokens; we tolerate either and ignore whitespace.
+ */
+function parseVehicleClasses(dca?: string): string[] {
+  if (!dca) return [];
+  return dca
+    .split(/[,|/\s]+/)
+    .map((s) => s.trim().toUpperCase())
+    .filter(Boolean);
+}
+
 export function validateCrossFieldConsistency(
   dataObj: Record<string, string>,
-  fields: AAMVAField[]
+  fields: AAMVAField[],
+  stateCode?: string
 ): CrossFieldValidationIssue[] {
   const issues: CrossFieldValidationIssue[] = [];
 
@@ -308,22 +343,105 @@ export function validateCrossFieldConsistency(
     });
   }
 
-  if (birthDate && issueDate) {
-    const ageAtIssue =
-      issueDate.getUTCFullYear() -
-      birthDate.getUTCFullYear() -
-      (issueDate.getUTCMonth() < birthDate.getUTCMonth() ||
-      (issueDate.getUTCMonth() === birthDate.getUTCMonth() &&
-        issueDate.getUTCDate() < birthDate.getUTCDate())
-        ? 1
-        : 0);
+  // Date-rule layer: pull jurisdiction-specific (or default) bounds.
+  const dateRules = getEffectiveDateRules(stateCode || "");
 
-    if (ageAtIssue < 14) {
+  if (birthDate && issueDate) {
+    const ageAtIssue = ageAtDate(birthDate, issueDate);
+
+    const minAge = dateRules.minIssuanceAge ?? 14;
+    if (ageAtIssue < minAge) {
       issues.push({
         code: "DBB",
         label: "Date of Birth",
         severity: "warning",
-        message: "Age at issue is under 14 years; verify jurisdiction-specific issuance rules."
+        message:
+          minAge > 14 && stateCode
+            ? `Age at issue (${ageAtIssue}) is below the ${stateCode} minimum of ${minAge} years.`
+            : `Age at issue is under ${minAge} years; verify jurisdiction-specific issuance rules.`
+      });
+    }
+  }
+
+  if (issueDate && expiryDate && dateRules.maxValidityYears !== undefined) {
+    const span = diffYears(issueDate, expiryDate);
+    if (span > dateRules.maxValidityYears) {
+      issues.push({
+        code: "DBA",
+        label: "Expiration Date",
+        severity: "warning",
+        message: `Validity period (${span} yrs) exceeds the ${stateCode || "default"} maximum of ${dateRules.maxValidityYears} years.`
+      });
+    }
+  }
+
+  if (issueDate && expiryDate && dateRules.minValidityYears !== undefined) {
+    const span = diffYears(issueDate, expiryDate);
+    if (span < dateRules.minValidityYears) {
+      issues.push({
+        code: "DBA",
+        label: "Expiration Date",
+        severity: "warning",
+        message: `Validity period (${span} yrs) is shorter than the ${stateCode || "default"} minimum of ${dateRules.minValidityYears} years.`
+      });
+    }
+  }
+
+  // Class-minimum-age constraints from the rule pack (hard error: a 14-year-old
+  // can't legally hold a Class A CDL).
+  if (stateCode && birthDate && issueDate) {
+    const pack = JURISDICTION_RULE_PACKS[stateCode];
+    if (pack?.classMinimumAges && dataObj.DCA) {
+      const ageAtIssue = ageAtDate(birthDate, issueDate);
+      for (const cls of parseVehicleClasses(dataObj.DCA)) {
+        const required = pack.classMinimumAges[cls];
+        if (required !== undefined && ageAtIssue < required) {
+          issues.push({
+            code: "DCA",
+            label: "Vehicle Class",
+            severity: "error",
+            message: `Class ${cls} requires age ≥ ${required} in ${stateCode}; holder is ${ageAtIssue} at issuance.`
+          });
+        }
+      }
+    }
+  }
+
+  // Derived-field consistency: when both `DAA` (full name) and the split
+  // name fields (DCS/DAC/DAD) are present, they should agree on family name
+  // and first name. Spec allows DAA only on V01, but some encoders include it
+  // alongside split names — flag obvious mismatches as warnings.
+  if (dataObj.DAA && dataObj.DCS) {
+    const family =
+      dataObj.DAA.split(/[,\s]+/)[0]
+        ?.toUpperCase()
+        .trim() || "";
+    if (family && family !== dataObj.DCS.toUpperCase().trim()) {
+      issues.push({
+        code: "DAA",
+        label: "Full Name",
+        severity: "warning",
+        message: `Full name (DAA) family component "${family}" does not match DCS "${dataObj.DCS.toUpperCase().trim()}".`
+      });
+    }
+  }
+
+  // A "T" (truncated) flag implies the corresponding name was actually
+  // present but truncated; an empty value alongside "T" is contradictory.
+  // "N" with empty is acceptable — it just means "no middle name, not
+  // truncated." "U" (unknown) is always permitted.
+  const truncationPairs: Array<[string, string, string]> = [
+    ["DDE", "DCS", "Family Name"],
+    ["DDF", "DAC", "First Name"],
+    ["DDG", "DAD", "Middle Name"]
+  ];
+  for (const [flag, name, label] of truncationPairs) {
+    if (dataObj[flag] === "T" && !dataObj[name]) {
+      issues.push({
+        code: flag,
+        label: `${label} Truncation`,
+        severity: "warning",
+        message: `${flag} is "T" (truncated) but ${name} (${label}) is empty.`
       });
     }
   }
@@ -336,22 +454,153 @@ export function sanitizeFieldValue(value: string): string {
   return value.replace(/[\x00-\x1f\x7f]/g, "");
 }
 
+/**
+ * Reports an evaluation of a single field with severity. Unlike
+ * `validateFieldValue`, this surfaces *why* a field failed and at what
+ * severity tier.
+ */
+export interface FieldEvaluation {
+  ok: boolean;
+  severity: Severity;
+  message?: string;
+}
+
+export function evaluateFieldValue(
+  field: AAMVAField,
+  value: string,
+  stateCode?: string,
+  strictMode: boolean = false
+): FieldEvaluation {
+  if (field.required && !value) {
+    return { ok: false, severity: "error", message: "Required field is empty." };
+  }
+  if (!value) return { ok: true, severity: "info" };
+
+  const constrainedOptions = field.options || AAMVA_FIELD_OPTIONS[field.code];
+  if (Array.isArray(constrainedOptions) && constrainedOptions.length > 0) {
+    const allowed = new Set(constrainedOptions.map((o) => o.value));
+    if (!allowed.has(value)) {
+      return {
+        ok: false,
+        severity: "error",
+        message: `Value must be one of: ${[...allowed].join(", ")}.`
+      };
+    }
+  }
+
+  const maxLen = AAMVA_FIELD_LIMITS[field.code];
+  if (maxLen && value.length > maxLen) {
+    return {
+      ok: false,
+      severity: "error",
+      message: `Exceeds maximum length of ${maxLen} characters.`
+    };
+  }
+
+  if (stateCode) {
+    const stateValidator = AAMVA_STATE_RULES[stateCode]?.validators?.[field.code];
+    if (stateValidator && !stateValidator(value)) {
+      return {
+        ok: false,
+        severity: "error",
+        message: `Invalid format for ${stateCode} ${field.label}.`
+      };
+    }
+  }
+
+  if (!validateFieldValue(field, value, stateCode, strictMode)) {
+    return { ok: false, severity: "error", message: "Invalid format or value." };
+  }
+
+  // Layer rule-pack constraints (regex patterns) on top of the structural
+  // checks. These can be either errors or warnings depending on the pack.
+  if (stateCode) {
+    const pack = JURISDICTION_RULE_PACKS[stateCode];
+    if (pack?.constraints) {
+      for (const c of pack.constraints) {
+        if (c.field !== field.code) continue;
+        if (c.pattern && !c.pattern.test(value)) {
+          return { ok: c.severity === "warning", severity: c.severity, message: c.message };
+        }
+      }
+    }
+  }
+
+  return { ok: true, severity: "info" };
+}
+
 /** Returns a list of validation issues for all fields given current values. */
 export function getValidationIssues(
   fields: AAMVAField[],
   values: Record<string, string>,
   stateCode: string,
-  _strictMode: boolean
+  strictMode: boolean
 ): ValidationIssue[] {
   const issues: ValidationIssue[] = [];
+
   for (const field of fields) {
     const value = values[field.code] || "";
-    const valid = validateFieldValue(field, value, stateCode, _strictMode);
-    if (!valid) {
-      const message =
-        field.required && !value ? "Required field is empty" : "Invalid format or value";
-      issues.push({ code: field.code, label: field.label, message });
+    const evalResult = evaluateFieldValue(field, value, stateCode, strictMode);
+    if (!evalResult.ok || evalResult.severity === "warning") {
+      issues.push({
+        code: field.code,
+        label: field.label,
+        message: evalResult.message ?? "Invalid format or value.",
+        severity: evalResult.severity === "info" ? "error" : evalResult.severity
+      });
     }
   }
+
+  // Rule-pack: additional required fields (jurisdiction-mandated even if
+  // the version's schema marks them optional).
+  const pack = stateCode ? getJurisdictionRulePack(stateCode) : undefined;
+  const seen = new Set(issues.map((i) => `${i.code}:${i.severity}`));
+
+  if (pack?.additionalRequiredFields) {
+    for (const code of pack.additionalRequiredFields) {
+      if (!values[code]) {
+        const field = fields.find((f) => f.code === code);
+        const key = `${code}:error`;
+        if (seen.has(key)) continue;
+        issues.push({
+          code,
+          label: field?.label ?? code,
+          message: `Required by ${stateCode}: this field cannot be empty.`,
+          severity: "error"
+        });
+        seen.add(key);
+      }
+    }
+  }
+
+  if (pack?.recommendedFields) {
+    for (const code of pack.recommendedFields) {
+      if (!values[code]) {
+        const field = fields.find((f) => f.code === code);
+        const key = `${code}:warning`;
+        if (seen.has(key)) continue;
+        issues.push({
+          code,
+          label: field?.label ?? code,
+          message: `Recommended by ${stateCode}: consider providing a value.`,
+          severity: "warning"
+        });
+        seen.add(key);
+      }
+    }
+  }
+
+  // Cross-field issues are appended so the UI can render them inline with
+  // per-field issues.
+  const cross = validateCrossFieldConsistency(values, fields, stateCode);
+  for (const ci of cross) {
+    issues.push(ci);
+  }
+
   return issues;
+}
+
+/** Returns true when the issue list contains any blocking errors. */
+export function hasBlockingIssues(issues: ValidationIssue[]): boolean {
+  return issues.some((i) => i.severity === "error");
 }

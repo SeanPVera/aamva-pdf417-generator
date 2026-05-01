@@ -3,7 +3,7 @@ import { Sidebar } from "./components/Sidebar";
 import { Header } from "./components/Header";
 import { useFormStore } from "./hooks/useFormStore";
 import { getFieldsForStateAndVersion } from "./core/schema";
-import { validateFieldValue } from "./core/validation";
+import { evaluateFieldValue } from "./core/validation";
 import { applyStateThemeToDocument } from "./core/stateThemes";
 import {
   generateStateDiscriminator,
@@ -139,8 +139,10 @@ function App() {
           <div className="p-4 lg:p-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6 lg:gap-8">
             {schemaFields.map((field) => {
               const value = fields[field.code] || "";
-              const isValid = validateFieldValue(field, value, state, strictMode);
-              const hasError = !!(value && !isValid);
+              const evalResult = evaluateFieldValue(field, value, state, strictMode);
+              const isWarning = !!value && evalResult.severity === "warning";
+              const hasError = !!value && !evalResult.ok && !isWarning;
+              const showAdvisory = hasError || isWarning;
               const errorId = `error-${field.code}`;
 
               // Google Material Design style base classes
@@ -148,12 +150,15 @@ function App() {
                 "block w-full px-3 pt-5 pb-2 text-sm text-gray-900 bg-gray-100 dark:bg-[#2C2C2C] border-0 border-b-2 appearance-none dark:text-gray-100 focus:outline-none focus:ring-0 peer transition-all duration-200 ease-in-out rounded-t-md pr-16 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-500";
               const normalClass = `${baseInputClass} border-gray-300 dark:border-[#555] focus:border-brand-500`;
               const errorClass = `${baseInputClass} border-red-500 focus:border-red-500`;
-              const finalClass = hasError ? errorClass : normalClass;
+              const warningClass = `${baseInputClass} border-amber-500 focus:border-amber-500`;
+              const finalClass = hasError ? errorClass : isWarning ? warningClass : normalClass;
 
               const labelClass = `absolute text-sm duration-300 transform top-4 z-10 origin-[0] left-3 pointer-events-none ${
                 hasError
                   ? "text-red-500"
-                  : "text-gray-500 dark:text-gray-400 peer-focus:text-brand-500 peer-focus:dark:text-brand-400"
+                  : isWarning
+                    ? "text-amber-600 dark:text-amber-400"
+                    : "text-gray-500 dark:text-gray-400 peer-focus:text-brand-500 peer-focus:dark:text-brand-400"
               } truncate w-[85%]`;
 
               return (
@@ -166,7 +171,7 @@ function App() {
                         onChange={(e) => handleChange(field.code, e.target.value)}
                         aria-required={field.required}
                         aria-invalid={hasError}
-                        aria-describedby={hasError ? errorId : undefined}
+                        aria-describedby={showAdvisory ? errorId : undefined}
                         className={finalClass + (value ? "" : " text-transparent")}
                       >
                         <option value="" disabled className="text-gray-500 dark:text-gray-400">
@@ -204,7 +209,7 @@ function App() {
                         maxLength={8}
                         aria-required={field.required}
                         aria-invalid={hasError}
-                        aria-describedby={hasError ? errorId : undefined}
+                        aria-describedby={showAdvisory ? errorId : undefined}
                         className={`${finalClass} float-label-input`}
                       />
                       <label
@@ -238,7 +243,7 @@ function App() {
                         onChange={(e) => handleChange(field.code, e.target.value)}
                         aria-required={field.required}
                         aria-invalid={hasError}
-                        aria-describedby={hasError ? errorId : undefined}
+                        aria-describedby={showAdvisory ? errorId : undefined}
                         className={`${finalClass} float-label-input`}
                       />
                       <label
@@ -274,13 +279,19 @@ function App() {
                     </div>
                   )}
 
-                  {hasError && (
+                  {showAdvisory && (
                     <span
                       id={errorId}
-                      role="alert"
-                      className="mt-1 text-red-500 text-[10px] font-medium absolute -bottom-4 left-0"
+                      role={hasError ? "alert" : "status"}
+                      data-severity={hasError ? "error" : "warning"}
+                      className={`mt-1 text-[10px] font-medium absolute -bottom-4 left-0 ${
+                        hasError ? "text-red-500" : "text-amber-600 dark:text-amber-400"
+                      }`}
                     >
-                      Invalid format {field.dateFormat ? `(e.g. ${field.dateFormat})` : ""}
+                      {evalResult.message ||
+                        (hasError
+                          ? `Invalid format${field.dateFormat ? ` (e.g. ${field.dateFormat})` : ""}`
+                          : "Advisory")}
                     </span>
                   )}
                 </div>

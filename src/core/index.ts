@@ -43,10 +43,28 @@ export {
 export {
   AAMVA_STATE_RULES,
   validateFieldValue,
+  evaluateFieldValue,
   validateCrossFieldConsistency,
   getValidationIssues,
+  hasBlockingIssues,
   sanitizeFieldValue
 } from "./validation";
+export type { FieldEvaluation } from "./validation";
+
+// Jurisdiction rule packs (per-state overrides on top of the AAMVA version
+// defaults — required fields, regex constraints, date semantics, class ages).
+export type {
+  JurisdictionRulePack,
+  JurisdictionConstraint,
+  JurisdictionDateRules,
+  Severity
+} from "./jurisdictionRules";
+export {
+  JURISDICTION_RULE_PACKS,
+  getJurisdictionRulePack,
+  getEffectiveDateRules,
+  getDefaultDateRules
+} from "./jurisdictionRules";
 
 // Theming (UI-adjacent but data-only — no DOM dependency)
 export type { StateTheme } from "./stateThemes";
