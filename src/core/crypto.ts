@@ -18,7 +18,8 @@ export function secureGetRandomInt(max: number): number {
       const limit = 256 - (256 % max);
       while (true) {
         crypto.getRandomValues(arr);
-        if (arr[0] < limit) return arr[0] % max;
+        const val = arr[0];
+        if (val !== undefined && val < limit) return val % max;
       }
     }
     if (max <= 65536) {
@@ -26,7 +27,8 @@ export function secureGetRandomInt(max: number): number {
       const limit = 65536 - (65536 % max);
       while (true) {
         crypto.getRandomValues(arr);
-        if (arr[0] < limit) return arr[0] % max;
+        const val = arr[0];
+        if (val !== undefined && val < limit) return val % max;
       }
     }
     if (max <= 4294967296) {
@@ -34,7 +36,8 @@ export function secureGetRandomInt(max: number): number {
       const limit = 4294967296 - (4294967296 % max);
       while (true) {
         crypto.getRandomValues(arr);
-        if (arr[0] < limit) return arr[0] % max;
+        const val = arr[0];
+        if (val !== undefined && val < limit) return val % max;
       }
     }
 
@@ -54,9 +57,13 @@ export function secureGetRandomInt(max: number): number {
 
     while (true) {
       crypto.getRandomValues(arr);
+      const val0 = arr[0];
+      const val1 = arr[1];
+      if (val0 === undefined || val1 === undefined) continue;
+
       // Construct a 53-bit integer
-      const high = arr[1] & 0x1FFFFF; // 21 bits
-      const low = arr[0]; // 32 bits
+      const high = val1 & 0x1fffff; // 21 bits
+      const low = val0; // 32 bits
       // value will be between 0 and 2^53 - 1
       const value = high * 4294967296 + low;
 

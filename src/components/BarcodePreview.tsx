@@ -260,11 +260,7 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({ mobileHidden = f
             aria-label={copied ? "Copied payload" : "Copy raw payload to clipboard"}
             className="absolute top-2 right-2 p-1.5 rounded-md bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm text-gray-500 hover:text-brand-600 dark:text-gray-400 dark:hover:text-brand-400 transition-all opacity-0 group-hover/payload:opacity-100 focus:opacity-100 focus-visible:ring-2 focus-visible:ring-brand-500 disabled:hidden"
           >
-            {copied ? (
-              <Check size={14} className="text-green-500" />
-            ) : (
-              <Copy size={14} />
-            )}
+            {copied ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
           </button>
           {copied && (
             <span className="absolute top-2 right-10 px-2 py-1 rounded bg-gray-800 text-white text-[10px] font-medium shadow-lg animate-in fade-in zoom-in duration-200">
