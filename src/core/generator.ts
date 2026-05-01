@@ -2,6 +2,7 @@ import { AAMVA_STATES, isJurisdictionSupported } from "./states";
 import { AAMVA_VERSIONS, getMandatoryFields, AAMVAField } from "./schema";
 import { AAMVA_STATE_RULES, validateCrossFieldConsistency, validateFieldValue } from "./validation";
 import { validateAAMVAPayloadStructure } from "./decoder";
+import { secureGetRandomInt } from "./crypto";
 
 export interface GenerateOptions {
   strictMode?: boolean;
@@ -21,7 +22,7 @@ export function generateDocumentDiscriminator(length = 12): string {
     }
   } else {
     for (let i = 0; i < length; i++) {
-      chars.push(charset[Math.floor(Math.random() * charset.length)]);
+      chars.push(charset[secureGetRandomInt(charset.length)]);
     }
   }
   return chars.join("");
@@ -39,7 +40,7 @@ export function generateStateLicenseNumber(stateCode?: string): string {
     return AAMVA_STATE_RULES[stateCode].generators!.DAQ();
   }
   let s = "";
-  for (let i = 0; i < 9; i++) s += Math.floor(Math.random() * 10);
+  for (let i = 0; i < 9; i++) s += secureGetRandomInt(10);
   return s;
 }
 
