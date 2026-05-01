@@ -586,32 +586,15 @@ test("generateAAMVAPayload rejects unknown state and version", () => {
   }, /Unsupported AAMVA version/);
 });
 
-test.skip("generateAAMVAPayload rejects unsupported territories", () => {
-  const fields = window.getFieldsForVersion("09");
-  const dataObj = {
-    DCS: "DOE",
-    DAC: "JOHN",
-    DBC: "1",
-    DAY: "BLU",
-    DBB: "01011990",
-    DBA: "01012030",
-    DBD: "01012020",
-    DAU: "510",
-    DAG: "123 MAIN ST",
-    DAI: "PAGO PAGO",
-    DAJ: "AS",
-    DAK: "96799",
-    DAQ: "A12345",
-    DCA: "D",
-    DCB: "NONE",
-    DCD: "NONE",
-    DCF: "ABC123",
-    DCG: "USA"
-  };
-
-  assert.throws(() => {
-    window.generateAAMVAPayload("AS", "09", fields, dataObj);
-  }, /Unsupported jurisdiction/);
+test("generateAAMVAPayload generates a valid payload for supported territories", () => {
+  for (const territory of ["AS", "GU", "VI", "PR"]) {
+    const { fields, dataObj } = makeTestData(territory, "09");
+    fillV09TestData(dataObj);
+    dataObj.DAJ = territory;
+    const payload = window.generateAAMVAPayload(territory, "09", fields, dataObj);
+    assert.ok(payload.startsWith("@"), `${territory}: payload missing compliance indicator`);
+    assert.equal(window.validateAAMVAPayloadStructure(payload).ok, true);
+  }
 });
 
 test("validateAAMVAPayloadStructure accepts valid generated payload", () => {
