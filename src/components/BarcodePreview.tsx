@@ -17,6 +17,9 @@ import { generateAAMVAPayload } from "../core/generator";
 import { getFieldsForStateAndVersion } from "../core/schema";
 import { decodeAAMVA } from "../core/decoder";
 import { getValidationIssues } from "../core/validation";
+import { getBarcodeDimensions } from "../core/barcodeDimensions";
+
+const EXPORT_DPI = 300;
 
 const BWIP_OPTIONS = {
   bcid: "pdf417",
@@ -121,7 +124,24 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
 
   const handleExportPNG = () => {
     if (!canvasRef.current || error) return;
-    const url = canvasRef.current.toDataURL("image/png");
+
+    const source = canvasRef.current;
+    const { widthInches, heightInches } = getBarcodeDimensions(state);
+    const targetWidth = Math.round(widthInches * EXPORT_DPI);
+    const targetHeight = Math.round(heightInches * EXPORT_DPI);
+
+    const target = document.createElement("canvas");
+    target.width = targetWidth;
+    target.height = targetHeight;
+    const ctx = target.getContext("2d");
+    if (!ctx) return;
+
+    ctx.imageSmoothingEnabled = false;
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, targetWidth, targetHeight);
+    ctx.drawImage(source, 0, 0, source.width, source.height, 0, 0, targetWidth, targetHeight);
+
+    const url = target.toDataURL("image/png");
     const a = document.createElement("a");
     a.href = url;
     a.download = `barcode_${state}_${version}.png`;
