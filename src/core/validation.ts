@@ -1,5 +1,6 @@
 import { AAMVAField, AAMVA_FIELD_OPTIONS, AAMVA_FIELD_LIMITS } from "./schema";
 import { AAMVA_STATES } from "./states";
+import { secureGetRandomInt } from "./crypto";
 import {
   JURISDICTION_RULE_PACKS,
   getEffectiveDateRules,
@@ -26,18 +27,18 @@ export interface StateRules {
 
 const d = (n: number) => {
   let s = "";
-  for (let i = 0; i < n; i++) s += Math.floor(Math.random() * 10);
+  for (let i = 0; i < n; i++) s += secureGetRandomInt(10);
   return s;
 };
 const l = (n: number) => {
   let s = "";
-  for (let i = 0; i < n; i++) s += String.fromCharCode(65 + Math.floor(Math.random() * 26));
+  for (let i = 0; i < n; i++) s += String.fromCharCode(65 + secureGetRandomInt(26));
   return s;
 };
 const an = (n: number) => {
   const cs = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   let s = "";
-  for (let i = 0; i < n; i++) s += cs[Math.floor(Math.random() * cs.length)];
+  for (let i = 0; i < n; i++) s += cs[secureGetRandomInt(cs.length)];
   return s;
 };
 
@@ -69,7 +70,7 @@ function randomDateInRange(startYear: number, endYear: number, beforeDateStr?: s
   if (rangeEnd < rangeStart) {
     rangeEnd = rangeStart;
   }
-  const ts = rangeStart + Math.floor(Math.random() * (rangeEnd - rangeStart + 1));
+  const ts = rangeStart + secureGetRandomInt(rangeEnd - rangeStart + 1);
   const dt = new Date(ts);
   const mm = String(dt.getUTCMonth() + 1).padStart(2, "0");
   const dd = String(dt.getUTCDate()).padStart(2, "0");
