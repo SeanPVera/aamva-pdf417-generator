@@ -510,7 +510,15 @@ export function evaluateFieldValue(
   }
 
   if (!validateFieldValue(field, value, stateCode, strictMode)) {
-    return { ok: false, severity: "error", message: "Invalid format or value." };
+    let msg = "Invalid format or value.";
+    if (field.type === "date") {
+      msg = `Invalid date format (expected ${field.dateFormat || "MMDDYYYY"}).`;
+    } else if (field.type === "zip") {
+      msg = "Invalid postal code format.";
+    } else if (field.type === "char") {
+      msg = "Must be a single alphanumeric character.";
+    }
+    return { ok: false, severity: "error", message: msg };
   }
 
   // Layer rule-pack constraints (regex patterns) on top of the structural
