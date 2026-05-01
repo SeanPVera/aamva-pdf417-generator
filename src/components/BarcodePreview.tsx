@@ -9,7 +9,7 @@ import {
   FileImage,
   FileCode2,
   Copy,
-  Check
+  Check,
   ArrowDownToLine
 } from "lucide-react";
 import { useFormStore } from "../hooks/useFormStore";
@@ -17,7 +17,6 @@ import { generateAAMVAPayload } from "../core/generator";
 import { getFieldsForStateAndVersion } from "../core/schema";
 import { decodeAAMVA } from "../core/decoder";
 import { getValidationIssues } from "../core/validation";
-import { useToast } from "./Toast";
 
 const BWIP_OPTIONS = {
   bcid: "pdf417",
@@ -87,7 +86,6 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
   const { state, version, fields, strictMode, subfileType } = useFormStore();
   const [error, setError] = useState<string | null>(null);
   const [payloadStr, setPayloadStr] = useState<string>("");
-  const toast = useToast();
 
   useEffect(() => {
     const generate = () => {
@@ -274,26 +272,6 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
               Copied!
             </span>
           )}
-            className="w-full h-32 p-2 pr-9 border border-gray-200 dark:border-gray-600 rounded bg-gray-50 dark:bg-gray-900 text-xs font-mono text-gray-700 dark:text-gray-300 resize-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-          />
-          <button
-            type="button"
-            onClick={async () => {
-              if (!payloadStr) return;
-              try {
-                await navigator.clipboard.writeText(payloadStr);
-                toast.success("Payload copied to clipboard");
-              } catch {
-                toast.error("Could not copy payload");
-              }
-            }}
-            disabled={!payloadStr}
-            aria-label="Copy raw payload to clipboard"
-            title="Copy payload"
-            className="absolute top-1.5 right-1.5 p-1.5 rounded bg-white dark:bg-dark-surface2 border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:text-brand-600 dark:hover:text-brand-400 hover:border-brand-300 dark:hover:border-brand-700 transition shadow-sm disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-          >
-            <Copy size={13} />
-          </button>
         </div>
       </CollapsibleSection>
 
