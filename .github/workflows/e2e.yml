@@ -8,9 +8,27 @@ on:
 
 jobs:
   playwright:
-    name: Playwright (Chromium)
+    name: Playwright (${{ matrix.browser }})
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        # Mobile/Safari coverage runs on the same Linux runners — Playwright
+        # ships its own WebKit + emulated mobile Chrome devices, so we don't
+        # need a macOS runner for these. The matrix keeps the report tidy
+        # and lets us re-run a single browser without the others.
+        include:
+          - browser: chromium
+            install: chromium
+          - browser: firefox
+            install: firefox
+          - browser: webkit
+            install: webkit
+          - browser: mobile-chrome
+            install: chromium
+          - browser: mobile-safari
+            install: webkit
     steps:
       - uses: actions/checkout@v4
 
@@ -23,18 +41,20 @@ jobs:
         run: npm ci
 
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install --with-deps ${{ matrix.install }}
 
       - name: Build
         run: npm run build
 
       - name: Run E2E
         run: npm run test:e2e
+        env:
+          PW_BROWSERS: ${{ matrix.browser }}
 
       - name: Upload Playwright report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report
+          name: playwright-report-${{ matrix.browser }}
           path: playwright-report/
           retention-days: 14

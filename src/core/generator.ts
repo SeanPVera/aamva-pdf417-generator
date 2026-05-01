@@ -137,7 +137,7 @@ export function generateAAMVAPayload(
     );
   }
 
-  const crossFieldIssues = validateCrossFieldConsistency(dataObj, fields);
+  const crossFieldIssues = validateCrossFieldConsistency(dataObj, fields, stateCode);
   const blockingCrossFieldIssues = crossFieldIssues.filter(
     (issue) => issue.severity === "error" || (strictMode && issue.severity === "warning")
   );

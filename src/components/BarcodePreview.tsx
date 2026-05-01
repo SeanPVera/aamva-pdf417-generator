@@ -5,6 +5,7 @@ import {
   ChevronRight,
   CheckCircle2,
   XCircle,
+  AlertTriangle,
   FileImage,
   FileCode2
 } from "lucide-react";
@@ -33,7 +34,7 @@ function CollapsibleSection({
 }: {
   title: string;
   badge?: string | number;
-  badgeColor?: "gray" | "green" | "red" | "blue";
+  badgeColor?: "gray" | "green" | "red" | "blue" | "amber";
   children: React.ReactNode;
   defaultOpen?: boolean;
 }) {
@@ -42,7 +43,8 @@ function CollapsibleSection({
     gray: "bg-gray-200 dark:bg-[#333] text-gray-700 dark:text-gray-200",
     green: "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300",
     red: "bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300",
-    blue: "bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300"
+    blue: "bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300",
+    amber: "bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300"
   }[badgeColor];
 
   return (
@@ -162,7 +164,19 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({ mobileHidden = f
   // Validation report
   const schemaFields = getFieldsForStateAndVersion(state, version);
   const issues = getValidationIssues(schemaFields, { ...fields, DAJ: state }, state, strictMode);
+  const errorCount = issues.filter((i) => i.severity === "error").length;
+  const warningCount = issues.filter((i) => i.severity === "warning").length;
   const issueCount = issues.length;
+  const reportBadge =
+    issueCount === 0
+      ? "Pass"
+      : warningCount === 0
+        ? `${errorCount} error${errorCount === 1 ? "" : "s"}`
+        : errorCount === 0
+          ? `${warningCount} warning${warningCount === 1 ? "" : "s"}`
+          : `${errorCount} error${errorCount === 1 ? "" : "s"} · ${warningCount} warning${warningCount === 1 ? "" : "s"}`;
+  const reportBadgeColor: "green" | "red" | "amber" =
+    issueCount === 0 ? "green" : errorCount > 0 ? "red" : "amber";
 
   return (
     <aside
@@ -228,8 +242,8 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({ mobileHidden = f
       {/* Validation Report */}
       <CollapsibleSection
         title="Validation Report"
-        badge={issueCount === 0 ? "Pass" : `${issueCount} issue${issueCount > 1 ? "s" : ""}`}
-        badgeColor={issueCount === 0 ? "green" : "red"}
+        badge={reportBadge}
+        badgeColor={reportBadgeColor}
         defaultOpen={issueCount > 0}
       >
         {issueCount === 0 ? (
@@ -239,18 +253,32 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({ mobileHidden = f
           </div>
         ) : (
           <ul className="space-y-1.5 pt-1" role="list" aria-label="Validation issues">
-            {issues.map((issue) => (
-              <li key={issue.code} className="flex items-start gap-2 text-xs">
-                <XCircle size={13} className="text-red-500 mt-0.5 shrink-0" aria-hidden />
-                <span>
-                  <span className="font-mono font-semibold text-gray-700 dark:text-gray-200">
-                    {issue.code}
-                  </span>{" "}
-                  <span className="text-gray-500 dark:text-gray-400">({issue.label}):</span>{" "}
-                  <span className="text-red-600 dark:text-red-400">{issue.message}</span>
-                </span>
-              </li>
-            ))}
+            {issues.map((issue, idx) => {
+              const isWarn = issue.severity === "warning";
+              const Icon = isWarn ? AlertTriangle : XCircle;
+              const iconClass = isWarn
+                ? "text-amber-500 mt-0.5 shrink-0"
+                : "text-red-500 mt-0.5 shrink-0";
+              const messageClass = isWarn
+                ? "text-amber-700 dark:text-amber-300"
+                : "text-red-600 dark:text-red-400";
+              return (
+                <li
+                  key={`${issue.code}:${issue.severity}:${idx}`}
+                  className="flex items-start gap-2 text-xs"
+                  data-severity={issue.severity}
+                >
+                  <Icon size={13} className={iconClass} aria-hidden />
+                  <span>
+                    <span className="font-mono font-semibold text-gray-700 dark:text-gray-200">
+                      {issue.code}
+                    </span>{" "}
+                    <span className="text-gray-500 dark:text-gray-400">({issue.label}):</span>{" "}
+                    <span className={messageClass}>{issue.message}</span>
+                  </span>
+                </li>
+              );
+            })}
           </ul>
         )}
       </CollapsibleSection>

@@ -17,6 +17,16 @@ function buildRequiredData(stateCode: string, version: string): Record<string, s
     if (!field.required) continue;
     if (data[field.code]) continue;
 
+    // Truncation flags default to "N" (not truncated). Picking the first
+    // option ("T") would imply the corresponding name field had been
+    // truncated — but optional name fields like DAD are absent here, so
+    // strict cross-field validation correctly flags "T + empty" as
+    // inconsistent. "N" matches the realistic case for synthetic data.
+    if (field.code === "DDE" || field.code === "DDF" || field.code === "DDG") {
+      data[field.code] = "N";
+      continue;
+    }
+
     const options = field.options || AAMVA_FIELD_OPTIONS[field.code] || [];
     if (options.length > 0) {
       data[field.code] = options[0].value;
@@ -37,10 +47,13 @@ function buildRequiredData(stateCode: string, version: string): Record<string, s
         data[field.code] = field.dateFormat === "YYYYMMDD" ? "19900101" : "01011990";
         break;
       case "DBD":
-        data[field.code] = field.dateFormat === "YYYYMMDD" ? "20200101" : "01012020";
+        // 4-year issue/expiry span fits every jurisdiction's max-validity
+        // rule (see jurisdictionRules.ts). Strict mode otherwise promotes
+        // the "validity exceeds max" warning to a blocking error.
+        data[field.code] = field.dateFormat === "YYYYMMDD" ? "20240101" : "01012024";
         break;
       case "DBA":
-        data[field.code] = field.dateFormat === "YYYYMMDD" ? "20300101" : "01012030";
+        data[field.code] = field.dateFormat === "YYYYMMDD" ? "20280101" : "01012028";
         break;
       case "DDB":
         data[field.code] = generateStateCardRevisionDate(stateCode, data.DBD) ?? "01012021";
