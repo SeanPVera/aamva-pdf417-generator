@@ -9,7 +9,8 @@ import { AAMVA_STATES } from "../core/states";
 import {
   evaluateFieldValue,
   getValidationIssues,
-  validateCrossFieldConsistency
+  validateCrossFieldConsistency,
+  AAMVA_STATE_RULES
 } from "../core/validation";
 import { getFieldsForStateAndVersion } from "../core/schema";
 
@@ -17,6 +18,54 @@ describe("jurisdiction rule packs", () => {
   test("every rule pack key is a known jurisdiction", () => {
     for (const code of Object.keys(JURISDICTION_RULE_PACKS)) {
       expect(AAMVA_STATES[code], `unknown jurisdiction in rule pack: ${code}`).toBeTruthy();
+    }
+  });
+
+  test("every supported jurisdiction has a rule pack", () => {
+    for (const code of Object.keys(AAMVA_STATES)) {
+      expect(
+        JURISDICTION_RULE_PACKS[code],
+        `missing rule pack for jurisdiction: ${code}`
+      ).toBeDefined();
+    }
+  });
+
+  test("every rule pack has the full rule variety (description, constraints, dateRules, classMinimumAges)", () => {
+    for (const [code, pack] of Object.entries(JURISDICTION_RULE_PACKS)) {
+      expect(pack.state, `${code}.state mismatch`).toBe(code);
+      expect(pack.description, `${code} missing description`).toBeTruthy();
+      expect(
+        Array.isArray(pack.constraints) && pack.constraints.length > 0,
+        `${code} missing constraints`
+      ).toBe(true);
+      expect(pack.dateRules, `${code} missing dateRules`).toBeDefined();
+      expect(pack.dateRules?.maxValidityYears, `${code} missing maxValidityYears`).toBeGreaterThan(
+        0
+      );
+      expect(pack.dateRules?.minIssuanceAge, `${code} missing minIssuanceAge`).toBeGreaterThan(0);
+      expect(
+        pack.classMinimumAges && Object.keys(pack.classMinimumAges).length > 0,
+        `${code} missing classMinimumAges`
+      ).toBe(true);
+    }
+  });
+
+  test("every constraint pattern accepts the value its DAQ generator produces", () => {
+    // Sanity check: the auto-generators in `validation.ts` should produce
+    // values that satisfy the rule pack's published format. If they don't,
+    // either the generator or the pattern is wrong.
+    for (const [code, pack] of Object.entries(JURISDICTION_RULE_PACKS)) {
+      const daqConstraint = pack.constraints?.find((c) => c.field === "DAQ");
+      const daqGen = AAMVA_STATE_RULES[code]?.generators?.DAQ;
+      if (!daqConstraint?.pattern || !daqGen) continue;
+      // Run a few times to catch generators with random branches.
+      for (let i = 0; i < 25; i++) {
+        const sample = daqGen();
+        expect(
+          daqConstraint.pattern.test(sample),
+          `${code} generator produced "${sample}" which fails its own DAQ constraint`
+        ).toBe(true);
+      }
     }
   });
 
