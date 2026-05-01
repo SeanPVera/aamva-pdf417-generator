@@ -60,7 +60,7 @@ describe("getValidationIssues", () => {
     const issues = getValidationIssues(fields, values, "CA", false);
     expect(issues).toHaveLength(1);
     expect(issues[0].code).toBe("DBB");
-    expect(issues[0].message).toMatch(/Invalid format or value|Exceeds maximum length/);
+    expect(issues[0].message).toBe("Exceeds maximum length of 8 characters.");
   });
 
   it("identifies invalid zip code", () => {
