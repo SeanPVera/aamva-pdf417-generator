@@ -2,7 +2,10 @@ import React from "react";
 import { useFormStore } from "../hooks/useFormStore";
 import { AAMVA_STATES, isJurisdictionSupported } from "../core/states";
 import { AAMVA_VERSIONS, getFieldsForStateAndVersion } from "../core/schema";
-import { VersionBrowser } from "./VersionBrowser";
+
+const VersionBrowser = React.lazy(() =>
+  import("./VersionBrowser").then((module) => ({ default: module.VersionBrowser }))
+);
 
 interface SidebarProps {
   mobileHidden?: boolean;
@@ -158,7 +161,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileHidden = false }) => {
         </div>
 
         {/* Version Browser */}
-        <VersionBrowser />
+        <React.Suspense fallback={null}>
+          <VersionBrowser />
+        </React.Suspense>
       </div>
     </aside>
   );

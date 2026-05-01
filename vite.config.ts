@@ -2,6 +2,7 @@
 import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
+import fs from 'fs';
 
 // In production, drop dev-only WebSocket sources from connect-src so the CSP
 // in index.html is as tight as the offline-first design allows.
@@ -18,12 +19,41 @@ function tightenProductionCsp(): Plugin {
   };
 }
 
+// After build, enumerate every emitted JS/CSS asset under dist/assets/ and
+// inject the list (plus a per-build cache id) into dist/sw.js. Includes lazy
+// chunks that index.html never references statically, so a cold offline reload
+// actually has every bundle the app might dynamic-import.
+function injectSwPrecacheManifest(): Plugin {
+  return {
+    name: 'inject-sw-precache-manifest',
+    apply: 'build',
+    closeBundle() {
+      const distDir = path.resolve(__dirname, 'dist');
+      const swPath = path.join(distDir, 'sw.js');
+      const assetsDir = path.join(distDir, 'assets');
+      if (!fs.existsSync(swPath) || !fs.existsSync(assetsDir)) return;
+
+      const manifest: string[] = [];
+      for (const entry of fs.readdirSync(assetsDir, { withFileTypes: true })) {
+        if (!entry.isFile()) continue;
+        if (!/\.(?:js|css)$/.test(entry.name)) continue;
+        manifest.push('./assets/' + entry.name);
+      }
+      manifest.sort();
+
+      const buildId = Date.now().toString(36);
+      const sw = fs.readFileSync(swPath, 'utf8');
+      const injected =
+        `self.__SW_BUILD_ID__ = ${JSON.stringify(buildId)};\n` +
+        `self.__SW_PRECACHE_MANIFEST__ = ${JSON.stringify(manifest)};\n` +
+        sw;
+      fs.writeFileSync(swPath, injected);
+    },
+  };
+}
+
 export default defineConfig({
-  plugins: [react(), tightenProductionCsp()],
-  define: {
-    // Allows `crypto-js` to fall back if global is missing
-    'global': 'window'
-  },
+  plugins: [react(), tightenProductionCsp(), injectSwPrecacheManifest()],
   base: './', // Important for Electron
   resolve: {
     alias: {

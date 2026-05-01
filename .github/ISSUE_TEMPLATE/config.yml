@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security report
+    url: https://github.com/SeanPVera/aamva-pdf417-generator/security/policy
+    about: Please report security issues privately — see SECURITY.md.
+  - name: Question / discussion
+    url: https://github.com/SeanPVera/aamva-pdf417-generator/discussions
+    about: For usage questions or design discussion, prefer Discussions over Issues.
