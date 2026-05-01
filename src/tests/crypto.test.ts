@@ -1,16 +1,10 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, vi, afterEach } from "vitest";
 import { secureGetRandomInt } from "../core/crypto";
 
 describe("crypto utils", () => {
   describe("secureGetRandomInt", () => {
-    let originalCrypto: any;
-
-    beforeEach(() => {
-      originalCrypto = globalThis.crypto;
-    });
 
     afterEach(() => {
-      // globalThis.crypto = originalCrypto;
       vi.restoreAllMocks();
     });
 
