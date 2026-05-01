@@ -3,14 +3,14 @@ import { secureGetRandomInt } from "../core/crypto";
 
 describe("crypto utils", () => {
   describe("secureGetRandomInt", () => {
-    let originalCrypto: any;
+    let _originalCrypto: any;
 
     beforeEach(() => {
-      originalCrypto = globalThis.crypto;
+      _originalCrypto = globalThis.crypto;
     });
 
     afterEach(() => {
-      // globalThis.crypto = originalCrypto;
+      // globalThis.crypto = _originalCrypto;
       vi.restoreAllMocks();
     });
 

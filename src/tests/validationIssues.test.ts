@@ -36,7 +36,7 @@ describe("getValidationIssues", () => {
     expect(issues).toHaveLength(1);
     expect(issues[0]).toMatchObject({
       code: "DAC",
-      message: "Required field is empty"
+      message: "Required field is empty."
     });
   });
 
@@ -60,7 +60,21 @@ describe("getValidationIssues", () => {
     const issues = getValidationIssues(fields, values, "CA", false);
     expect(issues).toHaveLength(1);
     expect(issues[0].code).toBe("DBB");
-    expect(issues[0].message).toBe("Invalid format or value");
+    expect(issues[0].message).toBe("Exceeds maximum length of 8 characters.");
+  });
+
+  it("identifies incorrect date values", () => {
+    const values = {
+      DCS: "SMITH",
+      DAC: "JOHN",
+      DBB: "13011990", // Invalid month
+      DAK: "12345",
+      DAQ: "A1234567"
+    };
+    const issues = getValidationIssues(fields, values, "CA", false);
+    expect(issues).toHaveLength(1);
+    expect(issues[0].code).toBe("DBB");
+    expect(issues[0].message).toBe("Invalid date format (expected MMDDYYYY).");
   });
 
   it("identifies invalid zip code", () => {
@@ -74,6 +88,7 @@ describe("getValidationIssues", () => {
     const issues = getValidationIssues(fields, values, "CA", false);
     expect(issues).toHaveLength(1);
     expect(issues[0].code).toBe("DAK");
+    expect(issues[0].message).toBe("Invalid postal code format.");
   });
 
   it("respects state-specific validation rules (CA license number)", () => {

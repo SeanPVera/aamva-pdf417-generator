@@ -349,7 +349,9 @@ function App() {
                           <button
                             type="button"
                             onClick={() => handleGenerate(field.code)}
-                            className="text-[10px] font-medium bg-gray-200 hover:bg-gray-300 dark:bg-[#444] dark:hover:bg-[#555] rounded px-2 text-gray-700 dark:text-gray-200 transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                            className="text-xs font-medium bg-gray-200 hover:bg-gray-300 dark:bg-[#444] dark:hover:bg-[#555] rounded px-2 text-gray-700 dark:text-gray-200 transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                            title={`Generate ${field.label}`}
+                            aria-label={`Generate ${field.label}`}
                           >
                             Gen
                           </button>
@@ -358,7 +360,9 @@ function App() {
                           <button
                             type="button"
                             onClick={() => handleChange(field.code, "NONE")}
-                            className="text-[10px] font-medium bg-gray-200 hover:bg-gray-300 dark:bg-[#444] dark:hover:bg-[#555] rounded px-2 text-gray-700 dark:text-gray-200 transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                            className="text-xs font-medium bg-gray-200 hover:bg-gray-300 dark:bg-[#444] dark:hover:bg-[#555] rounded px-2 text-gray-700 dark:text-gray-200 transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                            title={`Set ${field.label} to NONE`}
+                            aria-label={`Set ${field.label} to NONE`}
                           >
                             None
                           </button>

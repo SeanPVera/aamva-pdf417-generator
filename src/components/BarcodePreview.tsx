@@ -9,6 +9,7 @@ import {
   FileImage,
   FileCode2,
   Copy,
+  Check
   ArrowDownToLine
 } from "lucide-react";
 import { useFormStore } from "../hooks/useFormStore";
@@ -163,6 +164,19 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
     }
   };
 
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    if (!payloadStr) return;
+    try {
+      await navigator.clipboard.writeText(payloadStr);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy payload:", err);
+    }
+  };
+
   // Decoded output
   const decoded = payloadStr ? decodeAAMVA(payloadStr) : null;
   const decodedEntries = decoded?.json
@@ -239,11 +253,27 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
         badgeColor="blue"
         defaultOpen
       >
-        <div className="relative">
+        <div className="relative group/payload">
           <textarea
             readOnly
             value={payloadStr}
             aria-label="Raw AAMVA payload string"
+            className="w-full h-32 p-2 pr-10 border border-gray-200 dark:border-gray-600 rounded bg-gray-50 dark:bg-gray-900 text-xs font-mono text-gray-700 dark:text-gray-300 resize-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          />
+          <button
+            onClick={handleCopy}
+            disabled={!payloadStr}
+            title={copied ? "Copied!" : "Copy to clipboard"}
+            aria-label={copied ? "Copied payload" : "Copy raw payload to clipboard"}
+            className="absolute top-2 right-2 p-1.5 rounded-md bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm text-gray-500 hover:text-brand-600 dark:text-gray-400 dark:hover:text-brand-400 transition-all opacity-0 group-hover/payload:opacity-100 focus:opacity-100 focus-visible:ring-2 focus-visible:ring-brand-500 disabled:hidden"
+          >
+            {copied ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
+          </button>
+          {copied && (
+            <span className="absolute top-2 right-10 px-2 py-1 rounded bg-gray-800 text-white text-[10px] font-medium shadow-lg animate-in fade-in zoom-in duration-200">
+              Copied!
+            </span>
+          )}
             className="w-full h-32 p-2 pr-9 border border-gray-200 dark:border-gray-600 rounded bg-gray-50 dark:bg-gray-900 text-xs font-mono text-gray-700 dark:text-gray-300 resize-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           />
           <button

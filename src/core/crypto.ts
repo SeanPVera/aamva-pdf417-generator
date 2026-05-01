@@ -57,6 +57,9 @@ export function secureGetRandomInt(max: number): number {
 
     while (true) {
       crypto.getRandomValues(arr);
+      const val0 = arr[0]!;
+      const val1 = arr[1]!;
+
       // Construct a 53-bit integer
       const high = arr[1]! & 0x1fffff; // 21 bits
       const low = arr[0]!; // 32 bits
