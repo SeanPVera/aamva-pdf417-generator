@@ -3,8 +3,7 @@ import { secureGetRandomInt } from "../core/crypto";
 
 describe("crypto utils", () => {
   describe("secureGetRandomInt", () => {
-    beforeEach(() => {
-    });
+    beforeEach(() => {});
 
     afterEach(() => {
       vi.restoreAllMocks();
