@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState } from "react";
+import { HelpCircle } from "lucide-react";
 import { useFormStore } from "../hooks/useFormStore";
 import { AAMVA_STATES, isJurisdictionSupported } from "../core/states";
 import { AAMVA_VERSIONS, getFieldsForStateAndVersion } from "../core/schema";
@@ -19,8 +20,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileHidden = false }) => {
     strictMode,
     setStrictMode,
     subfileType,
-    setSubfileType
+    setSubfileType,
+    fields: fieldValues
   } = useFormStore();
+  const [tipsOpen, setTipsOpen] = useState(false);
 
   const handleStateChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newState = e.target.value;
@@ -33,7 +36,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileHidden = false }) => {
   };
 
   const fields = getFieldsForStateAndVersion(state, version);
-  const requiredCount = fields.filter((f) => f.required).length;
+  const requiredFields = fields.filter((f) => f.required);
+  const requiredCount = requiredFields.length;
+  const requiredFilled = requiredFields.filter(
+    (f) => (fieldValues[f.code] || "").trim().length > 0
+  ).length;
+  const progressPct =
+    requiredCount === 0 ? 100 : Math.round((requiredFilled / requiredCount) * 100);
+  const progressColor =
+    progressPct === 100 ? "bg-green-500" : progressPct >= 50 ? "bg-brand-500" : "bg-amber-500";
 
   return (
     <aside
@@ -140,10 +151,41 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileHidden = false }) => {
           >
             Strict Compliance Mode
           </label>
+          <button
+            type="button"
+            onClick={() => setTipsOpen((v) => !v)}
+            aria-expanded={tipsOpen}
+            aria-controls="validation-tips"
+            aria-label="Show validation tips"
+            title="What does strict mode enforce?"
+            className="ml-1.5 p-0.5 rounded text-gray-400 hover:text-brand-500 dark:hover:text-brand-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          >
+            <HelpCircle size={14} />
+          </button>
         </div>
         <p id="strictMode-desc" className="text-xs text-gray-400 dark:text-gray-500 -mt-2 pl-6">
           Enforces all AAMVA format requirements at generation time.
         </p>
+        {tipsOpen && (
+          <div
+            id="validation-tips"
+            className="mt-1 mx-1 p-3 rounded border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/30 text-xs text-blue-900 dark:text-blue-100 space-y-1.5"
+          >
+            <p className="font-semibold">Validation Tips</p>
+            <ul className="list-disc list-inside space-y-1">
+              <li>
+                <strong>Strict mode on:</strong> regex patterns, lengths, and state-specific rules
+                must pass — generation blocks on errors.
+              </li>
+              <li>
+                <strong>Strict mode off:</strong> warnings are surfaced inline but do not block
+                payload generation.
+              </li>
+              <li>Cross-field checks (date order, age at issuance) always run.</li>
+              <li>State-specific patterns enforce DAQ, DCF, and DDB formats.</li>
+            </ul>
+          </div>
+        )}
       </div>
 
       {/* Schema Info */}
@@ -159,6 +201,31 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileHidden = false }) => {
             </span>
           </div>
         </div>
+
+        {/* Required-fields progress */}
+        {requiredCount > 0 && (
+          <div>
+            <div className="flex items-center justify-between text-xs mb-1">
+              <span className="text-gray-700 dark:text-gray-300 font-medium">
+                {requiredFilled}/{requiredCount} Required Fields
+              </span>
+              <span className="text-gray-500 dark:text-gray-400 font-mono">{progressPct}%</span>
+            </div>
+            <div
+              className="h-2 w-full rounded-full bg-gray-200 dark:bg-dark-surface2 overflow-hidden"
+              role="progressbar"
+              aria-valuemin={0}
+              aria-valuemax={requiredCount}
+              aria-valuenow={requiredFilled}
+              aria-label="Required fields completion"
+            >
+              <div
+                className={`h-full transition-all duration-300 ease-out ${progressColor}`}
+                style={{ width: `${progressPct}%` }}
+              />
+            </div>
+          </div>
+        )}
 
         {/* Version Browser */}
         <React.Suspense fallback={null}>
