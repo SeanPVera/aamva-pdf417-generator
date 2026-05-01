@@ -7,7 +7,9 @@ import {
   XCircle,
   AlertTriangle,
   FileImage,
-  FileCode2
+  FileCode2,
+  Copy,
+  Check
 } from "lucide-react";
 import { useFormStore } from "../hooks/useFormStore";
 import { generateAAMVAPayload } from "../core/generator";
@@ -79,6 +81,18 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({ mobileHidden = f
   const { state, version, fields, strictMode, subfileType } = useFormStore();
   const [error, setError] = useState<string | null>(null);
   const [payloadStr, setPayloadStr] = useState<string>("");
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    if (!payloadStr) return;
+    try {
+      await navigator.clipboard.writeText(payloadStr);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy:", err);
+    }
+  };
 
   useEffect(() => {
     const generate = () => {
@@ -231,12 +245,23 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({ mobileHidden = f
         badgeColor="blue"
         defaultOpen
       >
-        <textarea
-          readOnly
-          value={payloadStr}
-          aria-label="Raw AAMVA payload string"
-          className="w-full h-32 p-2 border border-gray-200 dark:border-gray-600 rounded bg-gray-50 dark:bg-gray-900 text-xs font-mono text-gray-700 dark:text-gray-300 resize-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-        />
+        <div className="relative group/payload">
+          <textarea
+            readOnly
+            value={payloadStr}
+            aria-label="Raw AAMVA payload string"
+            className="w-full h-32 p-2 border border-gray-200 dark:border-gray-600 rounded bg-gray-50 dark:bg-gray-900 text-xs font-mono text-gray-700 dark:text-gray-300 resize-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          />
+          <button
+            onClick={handleCopy}
+            disabled={!payloadStr}
+            title={copied ? "Copied!" : "Copy to clipboard"}
+            aria-label={copied ? "Copied!" : "Copy raw payload to clipboard"}
+            className="absolute top-2 right-2 p-1.5 rounded-md bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm text-gray-500 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400 hover:border-brand-200 dark:hover:border-brand-800 transition-all opacity-0 group-hover/payload:opacity-100 focus:opacity-100 focus-visible:ring-2 focus-visible:ring-brand-500 disabled:opacity-0"
+          >
+            {copied ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
+          </button>
+        </div>
       </CollapsibleSection>
 
       {/* Validation Report */}

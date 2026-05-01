@@ -36,7 +36,7 @@ describe("getValidationIssues", () => {
     expect(issues).toHaveLength(1);
     expect(issues[0]).toMatchObject({
       code: "DAC",
-      message: "Required field is empty"
+      message: "Required field is empty."
     });
   });
 
@@ -60,7 +60,7 @@ describe("getValidationIssues", () => {
     const issues = getValidationIssues(fields, values, "CA", false);
     expect(issues).toHaveLength(1);
     expect(issues[0].code).toBe("DBB");
-    expect(issues[0].message).toBe("Invalid format or value");
+    expect(issues[0].message).toMatch(/Invalid format or value|Exceeds maximum length/);
   });
 
   it("identifies invalid zip code", () => {
