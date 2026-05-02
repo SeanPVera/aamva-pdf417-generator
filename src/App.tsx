@@ -1,12 +1,12 @@
 import React from "react";
-import { Copy, X as XIcon } from "lucide-react";
+import { Copy, Check, X as XIcon } from "lucide-react";
 import { Sidebar } from "./components/Sidebar";
 import { Header } from "./components/Header";
 import { ShortcutsModal } from "./components/ShortcutsModal";
 import { CompareView } from "./components/CompareView";
 import { useToast } from "./components/Toast";
 import { useFormStore } from "./hooks/useFormStore";
-import { getFieldsForStateAndVersion } from "./core/schema";
+import { getFieldsForStateAndVersion, AAMVA_FIELD_LIMITS } from "./core/schema";
 import { evaluateFieldValue } from "./core/validation";
 import { applyStateThemeToDocument } from "./core/stateThemes";
 import {
@@ -34,6 +34,8 @@ function App() {
   const [mobilePanel, setMobilePanel] = React.useState<"config" | "form" | "preview">("form");
   const { state, version, strictMode, fields, setField, theme, undo, redo, canUndo, canRedo } =
     useFormStore();
+  const [copiedField, setCopiedField] = React.useState<string | null>(null);
+  const copyTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const schemaFields = getFieldsForStateAndVersion(state, version);
   const toast = useToast();
 
@@ -117,6 +119,9 @@ function App() {
     if (!value) return;
     try {
       await navigator.clipboard.writeText(value);
+      setCopiedField(code);
+      if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
+      copyTimeoutRef.current = setTimeout(() => setCopiedField(null), 2000);
       toast.success(`Copied ${code}`);
     } catch {
       toast.error(`Could not copy ${code}`);
@@ -223,15 +228,16 @@ function App() {
                     : "text-gray-500 dark:text-gray-400 peer-focus:text-brand-500 peer-focus:dark:text-brand-400"
               } truncate w-[85%]`;
 
+              const isCopied = copiedField === field.code;
               const copyIcon = value ? (
                 <button
                   type="button"
                   onClick={() => handleCopyField(field.code, value)}
-                  aria-label={`Copy ${field.code} value`}
-                  title={`Copy ${field.code}`}
+                  aria-label={isCopied ? "Copied" : `Copy ${field.code} value`}
+                  title={isCopied ? "Copied!" : `Copy ${field.code}`}
                   className="field-hover-action absolute -top-1 right-1 z-30 p-1 rounded text-gray-500 hover:text-brand-500 dark:text-gray-400 dark:hover:text-brand-400 bg-white/70 dark:bg-dark-surface/70 backdrop-blur-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                 >
-                  <Copy size={12} />
+                  {isCopied ? <Check size={12} className="text-green-500" /> : <Copy size={12} />}
                 </button>
               ) : null;
 
@@ -281,7 +287,7 @@ function App() {
                         value={value}
                         placeholder={field.dateFormat || " "}
                         onChange={(e) => handleChange(field.code, e.target.value)}
-                        maxLength={8}
+                        maxLength={AAMVA_FIELD_LIMITS[field.code] || 8}
                         aria-required={field.required}
                         aria-invalid={hasError}
                         aria-describedby={showAdvisory ? errorId : undefined}
@@ -302,8 +308,9 @@ function App() {
                           <button
                             type="button"
                             onClick={() => handleGenerate(field.code)}
-                            className="text-[10px] font-medium bg-gray-200 hover:bg-gray-300 dark:bg-[#444] dark:hover:bg-[#555] rounded px-2 text-gray-700 dark:text-gray-200 transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                            className="text-xs font-medium bg-gray-200 hover:bg-gray-300 dark:bg-[#444] dark:hover:bg-[#555] rounded px-2 text-gray-700 dark:text-gray-200 transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                             title="Generate Card Revision Date"
+                            aria-label="Generate Card Revision Date"
                           >
                             Gen
                           </button>
@@ -329,6 +336,7 @@ function App() {
                         value={value}
                         placeholder={field.dateFormat || " "}
                         onChange={(e) => handleChange(field.code, e.target.value)}
+                        maxLength={AAMVA_FIELD_LIMITS[field.code]}
                         aria-required={field.required}
                         aria-invalid={hasError}
                         aria-describedby={showAdvisory ? errorId : undefined}
