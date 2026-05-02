@@ -237,11 +237,7 @@ function App() {
                   title={isCopied ? "Copied!" : `Copy ${field.code}`}
                   className="field-hover-action absolute -top-1 right-1 z-30 p-1 rounded text-gray-500 hover:text-brand-500 dark:text-gray-400 dark:hover:text-brand-400 bg-white/70 dark:bg-dark-surface/70 backdrop-blur-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                 >
-                  {isCopied ? (
-                    <Check size={12} className="text-green-500" />
-                  ) : (
-                    <Copy size={12} />
-                  )}
+                  {isCopied ? <Check size={12} className="text-green-500" /> : <Copy size={12} />}
                 </button>
               ) : null;
 
