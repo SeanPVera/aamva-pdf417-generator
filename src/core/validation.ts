@@ -335,12 +335,12 @@ export function validateCrossFieldConsistency(
     });
   }
 
-  if (issueDate && revisionDate && revisionDate < issueDate) {
+  if (issueDate && revisionDate && revisionDate > issueDate) {
     issues.push({
       code: "DDB",
       label: "Card Revision Date",
       severity: "warning",
-      message: "Card revision date (DDB) is earlier than issue date (DBD)."
+      message: "Card revision date (DDB) is later than issue date (DBD)."
     });
   }
 
