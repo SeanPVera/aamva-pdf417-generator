@@ -204,7 +204,8 @@ function App() {
               const hasError = !!value && !evalResult.ok && !isWarning;
               const showAdvisory = hasError || isWarning;
               const errorId = `error-${field.code}`;
-              const maxLen = AAMVA_FIELD_LIMITS[field.code] || (field.type === "date" ? 8 : undefined);
+              const maxLen =
+                AAMVA_FIELD_LIMITS[field.code] || (field.type === "date" ? 8 : undefined);
               const isResettable =
                 field.code === "DCF" || field.code === "DAQ" || field.code === "DDB";
 
