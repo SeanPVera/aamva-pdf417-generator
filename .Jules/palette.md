@@ -5,3 +5,7 @@
 ## 2025-03-04 - Payload Copy Utility and Accessible Helper Buttons
 **Learning:** Users of generator tools frequently need to extract the raw generated string for testing external decoders. Adding a "Copy" button directly on the raw payload area with immediate visual feedback (success icon/tooltip) significantly reduces friction. Additionally, small helper buttons (like "Gen" or "None") should not sacrifice legibility for compactness; increasing from 10px to 12px (text-xs) maintains the layout while meeting standard readability guidelines.
 **Action:** Include copy-to-clipboard functionality for all non-interactive data previews and ensure all action buttons have explicit ARIA labels and titles.
+
+## 2025-05-15 - Real-time Constraints and Input Guidance
+**Learning:** In strict data-standard generators (like AAMVA), users are often unaware of character length constraints until they hit a validation error. Providing real-time character counters using Tailwind's `peer-focus` combined with `maxLength` enforcement creates a "fail-fast" UX that guides the user toward compliance during data entry rather than after submission.
+**Action:** Always enforce field-level constraints (like `maxLength`) from schema metadata and provide unobtrusive visual counters that appear on focus to provide context without UI clutter.
