@@ -6,7 +6,7 @@ import { ShortcutsModal } from "./components/ShortcutsModal";
 import { CompareView } from "./components/CompareView";
 import { useToast } from "./components/Toast";
 import { useFormStore } from "./hooks/useFormStore";
-import { getFieldsForStateAndVersion } from "./core/schema";
+import { getFieldsForStateAndVersion, AAMVA_FIELD_LIMITS } from "./core/schema";
 import { evaluateFieldValue } from "./core/validation";
 import { applyStateThemeToDocument } from "./core/stateThemes";
 import {
@@ -199,6 +199,7 @@ function App() {
           <div className="p-4 lg:p-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6 lg:gap-8">
             {schemaFields.map((field) => {
               const value = fields[field.code] || "";
+              const limit = AAMVA_FIELD_LIMITS[field.code];
               const evalResult = evaluateFieldValue(field, value, state, strictMode);
               const isWarning = !!value && evalResult.severity === "warning";
               const hasError = !!value && !evalResult.ok && !isWarning;
@@ -281,7 +282,7 @@ function App() {
                         value={value}
                         placeholder={field.dateFormat || " "}
                         onChange={(e) => handleChange(field.code, e.target.value)}
-                        maxLength={8}
+                        maxLength={limit}
                         aria-required={field.required}
                         aria-invalid={hasError}
                         aria-describedby={showAdvisory ? errorId : undefined}
@@ -329,6 +330,7 @@ function App() {
                         value={value}
                         placeholder={field.dateFormat || " "}
                         onChange={(e) => handleChange(field.code, e.target.value)}
+                        maxLength={limit}
                         aria-required={field.required}
                         aria-invalid={hasError}
                         aria-describedby={showAdvisory ? errorId : undefined}
@@ -395,6 +397,15 @@ function App() {
                         (hasError
                           ? `Invalid format${field.dateFormat ? ` (e.g. ${field.dateFormat})` : ""}`
                           : "Advisory")}
+                    </span>
+                  )}
+
+                  {!field.options && limit && (
+                    <span
+                      className="peer-focus:opacity-100 opacity-0 absolute -bottom-4 right-0 text-[10px] text-gray-500 dark:text-gray-400 font-medium font-mono transition-opacity pointer-events-none"
+                      aria-live="polite"
+                    >
+                      {value.length} / {limit}
                     </span>
                   )}
                 </div>
