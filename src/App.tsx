@@ -6,7 +6,7 @@ import { ShortcutsModal } from "./components/ShortcutsModal";
 import { CompareView } from "./components/CompareView";
 import { useToast } from "./components/Toast";
 import { useFormStore } from "./hooks/useFormStore";
-import { getFieldsForStateAndVersion } from "./core/schema";
+import { getFieldsForStateAndVersion, AAMVA_FIELD_LIMITS } from "./core/schema";
 import { evaluateFieldValue } from "./core/validation";
 import { applyStateThemeToDocument } from "./core/stateThemes";
 import {
@@ -281,7 +281,7 @@ function App() {
                         value={value}
                         placeholder={field.dateFormat || " "}
                         onChange={(e) => handleChange(field.code, e.target.value)}
-                        maxLength={8}
+                        maxLength={AAMVA_FIELD_LIMITS[field.code] || 8}
                         aria-required={field.required}
                         aria-invalid={hasError}
                         aria-describedby={showAdvisory ? errorId : undefined}
@@ -302,7 +302,7 @@ function App() {
                           <button
                             type="button"
                             onClick={() => handleGenerate(field.code)}
-                            className="text-[10px] font-medium bg-gray-200 hover:bg-gray-300 dark:bg-[#444] dark:hover:bg-[#555] rounded px-2 text-gray-700 dark:text-gray-200 transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                            className="text-xs font-medium bg-gray-200 hover:bg-gray-300 dark:bg-[#444] dark:hover:bg-[#555] rounded px-2 text-gray-700 dark:text-gray-200 transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                             title="Generate Card Revision Date"
                           >
                             Gen
@@ -329,6 +329,7 @@ function App() {
                         value={value}
                         placeholder={field.dateFormat || " "}
                         onChange={(e) => handleChange(field.code, e.target.value)}
+                        maxLength={AAMVA_FIELD_LIMITS[field.code]}
                         aria-required={field.required}
                         aria-invalid={hasError}
                         aria-describedby={showAdvisory ? errorId : undefined}
@@ -382,12 +383,21 @@ function App() {
                     </div>
                   )}
 
+                  {!field.options && AAMVA_FIELD_LIMITS[field.code] && (
+                    <span
+                      aria-live="polite"
+                      className="absolute -bottom-4 right-0 text-xs font-medium text-gray-400 opacity-0 group-focus-within:opacity-100 transition-opacity pointer-events-none"
+                    >
+                      {value.length}/{AAMVA_FIELD_LIMITS[field.code]}
+                    </span>
+                  )}
+
                   {showAdvisory && (
                     <span
                       id={errorId}
                       role={hasError ? "alert" : "status"}
                       data-severity={hasError ? "error" : "warning"}
-                      className={`mt-1 text-[10px] font-medium absolute -bottom-4 left-0 ${
+                      className={`mt-1 text-xs font-medium absolute -bottom-4 left-0 ${
                         hasError ? "text-red-500" : "text-amber-600 dark:text-amber-400"
                       }`}
                     >
