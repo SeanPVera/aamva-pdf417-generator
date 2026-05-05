@@ -383,30 +383,33 @@ function App() {
                     </div>
                   )}
 
-                  {!field.options && AAMVA_FIELD_LIMITS[field.code] && (
-                    <span
-                      aria-live="polite"
-                      className="absolute -bottom-4 right-0 text-xs font-medium text-gray-400 opacity-0 group-focus-within:opacity-100 transition-opacity pointer-events-none"
-                    >
-                      {value.length}/{AAMVA_FIELD_LIMITS[field.code]}
-                    </span>
-                  )}
-
-                  {showAdvisory && (
-                    <span
-                      id={errorId}
-                      role={hasError ? "alert" : "status"}
-                      data-severity={hasError ? "error" : "warning"}
-                      className={`mt-1 text-xs font-medium absolute -bottom-4 left-0 ${
-                        hasError ? "text-red-500" : "text-amber-600 dark:text-amber-400"
-                      }`}
-                    >
-                      {evalResult.message ||
-                        (hasError
-                          ? `Invalid format${field.dateFormat ? ` (e.g. ${field.dateFormat})` : ""}`
-                          : "Advisory")}
-                    </span>
-                  )}
+                  <div className="absolute -bottom-4 left-0 right-0 flex justify-between items-center pointer-events-none transition-opacity duration-200">
+                    <div className="flex-1 min-w-0">
+                      {showAdvisory && (
+                        <span
+                          id={errorId}
+                          role={hasError ? "alert" : "status"}
+                          data-severity={hasError ? "error" : "warning"}
+                          className={`block text-xs font-medium truncate ${
+                            hasError ? "text-red-500" : "text-amber-600 dark:text-amber-400"
+                          }`}
+                        >
+                          {evalResult.message ||
+                            (hasError
+                              ? `Invalid format${field.dateFormat ? ` (e.g. ${field.dateFormat})` : ""}`
+                              : "Advisory")}
+                        </span>
+                      )}
+                    </div>
+                    {!field.options && AAMVA_FIELD_LIMITS[field.code] && (
+                      <span
+                        aria-live="polite"
+                        className="text-xs font-medium text-gray-400 opacity-0 group-focus-within:opacity-100 transition-opacity ml-2 whitespace-nowrap"
+                      >
+                        {value.length}/{AAMVA_FIELD_LIMITS[field.code]}
+                      </span>
+                    )}
+                  </div>
                 </div>
               );
             })}
