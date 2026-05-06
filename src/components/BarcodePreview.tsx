@@ -288,7 +288,7 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
             {copied ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
           </button>
           {copied && (
-            <span className="absolute top-2 right-10 px-2 py-1 rounded bg-gray-800 text-white text-[10px] font-medium shadow-lg animate-in fade-in zoom-in duration-200">
+            <span className="absolute top-2 right-10 px-2 py-1 rounded bg-gray-800 text-white text-xs font-medium shadow-lg animate-in fade-in zoom-in duration-200">
               Copied!
             </span>
           )}
