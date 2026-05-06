@@ -6,7 +6,7 @@ import { ShortcutsModal } from "./components/ShortcutsModal";
 import { CompareView } from "./components/CompareView";
 import { useToast } from "./components/Toast";
 import { useFormStore } from "./hooks/useFormStore";
-import { getFieldsForStateAndVersion } from "./core/schema";
+import { getFieldsForStateAndVersion, AAMVA_FIELD_LIMITS } from "./core/schema";
 import { evaluateFieldValue } from "./core/validation";
 import { applyStateThemeToDocument } from "./core/stateThemes";
 import {
@@ -206,6 +206,11 @@ function App() {
               const errorId = `error-${field.code}`;
               const isResettable =
                 field.code === "DCF" || field.code === "DAQ" || field.code === "DDB";
+              const charLimit = AAMVA_FIELD_LIMITS[field.code];
+              const counterId = `counter-${field.code}`;
+              const describedBy = [showAdvisory ? errorId : "", charLimit ? counterId : ""]
+                .filter(Boolean)
+                .join(" ");
 
               // Google Material Design style base classes
               const baseInputClass =
@@ -246,7 +251,7 @@ function App() {
                         onChange={(e) => handleChange(field.code, e.target.value)}
                         aria-required={field.required}
                         aria-invalid={hasError}
-                        aria-describedby={showAdvisory ? errorId : undefined}
+                        aria-describedby={describedBy || undefined}
                         className={finalClass + (value ? "" : " text-transparent")}
                       >
                         <option value="" disabled className="text-gray-500 dark:text-gray-400">
@@ -281,10 +286,10 @@ function App() {
                         value={value}
                         placeholder={field.dateFormat || " "}
                         onChange={(e) => handleChange(field.code, e.target.value)}
-                        maxLength={8}
+                        maxLength={charLimit || 8}
                         aria-required={field.required}
                         aria-invalid={hasError}
-                        aria-describedby={showAdvisory ? errorId : undefined}
+                        aria-describedby={describedBy || undefined}
                         className={`${finalClass} float-label-input`}
                       />
                       <label
@@ -302,8 +307,9 @@ function App() {
                           <button
                             type="button"
                             onClick={() => handleGenerate(field.code)}
-                            className="text-[10px] font-medium bg-gray-200 hover:bg-gray-300 dark:bg-[#444] dark:hover:bg-[#555] rounded px-2 text-gray-700 dark:text-gray-200 transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-                            title="Generate Card Revision Date"
+                            className="text-xs font-medium bg-gray-200 hover:bg-gray-300 dark:bg-[#444] dark:hover:bg-[#555] rounded px-2 text-gray-700 dark:text-gray-200 transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                            title={`Generate ${field.label}`}
+                            aria-label={`Generate ${field.label}`}
                           >
                             Gen
                           </button>
@@ -329,9 +335,10 @@ function App() {
                         value={value}
                         placeholder={field.dateFormat || " "}
                         onChange={(e) => handleChange(field.code, e.target.value)}
+                        maxLength={charLimit}
                         aria-required={field.required}
                         aria-invalid={hasError}
-                        aria-describedby={showAdvisory ? errorId : undefined}
+                        aria-describedby={describedBy || undefined}
                         className={`${finalClass} float-label-input`}
                       />
                       <label
@@ -382,21 +389,44 @@ function App() {
                     </div>
                   )}
 
-                  {showAdvisory && (
-                    <span
-                      id={errorId}
-                      role={hasError ? "alert" : "status"}
-                      data-severity={hasError ? "error" : "warning"}
-                      className={`mt-1 text-[10px] font-medium absolute -bottom-4 left-0 ${
-                        hasError ? "text-red-500" : "text-amber-600 dark:text-amber-400"
-                      }`}
-                    >
-                      {evalResult.message ||
-                        (hasError
-                          ? `Invalid format${field.dateFormat ? ` (e.g. ${field.dateFormat})` : ""}`
-                          : "Advisory")}
-                    </span>
-                  )}
+                  <div className="absolute -bottom-4 left-0 right-0 flex justify-between items-center px-0.5">
+                    {showAdvisory ? (
+                      <span
+                        id={errorId}
+                        role={hasError ? "alert" : "status"}
+                        data-severity={hasError ? "error" : "warning"}
+                        className={`text-xs font-medium truncate ${
+                          hasError ? "text-red-500" : "text-amber-600 dark:text-amber-400"
+                        }`}
+                      >
+                        {evalResult.message ||
+                          (hasError
+                            ? `Invalid format${
+                                field.dateFormat ? ` (e.g. ${field.dateFormat})` : ""
+                              }`
+                            : "Advisory")}
+                      </span>
+                    ) : (
+                      <div />
+                    )}
+                    {charLimit && (
+                      <span
+                        id={counterId}
+                        aria-live="polite"
+                        className={`text-xs font-mono transition-opacity duration-200 ${
+                          value.length > 0
+                            ? "opacity-100"
+                            : "opacity-0 group-focus-within:opacity-60"
+                        } ${
+                          value.length >= charLimit
+                            ? "text-brand-600 dark:text-brand-400 font-bold"
+                            : "text-gray-400 dark:text-gray-500"
+                        }`}
+                      >
+                        {value.length}/{charLimit}
+                      </span>
+                    )}
+                  </div>
                 </div>
               );
             })}

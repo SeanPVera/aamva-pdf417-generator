@@ -5,3 +5,7 @@
 ## 2025-03-04 - Payload Copy Utility and Accessible Helper Buttons
 **Learning:** Users of generator tools frequently need to extract the raw generated string for testing external decoders. Adding a "Copy" button directly on the raw payload area with immediate visual feedback (success icon/tooltip) significantly reduces friction. Additionally, small helper buttons (like "Gen" or "None") should not sacrifice legibility for compactness; increasing from 10px to 12px (text-xs) maintains the layout while meeting standard readability guidelines.
 **Action:** Include copy-to-clipboard functionality for all non-interactive data previews and ensure all action buttons have explicit ARIA labels and titles.
+
+## 2025-05-15 - Accessible Character Counters and Dynamic ARIA Linking
+**Learning:** For strict data-entry forms (like AAMVA payloads), character counters provide essential real-time feedback but must be implemented with care for accessibility. Using `aria-live="polite"` ensures screen readers announce the current length without interrupting the user. Furthermore, `aria-describedby` must be handled dynamically; if multiple elements (e.g., an error message and a character counter) can describe an input, their IDs should be joined into a space-separated list only if those elements are actually rendered in the DOM to avoid broken ARIA references.
+**Action:** Use dynamic string construction for `aria-describedby` and ensure character counters are accessible to screen readers while remaining visually unobtrusive (e.g., using `group-focus-within` for visibility).
