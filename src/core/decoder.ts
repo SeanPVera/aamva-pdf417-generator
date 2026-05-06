@@ -41,11 +41,15 @@ export function validateAAMVAPayloadStructure(
   if (dirType !== "DL" && dirType !== "ID")
     return { ok: false, error: "First directory entry must be DL or ID" };
 
-  const offset = parseInt(payload.substring(23, 27), 10);
-  const length = parseInt(payload.substring(27, 31), 10);
-
-  if (!Number.isFinite(offset) || !Number.isFinite(length))
+  const offsetToken = payload.substring(23, 27);
+  const lengthToken = payload.substring(27, 31);
+  if (!/^\d{4}$/.test(offsetToken) || !/^\d{4}$/.test(lengthToken)) {
     return { ok: false, error: "Invalid directory offset/length" };
+  }
+
+  const offset = parseInt(offsetToken, 10);
+  const length = parseInt(lengthToken, 10);
+
   if (offset < directoryEnd) return { ok: false, error: "Offset points inside directory" };
   if (length < 3) return { ok: false, error: "Subfile length is too short" };
 
@@ -56,6 +60,8 @@ export function validateAAMVAPayloadStructure(
   const subfileMarker = payload.substring(offset, offset + 2);
   if (subfileMarker !== "DL" && subfileMarker !== "ID")
     return { ok: false, error: "Subfile marker at offset must be DL or ID" };
+  if (subfileMarker !== dirType)
+    return { ok: false, error: "Subfile marker does not match directory entry type" };
 
   if (strictMode) {
     // Stricter checks if necessary
