@@ -1,6 +1,7 @@
 {
   "name": "aamva-pdf417-generator",
   "version": "1.0.0",
+  "private": true,
   "description": "Professional Grade AAMVA PDF417 generator for DL/ID standards.",
   "author": {
     "name": "Sean Vera",
