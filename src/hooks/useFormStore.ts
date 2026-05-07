@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
+import type { FieldGroupId } from "../core/schema";
 
 // Persisted state intentionally excludes the AAMVA `fields` payload, so no PII
 // is ever written to disk. Only UI preferences (state, version, strict mode,
@@ -19,6 +20,9 @@ export interface FormState {
   subfileType: "DL" | "ID";
   fields: Record<string, string>;
   theme: Theme;
+  // UI preferences for the form area (persisted, no PII).
+  collapsedGroups: Partial<Record<FieldGroupId, boolean>>;
+  requiredOnly: boolean;
   // undo/redo stacks — not persisted
   _history: Array<Record<string, string>>;
   _future: Array<Record<string, string>>;
@@ -27,6 +31,8 @@ export interface FormState {
   setStrictMode: (mode: boolean) => void;
   setSubfileType: (type: "DL" | "ID") => void;
   setTheme: (theme: Theme) => void;
+  toggleGroupCollapsed: (group: FieldGroupId) => void;
+  setRequiredOnly: (value: boolean) => void;
   clearFields: () => void;
   loadJson: (data: Record<string, string>) => void;
   undo: () => void;
@@ -44,6 +50,8 @@ export const useFormStore = create<FormState>()(
       subfileType: "DL",
       fields: {},
       theme: "dark",
+      collapsedGroups: {},
+      requiredOnly: false,
       _history: [],
       _future: [],
 
@@ -64,6 +72,13 @@ export const useFormStore = create<FormState>()(
       setSubfileType: (type) => set({ subfileType: type }),
 
       setTheme: (theme) => set({ theme }),
+
+      toggleGroupCollapsed: (group) =>
+        set((s) => ({
+          collapsedGroups: { ...s.collapsedGroups, [group]: !s.collapsedGroups[group] }
+        })),
+
+      setRequiredOnly: (value) => set({ requiredOnly: value }),
 
       clearFields: () =>
         set((s) => ({
@@ -119,7 +134,9 @@ export const useFormStore = create<FormState>()(
         version: s.version,
         strictMode: s.strictMode,
         subfileType: s.subfileType,
-        theme: s.theme
+        theme: s.theme,
+        collapsedGroups: s.collapsedGroups,
+        requiredOnly: s.requiredOnly
       })
     }
   )
