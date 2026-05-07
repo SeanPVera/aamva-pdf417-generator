@@ -14,10 +14,17 @@
   --state-on-accent: #1a1a1a;
   --state-tint: #e8f0fe;
 
-  /* Extended palette (your DMV + layout system) */
+  /* Extended jurisdiction package: layout, controls, depth, and motifs */
   --state-secondary: #dce6f0;
   --state-background: #edf1f6;
   --state-surface: #ffffff;
+  --state-surface-alt: #f4f8ff;
+  --state-border: #c8d7ef;
+  --state-input: #f3f7ff;
+  --state-ring: #5b8ff0;
+  --state-shadow: 0 22px 50px #1a73e822;
+  --state-gradient: linear-gradient(135deg, #1967d2 0%, #1a73e8 50%, #fbbc04 100%);
+  --state-motif-color: #1a73e818;
   --state-badge: #14295a;
 }
 
@@ -92,6 +99,109 @@ html[data-theme="dmv"] .dmv-badge {
 
 html[data-state-theme] .state-primary-bg {
   background-color: var(--state-primary) !important;
+}
+
+/* ─── Full jurisdiction package surfaces ─────────────────────────────────── */
+html[data-state-theme] .app-shell {
+  background:
+    radial-gradient(circle at 18% 12%, var(--state-motif-color) 0 13rem, transparent 13.2rem),
+    radial-gradient(
+      circle at 86% 0%,
+      color-mix(in srgb, var(--state-accent) 14%, transparent) 0 16rem,
+      transparent 16.2rem
+    ),
+    linear-gradient(
+      180deg,
+      var(--state-background) 0%,
+      color-mix(in srgb, var(--state-background) 68%, white) 100%
+    ) !important;
+}
+html[data-state-theme] .app-shell::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.55;
+  background-image:
+    linear-gradient(
+      135deg,
+      var(--state-motif-color) 8%,
+      transparent 8%,
+      transparent 50%,
+      var(--state-motif-color) 50%,
+      var(--state-motif-color) 58%,
+      transparent 58%
+    ),
+    radial-gradient(circle at 24px 24px, var(--state-motif-color) 0 2px, transparent 2.5px);
+  background-size:
+    56px 56px,
+    42px 42px;
+  mask-image: linear-gradient(180deg, black, transparent 70%);
+}
+html[data-state-theme] header.state-themed {
+  background: var(--state-gradient) !important;
+  box-shadow: var(--state-shadow);
+}
+html[data-state-theme] .dmv-sidebar,
+html[data-state-theme] .dmv-main,
+html[data-state-theme] .dmv-preview {
+  position: relative;
+  z-index: 1;
+  border-color: var(--state-border) !important;
+  box-shadow: var(--state-shadow) !important;
+}
+html[data-state-theme] .dmv-main {
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--state-surface) 94%, var(--state-tint)) 0%,
+      var(--state-surface) 52%
+    ),
+    var(--state-surface) !important;
+}
+html[data-state-theme] .dmv-sidebar,
+html[data-state-theme] .dmv-preview {
+  background: linear-gradient(
+    180deg,
+    var(--state-surface-alt) 0%,
+    color-mix(in srgb, var(--state-secondary) 62%, white) 100%
+  ) !important;
+}
+html[data-state-theme] .dmv-main > div:first-child {
+  background: linear-gradient(90deg, color-mix(in srgb, var(--state-tint) 72%, white), transparent);
+  border-color: var(--state-border) !important;
+}
+html[data-state-theme] .state-themed-tab[aria-current="true"],
+html[data-state-theme] .state-primary-bg,
+html[data-state-theme] .state-action-primary {
+  background: var(--state-gradient) !important;
+  color: var(--state-on-primary) !important;
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--state-primary) 28%, transparent);
+}
+html[data-state-theme] .dmv-main input:not([type="checkbox"]),
+html[data-state-theme] .dmv-main textarea,
+html[data-state-theme] .dmv-sidebar select,
+html[data-state-theme] .dmv-sidebar input:not([type="checkbox"]),
+html[data-state-theme] .dmv-sidebar textarea {
+  background-color: var(--state-input) !important;
+  border-color: var(--state-border) !important;
+}
+html[data-state-theme] .dmv-main input:focus,
+html[data-state-theme] .dmv-main textarea:focus,
+html[data-state-theme] .dmv-sidebar select:focus,
+html[data-state-theme] .dmv-sidebar input:focus,
+html[data-state-theme] .dmv-sidebar textarea:focus {
+  border-color: var(--state-ring) !important;
+  --tw-ring-color: var(--state-ring) !important;
+}
+html[data-state-theme] .dmv-preview canvas {
+  filter: drop-shadow(0 10px 18px color-mix(in srgb, var(--state-primary) 20%, transparent));
+}
+html[data-state-theme] .jurisdiction-plate {
+  background: var(--state-gradient);
+  color: var(--state-on-primary);
+  border-color: color-mix(in srgb, var(--state-accent) 64%, white);
 }
 
 /* ─── Scrollbar polish ───────────────────────────────────────────────────── */
