@@ -19,6 +19,8 @@ import { useFormStore, Theme } from "../hooks/useFormStore";
 import { InstallPrompt } from "./InstallPrompt";
 import { useToast } from "./Toast";
 import { QUICK_FILL_PRESETS } from "../core/presets";
+import { getStateTheme } from "../core/stateThemes";
+import { AAMVA_STATES } from "../core/states";
 
 interface HeaderProps {
   onStartScan: () => void;
@@ -52,6 +54,8 @@ export const Header: React.FC<HeaderProps> = ({ onStartScan, onOpenShortcuts, on
   const presetsRef = useRef<HTMLDivElement>(null);
   const [presetsOpen, setPresetsOpen] = useState(false);
   const toast = useToast();
+  const activeStateTheme = getStateTheme(state);
+  const activeStateName = AAMVA_STATES[state]?.name ?? state;
 
   useEffect(() => {
     if (!presetsOpen) return;
@@ -123,7 +127,11 @@ export const Header: React.FC<HeaderProps> = ({ onStartScan, onOpenShortcuts, on
   };
 
   return (
-    <header className="state-themed bg-white dark:bg-dark-surface text-gray-900 dark:text-gray-100 shadow-sm border-b border-gray-200 dark:border-dark-border z-20 sticky top-0 px-3 sm:px-4 py-2.5">
+    <header
+      className="state-themed bg-white dark:bg-dark-surface text-gray-900 dark:text-gray-100 shadow-sm border-b border-gray-200 dark:border-dark-border z-20 sticky top-0 px-3 sm:px-4 py-2.5"
+      data-active-state={state}
+      data-state-motif={activeStateTheme.motif}
+    >
       {/* Brand */}
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center space-x-2 sm:space-x-3 shrink min-w-0">
@@ -133,6 +141,12 @@ export const Header: React.FC<HeaderProps> = ({ onStartScan, onOpenShortcuts, on
           </h1>
           <span className="hidden sm:inline state-badge dmv-badge bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300 text-xs py-0.5 px-2 rounded-full border border-brand-200 dark:border-brand-800/50 whitespace-nowrap">
             Professional Grade
+          </span>
+          <span
+            className="jurisdiction-plate hidden md:inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.16em] shadow-sm whitespace-nowrap"
+            title={`${activeStateName} theme package: ${activeStateTheme.motif}`}
+          >
+            {state} · {activeStateTheme.motif}
           </span>
         </div>
         <InstallPrompt />

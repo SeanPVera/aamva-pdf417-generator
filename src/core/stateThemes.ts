@@ -18,17 +18,34 @@
 export interface StateTheme {
   primary: string;
   primaryDark: string;
+  secondary: string;
   accent: string;
   onPrimary: string;
   onAccent: string;
   tint: string;
+  background: string;
+  surface: string;
+  surfaceAlt: string;
+  border: string;
+  input: string;
+  ring: string;
+  shadow: string;
+  gradient: string;
+  motif: string;
+  watermark: string;
+  plate: string;
 }
+
+type StatePalette = Pick<
+  StateTheme,
+  "primary" | "primaryDark" | "accent" | "onPrimary" | "onAccent" | "tint"
+>;
 
 /**
  * Default palette — Google / AAMVA blue.
  * Used for unknown jurisdictions and as CSS variable fallback.
  */
-export const DEFAULT_STATE_THEME: StateTheme = {
+export const DEFAULT_STATE_PALETTE: StatePalette = {
   primary: "#1a73e8",
   primaryDark: "#1967d2",
   accent: "#fbbc04",
@@ -37,7 +54,7 @@ export const DEFAULT_STATE_THEME: StateTheme = {
   tint: "#e8f0fe"
 };
 
-export const STATE_THEMES: Record<string, StateTheme> = {
+const STATE_PALETTES: Record<string, StatePalette> = {
   // Alabama — best guess from flag (no statutory state color pair)
   AL: {
     primary: "#A60F2D",
@@ -535,6 +552,86 @@ export const STATE_THEMES: Record<string, StateTheme> = {
   }
 };
 
+const STATE_THEME_MOTIFS = [
+  "stars",
+  "diagonal",
+  "sunburst",
+  "pine",
+  "waves",
+  "keystone",
+  "mountain",
+  "prairie",
+  "seal",
+  "stripe"
+] as const;
+
+function hexToRgb(hex: string): [number, number, number] {
+  const value = hex.replace("#", "");
+  const numeric = parseInt(value, 16);
+  return [(numeric >> 16) & 255, (numeric >> 8) & 255, numeric & 255];
+}
+
+function componentToHex(value: number): string {
+  return Math.round(Math.max(0, Math.min(255, value)))
+    .toString(16)
+    .padStart(2, "0");
+}
+
+function rgbToHex([red, green, blue]: [number, number, number]): string {
+  return `#${componentToHex(red)}${componentToHex(green)}${componentToHex(blue)}`;
+}
+
+function mix(hex: string, target: string, amount: number): string {
+  const sourceRgb = hexToRgb(hex);
+  const targetRgb = hexToRgb(target);
+  return rgbToHex([
+    sourceRgb[0] + (targetRgb[0] - sourceRgb[0]) * amount,
+    sourceRgb[1] + (targetRgb[1] - sourceRgb[1]) * amount,
+    sourceRgb[2] + (targetRgb[2] - sourceRgb[2]) * amount
+  ]);
+}
+
+function codeSignature(code: string): number {
+  return Array.from(code).reduce(
+    (total, char, index) => total + char.charCodeAt(0) * (index + 1),
+    0
+  );
+}
+
+function buildStateTheme(code: string, palette: StatePalette): StateTheme {
+  const signature = codeSignature(code);
+  const angle = 112 + (signature % 91);
+  const motif = STATE_THEME_MOTIFS[signature % STATE_THEME_MOTIFS.length] ?? "seal";
+  const secondary = mix(palette.primary, palette.tint, 0.74);
+  const background = mix(palette.tint, "#ffffff", 0.32);
+  const surfaceAlt = mix(palette.tint, "#ffffff", 0.56);
+  const border = mix(palette.primary, "#ffffff", 0.72);
+  const input = mix(palette.tint, "#ffffff", 0.48);
+  const ring = mix(palette.accent, palette.primary, 0.2);
+
+  return {
+    ...palette,
+    secondary,
+    background,
+    surface: "#ffffff",
+    surfaceAlt,
+    border,
+    input,
+    ring,
+    shadow: `0 22px 50px ${palette.primary}22`,
+    gradient: `linear-gradient(${angle}deg, ${palette.primaryDark} 0%, ${palette.primary} 48%, ${palette.accent} 100%)`,
+    motif,
+    watermark: `${palette.primary}18`,
+    plate: `${code} • ${motif.toUpperCase()}`
+  };
+}
+
+export const DEFAULT_STATE_THEME: StateTheme = buildStateTheme("US", DEFAULT_STATE_PALETTE);
+
+export const STATE_THEMES: Record<string, StateTheme> = Object.fromEntries(
+  Object.entries(STATE_PALETTES).map(([code, palette]) => [code, buildStateTheme(code, palette)])
+);
+
 /**
  * Returns the palette for a given state code, falling back to the default
  * palette if the code is unknown.
@@ -552,10 +649,17 @@ export function applyStateThemeToDocument(code: string, doc: Document = document
   const root = doc.documentElement;
   root.style.setProperty("--state-primary", theme.primary);
   root.style.setProperty("--state-primary-dark", theme.primaryDark);
-  root.style.setProperty("--state-secondary", theme.tint);
+  root.style.setProperty("--state-secondary", theme.secondary);
   root.style.setProperty("--state-accent", theme.accent);
-  root.style.setProperty("--state-background", theme.tint);
-  root.style.setProperty("--state-surface", "#ffffff");
+  root.style.setProperty("--state-background", theme.background);
+  root.style.setProperty("--state-surface", theme.surface);
+  root.style.setProperty("--state-surface-alt", theme.surfaceAlt);
+  root.style.setProperty("--state-border", theme.border);
+  root.style.setProperty("--state-input", theme.input);
+  root.style.setProperty("--state-ring", theme.ring);
+  root.style.setProperty("--state-shadow", theme.shadow);
+  root.style.setProperty("--state-gradient", theme.gradient);
+  root.style.setProperty("--state-motif-color", theme.watermark);
   root.style.setProperty("--state-badge", theme.primaryDark);
   root.style.setProperty("--state-on-primary", theme.onPrimary);
   root.style.setProperty("--state-on-accent", theme.onAccent);
