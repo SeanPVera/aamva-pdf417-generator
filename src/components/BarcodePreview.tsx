@@ -353,29 +353,23 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
                   ? "text-amber-700 dark:text-amber-300"
                   : "text-red-600 dark:text-red-400";
                 return (
-                  <li
-                    key={`${issue.code}:${issue.severity}:${idx}`}
-                    className="flex items-start gap-2 text-xs cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800/50 p-1 rounded transition-colors group/issue focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-                    data-severity={issue.severity}
-                    onClick={() => scrollToField(issue.code)}
-                    role="button"
-                    tabIndex={0}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
-                        scrollToField(issue.code);
-                      }
-                    }}
-                    title={`Jump to ${issue.label} (${issue.code})`}
-                  >
-                    <Icon size={13} className={iconClass} aria-hidden />
-                    <span>
-                      <span className="font-mono font-semibold text-gray-700 dark:text-gray-200">
-                        {issue.code}
-                      </span>{" "}
-                      <span className="text-gray-500 dark:text-gray-400">({issue.label}):</span>{" "}
-                      <span className={messageClass}>{issue.message}</span>
-                    </span>
+                  <li key={`${issue.code}:${issue.severity}:${idx}`}>
+                    <button
+                      type="button"
+                      className="w-full flex items-start gap-2 text-xs text-left cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800/50 p-1 rounded transition-colors group/issue focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                      data-severity={issue.severity}
+                      onClick={() => scrollToField(issue.code)}
+                      title={`Jump to ${issue.label} (${issue.code})`}
+                    >
+                      <Icon size={13} className={iconClass} aria-hidden />
+                      <span>
+                        <span className="font-mono font-semibold text-gray-700 dark:text-gray-200">
+                          {issue.code}
+                        </span>{" "}
+                        <span className="text-gray-500 dark:text-gray-400">({issue.label}):</span>{" "}
+                        <span className={messageClass}>{issue.message}</span>
+                      </span>
+                    </button>
                   </li>
                 );
               })}
@@ -406,20 +400,17 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
               {decodedEntries.map(([code, val]) => (
                 <tr
                   key={code}
-                  className="border-b border-gray-100 dark:border-gray-700 last:border-0 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800/50 group/decoded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-                  onClick={() => scrollToField(code)}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      scrollToField(code);
-                    }
-                  }}
-                  title={`Jump to field ${code}`}
+                  className="border-b border-gray-100 dark:border-gray-700 last:border-0"
                 >
-                  <td className="py-1 pr-2 font-mono font-semibold text-blue-700 dark:text-blue-400">
-                    {code}
+                  <td className="py-1 pr-2 font-mono font-semibold">
+                    <button
+                      type="button"
+                      onClick={() => scrollToField(code)}
+                      className="text-blue-700 dark:text-blue-400 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded px-0.5"
+                      title={`Jump to field ${code}`}
+                    >
+                      {code}
+                    </button>
                   </td>
                   <td className="py-1 font-mono text-gray-700 dark:text-gray-300 break-all">
                     {val}
