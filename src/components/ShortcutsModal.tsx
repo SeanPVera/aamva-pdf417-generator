@@ -17,12 +17,21 @@ const SHORTCUTS: Array<{ category: string; entries: Shortcut[] }> = [
     entries: [
       { keys: ["Ctrl", "Z"], description: "Undo last field change" },
       { keys: ["Ctrl", "Shift", "Z"], description: "Redo field change" },
-      { keys: ["Ctrl", "Y"], description: "Redo (alternate)" }
+      { keys: ["Ctrl", "Y"], description: "Redo (alternate)" },
+      { keys: ["Ctrl", "G"], description: "Generate all auto fields (DCF, DAQ, DDB)" }
+    ]
+  },
+  {
+    category: "Export",
+    entries: [
+      { keys: ["Ctrl", "Shift", "C"], description: "Copy raw payload to clipboard" },
+      { keys: ["Ctrl", "E"], description: "Export barcode as PNG" }
     ]
   },
   {
     category: "Navigation",
     entries: [
+      { keys: ["Ctrl", "K"], description: "Focus the field search box" },
       { keys: ["?"], description: "Open this shortcuts cheat sheet" },
       { keys: ["Esc"], description: "Close any open modal" },
       { keys: ["Tab"], description: "Move focus to the next field" }

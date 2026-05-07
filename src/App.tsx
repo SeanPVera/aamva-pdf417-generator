@@ -6,6 +6,7 @@ import { CompareView } from "./components/CompareView";
 import { FieldInput } from "./components/FieldInput";
 import { FieldGroup } from "./components/FieldGroup";
 import { FieldFilters } from "./components/FieldFilters";
+import { DropZoneOverlay } from "./components/DropZoneOverlay";
 import { useToast } from "./components/Toast";
 import { useFormStore } from "./hooks/useFormStore";
 import {
@@ -121,47 +122,6 @@ function App() {
     applyStateThemeToDocument(state);
   }, [state]);
 
-  // Keyboard shortcuts:
-  //  Ctrl/Cmd + Z          = undo
-  //  Ctrl/Cmd + Shift + Z  = redo
-  //  Ctrl + Y              = redo
-  //  ?                     = open shortcuts cheat sheet
-  React.useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      const target = e.target as HTMLElement | null;
-      const isTyping =
-        target &&
-        (target.tagName === "INPUT" ||
-          target.tagName === "TEXTAREA" ||
-          target.tagName === "SELECT" ||
-          target.isContentEditable);
-
-      if (e.key === "?" && !isTyping) {
-        e.preventDefault();
-        setShortcutsOpen(true);
-        return;
-      }
-
-      const mod = e.ctrlKey || e.metaKey;
-      if (!mod) return;
-
-      if (e.key === "z" && !e.shiftKey) {
-        if (canUndo()) {
-          e.preventDefault();
-          undo();
-        }
-      } else if ((e.key === "z" && e.shiftKey) || e.key === "y") {
-        if (canRedo()) {
-          e.preventDefault();
-          redo();
-        }
-      }
-    };
-
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
-  }, [undo, redo, canUndo, canRedo]);
-
   const handleChange = (code: string, value: string) => {
     setField(code, value);
   };
@@ -171,6 +131,52 @@ function App() {
     else if (code === "DAQ") handleChange(code, generateStateLicenseNumber(state));
     else if (code === "DDB")
       handleChange(code, generateStateCardRevisionDate(state, fields["DBD"]) || "");
+  };
+
+  const handleGenerateAllAuto = () => {
+    let count = 0;
+    const presentCodes = new Set(schemaFields.map((f) => f.code));
+    if (presentCodes.has("DCF")) {
+      setField("DCF", generateStateDiscriminator(state));
+      count++;
+    }
+    if (presentCodes.has("DAQ")) {
+      setField("DAQ", generateStateLicenseNumber(state));
+      count++;
+    }
+    if (presentCodes.has("DDB")) {
+      const ddb = generateStateCardRevisionDate(state, fields["DBD"]);
+      if (ddb) {
+        setField("DDB", ddb);
+        count++;
+      }
+    }
+    if (count === 0) toast.info("No auto-generated fields available for this version.");
+    else toast.success(`Generated ${count} auto field${count === 1 ? "" : "s"}.`);
+  };
+
+  const handleCopyPayload = async () => {
+    const el = document.querySelector<HTMLTextAreaElement>(
+      "textarea[aria-label='Raw AAMVA payload string']"
+    );
+    const payload = el?.value;
+    if (!payload) {
+      toast.error("No payload to copy yet.");
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(payload);
+      toast.success("Copied raw payload");
+    } catch {
+      toast.error("Could not copy payload");
+    }
+  };
+
+  const handleExportPNGShortcut = () => {
+    const btn = document.querySelector<HTMLButtonElement>(
+      "button[aria-label='Export barcode as PNG']"
+    );
+    if (btn && !btn.disabled) btn.click();
   };
 
   const handleCopyField = async (code: string, value: string) => {
@@ -197,6 +203,14 @@ function App() {
     // Expand the field's group so the input becomes reachable.
     const group = getFieldGroup(code);
     if (collapsedGroups[group]) toggleGroupCollapsed(group);
+    // If the required-only filter is hiding this field, drop it.
+    const fieldDef = schemaFields.find((f) => f.code === code);
+    if (fieldDef && requiredOnly && !fieldDef.required) setRequiredOnly(false);
+    // Clear the search query if it's filtering this field out.
+    const q = searchQuery.trim().toLowerCase();
+    if (q && !(code.toLowerCase().includes(q) || fieldDef?.label.toLowerCase().includes(q))) {
+      setSearchQuery("");
+    }
     // Defer to allow the panel to become visible.
     requestAnimationFrame(() => {
       const el = document.getElementById(code);
@@ -207,6 +221,12 @@ function App() {
       } catch {
         el.focus();
       }
+      // Flash the field briefly so the user can see where they landed.
+      el.classList.remove("field-flash");
+      // Force reflow so the animation re-runs even if the class was just removed.
+      void el.offsetWidth;
+      el.classList.add("field-flash");
+      window.setTimeout(() => el.classList.remove("field-flash"), 1200);
     });
   };
 
@@ -220,6 +240,68 @@ function App() {
   const handleJumpToNextEmpty = () => {
     if (nextEmptyRequiredCode) handleScrollToField(nextEmptyRequiredCode);
   };
+
+  // Keyboard shortcuts (see ShortcutsModal for the user-facing list). Handlers
+  // are routed through a ref so the global keydown listener doesn't need to
+  // re-bind on every keystroke that touches store state.
+  const shortcutHandlersRef = React.useRef({
+    handleGenerateAllAuto,
+    handleCopyPayload,
+    handleExportPNGShortcut
+  });
+  React.useEffect(() => {
+    shortcutHandlersRef.current = {
+      handleGenerateAllAuto,
+      handleCopyPayload,
+      handleExportPNGShortcut
+    };
+  });
+
+  React.useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      const isTyping =
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.tagName === "SELECT" ||
+          target.isContentEditable);
+
+      if (e.key === "?" && !isTyping) {
+        e.preventDefault();
+        setShortcutsOpen(true);
+        return;
+      }
+
+      const mod = e.ctrlKey || e.metaKey;
+      if (!mod) return;
+      const key = e.key.toLowerCase();
+
+      if (key === "z" && !e.shiftKey) {
+        if (canUndo()) {
+          e.preventDefault();
+          undo();
+        }
+      } else if ((key === "z" && e.shiftKey) || key === "y") {
+        if (canRedo()) {
+          e.preventDefault();
+          redo();
+        }
+      } else if (key === "g" && !e.shiftKey) {
+        e.preventDefault();
+        shortcutHandlersRef.current.handleGenerateAllAuto();
+      } else if (key === "c" && e.shiftKey) {
+        e.preventDefault();
+        shortcutHandlersRef.current.handleCopyPayload();
+      } else if (key === "e" && !e.shiftKey) {
+        e.preventDefault();
+        shortcutHandlersRef.current.handleExportPNGShortcut();
+      }
+    };
+
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [undo, redo, canUndo, canRedo]);
 
   return (
     <div className="app-shell flex flex-col min-h-screen bg-white dark:bg-[#121212] text-gray-900 dark:text-gray-200 font-sans">
@@ -284,6 +366,7 @@ function App() {
             requiredTotal={requiredTotal}
             onJumpToNextEmpty={handleJumpToNextEmpty}
             hasNextEmpty={!!nextEmptyRequiredCode}
+            onGenerateAutoFields={handleGenerateAllAuto}
           />
 
           <div className="p-4 lg:p-6">
@@ -354,6 +437,7 @@ function App() {
 
       <ShortcutsModal open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
       <CompareView open={compareOpen} onClose={() => setCompareOpen(false)} />
+      <DropZoneOverlay />
     </div>
   );
 }

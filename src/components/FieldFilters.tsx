@@ -1,5 +1,5 @@
 import React from "react";
-import { Search, X as XIcon, ArrowDown } from "lucide-react";
+import { Search, X as XIcon, ArrowDown, Wand2 } from "lucide-react";
 
 interface FieldFiltersProps {
   query: string;
@@ -12,6 +12,7 @@ interface FieldFiltersProps {
   requiredTotal: number;
   onJumpToNextEmpty: () => void;
   hasNextEmpty: boolean;
+  onGenerateAutoFields: () => void;
 }
 
 export const FieldFilters: React.FC<FieldFiltersProps> = ({
@@ -24,7 +25,8 @@ export const FieldFilters: React.FC<FieldFiltersProps> = ({
   requiredFilled,
   requiredTotal,
   onJumpToNextEmpty,
-  hasNextEmpty
+  hasNextEmpty,
+  onGenerateAutoFields
 }) => {
   const inputRef = React.useRef<HTMLInputElement | null>(null);
 
@@ -102,6 +104,17 @@ export const FieldFilters: React.FC<FieldFiltersProps> = ({
         >
           <ArrowDown size={12} aria-hidden="true" />
           Next empty required
+        </button>
+
+        <button
+          type="button"
+          onClick={onGenerateAutoFields}
+          aria-label="Generate auto fields (DCF, DAQ, DDB)"
+          title="Generate auto fields (Ctrl+G)"
+          className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-gray-100 dark:bg-[#2C2C2C] border border-gray-200 dark:border-[#444] text-xs font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-[#333] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+        >
+          <Wand2 size={12} aria-hidden="true" />
+          Generate auto fields
         </button>
       </div>
 
