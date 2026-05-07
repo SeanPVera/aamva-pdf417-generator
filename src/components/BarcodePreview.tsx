@@ -218,6 +218,16 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
   const reportBadgeColor: "green" | "red" | "amber" =
     issueCount === 0 ? "green" : errorCount > 0 ? "red" : "amber";
 
+  const scrollToField = (code: string) => {
+    if (onScrollToField) {
+      onScrollToField(code);
+    } else {
+      const el = document.getElementById(code);
+      el?.scrollIntoView({ behavior: "smooth", block: "center" });
+      el?.focus?.();
+    }
+  };
+
   return (
     <aside
       className={`dmv-preview w-full lg:w-80 bg-gray-50 dark:bg-dark-surface border-t lg:border-t-0 lg:border-l border-gray-200 dark:border-dark-border z-10 p-4 flex flex-col gap-4 shadow-sm overflow-y-auto ${
@@ -345,8 +355,18 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
                 return (
                   <li
                     key={`${issue.code}:${issue.severity}:${idx}`}
-                    className="flex items-start gap-2 text-xs"
+                    className="flex items-start gap-2 text-xs cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800/50 p-1 rounded transition-colors group/issue focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                     data-severity={issue.severity}
+                    onClick={() => scrollToField(issue.code)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        scrollToField(issue.code);
+                      }
+                    }}
+                    title={`Jump to ${issue.label} (${issue.code})`}
                   >
                     <Icon size={13} className={iconClass} aria-hidden />
                     <span>
@@ -386,7 +406,17 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
               {decodedEntries.map(([code, val]) => (
                 <tr
                   key={code}
-                  className="border-b border-gray-100 dark:border-gray-700 last:border-0"
+                  className="border-b border-gray-100 dark:border-gray-700 last:border-0 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800/50 group/decoded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                  onClick={() => scrollToField(code)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      scrollToField(code);
+                    }
+                  }}
+                  title={`Jump to field ${code}`}
                 >
                   <td className="py-1 pr-2 font-mono font-semibold text-blue-700 dark:text-blue-400">
                     {code}
