@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { fillCaliforniaForm, waitForPreview } from "./helpers";
 
 // The critical loop: select state → fill required fields → render barcode →
 // confirm the rendered canvas exists and the payload textarea round-trips.
@@ -7,35 +8,34 @@ import { test, expect } from "@playwright/test";
 // API drifts, or the form blocks generation for an otherwise-valid record.
 
 test.describe("AAMVA generator end-to-end", () => {
-  test("California v10 DL renders a non-empty barcode and exposes its payload", async ({ page }) => {
+  test("California v10 DL renders a non-empty barcode and exposes its payload", async ({
+    page
+  }) => {
     await page.goto("/");
 
-    // The state and version selectors are labeled aria-* — use them rather than
-    // brittle CSS selectors.
-    await page
-      .getByRole("combobox", { name: /select state or territory/i })
-      .selectOption("CA");
-    await page
-      .getByRole("combobox", { name: /select aamva version/i })
-      .selectOption("10");
+    // BarcodePreview is React.lazy — wait for the chunk to mount before
+    // looking for the canvas, otherwise the default 5s locator timeout can
+    // fire while the bwip-js bundle is still downloading.
+    await waitForPreview(page);
 
-    // Wait for the canvas to render. bwip-js draws synchronously after fields
-    // are filled; we expect non-zero dimensions once a valid payload exists.
-    const canvas = page.getByRole("img", { name: /pdf417 barcode preview/i });
+    // Strict mode is on by default, so the canvas only renders once every
+    // required field is satisfied. Fill the CA v10 happy-path values rather
+    // than just selecting the state — otherwise the error overlay covers
+    // the canvas and toBeVisible() fails by occlusion.
+    await fillCaliforniaForm(page);
+
+    // <canvas> with aria-label isn't auto-assigned role=img by Chromium —
+    // the accessibility tree exposes it as a generic with the label, so
+    // match by attribute rather than role.
+    const canvas = page.locator('canvas[aria-label="PDF417 barcode preview"]');
     await expect(canvas).toBeVisible();
 
-    // The payload textarea (aria-label="Raw AAMVA payload string") should be
-    // populated with an AAMVA-format string starting with "@".
-    const payload = await page
-      .getByRole("textbox", { name: /raw aamva payload string/i })
-      .inputValue();
+    const textarea = page.getByRole("textbox", { name: /raw aamva payload string/i });
+    await expect(textarea).not.toHaveValue("", { timeout: 10_000 });
 
-    // Either the payload is populated (happy path) or empty (form has unmet
-    // required fields). We accept both, but if populated it must be valid.
-    if (payload.length > 0) {
-      expect(payload.startsWith("@")).toBe(true);
-      expect(payload).toContain("ANSI ");
-      expect(payload).toContain("636014"); // CA IIN
-    }
+    const payload = await textarea.inputValue();
+    expect(payload.startsWith("@")).toBe(true);
+    expect(payload).toContain("ANSI ");
+    expect(payload).toContain("636014"); // CA IIN
   });
 });
