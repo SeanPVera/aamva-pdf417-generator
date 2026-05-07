@@ -21,10 +21,17 @@ describe("State themes", () => {
       for (const key of [
         "primary",
         "primaryDark",
+        "secondary",
         "accent",
         "onPrimary",
         "onAccent",
-        "tint"
+        "tint",
+        "background",
+        "surface",
+        "surfaceAlt",
+        "border",
+        "input",
+        "ring"
       ] as const) {
         expect(palette[key], `${code}.${key} missing`).toBeDefined();
         expect(palette[key], `${code}.${key} not valid hex (${palette[key]})`).toMatch(HEX_COLOR);
@@ -48,21 +55,37 @@ describe("State themes", () => {
       document.documentElement.removeAttribute("data-state");
     });
 
-    it("sets all six CSS custom properties on <html>", () => {
+    it("sets the jurisdiction theme package CSS custom properties on <html>", () => {
       applyStateThemeToDocument("TX");
       const root = document.documentElement;
       const tx = STATE_THEMES.TX;
       expect(root.style.getPropertyValue("--state-primary")).toBe(tx.primary);
       expect(root.style.getPropertyValue("--state-primary-dark")).toBe(tx.primaryDark);
+      expect(root.style.getPropertyValue("--state-secondary")).toBe(tx.secondary);
       expect(root.style.getPropertyValue("--state-accent")).toBe(tx.accent);
+      expect(root.style.getPropertyValue("--state-background")).toBe(tx.background);
+      expect(root.style.getPropertyValue("--state-surface-alt")).toBe(tx.surfaceAlt);
+      expect(root.style.getPropertyValue("--state-border")).toBe(tx.border);
+      expect(root.style.getPropertyValue("--state-input")).toBe(tx.input);
+      expect(root.style.getPropertyValue("--state-ring")).toBe(tx.ring);
+      expect(root.style.getPropertyValue("--state-shadow")).toBe(tx.shadow);
+      expect(root.style.getPropertyValue("--state-gradient")).toBe(tx.gradient);
+      expect(root.style.getPropertyValue("--state-motif-color")).toBe(tx.watermark);
       expect(root.style.getPropertyValue("--state-on-primary")).toBe(tx.onPrimary);
       expect(root.style.getPropertyValue("--state-on-accent")).toBe(tx.onAccent);
       expect(root.style.getPropertyValue("--state-tint")).toBe(tx.tint);
     });
 
-    it("records the active state code via data-state attribute", () => {
+    it("records the active state code via data-state attributes", () => {
       applyStateThemeToDocument("NY");
       expect(document.documentElement.getAttribute("data-state")).toBe("NY");
+      expect(document.documentElement.getAttribute("data-state-theme")).toBe("NY");
+    });
+
+    it("builds a distinct visual motif and plate label per jurisdiction", () => {
+      expect(STATE_THEMES.CA.motif).toBeTruthy();
+      expect(STATE_THEMES.CA.plate).toContain("CA");
+      expect(STATE_THEMES.TX.gradient).not.toEqual(STATE_THEMES.CA.gradient);
     });
 
     it("updates CSS variables when switching between states", () => {
