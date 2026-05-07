@@ -31,6 +31,13 @@ const BWIP_OPTIONS = {
   paddingheight: 2
 } as const;
 
+// Heuristic — generator throws "Missing mandatory fields for STATE (vXX): …"
+// when the user simply hasn't filled the form yet, which is the common empty
+// state we want to soften.
+function isMissingRequiredError(message: string): boolean {
+  return /^Missing mandatory fields/i.test(message);
+}
+
 function CollapsibleSection({
   title,
   badge,
@@ -242,14 +249,27 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
       {/* Canvas */}
       <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-dark-border p-4 rounded-md flex items-center justify-center min-h-[150px] relative overflow-hidden">
         <canvas ref={canvasRef} className="max-w-full" aria-label="PDF417 barcode preview" />
-        {error && (
+        {error && isMissingRequiredError(error) ? (
+          <div
+            role="status"
+            className="absolute inset-0 bg-white/95 dark:bg-gray-900/95 flex flex-col items-center justify-center p-4 text-center gap-2"
+          >
+            <div className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+              Fill the required fields to see the barcode
+            </div>
+            <p className="text-xs text-gray-500 dark:text-gray-400 max-w-xs">
+              Or load a sample profile from <span className="font-medium">Presets</span> in the
+              header to see a generated barcode immediately.
+            </p>
+          </div>
+        ) : error ? (
           <div
             role="alert"
             className="absolute inset-0 bg-red-50 dark:bg-red-900/60 bg-opacity-90 flex items-center justify-center p-3 text-center text-red-600 dark:text-red-300 text-sm font-semibold border border-red-200 dark:border-red-700 rounded-md"
           >
             {error}
           </div>
-        )}
+        ) : null}
       </div>
 
       {/* Export buttons */}

@@ -4,6 +4,7 @@ import { X, Keyboard } from "lucide-react";
 interface ShortcutsModalProps {
   open: boolean;
   onClose: () => void;
+  onReplayTour?: () => void;
 }
 
 interface Shortcut {
@@ -47,7 +48,7 @@ function Key({ children }: { children: React.ReactNode }) {
   );
 }
 
-export const ShortcutsModal: React.FC<ShortcutsModalProps> = ({ open, onClose }) => {
+export const ShortcutsModal: React.FC<ShortcutsModalProps> = ({ open, onClose, onReplayTour }) => {
   const closeBtnRef = useRef<HTMLButtonElement>(null);
   const previouslyFocusedRef = useRef<HTMLElement | null>(null);
 
@@ -133,8 +134,19 @@ export const ShortcutsModal: React.FC<ShortcutsModalProps> = ({ open, onClose })
             </section>
           ))}
         </div>
-        <div className="px-4 pb-3 text-[11px] text-gray-500 dark:text-gray-400">
-          Press <Key>Esc</Key> to close.
+        <div className="px-4 pb-3 flex items-center justify-between gap-2">
+          <span className="text-[11px] text-gray-500 dark:text-gray-400">
+            Press <Key>Esc</Key> to close.
+          </span>
+          {onReplayTour && (
+            <button
+              type="button"
+              onClick={onReplayTour}
+              className="text-[11px] font-medium text-brand-700 dark:text-brand-300 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded"
+            >
+              Replay welcome tour
+            </button>
+          )}
         </div>
       </div>
     </div>

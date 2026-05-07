@@ -23,6 +23,8 @@ export interface FormState {
   // UI preferences for the form area (persisted, no PII).
   collapsedGroups: Partial<Record<FieldGroupId, boolean>>;
   requiredOnly: boolean;
+  // ISO timestamp the user finished or skipped the welcome tour. Empty = never seen.
+  tourSeenAt: string;
   // undo/redo stacks — not persisted
   _history: Array<Record<string, string>>;
   _future: Array<Record<string, string>>;
@@ -33,6 +35,8 @@ export interface FormState {
   setTheme: (theme: Theme) => void;
   toggleGroupCollapsed: (group: FieldGroupId) => void;
   setRequiredOnly: (value: boolean) => void;
+  markTourSeen: () => void;
+  resetTour: () => void;
   clearFields: () => void;
   loadJson: (data: Record<string, string>) => void;
   undo: () => void;
@@ -52,6 +56,7 @@ export const useFormStore = create<FormState>()(
       theme: "dark",
       collapsedGroups: {},
       requiredOnly: false,
+      tourSeenAt: "",
       _history: [],
       _future: [],
 
@@ -79,6 +84,10 @@ export const useFormStore = create<FormState>()(
         })),
 
       setRequiredOnly: (value) => set({ requiredOnly: value }),
+
+      markTourSeen: () => set({ tourSeenAt: new Date().toISOString() }),
+
+      resetTour: () => set({ tourSeenAt: "" }),
 
       clearFields: () =>
         set((s) => ({
@@ -136,7 +145,8 @@ export const useFormStore = create<FormState>()(
         subfileType: s.subfileType,
         theme: s.theme,
         collapsedGroups: s.collapsedGroups,
-        requiredOnly: s.requiredOnly
+        requiredOnly: s.requiredOnly,
+        tourSeenAt: s.tourSeenAt
       })
     }
   )

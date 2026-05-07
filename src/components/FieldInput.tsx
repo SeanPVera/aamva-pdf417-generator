@@ -1,8 +1,9 @@
 import React from "react";
-import { Copy, Check, X as XIcon } from "lucide-react";
+import { Copy, Check, X as XIcon, HelpCircle } from "lucide-react";
 import type { AAMVAField } from "../core/schema";
 import { AAMVA_FIELD_LIMITS } from "../core/schema";
 import { evaluateFieldValue } from "../core/validation";
+import { getFieldHelp } from "../core/fieldHelp";
 
 interface FieldInputProps {
   field: AAMVAField;
@@ -14,6 +15,7 @@ interface FieldInputProps {
   onCopy: (code: string, value: string) => void;
   onReset: (code: string) => void;
   onGenerate: (code: string) => void;
+  onDisableStrict?: () => void;
 }
 
 export const FieldInput: React.FC<FieldInputProps> = ({
@@ -25,14 +27,33 @@ export const FieldInput: React.FC<FieldInputProps> = ({
   onChange,
   onCopy,
   onReset,
-  onGenerate
+  onGenerate,
+  onDisableStrict
 }) => {
   const evalResult = evaluateFieldValue(field, value, state, strictMode);
   const isWarning = !!value && evalResult.severity === "warning";
   const hasError = !!value && !evalResult.ok && !isWarning;
   const showAdvisory = hasError || isWarning;
   const errorId = `error-${field.code}`;
+  const helpId = `help-${field.code}`;
+  const helpText = getFieldHelp(field.code);
+  const [helpOpen, setHelpOpen] = React.useState(false);
   const isResettable = field.code === "DCF" || field.code === "DAQ" || field.code === "DDB";
+
+  const helpButton = helpText ? (
+    <button
+      type="button"
+      onClick={() => setHelpOpen((v) => !v)}
+      onBlur={() => setHelpOpen(false)}
+      aria-expanded={helpOpen}
+      aria-controls={helpId}
+      aria-label={`Help for ${field.code}`}
+      title={`What is ${field.code}?`}
+      className="absolute top-1 right-7 z-30 p-1 rounded text-gray-500 hover:text-brand-500 dark:text-gray-400 dark:hover:text-brand-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+    >
+      <HelpCircle size={12} />
+    </button>
+  ) : null;
 
   const baseInputClass =
     "block w-full px-3 pt-5 pb-2 text-sm text-gray-900 bg-gray-100 dark:bg-[#2C2C2C] border-0 border-b-2 appearance-none dark:text-gray-100 focus:outline-none focus:ring-0 peer transition-all duration-200 ease-in-out rounded-t-md pr-16 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-500";
@@ -64,6 +85,16 @@ export const FieldInput: React.FC<FieldInputProps> = ({
   return (
     <div className="flex flex-col relative group">
       {copyIcon}
+      {helpButton}
+      {helpOpen && helpText && (
+        <div
+          id={helpId}
+          role="tooltip"
+          className="absolute z-40 top-full left-0 right-0 mt-1 px-3 py-2 text-xs leading-snug rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-surface text-gray-700 dark:text-gray-200 shadow-lg"
+        >
+          {helpText}
+        </div>
+      )}
       {field.options ? (
         <div className="relative">
           <select
@@ -214,7 +245,7 @@ export const FieldInput: React.FC<FieldInputProps> = ({
               id={errorId}
               role={hasError ? "alert" : "status"}
               data-severity={hasError ? "error" : "warning"}
-              className={`block text-xs font-medium truncate ${
+              className={`block text-xs font-medium truncate pointer-events-auto ${
                 hasError ? "text-red-500" : "text-amber-600 dark:text-amber-400"
               }`}
             >
@@ -222,6 +253,18 @@ export const FieldInput: React.FC<FieldInputProps> = ({
                 (hasError
                   ? `Invalid format${field.dateFormat ? ` (e.g. ${field.dateFormat})` : ""}`
                   : "Advisory")}
+              {hasError && strictMode && onDisableStrict && (
+                <>
+                  {" "}
+                  <button
+                    type="button"
+                    onClick={onDisableStrict}
+                    className="underline font-semibold hover:text-red-700 dark:hover:text-red-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded"
+                  >
+                    Disable strict
+                  </button>
+                </>
+              )}
             </span>
           )}
         </div>

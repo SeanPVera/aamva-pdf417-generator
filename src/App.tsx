@@ -3,6 +3,7 @@ import { Sidebar } from "./components/Sidebar";
 import { Header } from "./components/Header";
 import { ShortcutsModal } from "./components/ShortcutsModal";
 import { CompareView } from "./components/CompareView";
+import { WelcomeTour } from "./components/WelcomeTour";
 import { FieldInput } from "./components/FieldInput";
 import { FieldGroup } from "./components/FieldGroup";
 import { FieldFilters } from "./components/FieldFilters";
@@ -39,6 +40,7 @@ function App() {
   const [isScanning, setIsScanning] = React.useState(false);
   const [shortcutsOpen, setShortcutsOpen] = React.useState(false);
   const [compareOpen, setCompareOpen] = React.useState(false);
+  const [tourOpen, setTourOpen] = React.useState(false);
   const [mobilePanel, setMobilePanel] = React.useState<"config" | "form" | "preview">("form");
   const {
     state,
@@ -46,6 +48,7 @@ function App() {
     strictMode,
     fields,
     setField,
+    setStrictMode,
     theme,
     undo,
     redo,
@@ -54,7 +57,9 @@ function App() {
     collapsedGroups,
     toggleGroupCollapsed,
     requiredOnly,
-    setRequiredOnly
+    setRequiredOnly,
+    tourSeenAt,
+    markTourSeen
   } = useFormStore();
   const [copiedField, setCopiedField] = React.useState<string | null>(null);
   const [searchQuery, setSearchQuery] = React.useState("");
@@ -121,6 +126,16 @@ function App() {
   React.useEffect(() => {
     applyStateThemeToDocument(state);
   }, [state]);
+
+  // The tour is visible either because the user has never seen it OR they
+  // explicitly chose to replay it. Closing it both hides it and persists the
+  // "seen" timestamp so it doesn't auto-open on the next session.
+  const showTour = tourOpen || !tourSeenAt;
+
+  const handleCloseTour = React.useCallback(() => {
+    setTourOpen(false);
+    markTourSeen();
+  }, [markTourSeen]);
 
   const handleChange = (code: string, value: string) => {
     setField(code, value);
@@ -407,6 +422,10 @@ function App() {
                         onCopy={handleCopyField}
                         onReset={handleResetField}
                         onGenerate={handleGenerate}
+                        onDisableStrict={() => {
+                          setStrictMode(false);
+                          toast.info("Strict mode disabled");
+                        }}
                       />
                     ))}
                   </FieldGroup>
@@ -435,8 +454,16 @@ function App() {
         </React.Suspense>
       )}
 
-      <ShortcutsModal open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
+      <ShortcutsModal
+        open={shortcutsOpen}
+        onClose={() => setShortcutsOpen(false)}
+        onReplayTour={() => {
+          setShortcutsOpen(false);
+          setTourOpen(true);
+        }}
+      />
       <CompareView open={compareOpen} onClose={() => setCompareOpen(false)} />
+      <WelcomeTour open={showTour} onClose={handleCloseTour} />
       <DropZoneOverlay />
     </div>
   );

@@ -52,10 +52,10 @@ export const DropZoneOverlay: React.FC = () => {
             loadJson(parsed as Record<string, string>);
             toast.success(`Imported ${file.name}`);
           } else {
-            toast.error("Invalid JSON: expected a single payload object.");
+            toast.error("Invalid JSON: expected a single payload object.", { persistent: true });
           }
         } catch {
-          toast.error("Failed to parse JSON file. Check the file format.");
+          toast.error("Failed to parse JSON file. Check the file format.", { persistent: true });
         }
       };
       reader.readAsText(file);
