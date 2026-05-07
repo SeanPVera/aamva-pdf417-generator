@@ -25,7 +25,7 @@ This project is designed for **local, offline-oriented use** and runs as a React
   - [Step 3: Run desktop mode with Electron](#step-3-run-desktop-mode-with-electron)
   - [Step 4: Build one-click installers (optional)](#step-4-build-one-click-installers-optional)
 - [How to use the app](#how-to-use-the-app)
-- [iPhone setup guide (recommended)](#iphone-setup-guide-recommended)
+- [iPhone setup guide](#iphone-setup-guide)
 - [JSON import format](#json-import-format)
 - [Troubleshooting](#troubleshooting)
 - [Production readiness checklist](#production-readiness-checklist)
@@ -314,48 +314,91 @@ Installer artifacts are written to `dist_electron/`.
 
 ---
 
-## iPhone setup guide (recommended)
+## iPhone setup guide
 
-Use this when you want the app running on your iPhone but hosted from your laptop/desktop.
+The app is fully browser-based, so your iPhone just needs to open a URL hosted from your computer. Both devices must be on the **same Wi-Fi network**.
 
-### Option A: Development mode (fastest for local testing)
+### Step 1: Start the mobile server on your computer
 
-1. On your computer, install dependencies and start the mobile dev server:
-   ```bash
-   npm install
-   npm run dev:mobile
-   ```
-2. In terminal output, copy the **Network** URL (for example `http://192.168.1.25:3000`).
-3. Make sure your iPhone is on the **same Wi-Fi network** as your computer.
-4. Open the Network URL in **Safari** on iPhone.
-5. (Optional but recommended) tap **Share → Add to Home Screen** for app-like launching.
-6. In-app, use **Scan DL/ID Barcode → Use photo (iPhone-friendly)** if live camera scanning is blocked.
+**Quickest path (one command):**
 
-### Option B: Production-like mode (better reliability)
+```bash
+npm run easy:mobile
+```
 
-1. Build and preview the production bundle on your computer:
-   ```bash
-   npm install
-   npm run build
-   npm run preview:mobile
-   ```
-2. Copy the preview Network URL (example: `http://192.168.1.25:4173`).
-3. Open that URL in Safari on iPhone.
-4. Add to Home Screen if you want quick relaunch.
+This installs dependencies (if needed) and starts the dev server bound to your local network.
 
-### Camera and permissions checklist (iOS)
+**Or, if you already ran `npm install`:**
 
-- Prefer **Safari** (WebKit camera support is most reliable there).
-- If camera prompt does not appear, go to **Settings → Safari → Camera → Allow**.
-- If camera still fails, use the app's **photo upload scanning** flow instead.
-- For strongest camera compatibility in deployed environments, serve over **HTTPS**.
+```bash
+npm run dev:mobile
+```
+
+### Step 2: Find your computer's local IP address
+
+After the server starts, the terminal will print something like:
+
+```
+  ➜  Local:   http://localhost:3000/
+  ➜  Network: http://192.168.1.25:3000/
+```
+
+Copy the **Network** URL — that is the address your iPhone will use.
+
+> If no Network URL appears, your firewall may be blocking Vite. Allow Node.js or port 3000 through your firewall, then restart the server.
+
+### Step 3: Open the app on your iPhone
+
+1. Connect your iPhone to the **same Wi-Fi network** as your computer.
+2. Open **Safari** on your iPhone.
+3. Type (or paste) the Network URL into the address bar (for example `http://192.168.1.25:3000`).
+4. The app loads — no install required.
+
+> Use **Safari**, not Chrome or Firefox. Safari has the most reliable WebKit camera support on iOS.
+
+### Step 4 (optional): Add to Home Screen
+
+To launch the app like a native app without typing the URL each time:
+
+1. Tap the **Share** button (box with an arrow) in Safari's toolbar.
+2. Scroll down and tap **Add to Home Screen**.
+3. Give it a name and tap **Add**.
+
+The app now appears on your home screen and opens full-screen.
+
+---
+
+### Alternative: production preview mode (more stable, no hot-reload)
+
+If you want a production-quality build instead of the dev server:
+
+```bash
+npm install
+npm run build
+npm run preview:mobile
+```
+
+The preview server starts at port `4173`. Use the Network URL it prints (for example `http://192.168.1.25:4173`) in Safari.
+
+---
+
+### Camera and barcode scanning on iOS
+
+- If Safari does not ask for camera permission, go to **Settings → Safari → Camera → Allow**.
+- If the live camera still fails to start, use the in-app **photo upload** scanning option as a fallback.
+- For production deployments (outside local Wi-Fi), serve over **HTTPS** — iOS requires a secure context for camera access on non-localhost origins.
+
+---
 
 ### Troubleshooting iPhone connectivity
 
-- **Phone cannot open URL:** confirm both devices are on the same network/subnet.
-- **Still unreachable:** allow Node/Vite through your computer firewall.
-- **Corporate or guest Wi-Fi blocks local peers:** use a personal hotspot or home network.
-- **Need remote access outside local Wi-Fi:** host the built `dist/` over HTTPS (or tunnel) and open that public URL from iPhone.
+| Problem | Fix |
+| --- | --- |
+| iPhone cannot reach the URL | Confirm both devices are on the same Wi-Fi subnet (not one on 5 GHz and one on a guest network). |
+| URL loads but then spins | Restart the dev server; check the terminal for errors. |
+| Still unreachable after checking network | Allow Node.js or port 3000 through your computer's firewall. |
+| Corporate/school Wi-Fi blocks local peers | Switch to a personal hotspot or home network. |
+| Need access from outside local Wi-Fi | Build `dist/` and host it over HTTPS, then open that public URL from iPhone. |
 
 ## JSON import format
 
