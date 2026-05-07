@@ -19,6 +19,7 @@ import { useFormStore, Theme } from "../hooks/useFormStore";
 import { InstallPrompt } from "./InstallPrompt";
 import { useToast } from "./Toast";
 import { QUICK_FILL_PRESETS } from "../core/presets";
+import { getStateTheme } from "../core/stateThemes";
 
 interface HeaderProps {
   onStartScan: () => void;
@@ -26,10 +27,28 @@ interface HeaderProps {
   onOpenCompare: () => void;
 }
 
-const THEME_LABELS: Record<Theme, { label: string; icon: React.ReactNode }> = {
-  light: { label: "Light", icon: <Sun size={13} /> },
-  dark: { label: "Dark", icon: <Moon size={13} /> },
-  dmv: { label: "DMV", icon: <Building2 size={13} /> }
+const THEME_LABELS: Record<
+  Theme,
+  { label: string; icon: React.ReactNode; description: string; swatch: string }
+> = {
+  light: {
+    label: "Light",
+    icon: <Sun size={13} />,
+    description: "Light surfaces and dark text",
+    swatch: "#ffffff"
+  },
+  dark: {
+    label: "Dark",
+    icon: <Moon size={13} />,
+    description: "Dark surfaces and light text",
+    swatch: "#1e1e1e"
+  },
+  dmv: {
+    label: "DMV",
+    icon: <Building2 size={13} />,
+    description: "Jurisdiction-themed accents from the selected state's palette",
+    swatch: "" // filled at render time from the current state palette
+  }
 };
 
 const THEMES: Theme[] = ["light", "dark", "dmv"];
@@ -164,22 +183,31 @@ export const Header: React.FC<HeaderProps> = ({ onStartScan, onOpenShortcuts, on
 
         {/* Theme toggle */}
         <div className="state-toggle-group flex items-center rounded overflow-hidden border border-gray-200 dark:border-dark-border focus-within:ring-2 focus-within:ring-brand-500">
-          {THEMES.map((t) => (
-            <button
-              key={t}
-              onClick={() => setTheme(t)}
-              title={`${THEME_LABELS[t].label} theme`}
-              aria-pressed={theme === t}
-              className={`flex items-center gap-1 px-2 py-1.5 text-xs transition focus:outline-none ${
-                theme === t
-                  ? "state-primary-bg font-semibold text-white"
-                  : "hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300"
-              }`}
-            >
-              {THEME_LABELS[t].icon}
-              <span className="hidden sm:inline">{THEME_LABELS[t].label}</span>
-            </button>
-          ))}
+          {THEMES.map((t) => {
+            const meta = THEME_LABELS[t];
+            const swatch = t === "dmv" ? getStateTheme(state).primary : meta.swatch;
+            return (
+              <button
+                key={t}
+                onClick={() => setTheme(t)}
+                title={`${meta.label} theme — ${meta.description}`}
+                aria-pressed={theme === t}
+                className={`flex items-center gap-1.5 px-2 py-1.5 text-xs transition focus:outline-none ${
+                  theme === t
+                    ? "state-primary-bg font-semibold text-white"
+                    : "hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300"
+                }`}
+              >
+                <span
+                  aria-hidden
+                  className="inline-block w-3 h-3 rounded-full border border-black/15 shadow-sm"
+                  style={{ backgroundColor: swatch }}
+                />
+                {meta.icon}
+                <span className="hidden sm:inline">{meta.label}</span>
+              </button>
+            );
+          })}
         </div>
 
         <div className="state-divider w-px h-5 bg-gray-200 dark:bg-dark-border mx-1" />

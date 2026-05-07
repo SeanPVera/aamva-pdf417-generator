@@ -1,5 +1,5 @@
 import React from "react";
-import { Search, X as XIcon, ArrowDown, Wand2 } from "lucide-react";
+import { Search, X as XIcon, ArrowDown, Wand2, FlaskConical } from "lucide-react";
 
 interface FieldFiltersProps {
   query: string;
@@ -13,6 +13,7 @@ interface FieldFiltersProps {
   onJumpToNextEmpty: () => void;
   hasNextEmpty: boolean;
   onGenerateAutoFields: () => void;
+  onFillSample?: () => void;
 }
 
 export const FieldFilters: React.FC<FieldFiltersProps> = ({
@@ -26,7 +27,8 @@ export const FieldFilters: React.FC<FieldFiltersProps> = ({
   requiredTotal,
   onJumpToNextEmpty,
   hasNextEmpty,
-  onGenerateAutoFields
+  onGenerateAutoFields,
+  onFillSample
 }) => {
   const inputRef = React.useRef<HTMLInputElement | null>(null);
 
@@ -116,6 +118,19 @@ export const FieldFilters: React.FC<FieldFiltersProps> = ({
           <Wand2 size={12} aria-hidden="true" />
           Generate auto fields
         </button>
+
+        {onFillSample && (
+          <button
+            type="button"
+            onClick={onFillSample}
+            aria-label="Fill all fields with sample data (dev only)"
+            title="Fill all fields with sample data (dev only)"
+            className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 text-xs font-medium text-amber-800 dark:text-amber-200 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          >
+            <FlaskConical size={12} aria-hidden="true" />
+            Fill sample (dev)
+          </button>
+        )}
       </div>
 
       <div className="flex flex-wrap items-center gap-3 text-xs text-gray-600 dark:text-gray-300">

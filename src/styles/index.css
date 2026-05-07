@@ -194,6 +194,13 @@ div {
   opacity: 1;
 }
 
+/* Pinch-zoomable barcode preview — the browser handles the gesture; we just
+   declare that the surface accepts it. `touch-pan-x/y` keeps single-finger
+   drags as pans once the user is zoomed in. */
+.barcode-zoom {
+  touch-action: pinch-zoom pan-x pan-y;
+}
+
 /* Field flash — used when a validation issue is clicked to jump to a field. */
 @keyframes field-flash {
   0% {
@@ -209,4 +216,33 @@ div {
 .field-flash {
   animation: field-flash 1100ms ease-out 1;
   border-radius: 6px;
+}
+
+/* Print: when the user clicks "Print" we add `printing-barcode` to <html>,
+   then hide everything except the marked barcode container and center it. */
+@media print {
+  html.printing-barcode body * {
+    visibility: hidden;
+  }
+  html.printing-barcode .printable-barcode,
+  html.printing-barcode .printable-barcode * {
+    visibility: visible;
+  }
+  html.printing-barcode .printable-barcode {
+    position: fixed;
+    inset: 0;
+    margin: auto;
+    border: 0 !important;
+    background: white !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  html.printing-barcode .printable-barcode canvas {
+    max-width: 90vw;
+    max-height: 90vh;
+    image-rendering: pixelated;
+  }
 }

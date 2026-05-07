@@ -10,7 +10,8 @@ import {
   FileCode2,
   Copy,
   Check,
-  ArrowDownToLine
+  ArrowDownToLine,
+  Printer
 } from "lucide-react";
 import { useFormStore } from "../hooks/useFormStore";
 import { generateAAMVAPayload } from "../core/generator";
@@ -191,6 +192,23 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
 
   const [copied, setCopied] = useState(false);
 
+  const handlePrint = () => {
+    if (!canvasRef.current || error) return;
+    document.documentElement.classList.add("printing-barcode");
+    // Defer until layout settles so the print stylesheet applies cleanly.
+    requestAnimationFrame(() => {
+      window.print();
+      // Some browsers (Chromium) fire afterprint asynchronously; clean up
+      // either way so the class never lingers.
+      const cleanup = () => {
+        document.documentElement.classList.remove("printing-barcode");
+        window.removeEventListener("afterprint", cleanup);
+      };
+      window.addEventListener("afterprint", cleanup);
+      window.setTimeout(cleanup, 1500);
+    });
+  };
+
   const handleCopy = async () => {
     if (!payloadStr) return;
     try {
@@ -246,9 +264,14 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
         Preview
       </h2>
 
-      {/* Canvas */}
-      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-dark-border p-4 rounded-md flex items-center justify-center min-h-[150px] relative overflow-hidden">
-        <canvas ref={canvasRef} className="max-w-full" aria-label="PDF417 barcode preview" />
+      {/* Canvas — wrapped in a pinch-zoomable scroller. The browser handles
+          the gesture natively when `touch-action: pinch-zoom` is set. */}
+      <div className="printable-barcode bg-white dark:bg-gray-900 border border-gray-200 dark:border-dark-border p-4 rounded-md flex items-center justify-center min-h-[150px] relative overflow-auto barcode-zoom">
+        <canvas
+          ref={canvasRef}
+          className="max-w-full select-none"
+          aria-label="PDF417 barcode preview (pinch to zoom)"
+        />
         {error && isMissingRequiredError(error) ? (
           <div
             role="status"
@@ -291,6 +314,16 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
         >
           <FileCode2 size={14} />
           SVG
+        </button>
+        <button
+          onClick={handlePrint}
+          disabled={!!error || !payloadStr}
+          aria-label="Print barcode"
+          title="Open the print dialog with just the barcode visible"
+          className="flex-1 flex items-center justify-center gap-1.5 bg-gray-100 dark:bg-dark-surface2 hover:bg-gray-200 dark:hover:bg-[#383838] disabled:opacity-40 disabled:cursor-not-allowed text-gray-800 dark:text-gray-100 py-1.5 rounded shadow text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-1 focus-visible:ring-offset-white dark:focus-visible:ring-offset-dark-surface"
+        >
+          <Printer size={14} />
+          Print
         </button>
       </div>
 

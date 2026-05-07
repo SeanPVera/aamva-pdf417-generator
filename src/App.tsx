@@ -23,6 +23,11 @@ import {
   generateStateLicenseNumber,
   generateStateCardRevisionDate
 } from "./core/generator";
+import { buildSampleFill } from "./core/sampleFiller";
+import { useSwipe } from "./hooks/useSwipe";
+
+const MOBILE_PANELS = ["config", "form", "preview"] as const;
+type MobilePanel = (typeof MOBILE_PANELS)[number];
 
 // Heavy bundles (bwip-js ~250kB, jspdf ~150kB, zxing ~170kB) are loaded on
 // demand so the initial paint doesn't pay for tooling the user may never open.
@@ -41,7 +46,20 @@ function App() {
   const [shortcutsOpen, setShortcutsOpen] = React.useState(false);
   const [compareOpen, setCompareOpen] = React.useState(false);
   const [tourOpen, setTourOpen] = React.useState(false);
-  const [mobilePanel, setMobilePanel] = React.useState<"config" | "form" | "preview">("form");
+  const [mobilePanel, setMobilePanel] = React.useState<MobilePanel>("form");
+
+  const cycleMobilePanel = React.useCallback((delta: 1 | -1) => {
+    setMobilePanel((current) => {
+      const idx = MOBILE_PANELS.indexOf(current);
+      const next = (idx + delta + MOBILE_PANELS.length) % MOBILE_PANELS.length;
+      return MOBILE_PANELS[next] ?? current;
+    });
+  }, []);
+
+  const swipeRef = useSwipe<HTMLElement>({
+    onSwipeLeft: () => cycleMobilePanel(1),
+    onSwipeRight: () => cycleMobilePanel(-1)
+  });
   const {
     state,
     version,
@@ -194,6 +212,18 @@ function App() {
     if (btn && !btn.disabled) btn.click();
   };
 
+  // Dev-only convenience: fill the form with valid sample values so we can
+  // verify changes against a generated barcode without typing every field.
+  const handleFillSample = () => {
+    const sample = buildSampleFill(schemaFields);
+    let count = 0;
+    for (const [code, value] of Object.entries(sample)) {
+      setField(code, value);
+      count++;
+    }
+    toast.success(`Filled ${count} sample fields`);
+  };
+
   const handleCopyField = async (code: string, value: string) => {
     if (!value) return;
     try {
@@ -339,7 +369,7 @@ function App() {
             <button
               key={panel.key}
               type="button"
-              onClick={() => setMobilePanel(panel.key as "config" | "form" | "preview")}
+              onClick={() => setMobilePanel(panel.key as MobilePanel)}
               aria-current={mobilePanel === panel.key}
               className={`state-themed-tab rounded-md px-3 py-2 text-sm font-medium transition ${
                 mobilePanel === panel.key
@@ -351,9 +381,15 @@ function App() {
             </button>
           ))}
         </div>
+        <p className="text-[10px] text-gray-400 dark:text-gray-500 text-center mt-1 select-none">
+          Swipe left or right to switch panels
+        </p>
       </nav>
 
-      <main className="flex flex-1 flex-col lg:flex-row overflow-visible lg:overflow-hidden gap-0 lg:gap-0 pb-safe">
+      <main
+        ref={swipeRef}
+        className="flex flex-1 flex-col lg:flex-row overflow-visible lg:overflow-hidden gap-0 lg:gap-0 pb-safe"
+      >
         <Sidebar mobileHidden={mobilePanel !== "config"} />
 
         <div
@@ -382,6 +418,7 @@ function App() {
             onJumpToNextEmpty={handleJumpToNextEmpty}
             hasNextEmpty={!!nextEmptyRequiredCode}
             onGenerateAutoFields={handleGenerateAllAuto}
+            onFillSample={import.meta.env.DEV ? handleFillSample : undefined}
           />
 
           <div className="p-4 lg:p-6">
