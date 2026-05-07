@@ -17,6 +17,93 @@ export interface AAMVAVersionDef {
   fields: AAMVAField[];
 }
 
+export type FieldGroupId = "identity" | "physical" | "address" | "license" | "privileges";
+
+export interface FieldGroupDef {
+  id: FieldGroupId;
+  label: string;
+  description: string;
+}
+
+// Display order is the order groups appear in the UI.
+export const AAMVA_FIELD_GROUPS: FieldGroupDef[] = [
+  {
+    id: "identity",
+    label: "Identity",
+    description: "Names, date of birth, sex, and name truncation indicators."
+  },
+  {
+    id: "address",
+    label: "Address",
+    description: "Mailing address used on the credential."
+  },
+  {
+    id: "physical",
+    label: "Physical Description",
+    description: "Height, weight, eye and hair color, race/ethnicity."
+  },
+  {
+    id: "license",
+    label: "License Details",
+    description: "Document numbers, dates, country, compliance and indicator fields."
+  },
+  {
+    id: "privileges",
+    label: "Driving Privileges",
+    description: "Vehicle class, restrictions, and endorsements."
+  }
+];
+
+// Field code → group. Groups are universal across AAMVA versions.
+const FIELD_CODE_TO_GROUP: Record<string, FieldGroupId> = {
+  // Identity
+  DAA: "identity",
+  DCS: "identity",
+  DAC: "identity",
+  DAD: "identity",
+  DCT: "identity",
+  DCU: "identity",
+  DBB: "identity",
+  DBC: "identity",
+  DDE: "identity",
+  DDF: "identity",
+  DDG: "identity",
+  // Address
+  DAG: "address",
+  DAH: "address",
+  DAI: "address",
+  DAJ: "address",
+  DAK: "address",
+  // Physical
+  DAU: "physical",
+  DAW: "physical",
+  DAX: "physical",
+  DAY: "physical",
+  DAZ: "physical",
+  DCL: "physical",
+  // License Details
+  DAQ: "license",
+  DCF: "license",
+  DCG: "license",
+  DBA: "license",
+  DBD: "license",
+  DDB: "license",
+  DDA: "license",
+  DDK: "license",
+  DDL: "license",
+  // Privileges
+  DAR: "privileges",
+  DAS: "privileges",
+  DAT: "privileges",
+  DCA: "privileges",
+  DCB: "privileges",
+  DCD: "privileges"
+};
+
+export function getFieldGroup(code: string): FieldGroupId {
+  return FIELD_CODE_TO_GROUP[code] || "license";
+}
+
 export const AAMVA_FIELD_OPTIONS: Record<string, FieldOption[]> = {
   DBC: [
     { value: "1", label: "1 — Male" },

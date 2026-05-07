@@ -10,7 +10,8 @@ import {
   FileCode2,
   Copy,
   Check,
-  ArrowDownToLine
+  ArrowDownToLine,
+  Printer
 } from "lucide-react";
 import { useFormStore } from "../hooks/useFormStore";
 import { generateAAMVAPayload } from "../core/generator";
@@ -30,6 +31,13 @@ const BWIP_OPTIONS = {
   paddingwidth: 2,
   paddingheight: 2
 } as const;
+
+// Heuristic — generator throws "Missing mandatory fields for STATE (vXX): …"
+// when the user simply hasn't filled the form yet, which is the common empty
+// state we want to soften.
+function isMissingRequiredError(message: string): boolean {
+  return /^Missing mandatory fields/i.test(message);
+}
 
 function CollapsibleSection({
   title,
@@ -184,6 +192,23 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
 
   const [copied, setCopied] = useState(false);
 
+  const handlePrint = () => {
+    if (!canvasRef.current || error) return;
+    document.documentElement.classList.add("printing-barcode");
+    // Defer until layout settles so the print stylesheet applies cleanly.
+    requestAnimationFrame(() => {
+      window.print();
+      // Some browsers (Chromium) fire afterprint asynchronously; clean up
+      // either way so the class never lingers.
+      const cleanup = () => {
+        document.documentElement.classList.remove("printing-barcode");
+        window.removeEventListener("afterprint", cleanup);
+      };
+      window.addEventListener("afterprint", cleanup);
+      window.setTimeout(cleanup, 1500);
+    });
+  };
+
   const handleCopy = async () => {
     if (!payloadStr) return;
     try {
@@ -239,17 +264,35 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
         Preview
       </h2>
 
-      {/* Canvas */}
-      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-dark-border p-4 rounded-md flex items-center justify-center min-h-[150px] relative overflow-hidden">
-        <canvas ref={canvasRef} className="max-w-full" aria-label="PDF417 barcode preview" />
-        {error && (
+      {/* Canvas — wrapped in a pinch-zoomable scroller. The browser handles
+          the gesture natively when `touch-action: pinch-zoom` is set. */}
+      <div className="printable-barcode bg-white dark:bg-gray-900 border border-gray-200 dark:border-dark-border p-4 rounded-md flex items-center justify-center min-h-[150px] relative overflow-auto barcode-zoom">
+        <canvas
+          ref={canvasRef}
+          className="max-w-full select-none"
+          aria-label="PDF417 barcode preview (pinch to zoom)"
+        />
+        {error && isMissingRequiredError(error) ? (
+          <div
+            role="status"
+            className="absolute inset-0 bg-white/95 dark:bg-gray-900/95 flex flex-col items-center justify-center p-4 text-center gap-2"
+          >
+            <div className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+              Fill the required fields to see the barcode
+            </div>
+            <p className="text-xs text-gray-500 dark:text-gray-400 max-w-xs">
+              Or load a sample profile from <span className="font-medium">Presets</span> in the
+              header to see a generated barcode immediately.
+            </p>
+          </div>
+        ) : error ? (
           <div
             role="alert"
             className="absolute inset-0 bg-red-50 dark:bg-red-900/60 bg-opacity-90 flex items-center justify-center p-3 text-center text-red-600 dark:text-red-300 text-sm font-semibold border border-red-200 dark:border-red-700 rounded-md"
           >
             {error}
           </div>
-        )}
+        ) : null}
       </div>
 
       {/* Export buttons */}
@@ -271,6 +314,16 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
         >
           <FileCode2 size={14} />
           SVG
+        </button>
+        <button
+          onClick={handlePrint}
+          disabled={!!error || !payloadStr}
+          aria-label="Print barcode"
+          title="Open the print dialog with just the barcode visible"
+          className="flex-1 flex items-center justify-center gap-1.5 bg-gray-100 dark:bg-dark-surface2 hover:bg-gray-200 dark:hover:bg-[#383838] disabled:opacity-40 disabled:cursor-not-allowed text-gray-800 dark:text-gray-100 py-1.5 rounded shadow text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-1 focus-visible:ring-offset-white dark:focus-visible:ring-offset-dark-surface"
+        >
+          <Printer size={14} />
+          Print
         </button>
       </div>
 

@@ -3,18 +3,24 @@ import { CheckCircle2, XCircle, Info, AlertTriangle, X } from "lucide-react";
 
 export type ToastType = "success" | "error" | "info" | "warning";
 
+export interface ToastOptions {
+  /** When true the toast stays until the user dismisses it. */
+  persistent?: boolean;
+}
+
 interface Toast {
   id: number;
   message: string;
   type: ToastType;
+  persistent: boolean;
 }
 
 interface ToastContextValue {
-  show: (message: string, type?: ToastType) => void;
-  success: (message: string) => void;
-  error: (message: string) => void;
-  info: (message: string) => void;
-  warning: (message: string) => void;
+  show: (message: string, type?: ToastType, options?: ToastOptions) => void;
+  success: (message: string, options?: ToastOptions) => void;
+  error: (message: string, options?: ToastOptions) => void;
+  info: (message: string, options?: ToastOptions) => void;
+  warning: (message: string, options?: ToastOptions) => void;
 }
 
 const ToastContext = createContext<ToastContextValue | null>(null);
@@ -54,21 +60,24 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, []);
 
   const show = useCallback(
-    (message: string, type: ToastType = "info") => {
+    (message: string, type: ToastType = "info", options?: ToastOptions) => {
       idRef.current += 1;
       const id = idRef.current;
-      setToasts((list) => [...list, { id, message, type }]);
-      window.setTimeout(() => dismiss(id), DURATION_MS);
+      const persistent = !!options?.persistent;
+      setToasts((list) => [...list, { id, message, type, persistent }]);
+      if (!persistent) {
+        window.setTimeout(() => dismiss(id), DURATION_MS);
+      }
     },
     [dismiss]
   );
 
   const value: ToastContextValue = {
     show,
-    success: (m) => show(m, "success"),
-    error: (m) => show(m, "error"),
-    info: (m) => show(m, "info"),
-    warning: (m) => show(m, "warning")
+    success: (m, opts) => show(m, "success", opts),
+    error: (m, opts) => show(m, "error", opts),
+    info: (m, opts) => show(m, "info", opts),
+    warning: (m, opts) => show(m, "warning", opts)
   };
 
   return (

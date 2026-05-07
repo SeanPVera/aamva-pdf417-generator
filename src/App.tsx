@@ -1,19 +1,33 @@
 import React from "react";
-import { Copy, Check, X as XIcon } from "lucide-react";
 import { Sidebar } from "./components/Sidebar";
 import { Header } from "./components/Header";
 import { ShortcutsModal } from "./components/ShortcutsModal";
 import { CompareView } from "./components/CompareView";
+import { WelcomeTour } from "./components/WelcomeTour";
+import { FieldInput } from "./components/FieldInput";
+import { FieldGroup } from "./components/FieldGroup";
+import { FieldFilters } from "./components/FieldFilters";
+import { DropZoneOverlay } from "./components/DropZoneOverlay";
 import { useToast } from "./components/Toast";
 import { useFormStore } from "./hooks/useFormStore";
-import { getFieldsForStateAndVersion, AAMVA_FIELD_LIMITS } from "./core/schema";
-import { evaluateFieldValue } from "./core/validation";
+import {
+  getFieldsForStateAndVersion,
+  AAMVA_FIELD_GROUPS,
+  getFieldGroup,
+  type AAMVAField,
+  type FieldGroupId
+} from "./core/schema";
 import { applyStateThemeToDocument } from "./core/stateThemes";
 import {
   generateStateDiscriminator,
   generateStateLicenseNumber,
   generateStateCardRevisionDate
 } from "./core/generator";
+import { buildSampleFill } from "./core/sampleFiller";
+import { useSwipe } from "./hooks/useSwipe";
+
+const MOBILE_PANELS = ["config", "form", "preview"] as const;
+type MobilePanel = (typeof MOBILE_PANELS)[number];
 
 // Heavy bundles (bwip-js ~250kB, jspdf ~150kB, zxing ~170kB) are loaded on
 // demand so the initial paint doesn't pay for tooling the user may never open.
@@ -31,13 +45,81 @@ function App() {
   const [isScanning, setIsScanning] = React.useState(false);
   const [shortcutsOpen, setShortcutsOpen] = React.useState(false);
   const [compareOpen, setCompareOpen] = React.useState(false);
-  const [mobilePanel, setMobilePanel] = React.useState<"config" | "form" | "preview">("form");
-  const { state, version, strictMode, fields, setField, theme, undo, redo, canUndo, canRedo } =
-    useFormStore();
+  const [tourOpen, setTourOpen] = React.useState(false);
+  const [mobilePanel, setMobilePanel] = React.useState<MobilePanel>("form");
+
+  const cycleMobilePanel = React.useCallback((delta: 1 | -1) => {
+    setMobilePanel((current) => {
+      const idx = MOBILE_PANELS.indexOf(current);
+      const next = (idx + delta + MOBILE_PANELS.length) % MOBILE_PANELS.length;
+      return MOBILE_PANELS[next] ?? current;
+    });
+  }, []);
+
+  const swipeRef = useSwipe<HTMLElement>({
+    onSwipeLeft: () => cycleMobilePanel(1),
+    onSwipeRight: () => cycleMobilePanel(-1)
+  });
+  const {
+    state,
+    version,
+    strictMode,
+    fields,
+    setField,
+    setStrictMode,
+    theme,
+    undo,
+    redo,
+    canUndo,
+    canRedo,
+    collapsedGroups,
+    toggleGroupCollapsed,
+    requiredOnly,
+    setRequiredOnly,
+    tourSeenAt,
+    markTourSeen
+  } = useFormStore();
   const [copiedField, setCopiedField] = React.useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = React.useState("");
   const copyTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const schemaFields = getFieldsForStateAndVersion(state, version);
   const toast = useToast();
+
+  const normalizedQuery = searchQuery.trim().toLowerCase();
+  const visibleFields = React.useMemo(
+    () =>
+      schemaFields.filter((f) => {
+        if (requiredOnly && !f.required) return false;
+        if (!normalizedQuery) return true;
+        return (
+          f.code.toLowerCase().includes(normalizedQuery) ||
+          f.label.toLowerCase().includes(normalizedQuery)
+        );
+      }),
+    [schemaFields, requiredOnly, normalizedQuery]
+  );
+
+  const fieldsByGroup = React.useMemo(() => {
+    const map = new Map<FieldGroupId, AAMVAField[]>();
+    for (const field of visibleFields) {
+      const group = getFieldGroup(field.code);
+      const list = map.get(group);
+      if (list) list.push(field);
+      else map.set(group, [field]);
+    }
+    return map;
+  }, [visibleFields]);
+
+  const requiredFields = React.useMemo(
+    () => schemaFields.filter((f) => f.required),
+    [schemaFields]
+  );
+  const requiredFilled = requiredFields.filter(
+    (f) => (fields[f.code] || "").trim().length > 0
+  ).length;
+  const requiredTotal = requiredFields.length;
+
+  const isFieldFilled = (code: string) => (fields[code] || "").trim().length > 0;
 
   // Apply global theme + state palette to <html> element
   React.useEffect(() => {
@@ -63,46 +145,15 @@ function App() {
     applyStateThemeToDocument(state);
   }, [state]);
 
-  // Keyboard shortcuts:
-  //  Ctrl/Cmd + Z          = undo
-  //  Ctrl/Cmd + Shift + Z  = redo
-  //  Ctrl + Y              = redo
-  //  ?                     = open shortcuts cheat sheet
-  React.useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      const target = e.target as HTMLElement | null;
-      const isTyping =
-        target &&
-        (target.tagName === "INPUT" ||
-          target.tagName === "TEXTAREA" ||
-          target.tagName === "SELECT" ||
-          target.isContentEditable);
+  // The tour is visible either because the user has never seen it OR they
+  // explicitly chose to replay it. Closing it both hides it and persists the
+  // "seen" timestamp so it doesn't auto-open on the next session.
+  const showTour = tourOpen || !tourSeenAt;
 
-      if (e.key === "?" && !isTyping) {
-        e.preventDefault();
-        setShortcutsOpen(true);
-        return;
-      }
-
-      const mod = e.ctrlKey || e.metaKey;
-      if (!mod) return;
-
-      if (e.key === "z" && !e.shiftKey) {
-        if (canUndo()) {
-          e.preventDefault();
-          undo();
-        }
-      } else if ((e.key === "z" && e.shiftKey) || e.key === "y") {
-        if (canRedo()) {
-          e.preventDefault();
-          redo();
-        }
-      }
-    };
-
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
-  }, [undo, redo, canUndo, canRedo]);
+  const handleCloseTour = React.useCallback(() => {
+    setTourOpen(false);
+    markTourSeen();
+  }, [markTourSeen]);
 
   const handleChange = (code: string, value: string) => {
     setField(code, value);
@@ -113,6 +164,64 @@ function App() {
     else if (code === "DAQ") handleChange(code, generateStateLicenseNumber(state));
     else if (code === "DDB")
       handleChange(code, generateStateCardRevisionDate(state, fields["DBD"]) || "");
+  };
+
+  const handleGenerateAllAuto = () => {
+    let count = 0;
+    const presentCodes = new Set(schemaFields.map((f) => f.code));
+    if (presentCodes.has("DCF")) {
+      setField("DCF", generateStateDiscriminator(state));
+      count++;
+    }
+    if (presentCodes.has("DAQ")) {
+      setField("DAQ", generateStateLicenseNumber(state));
+      count++;
+    }
+    if (presentCodes.has("DDB")) {
+      const ddb = generateStateCardRevisionDate(state, fields["DBD"]);
+      if (ddb) {
+        setField("DDB", ddb);
+        count++;
+      }
+    }
+    if (count === 0) toast.info("No auto-generated fields available for this version.");
+    else toast.success(`Generated ${count} auto field${count === 1 ? "" : "s"}.`);
+  };
+
+  const handleCopyPayload = async () => {
+    const el = document.querySelector<HTMLTextAreaElement>(
+      "textarea[aria-label='Raw AAMVA payload string']"
+    );
+    const payload = el?.value;
+    if (!payload) {
+      toast.error("No payload to copy yet.");
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(payload);
+      toast.success("Copied raw payload");
+    } catch {
+      toast.error("Could not copy payload");
+    }
+  };
+
+  const handleExportPNGShortcut = () => {
+    const btn = document.querySelector<HTMLButtonElement>(
+      "button[aria-label='Export barcode as PNG']"
+    );
+    if (btn && !btn.disabled) btn.click();
+  };
+
+  // Dev-only convenience: fill the form with valid sample values so we can
+  // verify changes against a generated barcode without typing every field.
+  const handleFillSample = () => {
+    const sample = buildSampleFill(schemaFields);
+    let count = 0;
+    for (const [code, value] of Object.entries(sample)) {
+      setField(code, value);
+      count++;
+    }
+    toast.success(`Filled ${count} sample fields`);
   };
 
   const handleCopyField = async (code: string, value: string) => {
@@ -136,6 +245,17 @@ function App() {
   const handleScrollToField = (code: string) => {
     // On mobile, the form column may be hidden — switch to it first.
     setMobilePanel("form");
+    // Expand the field's group so the input becomes reachable.
+    const group = getFieldGroup(code);
+    if (collapsedGroups[group]) toggleGroupCollapsed(group);
+    // If the required-only filter is hiding this field, drop it.
+    const fieldDef = schemaFields.find((f) => f.code === code);
+    if (fieldDef && requiredOnly && !fieldDef.required) setRequiredOnly(false);
+    // Clear the search query if it's filtering this field out.
+    const q = searchQuery.trim().toLowerCase();
+    if (q && !(code.toLowerCase().includes(q) || fieldDef?.label.toLowerCase().includes(q))) {
+      setSearchQuery("");
+    }
     // Defer to allow the panel to become visible.
     requestAnimationFrame(() => {
       const el = document.getElementById(code);
@@ -146,8 +266,87 @@ function App() {
       } catch {
         el.focus();
       }
+      // Flash the field briefly so the user can see where they landed.
+      el.classList.remove("field-flash");
+      // Force reflow so the animation re-runs even if the class was just removed.
+      void el.offsetWidth;
+      el.classList.add("field-flash");
+      window.setTimeout(() => el.classList.remove("field-flash"), 1200);
     });
   };
+
+  const nextEmptyRequiredCode = React.useMemo(
+    () => requiredFields.find((f) => !isFieldFilled(f.code))?.code,
+    // isFieldFilled closes over `fields`; depend on `fields` directly.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [requiredFields, fields]
+  );
+
+  const handleJumpToNextEmpty = () => {
+    if (nextEmptyRequiredCode) handleScrollToField(nextEmptyRequiredCode);
+  };
+
+  // Keyboard shortcuts (see ShortcutsModal for the user-facing list). Handlers
+  // are routed through a ref so the global keydown listener doesn't need to
+  // re-bind on every keystroke that touches store state.
+  const shortcutHandlersRef = React.useRef({
+    handleGenerateAllAuto,
+    handleCopyPayload,
+    handleExportPNGShortcut
+  });
+  React.useEffect(() => {
+    shortcutHandlersRef.current = {
+      handleGenerateAllAuto,
+      handleCopyPayload,
+      handleExportPNGShortcut
+    };
+  });
+
+  React.useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      const isTyping =
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.tagName === "SELECT" ||
+          target.isContentEditable);
+
+      if (e.key === "?" && !isTyping) {
+        e.preventDefault();
+        setShortcutsOpen(true);
+        return;
+      }
+
+      const mod = e.ctrlKey || e.metaKey;
+      if (!mod) return;
+      const key = e.key.toLowerCase();
+
+      if (key === "z" && !e.shiftKey) {
+        if (canUndo()) {
+          e.preventDefault();
+          undo();
+        }
+      } else if ((key === "z" && e.shiftKey) || key === "y") {
+        if (canRedo()) {
+          e.preventDefault();
+          redo();
+        }
+      } else if (key === "g" && !e.shiftKey) {
+        e.preventDefault();
+        shortcutHandlersRef.current.handleGenerateAllAuto();
+      } else if (key === "c" && e.shiftKey) {
+        e.preventDefault();
+        shortcutHandlersRef.current.handleCopyPayload();
+      } else if (key === "e" && !e.shiftKey) {
+        e.preventDefault();
+        shortcutHandlersRef.current.handleExportPNGShortcut();
+      }
+    };
+
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [undo, redo, canUndo, canRedo]);
 
   return (
     <div className="app-shell flex flex-col min-h-screen bg-white dark:bg-[#121212] text-gray-900 dark:text-gray-200 font-sans">
@@ -170,7 +369,7 @@ function App() {
             <button
               key={panel.key}
               type="button"
-              onClick={() => setMobilePanel(panel.key as "config" | "form" | "preview")}
+              onClick={() => setMobilePanel(panel.key as MobilePanel)}
               aria-current={mobilePanel === panel.key}
               className={`state-themed-tab rounded-md px-3 py-2 text-sm font-medium transition ${
                 mobilePanel === panel.key
@@ -182,9 +381,15 @@ function App() {
             </button>
           ))}
         </div>
+        <p className="text-[10px] text-gray-400 dark:text-gray-500 text-center mt-1 select-none">
+          Swipe left or right to switch panels
+        </p>
       </nav>
 
-      <main className="flex flex-1 flex-col lg:flex-row overflow-visible lg:overflow-hidden gap-0 lg:gap-0 pb-safe">
+      <main
+        ref={swipeRef}
+        className="flex flex-1 flex-col lg:flex-row overflow-visible lg:overflow-hidden gap-0 lg:gap-0 pb-safe"
+      >
         <Sidebar mobileHidden={mobilePanel !== "config"} />
 
         <div
@@ -201,225 +406,69 @@ function App() {
             </div>
           </div>
 
-          <div className="p-4 lg:p-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6 lg:gap-8">
-            {schemaFields.map((field) => {
-              const value = fields[field.code] || "";
-              const evalResult = evaluateFieldValue(field, value, state, strictMode);
-              const isWarning = !!value && evalResult.severity === "warning";
-              const hasError = !!value && !evalResult.ok && !isWarning;
-              const showAdvisory = hasError || isWarning;
-              const errorId = `error-${field.code}`;
-              const isResettable =
-                field.code === "DCF" || field.code === "DAQ" || field.code === "DDB";
+          <FieldFilters
+            query={searchQuery}
+            onQueryChange={setSearchQuery}
+            requiredOnly={requiredOnly}
+            onRequiredOnlyChange={setRequiredOnly}
+            matchCount={visibleFields.length}
+            totalCount={schemaFields.length}
+            requiredFilled={requiredFilled}
+            requiredTotal={requiredTotal}
+            onJumpToNextEmpty={handleJumpToNextEmpty}
+            hasNextEmpty={!!nextEmptyRequiredCode}
+            onGenerateAutoFields={handleGenerateAllAuto}
+            onFillSample={import.meta.env.DEV ? handleFillSample : undefined}
+          />
 
-              // Google Material Design style base classes
-              const baseInputClass =
-                "block w-full px-3 pt-5 pb-2 text-sm text-gray-900 bg-gray-100 dark:bg-[#2C2C2C] border-0 border-b-2 appearance-none dark:text-gray-100 focus:outline-none focus:ring-0 peer transition-all duration-200 ease-in-out rounded-t-md pr-16 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-500";
-              const normalClass = `${baseInputClass} border-gray-300 dark:border-[#555] focus:border-brand-500`;
-              const errorClass = `${baseInputClass} border-red-500 focus:border-red-500`;
-              const warningClass = `${baseInputClass} border-amber-500 focus:border-amber-500`;
-              const finalClass = hasError ? errorClass : isWarning ? warningClass : normalClass;
-
-              const labelClass = `absolute text-sm duration-300 transform top-4 z-10 origin-[0] left-3 pointer-events-none ${
-                hasError
-                  ? "text-red-500"
-                  : isWarning
-                    ? "text-amber-600 dark:text-amber-400"
-                    : "text-gray-500 dark:text-gray-400 peer-focus:text-brand-500 peer-focus:dark:text-brand-400"
-              } truncate w-[85%]`;
-
-              const isCopied = copiedField === field.code;
-              const copyIcon = value ? (
-                <button
-                  type="button"
-                  onClick={() => handleCopyField(field.code, value)}
-                  aria-label={isCopied ? "Copied" : `Copy ${field.code} value`}
-                  title={isCopied ? "Copied!" : `Copy ${field.code}`}
-                  className="field-hover-action absolute -top-1 right-1 z-30 p-1 rounded text-gray-500 hover:text-brand-500 dark:text-gray-400 dark:hover:text-brand-400 bg-white/70 dark:bg-dark-surface/70 backdrop-blur-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-                >
-                  {isCopied ? <Check size={12} className="text-green-500" /> : <Copy size={12} />}
-                </button>
-              ) : null;
-
-              return (
-                <div key={field.code} className="flex flex-col relative group">
-                  {copyIcon}
-                  {field.options ? (
-                    <div className="relative">
-                      <select
-                        id={field.code}
-                        value={value}
-                        onChange={(e) => handleChange(field.code, e.target.value)}
-                        aria-required={field.required}
-                        aria-invalid={hasError}
-                        aria-describedby={showAdvisory ? errorId : undefined}
-                        className={finalClass + (value ? "" : " text-transparent")}
-                      >
-                        <option value="" disabled className="text-gray-500 dark:text-gray-400">
-                          Select...
-                        </option>
-                        {field.options.map((opt) => (
-                          <option
-                            key={opt.value}
-                            value={opt.value}
-                            className="text-gray-900 dark:text-gray-100 bg-white dark:bg-dark-surface"
-                          >
-                            {opt.label}
-                          </option>
-                        ))}
-                      </select>
-                      <label
-                        htmlFor={field.code}
-                        className={labelClass.replace(
-                          "transform top-4",
-                          "transform -translate-y-3 scale-75 top-4"
-                        )}
-                      >
-                        {field.code} — {field.label}{" "}
-                        {field.required && <span className="text-red-500">*</span>}
-                      </label>
-                    </div>
-                  ) : field.type === "date" ? (
-                    <div className="relative flex">
-                      <input
-                        type="text"
-                        id={field.code}
-                        value={value}
-                        placeholder={field.dateFormat || " "}
-                        onChange={(e) => handleChange(field.code, e.target.value)}
-                        maxLength={AAMVA_FIELD_LIMITS[field.code] || 8}
-                        aria-required={field.required}
-                        aria-invalid={hasError}
-                        aria-describedby={showAdvisory ? errorId : undefined}
-                        className={`${finalClass} float-label-input`}
+          <div className="p-4 lg:p-6">
+            {visibleFields.length === 0 ? (
+              <p className="text-sm text-gray-500 dark:text-gray-400 italic px-1">
+                No fields match the current filters.
+              </p>
+            ) : (
+              AAMVA_FIELD_GROUPS.map((group) => {
+                const groupFields = fieldsByGroup.get(group.id);
+                if (!groupFields || groupFields.length === 0) return null;
+                const requiredInGroup = groupFields.filter((f) => f.required);
+                const filledInGroup = groupFields.filter((f) => isFieldFilled(f.code)).length;
+                const requiredFilledInGroup = requiredInGroup.filter((f) =>
+                  isFieldFilled(f.code)
+                ).length;
+                const isCollapsed = !!collapsedGroups[group.id];
+                return (
+                  <FieldGroup
+                    key={group.id}
+                    group={group}
+                    collapsed={isCollapsed}
+                    fieldCount={groupFields.length}
+                    filledCount={filledInGroup}
+                    requiredCount={requiredInGroup.length}
+                    requiredFilled={requiredFilledInGroup}
+                    onToggle={() => toggleGroupCollapsed(group.id)}
+                  >
+                    {groupFields.map((field) => (
+                      <FieldInput
+                        key={field.code}
+                        field={field}
+                        value={fields[field.code] || ""}
+                        state={state}
+                        strictMode={strictMode}
+                        copied={copiedField === field.code}
+                        onChange={handleChange}
+                        onCopy={handleCopyField}
+                        onReset={handleResetField}
+                        onGenerate={handleGenerate}
+                        onDisableStrict={() => {
+                          setStrictMode(false);
+                          toast.info("Strict mode disabled");
+                        }}
                       />
-                      <label
-                        htmlFor={field.code}
-                        className={labelClass.replace(
-                          "transform top-4",
-                          "transform -translate-y-3 scale-75 top-4"
-                        )}
-                      >
-                        {field.code} — {field.label}{" "}
-                        {field.required && <span className="text-red-500">*</span>}
-                      </label>
-                      <div className="absolute right-1.5 top-2 bottom-2 flex gap-1 z-20">
-                        {field.code === "DDB" && (
-                          <button
-                            type="button"
-                            onClick={() => handleGenerate(field.code)}
-                            className="text-xs font-medium bg-gray-200 hover:bg-gray-300 dark:bg-[#444] dark:hover:bg-[#555] rounded px-2 text-gray-700 dark:text-gray-200 transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-                            title="Generate Card Revision Date"
-                            aria-label="Generate Card Revision Date"
-                          >
-                            Gen
-                          </button>
-                        )}
-                        {isResettable && value && (
-                          <button
-                            type="button"
-                            onClick={() => handleResetField(field.code)}
-                            aria-label={`Reset ${field.code}`}
-                            title={`Reset ${field.code}`}
-                            className="flex items-center justify-center w-5 bg-gray-200 hover:bg-red-100 dark:bg-[#444] dark:hover:bg-red-900/40 rounded text-gray-700 hover:text-red-600 dark:text-gray-200 dark:hover:text-red-400 transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-                          >
-                            <XIcon size={11} />
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="relative flex">
-                      <input
-                        type="text"
-                        id={field.code}
-                        value={value}
-                        placeholder={field.dateFormat || " "}
-                        onChange={(e) => handleChange(field.code, e.target.value)}
-                        maxLength={AAMVA_FIELD_LIMITS[field.code]}
-                        aria-required={field.required}
-                        aria-invalid={hasError}
-                        aria-describedby={showAdvisory ? errorId : undefined}
-                        className={`${finalClass} float-label-input`}
-                      />
-                      <label
-                        htmlFor={field.code}
-                        className={labelClass.replace(
-                          "transform top-4",
-                          "transform -translate-y-3 scale-75 top-4"
-                        )}
-                      >
-                        {field.code} — {field.label}{" "}
-                        {field.required && <span className="text-red-500">*</span>}
-                      </label>
-                      <div className="absolute right-1.5 top-2 bottom-2 flex gap-1 z-20">
-                        {(field.code === "DCF" || field.code === "DAQ") && (
-                          <button
-                            type="button"
-                            onClick={() => handleGenerate(field.code)}
-                            className="text-xs font-medium bg-gray-200 hover:bg-gray-300 dark:bg-[#444] dark:hover:bg-[#555] rounded px-2 text-gray-700 dark:text-gray-200 transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-                            title={`Generate ${field.label}`}
-                            aria-label={`Generate ${field.label}`}
-                          >
-                            Gen
-                          </button>
-                        )}
-                        {(field.code === "DCB" || field.code === "DCD") && (
-                          <button
-                            type="button"
-                            onClick={() => handleChange(field.code, "NONE")}
-                            className="text-xs font-medium bg-gray-200 hover:bg-gray-300 dark:bg-[#444] dark:hover:bg-[#555] rounded px-2 text-gray-700 dark:text-gray-200 transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-                            title={`Set ${field.label} to NONE`}
-                            aria-label={`Set ${field.label} to NONE`}
-                          >
-                            None
-                          </button>
-                        )}
-                        {isResettable && value && (
-                          <button
-                            type="button"
-                            onClick={() => handleResetField(field.code)}
-                            aria-label={`Reset ${field.code}`}
-                            title={`Reset ${field.code}`}
-                            className="flex items-center justify-center w-5 bg-gray-200 hover:bg-red-100 dark:bg-[#444] dark:hover:bg-red-900/40 rounded text-gray-700 hover:text-red-600 dark:text-gray-200 dark:hover:text-red-400 transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-                          >
-                            <XIcon size={11} />
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="absolute -bottom-4 left-0 right-0 flex justify-between items-center pointer-events-none transition-opacity duration-200">
-                    <div className="flex-1 min-w-0">
-                      {showAdvisory && (
-                        <span
-                          id={errorId}
-                          role={hasError ? "alert" : "status"}
-                          data-severity={hasError ? "error" : "warning"}
-                          className={`block text-xs font-medium truncate ${
-                            hasError ? "text-red-500" : "text-amber-600 dark:text-amber-400"
-                          }`}
-                        >
-                          {evalResult.message ||
-                            (hasError
-                              ? `Invalid format${field.dateFormat ? ` (e.g. ${field.dateFormat})` : ""}`
-                              : "Advisory")}
-                        </span>
-                      )}
-                    </div>
-                    {!field.options && AAMVA_FIELD_LIMITS[field.code] && (
-                      <span
-                        aria-live="polite"
-                        className="text-xs font-medium text-gray-400 opacity-0 group-focus-within:opacity-100 transition-opacity ml-2 whitespace-nowrap"
-                      >
-                        {value.length}/{AAMVA_FIELD_LIMITS[field.code]}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
+                    ))}
+                  </FieldGroup>
+                );
+              })
+            )}
           </div>
           <div className="mt-auto">
             <React.Suspense fallback={null}>
@@ -442,8 +491,17 @@ function App() {
         </React.Suspense>
       )}
 
-      <ShortcutsModal open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
+      <ShortcutsModal
+        open={shortcutsOpen}
+        onClose={() => setShortcutsOpen(false)}
+        onReplayTour={() => {
+          setShortcutsOpen(false);
+          setTourOpen(true);
+        }}
+      />
       <CompareView open={compareOpen} onClose={() => setCompareOpen(false)} />
+      <WelcomeTour open={showTour} onClose={handleCloseTour} />
+      <DropZoneOverlay />
     </div>
   );
 }

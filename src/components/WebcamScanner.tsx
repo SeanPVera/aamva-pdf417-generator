@@ -3,9 +3,34 @@ import { BrowserPDF417Reader } from "@zxing/browser";
 import { decodeAAMVA } from "../core/decoder";
 import { Camera, X, AlertTriangle, ImagePlus, Video } from "lucide-react";
 import { useFormStore } from "../hooks/useFormStore";
+import { useToast } from "./Toast";
 
 interface WebcamScannerProps {
   onClose: () => void;
+}
+
+/**
+ * Maps a thrown camera/scanner error into a one-line, user-actionable message.
+ * Falls back to the original error message when nothing matches.
+ */
+function describeCameraError(err: unknown): string {
+  const fallback = err instanceof Error ? err.message : "Failed to initialize camera.";
+  const name = err instanceof Error ? err.name : "";
+  switch (name) {
+    case "NotAllowedError":
+    case "SecurityError":
+      return "Camera access was blocked. Click the lock icon in your browser's address bar and allow camera access, then try again.";
+    case "NotFoundError":
+    case "OverconstrainedError":
+      return "No usable camera was found on this device. Try the “Use photo” option below to scan from a saved image.";
+    case "NotReadableError":
+    case "TrackStartError":
+      return "Your camera is in use by another app. Close other camera apps (e.g. Zoom, FaceTime) and reopen this scanner.";
+    case "AbortError":
+      return "Camera startup was interrupted. Try opening the scanner again.";
+    default:
+      return fallback;
+  }
 }
 
 export function WebcamScanner({ onClose }: WebcamScannerProps) {
@@ -18,6 +43,7 @@ export function WebcamScanner({ onClose }: WebcamScannerProps) {
   const [selectedDeviceId, setSelectedDeviceId] = useState<string>("");
   const loadJson = useFormStore((s) => s.loadJson);
   const setStateVersion = useFormStore((s) => s.setStateVersion);
+  const toast = useToast();
 
   const applyDecodedPayload = useCallback(
     (text: string) => {
@@ -26,12 +52,13 @@ export function WebcamScanner({ onClose }: WebcamScannerProps) {
         const { state, version } = decoded.json;
         if (state && version) setStateVersion(state, version);
         loadJson(decoded.json);
+        toast.success(`Scanned ${state || "ID"}${version ? ` v${version}` : ""}`);
         onClose();
         return;
       }
       setError("Detected a barcode, but it is not a valid AAMVA DL/ID format.");
     },
-    [loadJson, onClose, setStateVersion]
+    [loadJson, onClose, setStateVersion, toast]
   );
 
   // Load available cameras once on mount
@@ -76,8 +103,7 @@ export function WebcamScanner({ onClose }: WebcamScannerProps) {
       } catch (err: unknown) {
         if (!cancelled) {
           setScanning(false);
-          const msg = err instanceof Error ? err.message : "Failed to initialize camera.";
-          setError(msg);
+          setError(describeCameraError(err));
         }
       }
     };
@@ -211,6 +237,9 @@ export function WebcamScanner({ onClose }: WebcamScannerProps) {
         <p className="text-center text-sm text-slate-500 dark:text-slate-400 mt-4">
           Hold the PDF417 barcode steadily in front of the camera. The form will auto-fill when
           successfully decoded.
+        </p>
+        <p className="text-center text-[11px] text-slate-400 dark:text-slate-500 mt-1">
+          The camera feed stays on this device — nothing is uploaded.
         </p>
       </div>
     </div>

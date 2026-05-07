@@ -1,9 +1,72 @@
 import React, { useRef, useState } from "react";
-import { Upload, Download, FileText, AlertCircle, CheckCircle } from "lucide-react";
+import {
+  Upload,
+  Download,
+  FileText,
+  AlertCircle,
+  CheckCircle,
+  ChevronRight,
+  ChevronDown,
+  FileDown
+} from "lucide-react";
 import { generateAAMVAPayload } from "../core/generator";
 import { getFieldsForStateAndVersion } from "../core/schema";
 import { jsPDF } from "jspdf";
 import bwipjs from "bwip-js";
+
+const SAMPLE_BATCH = [
+  {
+    state: "CA",
+    version: "10",
+    subfileType: "DL",
+    DCS: "DOE",
+    DAC: "JANE",
+    DAD: "Q",
+    DBA: "01012029",
+    DBB: "02151990",
+    DBC: "2",
+    DAY: "BRO",
+    DAU: "067 IN",
+    DAG: "123 SAMPLE ST",
+    DAI: "SAN FRANCISCO",
+    DAJ: "CA",
+    DAK: "94110",
+    DAQ: "D1234567",
+    DCA: "C",
+    DCB: "NONE",
+    DCD: "NONE",
+    DBD: "01012024",
+    DCG: "USA",
+    DDE: "N",
+    DDF: "N",
+    DDG: "N"
+  },
+  {
+    state: "TX",
+    version: "10",
+    subfileType: "ID",
+    DCS: "ROE",
+    DAC: "JOHN",
+    DBA: "06012028",
+    DBB: "07201985",
+    DBC: "1",
+    DAY: "BLU",
+    DAU: "071 IN",
+    DAG: "456 EXAMPLE AVE",
+    DAI: "AUSTIN",
+    DAJ: "TX",
+    DAK: "78701",
+    DAQ: "12345678",
+    DCA: "C",
+    DCB: "NONE",
+    DCD: "NONE",
+    DBD: "06012023",
+    DCG: "USA",
+    DDE: "N",
+    DDF: "N",
+    DDG: "N"
+  }
+];
 
 interface BatchEntry {
   state: string;
@@ -40,8 +103,21 @@ export const BatchProcessor: React.FC = () => {
     failed: number;
     errors: string[];
   } | null>(null);
+  const [showExample, setShowExample] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleDownloadTemplate = () => {
+    const blob = new Blob([JSON.stringify(SAMPLE_BATCH, null, 2)], {
+      type: "application/json"
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "batch_template.json";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const picked = e.target.files?.[0];
@@ -149,12 +225,38 @@ export const BatchProcessor: React.FC = () => {
         Batch Processing
       </h3>
 
-      <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+      <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
         Upload a JSON file containing an array of payload objects. Each entry needs at least{" "}
         <code className="font-mono bg-gray-100 dark:bg-gray-700 px-1 rounded">state</code> and{" "}
         <code className="font-mono bg-gray-100 dark:bg-gray-700 px-1 rounded">version</code>. The
         system will process them and download a single multi-page PDF.
       </p>
+
+      <div className="mb-4 flex flex-wrap items-center gap-3">
+        <button
+          type="button"
+          onClick={handleDownloadTemplate}
+          className="inline-flex items-center gap-1.5 text-xs font-medium text-blue-700 dark:text-blue-300 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded"
+        >
+          <FileDown size={13} />
+          Download template.json
+        </button>
+        <button
+          type="button"
+          onClick={() => setShowExample((v) => !v)}
+          aria-expanded={showExample}
+          className="inline-flex items-center gap-1 text-xs font-medium text-gray-600 dark:text-gray-300 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded"
+        >
+          {showExample ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
+          {showExample ? "Hide example" : "Show example"}
+        </button>
+      </div>
+
+      {showExample && (
+        <pre className="mb-4 max-h-48 overflow-auto rounded border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 p-3 text-[11px] font-mono text-gray-700 dark:text-gray-300">
+          {JSON.stringify(SAMPLE_BATCH, null, 2)}
+        </pre>
+      )}
 
       <div className="flex items-center space-x-4">
         <input
