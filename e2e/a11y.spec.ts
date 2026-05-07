@@ -24,12 +24,20 @@ test.describe("accessibility", () => {
 
   test("keyboard tab order reaches the state selector first", async ({ page }) => {
     await page.goto("/");
-    // Focus the body, then start tabbing.
-    await page.locator("body").click();
-    // The first interactive control after the header should be reachable
-    // within a reasonable number of tabs.
+    // Reset focus to the document start. `body.click()` focuses whatever
+    // element happens to be under the click point, which can land mid-form
+    // and skip the header entirely.
+    await page.evaluate(() => {
+      (document.activeElement as HTMLElement | null)?.blur();
+      document.body.focus();
+    });
+    // The state combobox is the first interactive control after the header
+    // toolbar. The toolbar grows as features are added (undo/redo, theme
+    // toggle, presets, compare, scanner, import/export, shortcuts, clear),
+    // so allow a generous upper bound rather than hard-coding the current
+    // count.
     let reached = false;
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < 30; i++) {
       await page.keyboard.press("Tab");
       const label = await page.evaluate(
         () => (document.activeElement as HTMLElement | null)?.getAttribute("aria-label") ?? ""
