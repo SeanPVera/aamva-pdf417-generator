@@ -157,6 +157,20 @@ function App() {
 
   const handleChange = (code: string, value: string) => {
     setField(code, value);
+    // DDB (card design revision date) must be ≤ DBD (issue date), or strict
+    // mode will block generation. If DBD is being set to a valid date and the
+    // existing DDB falls after it, regenerate DDB capped at the new DBD.
+    if (code === "DBD" && /^\d{8}$/.test(value)) {
+      const currentDDB = fields["DDB"];
+      if (currentDDB && /^\d{8}$/.test(currentDDB)) {
+        const ddbSort = currentDDB.slice(4) + currentDDB.slice(0, 4);
+        const dbdSort = value.slice(4) + value.slice(0, 4);
+        if (ddbSort > dbdSort) {
+          const regen = generateStateCardRevisionDate(state, value);
+          if (regen) setField("DDB", regen);
+        }
+      }
+    }
   };
 
   const handleGenerate = (code: string) => {
