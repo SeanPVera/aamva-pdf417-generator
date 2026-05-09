@@ -1,10 +1,11 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
-import { switchMobilePanel } from "./helpers";
+import { switchMobilePanel, dismissTour } from "./helpers";
 
 test.describe("accessibility", () => {
   test("homepage has no axe violations on WCAG 2.1 AA", async ({ page }) => {
     await page.goto("/");
+    await dismissTour(page);
 
     const accessibilityScanResults = await new AxeBuilder({ page })
       .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
@@ -25,6 +26,7 @@ test.describe("accessibility", () => {
 
   test("keyboard tab order reaches the state selector first", async ({ page }) => {
     await page.goto("/");
+    await dismissTour(page);
     await switchMobilePanel(page, "config");
     // Reset focus to the document start. `body.click()` focuses whatever
     // element happens to be under the click point, which can land mid-form

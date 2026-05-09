@@ -32,11 +32,43 @@ export const CA_REQUIRED_FIELDS: Array<[string, string]> = [
  * visible when the viewport width < 1024px.
  */
 export async function switchMobilePanel(page: Page, panel: "config" | "form" | "preview") {
-  const isMobile = page.viewportSize()?.width && page.viewportSize()!.width < 1024;
+  const viewport = page.viewportSize();
+  const isMobile = viewport && viewport.width < 1024;
   if (!isMobile) return;
 
   const labels = { config: "Config", form: "Fields", preview: "Preview" };
-  await page.getByRole("button", { name: labels[panel], exact: true }).click();
+  const btn = page.getByRole("button", { name: labels[panel], exact: true });
+
+  // If the button is already "active" (via aria-current), skip clicking.
+  if ((await btn.getAttribute("aria-current")) === "true") {
+    return;
+  }
+
+  await btn.click();
+
+  // On some mobile browsers (WebKit), the panel transition might take a frame.
+  // Wait for the target panel's container to likely be visible.
+  if (panel === "config") {
+    await page.getByRole("combobox", { name: /select state or territory/i }).waitFor({ state: "visible" });
+  } else if (panel === "preview") {
+    await page.getByRole("heading", { name: /preview/i }).waitFor({ state: "visible" });
+  }
+}
+
+/**
+ * Closes the Welcome Tour if it's visible. The tour auto-opens for new users
+ * and can block interactive elements or mess with tab order.
+ */
+export async function dismissTour(page: Page) {
+  const skipBtn = page.getByRole("button", { name: /skip tour/i });
+  try {
+    // If it's not there within 1s, it's likely already dismissed or didn't show.
+    if (await skipBtn.isVisible({ timeout: 1000 })) {
+      await skipBtn.click();
+    }
+  } catch {
+    // Ignore timeout errors
+  }
 }
 
 export async function selectStateAndVersion(page: Page, state: string, version: string) {
