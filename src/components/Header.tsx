@@ -161,7 +161,7 @@ export const Header: React.FC<HeaderProps> = ({ onStartScan, onOpenShortcuts, on
             Professional Grade
           </span>
           <span
-            className="jurisdiction-plate hidden md:inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.16em] shadow-sm whitespace-nowrap"
+            className="jurisdiction-plate hidden md:inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold uppercase tracking-[0.16em] shadow-sm whitespace-nowrap"
             title={`${activeStateName} theme package: ${activeStateTheme.motif}`}
           >
             {state} · {activeStateTheme.motif}
@@ -230,6 +230,7 @@ export const Header: React.FC<HeaderProps> = ({ onStartScan, onOpenShortcuts, on
           <button
             onClick={() => setPresetsOpen((v) => !v)}
             title="Quick fill from a preset profile"
+            aria-label="Presets"
             aria-haspopup="menu"
             aria-expanded={presetsOpen}
             className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 px-2 py-1.5 rounded transition text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
@@ -243,7 +244,7 @@ export const Header: React.FC<HeaderProps> = ({ onStartScan, onOpenShortcuts, on
               role="menu"
               className="absolute right-0 mt-1 w-72 bg-white dark:bg-dark-surface border border-gray-200 dark:border-dark-border rounded-md shadow-lg z-30 overflow-hidden"
             >
-              <div className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 border-b border-gray-100 dark:border-dark-border">
+              <div className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 border-b border-gray-100 dark:border-dark-border">
                 Quick Fill Presets
               </div>
               <ul>

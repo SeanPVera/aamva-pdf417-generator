@@ -44,15 +44,18 @@ function CollapsibleSection({
   badge,
   badgeColor = "gray",
   children,
-  defaultOpen = false
+  defaultOpen = false,
+  id
 }: {
   title: string;
   badge?: string | number;
   badgeColor?: "gray" | "green" | "red" | "blue" | "amber";
   children: React.ReactNode;
   defaultOpen?: boolean;
+  id?: string;
 }) {
   const [open, setOpen] = useState(defaultOpen);
+  const sectionId = id || `collapsible-${title.toLowerCase().replace(/\s+/g, "-")}`;
   const badgeClasses = {
     gray: "bg-gray-200 dark:bg-[#333] text-gray-700 dark:text-gray-200",
     green: "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300",
@@ -68,6 +71,7 @@ function CollapsibleSection({
         onClick={() => setOpen((v) => !v)}
         className="w-full flex items-center justify-between px-3 py-2 bg-gray-50 dark:bg-dark-surface2 hover:bg-gray-100 dark:hover:bg-[#383838] transition-colors text-sm font-semibold text-gray-700 dark:text-gray-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-500"
         aria-expanded={open}
+        aria-controls={sectionId}
       >
         <span className="flex items-center gap-2">
           {open ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
@@ -79,7 +83,11 @@ function CollapsibleSection({
           </span>
         )}
       </button>
-      {open && <div className="px-3 py-2 bg-white dark:bg-dark-surface">{children}</div>}
+      {open && (
+        <div id={sectionId} className="px-3 py-2 bg-white dark:bg-dark-surface">
+          {children}
+        </div>
+      )}
     </div>
   );
 }
@@ -330,6 +338,7 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
       {/* Raw Payload Inspector */}
       <CollapsibleSection
         title="Raw Payload"
+        id="preview-raw-payload"
         badge={payloadStr.length || undefined}
         badgeColor="blue"
         defaultOpen
@@ -361,6 +370,7 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
       {/* Validation Report */}
       <CollapsibleSection
         title="Validation Report"
+        id="preview-validation-report"
         badge={reportBadge}
         badgeColor={reportBadgeColor}
         defaultOpen={issueCount > 0}
@@ -434,6 +444,7 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
       {/* Decoded Output */}
       <CollapsibleSection
         title="Decoded Output"
+        id="preview-decoded-output"
         badge={decodedEntries.length || undefined}
         badgeColor="blue"
       >
