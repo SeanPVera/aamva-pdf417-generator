@@ -184,7 +184,8 @@ function App() {
       generated.push("DDB");
     }
 
-    if (!generated.length) return toast.info("No auto-generated fields available for this version.");
+    if (!generated.length)
+      return toast.info("No auto-generated fields available for this version.");
     toast.success(`Generated ${generated.length} auto field${generated.length === 1 ? "" : "s"}.`);
     requestAnimationFrame(() => generated.forEach(flashField));
   };
