@@ -164,28 +164,30 @@ function App() {
     else if (code === "DAQ") handleChange(code, generateStateLicenseNumber(state));
     else if (code === "DDB")
       handleChange(code, generateStateCardRevisionDate(state, fields["DBD"]) || "");
+    flashField(code);
   };
 
   const handleGenerateAllAuto = () => {
-    let count = 0;
     const presentCodes = new Set(schemaFields.map((f) => f.code));
+    const generated: string[] = [];
     if (presentCodes.has("DCF")) {
       setField("DCF", generateStateDiscriminator(state));
-      count++;
+      generated.push("DCF");
     }
     if (presentCodes.has("DAQ")) {
       setField("DAQ", generateStateLicenseNumber(state));
-      count++;
+      generated.push("DAQ");
     }
-    if (presentCodes.has("DDB")) {
-      const ddb = generateStateCardRevisionDate(state, fields["DBD"]);
-      if (ddb) {
-        setField("DDB", ddb);
-        count++;
-      }
+    const ddb = presentCodes.has("DDB") && generateStateCardRevisionDate(state, fields["DBD"]);
+    if (ddb) {
+      setField("DDB", ddb);
+      generated.push("DDB");
     }
-    if (count === 0) toast.info("No auto-generated fields available for this version.");
-    else toast.success(`Generated ${count} auto field${count === 1 ? "" : "s"}.`);
+
+    if (!generated.length)
+      return toast.info("No auto-generated fields available for this version.");
+    toast.success(`Generated ${generated.length} auto field${generated.length === 1 ? "" : "s"}.`);
+    requestAnimationFrame(() => generated.forEach(flashField));
   };
 
   const handleCopyPayload = async () => {
@@ -242,6 +244,17 @@ function App() {
     toast.info(`Reset ${code}`);
   };
 
+  const flashField = React.useCallback((code: string) => {
+    const el = document.getElementById(code);
+    if (!el) return;
+    // Flash the field briefly so the user can see where they landed.
+    el.classList.remove("field-flash");
+    // Force reflow so the animation re-runs even if the class was just removed.
+    void el.offsetWidth;
+    el.classList.add("field-flash");
+    window.setTimeout(() => el.classList.remove("field-flash"), 1200);
+  }, []);
+
   const handleScrollToField = (code: string) => {
     // On mobile, the form column may be hidden — switch to it first.
     setMobilePanel("form");
@@ -266,12 +279,7 @@ function App() {
       } catch {
         el.focus();
       }
-      // Flash the field briefly so the user can see where they landed.
-      el.classList.remove("field-flash");
-      // Force reflow so the animation re-runs even if the class was just removed.
-      void el.offsetWidth;
-      el.classList.add("field-flash");
-      window.setTimeout(() => el.classList.remove("field-flash"), 1200);
+      flashField(code);
     });
   };
 
@@ -381,7 +389,7 @@ function App() {
             </button>
           ))}
         </div>
-        <p className="text-[10px] text-gray-400 dark:text-gray-500 text-center mt-1 select-none">
+        <p className="text-xs text-gray-400 dark:text-gray-500 text-center mt-1 select-none">
           Swipe left or right to switch panels
         </p>
       </nav>

@@ -27,7 +27,52 @@ export const CA_REQUIRED_FIELDS: Array<[string, string]> = [
   ["DDB", "01012024"]
 ];
 
+/**
+ * Utility to switch panels on mobile viewports. The panel buttons are only
+ * visible when the viewport width < 1024px.
+ */
+export async function switchMobilePanel(page: Page, panel: "config" | "form" | "preview") {
+  const viewport = page.viewportSize();
+  const isMobile = viewport && viewport.width < 1024;
+  if (!isMobile) return;
+
+  const labels = { config: "Config", form: "Fields", preview: "Preview" };
+  const btn = page.getByRole("button", { name: labels[panel], exact: true });
+
+  // If the button is already "active" (via aria-current), skip clicking.
+  if ((await btn.getAttribute("aria-current")) === "true") {
+    return;
+  }
+
+  await btn.click();
+
+  // On some mobile browsers (WebKit), the panel transition might take a frame.
+  // Wait for the target panel's container to likely be visible.
+  if (panel === "config") {
+    await page.getByRole("combobox", { name: /select state or territory/i }).waitFor({ state: "visible" });
+  } else if (panel === "preview") {
+    await page.getByRole("heading", { name: /preview/i }).waitFor({ state: "visible" });
+  }
+}
+
+/**
+ * Closes the Welcome Tour if it's visible. The tour auto-opens for new users
+ * and can block interactive elements or mess with tab order.
+ */
+export async function dismissTour(page: Page) {
+  const skipBtn = page.getByRole("button", { name: /skip tour/i });
+  try {
+    // If it's not there within 1s, it's likely already dismissed or didn't show.
+    if (await skipBtn.isVisible({ timeout: 1000 })) {
+      await skipBtn.click();
+    }
+  } catch {
+    // Ignore timeout errors
+  }
+}
+
 export async function selectStateAndVersion(page: Page, state: string, version: string) {
+  await switchMobilePanel(page, "config");
   await page.getByRole("combobox", { name: /select state or territory/i }).selectOption(state);
   await page.getByRole("combobox", { name: /select aamva version/i }).selectOption(version);
 }
@@ -49,6 +94,7 @@ export async function fillField(page: Page, code: string, value: string) {
 
 export async function fillCaliforniaForm(page: Page) {
   await selectStateAndVersion(page, "CA", "10");
+  await switchMobilePanel(page, "form");
   for (const [code, value] of CA_REQUIRED_FIELDS) {
     await fillField(page, code, value);
   }
@@ -57,6 +103,7 @@ export async function fillCaliforniaForm(page: Page) {
 
 /** Waits for the lazy-loaded BarcodePreview pane to mount. */
 export async function waitForPreview(page: Page) {
+  await switchMobilePanel(page, "preview");
   await expect(
     page.getByRole("textbox", { name: /raw aamva payload string/i })
   ).toBeVisible({ timeout: 15_000 });
