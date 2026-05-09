@@ -168,37 +168,25 @@ function App() {
   };
 
   const handleGenerateAllAuto = () => {
-    let count = 0;
     const presentCodes = new Set(schemaFields.map((f) => f.code));
-    const codesToFlash: string[] = [];
-
+    const generated: string[] = [];
     if (presentCodes.has("DCF")) {
       setField("DCF", generateStateDiscriminator(state));
-      codesToFlash.push("DCF");
-      count++;
+      generated.push("DCF");
     }
     if (presentCodes.has("DAQ")) {
       setField("DAQ", generateStateLicenseNumber(state));
-      codesToFlash.push("DAQ");
-      count++;
+      generated.push("DAQ");
     }
-    if (presentCodes.has("DDB")) {
-      const ddb = generateStateCardRevisionDate(state, fields["DBD"]);
-      if (ddb) {
-        setField("DDB", ddb);
-        codesToFlash.push("DDB");
-        count++;
-      }
+    const ddb = presentCodes.has("DDB") && generateStateCardRevisionDate(state, fields["DBD"]);
+    if (ddb) {
+      setField("DDB", ddb);
+      generated.push("DDB");
     }
 
-    if (count === 0) {
-      toast.info("No auto-generated fields available for this version.");
-    } else {
-      toast.success(`Generated ${count} auto field${count === 1 ? "" : "s"}.`);
-      requestAnimationFrame(() => {
-        codesToFlash.forEach((code) => flashField(code));
-      });
-    }
+    if (!generated.length) return toast.info("No auto-generated fields available for this version.");
+    toast.success(`Generated ${generated.length} auto field${generated.length === 1 ? "" : "s"}.`);
+    requestAnimationFrame(() => generated.forEach(flashField));
   };
 
   const handleCopyPayload = async () => {
