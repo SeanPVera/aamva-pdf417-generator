@@ -270,7 +270,8 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
         <canvas
           ref={canvasRef}
           className="max-w-full select-none"
-          aria-label="PDF417 barcode preview (pinch to zoom)"
+          aria-label="PDF417 barcode preview"
+          title="PDF417 barcode preview (pinch to zoom)"
         />
         {error && isMissingRequiredError(error) ? (
           <div
@@ -284,6 +285,19 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
               Or load a sample profile from <span className="font-medium">Presets</span> in the
               header to see a generated barcode immediately.
             </p>
+            {issues.length > 0 && (
+              <button
+                type="button"
+                onClick={() => {
+                  const first = issues.find((i) => i.severity === "error") || issues[0];
+                  if (first) scrollToField(first.code);
+                }}
+                className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-brand-600 hover:bg-brand-700 text-white text-xs font-medium shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+              >
+                <ArrowDownToLine size={13} />
+                Fix required fields
+              </button>
+            )}
           </div>
         ) : error ? (
           <div
@@ -301,6 +315,7 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
           onClick={handleExportPNG}
           disabled={!!error || !payloadStr}
           aria-label="Export barcode as PNG"
+          title="Export barcode as PNG (Ctrl+E)"
           className="flex-1 flex items-center justify-center gap-1.5 bg-brand-600 hover:bg-brand-700 disabled:opacity-40 disabled:cursor-not-allowed text-white py-1.5 rounded shadow text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-1 focus-visible:ring-offset-white dark:focus-visible:ring-offset-dark-surface"
         >
           <FileImage size={14} />
@@ -344,7 +359,7 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
           <button
             onClick={handleCopy}
             disabled={!payloadStr}
-            title={copied ? "Copied!" : "Copy to clipboard"}
+            title={copied ? "Copied!" : "Copy to clipboard (Ctrl+Shift+C)"}
             aria-label={copied ? "Copied payload" : "Copy raw payload to clipboard"}
             className="absolute top-2 right-2 p-1.5 rounded-md bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm text-gray-500 hover:text-brand-600 dark:text-gray-400 dark:hover:text-brand-400 transition-all opacity-0 group-hover/payload:opacity-100 focus:opacity-100 focus-visible:ring-2 focus-visible:ring-brand-500 disabled:hidden"
           >
