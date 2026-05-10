@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { fillCaliforniaForm, waitForPreview } from "./helpers";
+import { fillCaliforniaForm, waitForPreview, switchMobilePanel } from "./helpers";
 
 // The critical loop: select state → fill required fields → render barcode →
 // confirm the rendered canvas exists and the payload textarea round-trips.
@@ -16,17 +16,20 @@ test.describe("AAMVA generator end-to-end", () => {
     // BarcodePreview is React.lazy — wait for the chunk to mount before
     // looking for the canvas, otherwise the default 5s locator timeout can
     // fire while the bwip-js bundle is still downloading.
+    await switchMobilePanel(page, "preview");
     await waitForPreview(page);
 
     // Strict mode is on by default, so the canvas only renders once every
     // required field is satisfied. Fill the CA v10 happy-path values rather
     // than just selecting the state — otherwise the error overlay covers
     // the canvas and toBeVisible() fails by occlusion.
+    await switchMobilePanel(page, "config");
     await fillCaliforniaForm(page);
 
     // <canvas> with aria-label isn't auto-assigned role=img by Chromium —
     // the accessibility tree exposes it as a generic with the label, so
     // match by attribute rather than role.
+    await switchMobilePanel(page, "preview");
     const canvas = page.locator('canvas[aria-label="PDF417 barcode preview"]');
     await expect(canvas).toBeVisible();
 

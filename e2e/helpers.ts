@@ -61,3 +61,14 @@ export async function waitForPreview(page: Page) {
     page.getByRole("textbox", { name: /raw aamva payload string/i })
   ).toBeVisible({ timeout: 15_000 });
 }
+
+/**
+ * On mobile, the app uses a panel switcher. This helper switches to the
+ * requested panel if the page is in a mobile viewport.
+ */
+export async function switchMobilePanel(page: Page, panel: "config" | "form" | "preview") {
+  const nav = page.getByLabel("Mobile panel navigation");
+  if (await nav.isVisible()) {
+    await nav.getByRole("button", { name: panel, exact: false }).click();
+  }
+}
