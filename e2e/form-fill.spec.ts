@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { fillCaliforniaForm, waitForPreview } from "./helpers";
+import { fillCaliforniaForm, waitForPreview, switchMobilePanel } from "./helpers";
 
 // Drives the form through a complete CA-v10 fill-out and asserts the
 // resulting payload (a) renders into the payload textarea and (b) starts
@@ -9,9 +9,12 @@ import { fillCaliforniaForm, waitForPreview } from "./helpers";
 test.describe("CA v10 happy-path form fill", () => {
   test("filling all required fields produces a non-empty AAMVA payload", async ({ page }) => {
     await page.goto("/");
+    await switchMobilePanel(page, "preview");
     await waitForPreview(page);
+    await switchMobilePanel(page, "config");
     await fillCaliforniaForm(page);
 
+    await switchMobilePanel(page, "preview");
     const textarea = page.getByRole("textbox", { name: /raw aamva payload string/i });
     await expect(textarea).not.toHaveValue("", { timeout: 10_000 });
 

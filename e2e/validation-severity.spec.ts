@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { fillField, selectStateAndVersion, waitForPreview } from "./helpers";
+import { fillField, selectStateAndVersion, waitForPreview, switchMobilePanel } from "./helpers";
 
 // The validation report must show errors and warnings as visually
 // distinct items. We assert that:
@@ -20,8 +20,11 @@ async function ensureValidationReportOpen(page: import("@playwright/test").Page)
 test.describe("validation report severity", () => {
   test("a required-empty form surfaces errors", async ({ page }) => {
     await page.goto("/");
+    await switchMobilePanel(page, "preview");
     await waitForPreview(page);
+    await switchMobilePanel(page, "config");
     await selectStateAndVersion(page, "CA", "10");
+    await switchMobilePanel(page, "preview");
     await ensureValidationReportOpen(page);
 
     const errorRows = page.locator("[data-severity='error']");
@@ -30,7 +33,9 @@ test.describe("validation report severity", () => {
 
   test("a >5-year CA validity span is flagged as a warning", async ({ page }) => {
     await page.goto("/");
+    await switchMobilePanel(page, "preview");
     await waitForPreview(page);
+    await switchMobilePanel(page, "config");
     await selectStateAndVersion(page, "CA", "10");
 
     const fields: Array<[string, string]> = [
@@ -61,6 +66,7 @@ test.describe("validation report severity", () => {
     }
     await page.keyboard.press("Tab");
 
+    await switchMobilePanel(page, "preview");
     await ensureValidationReportOpen(page);
     const warningRows = page.locator("[data-severity='warning']");
     await expect(warningRows.first()).toBeVisible({ timeout: 10_000 });
