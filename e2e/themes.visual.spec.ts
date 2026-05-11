@@ -39,6 +39,10 @@ async function readVar(
 for (const [state, palette] of Object.entries(EXPECTED)) {
   test(`state theme variables: ${state}`, async ({ page }) => {
     await page.goto("/");
+
+    // Dismiss welcome tour if present so it doesn't block the state selector
+    await page.getByRole("button", { name: /skip tour/i }).click().catch(() => {});
+
     await page
       .getByRole("combobox", { name: /select state or territory/i })
       .selectOption(state);
