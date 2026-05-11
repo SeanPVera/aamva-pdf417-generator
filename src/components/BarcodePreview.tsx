@@ -270,7 +270,7 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
         <canvas
           ref={canvasRef}
           className="max-w-full select-none"
-          aria-label="PDF417 barcode preview"
+          aria-label="PDF417 barcode preview (pinch to zoom)"
           title="Pinch to zoom"
         />
         {error && isMissingRequiredError(error) ? (
