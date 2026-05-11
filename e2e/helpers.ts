@@ -48,6 +48,9 @@ export async function fillField(page: Page, code: string, value: string) {
 }
 
 export async function fillCaliforniaForm(page: Page) {
+  // Dismiss welcome tour if present so it doesn't block interactions or focus
+  await page.getByRole("button", { name: /skip tour/i }).click().catch(() => {});
+
   await selectStateAndVersion(page, "CA", "10");
   for (const [code, value] of CA_REQUIRED_FIELDS) {
     await fillField(page, code, value);

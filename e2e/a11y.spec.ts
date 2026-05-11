@@ -5,6 +5,9 @@ test.describe("accessibility", () => {
   test("homepage has no axe violations on WCAG 2.1 AA", async ({ page }) => {
     await page.goto("/");
 
+    // Dismiss welcome tour if present to scan the main application content
+    await page.getByRole("button", { name: /skip tour/i }).click().catch(() => {});
+
     const accessibilityScanResults = await new AxeBuilder({ page })
       .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
       .analyze();
@@ -24,6 +27,10 @@ test.describe("accessibility", () => {
 
   test("keyboard tab order reaches the state selector first", async ({ page }) => {
     await page.goto("/");
+
+    // Dismiss welcome tour if present so it doesn't trap focus
+    await page.getByRole("button", { name: /skip tour/i }).click().catch(() => {});
+
     // Reset focus to the document start. `body.click()` focuses whatever
     // element happens to be under the click point, which can land mid-form
     // and skip the header entirely.

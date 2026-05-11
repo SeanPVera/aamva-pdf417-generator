@@ -161,7 +161,7 @@ export const Header: React.FC<HeaderProps> = ({ onStartScan, onOpenShortcuts, on
             Professional Grade
           </span>
           <span
-            className="jurisdiction-plate hidden md:inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.16em] shadow-sm whitespace-nowrap"
+            className="jurisdiction-plate hidden md:inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold uppercase tracking-[0.16em] shadow-sm whitespace-nowrap"
             title={`${activeStateName} theme package: ${activeStateTheme.motif}`}
           >
             {state} · {activeStateTheme.motif}
@@ -204,6 +204,7 @@ export const Header: React.FC<HeaderProps> = ({ onStartScan, onOpenShortcuts, on
                 key={t}
                 onClick={() => setTheme(t)}
                 title={`${meta.label} theme — ${meta.description}`}
+                aria-label={`${meta.label} theme`}
                 aria-pressed={theme === t}
                 className={`flex items-center gap-1.5 px-2 py-1.5 text-xs transition focus:outline-none ${
                   theme === t
@@ -243,7 +244,7 @@ export const Header: React.FC<HeaderProps> = ({ onStartScan, onOpenShortcuts, on
               role="menu"
               className="absolute right-0 mt-1 w-72 bg-white dark:bg-dark-surface border border-gray-200 dark:border-dark-border rounded-md shadow-lg z-30 overflow-hidden"
             >
-              <div className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 border-b border-gray-100 dark:border-dark-border">
+              <div className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 border-b border-gray-100 dark:border-dark-border">
                 Quick Fill Presets
               </div>
               <ul>
