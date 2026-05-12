@@ -27,7 +27,22 @@ export const CA_REQUIRED_FIELDS: Array<[string, string]> = [
   ["DDB", "01012024"]
 ];
 
+/**
+ * Switches the active panel on mobile viewports. Does nothing on desktop.
+ */
+export async function switchMobilePanel(page: Page, panel: "config" | "form" | "preview") {
+  const labelMap = { config: "Config", form: "Fields", preview: "Preview" };
+  const btn = page.getByRole("button", { name: labelMap[panel], exact: true });
+  if (await btn.isVisible()) {
+    await btn.click();
+  }
+}
+
 export async function selectStateAndVersion(page: Page, state: string, version: string) {
+  // Dismiss the welcome tour if it's open, as it traps focus and obscures elements.
+  await page.getByRole("button", { name: /skip tour/i }).click().catch(() => {});
+
+  await switchMobilePanel(page, "config");
   await page.getByRole("combobox", { name: /select state or territory/i }).selectOption(state);
   await page.getByRole("combobox", { name: /select aamva version/i }).selectOption(version);
 }
@@ -37,6 +52,7 @@ export async function selectStateAndVersion(page: Page, state: string, version: 
  * as <input> — autodetect via tagName so callers don't have to care.
  */
 export async function fillField(page: Page, code: string, value: string) {
+  await switchMobilePanel(page, "form");
   const locator = page.locator(`#${code}`);
   await locator.waitFor({ state: "attached" });
   const tagName = await locator.evaluate((el) => el.tagName.toLowerCase());
@@ -57,6 +73,10 @@ export async function fillCaliforniaForm(page: Page) {
 
 /** Waits for the lazy-loaded BarcodePreview pane to mount. */
 export async function waitForPreview(page: Page) {
+  // Dismiss the welcome tour if it's open, as it traps focus and obscures elements.
+  await page.getByRole("button", { name: /skip tour/i }).click().catch(() => {});
+
+  await switchMobilePanel(page, "preview");
   await expect(
     page.getByRole("textbox", { name: /raw aamva payload string/i })
   ).toBeVisible({ timeout: 15_000 });

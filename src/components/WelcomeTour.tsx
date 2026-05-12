@@ -133,7 +133,7 @@ const WelcomeTourBody: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         </div>
 
         <div className="px-4 pb-4 flex items-center justify-between gap-2">
-          <div className="flex items-center gap-1.5" aria-label="Tour progress">
+          <div role="group" className="flex items-center gap-1.5" aria-label="Tour progress">
             {STEPS.map((_, i) => (
               <span
                 key={i}
