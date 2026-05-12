@@ -53,6 +53,7 @@ function CollapsibleSection({
   defaultOpen?: boolean;
 }) {
   const [open, setOpen] = useState(defaultOpen);
+  const contentId = React.useId();
   const badgeClasses = {
     gray: "bg-gray-200 dark:bg-[#333] text-gray-700 dark:text-gray-200",
     green: "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300",
@@ -68,6 +69,7 @@ function CollapsibleSection({
         onClick={() => setOpen((v) => !v)}
         className="w-full flex items-center justify-between px-3 py-2 bg-gray-50 dark:bg-dark-surface2 hover:bg-gray-100 dark:hover:bg-[#383838] transition-colors text-sm font-semibold text-gray-700 dark:text-gray-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-500"
         aria-expanded={open}
+        aria-controls={contentId}
       >
         <span className="flex items-center gap-2">
           {open ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
@@ -79,7 +81,9 @@ function CollapsibleSection({
           </span>
         )}
       </button>
-      {open && <div className="px-3 py-2 bg-white dark:bg-dark-surface">{children}</div>}
+      <div id={contentId} className={open ? "block" : "hidden"}>
+        <div className="px-3 py-2 bg-white dark:bg-dark-surface">{children}</div>
+      </div>
     </div>
   );
 }
@@ -270,7 +274,8 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
         <canvas
           ref={canvasRef}
           className="max-w-full select-none"
-          aria-label="PDF417 barcode preview (pinch to zoom)"
+          aria-label="PDF417 barcode preview"
+          title="Pinch to zoom"
         />
         {error && isMissingRequiredError(error) ? (
           <div

@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
+import { switchMobilePanel, ensureTourDismissed } from "./helpers";
 
 test.describe("accessibility", () => {
   test("homepage has no axe violations on WCAG 2.1 AA", async ({ page }) => {
@@ -24,6 +25,13 @@ test.describe("accessibility", () => {
 
   test("keyboard tab order reaches the state selector first", async ({ page }) => {
     await page.goto("/");
+
+    // Dismiss the welcome tour if it's open, as it traps focus.
+    await ensureTourDismissed(page);
+
+    // Ensure the config panel is active on mobile so the state selector is focusable.
+    await switchMobilePanel(page, "config");
+
     // Reset focus to the document start. `body.click()` focuses whatever
     // element happens to be under the click point, which can land mid-form
     // and skip the header entirely.
