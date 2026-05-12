@@ -30,7 +30,7 @@ const STEPS: Step[] = [
       <>
         Fields are organized into <strong>Identity</strong>, <strong>Address</strong>,{" "}
         <strong>License Details</strong>, and more. Use{" "}
-        <kbd className="px-1 py-0.5 rounded border bg-gray-100 dark:bg-gray-700 text-[11px] font-mono">
+        <kbd className="px-1 py-0.5 rounded border bg-gray-100 dark:bg-gray-700 text-xs font-mono">
           Ctrl+K
         </kbd>{" "}
         to search by code or label, or click <em>Required only</em> to focus on what blocks
@@ -44,12 +44,12 @@ const STEPS: Step[] = [
     body: (
       <>
         Click <strong>Generate auto fields</strong> (or press{" "}
-        <kbd className="px-1 py-0.5 rounded border bg-gray-100 dark:bg-gray-700 text-[11px] font-mono">
+        <kbd className="px-1 py-0.5 rounded border bg-gray-100 dark:bg-gray-700 text-xs font-mono">
           Ctrl+G
         </kbd>
         ) to fill DCF, DAQ, and DDB. The barcode preview updates live and you can copy the payload
         with{" "}
-        <kbd className="px-1 py-0.5 rounded border bg-gray-100 dark:bg-gray-700 text-[11px] font-mono">
+        <kbd className="px-1 py-0.5 rounded border bg-gray-100 dark:bg-gray-700 text-xs font-mono">
           Ctrl+Shift+C
         </kbd>
         .
