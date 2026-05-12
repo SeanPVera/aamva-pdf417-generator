@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { switchMobilePanel } from "./helpers";
+import { switchMobilePanel, ensureTourDismissed } from "./helpers";
 
 // Theme regression for representative state palettes. Themes are applied
 // as CSS custom properties on <html> by applyStateThemeToDocument; we
@@ -42,7 +42,7 @@ for (const [state, palette] of Object.entries(EXPECTED)) {
     await page.goto("/");
 
     // Dismiss the welcome tour if it's open, as it traps focus and obscures elements.
-    await page.getByRole("button", { name: /skip tour/i }).click().catch(() => {});
+    await ensureTourDismissed(page);
 
     // Ensure the config panel is active on mobile so the state selector is focusable.
     await switchMobilePanel(page, "config");

@@ -38,9 +38,23 @@ export async function switchMobilePanel(page: Page, panel: "config" | "form" | "
   }
 }
 
+/**
+ * Dismisses the welcome tour if it is present.
+ */
+export async function ensureTourDismissed(page: Page) {
+  try {
+    const btn = page.getByRole("button", { name: /skip tour/i });
+    // Wait a brief moment for the tour to potentially mount/animate in.
+    // If it doesn't appear in 2s, it's likely not going to.
+    await btn.waitFor({ state: "visible", timeout: 2000 });
+    await btn.click();
+  } catch {
+    // Ignore if not present or not clickable
+  }
+}
+
 export async function selectStateAndVersion(page: Page, state: string, version: string) {
-  // Dismiss the welcome tour if it's open, as it traps focus and obscures elements.
-  await page.getByRole("button", { name: /skip tour/i }).click().catch(() => {});
+  await ensureTourDismissed(page);
 
   await switchMobilePanel(page, "config");
   await page.getByRole("combobox", { name: /select state or territory/i }).selectOption(state);
@@ -51,8 +65,15 @@ export async function selectStateAndVersion(page: Page, state: string, version: 
  * Fills a single AAMVA field. Some fields are rendered as <select>, others
  * as <input> — autodetect via tagName so callers don't have to care.
  */
-export async function fillField(page: Page, code: string, value: string) {
-  await switchMobilePanel(page, "form");
+export async function fillField(
+  page: Page,
+  code: string,
+  value: string,
+  skipPanelSwitch = false
+) {
+  if (!skipPanelSwitch) {
+    await switchMobilePanel(page, "form");
+  }
   const locator = page.locator(`#${code}`);
   await locator.waitFor({ state: "attached" });
   const tagName = await locator.evaluate((el) => el.tagName.toLowerCase());
@@ -65,16 +86,17 @@ export async function fillField(page: Page, code: string, value: string) {
 
 export async function fillCaliforniaForm(page: Page) {
   await selectStateAndVersion(page, "CA", "10");
+  // Optimization: switch once before the loop rather than 21 times.
+  await switchMobilePanel(page, "form");
   for (const [code, value] of CA_REQUIRED_FIELDS) {
-    await fillField(page, code, value);
+    await fillField(page, code, value, true);
   }
   await page.keyboard.press("Tab");
 }
 
 /** Waits for the lazy-loaded BarcodePreview pane to mount. */
 export async function waitForPreview(page: Page) {
-  // Dismiss the welcome tour if it's open, as it traps focus and obscures elements.
-  await page.getByRole("button", { name: /skip tour/i }).click().catch(() => {});
+  await ensureTourDismissed(page);
 
   await switchMobilePanel(page, "preview");
   await expect(
