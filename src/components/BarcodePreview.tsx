@@ -53,6 +53,7 @@ function CollapsibleSection({
   defaultOpen?: boolean;
 }) {
   const [open, setOpen] = useState(defaultOpen);
+  const contentId = React.useId();
   const badgeClasses = {
     gray: "bg-gray-200 dark:bg-[#333] text-gray-700 dark:text-gray-200",
     green: "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300",
@@ -68,6 +69,7 @@ function CollapsibleSection({
         onClick={() => setOpen((v) => !v)}
         className="w-full flex items-center justify-between px-3 py-2 bg-gray-50 dark:bg-dark-surface2 hover:bg-gray-100 dark:hover:bg-[#383838] transition-colors text-sm font-semibold text-gray-700 dark:text-gray-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-500"
         aria-expanded={open}
+        aria-controls={contentId}
       >
         <span className="flex items-center gap-2">
           {open ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
@@ -79,7 +81,11 @@ function CollapsibleSection({
           </span>
         )}
       </button>
-      {open && <div className="px-3 py-2 bg-white dark:bg-dark-surface">{children}</div>}
+      {open && (
+        <div id={contentId} className="px-3 py-2 bg-white dark:bg-dark-surface">
+          {children}
+        </div>
+      )}
     </div>
   );
 }
@@ -270,7 +276,8 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
         <canvas
           ref={canvasRef}
           className="max-w-full select-none"
-          aria-label="PDF417 barcode preview (pinch to zoom)"
+          aria-label="PDF417 barcode preview"
+          title="PDF417 barcode preview (pinch to zoom)"
         />
         {error && isMissingRequiredError(error) ? (
           <div
@@ -284,6 +291,18 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
               Or load a sample profile from <span className="font-medium">Presets</span> in the
               header to see a generated barcode immediately.
             </p>
+            {issues.length > 0 && (
+              <button
+                type="button"
+                onClick={() => {
+                  const firstError = issues.find((i) => i.severity === "error") || issues[0];
+                  if (firstError) scrollToField(firstError.code);
+                }}
+                className="mt-1 text-xs font-semibold text-brand-600 dark:text-brand-400 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded px-2 py-1"
+              >
+                Fix required fields
+              </button>
+            )}
           </div>
         ) : error ? (
           <div
