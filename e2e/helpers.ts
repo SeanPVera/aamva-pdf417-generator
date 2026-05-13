@@ -27,7 +27,27 @@ export const CA_REQUIRED_FIELDS: Array<[string, string]> = [
   ["DDB", "01012024"]
 ];
 
+export async function dismissTour(page: Page) {
+  // The tour auto-opens on first visit. Dismiss it if present so it doesn't
+  // block interactions or focus.
+  await page
+    .getByRole("button", { name: /skip tour/i })
+    .click()
+    .catch(() => {
+      /* ignore if already dismissed */
+    });
+}
+
+export async function switchMobilePanel(page: Page, panel: "config" | "form" | "preview") {
+  const nav = page.getByRole("navigation", { name: /mobile panel navigation/i });
+  if (await nav.isVisible()) {
+    await nav.getByRole("button", { name: panel, exact: false }).click();
+  }
+}
+
 export async function selectStateAndVersion(page: Page, state: string, version: string) {
+  await dismissTour(page);
+  await switchMobilePanel(page, "config");
   await page.getByRole("combobox", { name: /select state or territory/i }).selectOption(state);
   await page.getByRole("combobox", { name: /select aamva version/i }).selectOption(version);
 }
@@ -37,6 +57,7 @@ export async function selectStateAndVersion(page: Page, state: string, version: 
  * as <input> — autodetect via tagName so callers don't have to care.
  */
 export async function fillField(page: Page, code: string, value: string) {
+  await switchMobilePanel(page, "form");
   const locator = page.locator(`#${code}`);
   await locator.waitFor({ state: "attached" });
   const tagName = await locator.evaluate((el) => el.tagName.toLowerCase());
@@ -48,7 +69,9 @@ export async function fillField(page: Page, code: string, value: string) {
 }
 
 export async function fillCaliforniaForm(page: Page) {
+  await dismissTour(page);
   await selectStateAndVersion(page, "CA", "10");
+  await switchMobilePanel(page, "form");
   for (const [code, value] of CA_REQUIRED_FIELDS) {
     await fillField(page, code, value);
   }
@@ -57,7 +80,9 @@ export async function fillCaliforniaForm(page: Page) {
 
 /** Waits for the lazy-loaded BarcodePreview pane to mount. */
 export async function waitForPreview(page: Page) {
-  await expect(
-    page.getByRole("textbox", { name: /raw aamva payload string/i })
-  ).toBeVisible({ timeout: 15_000 });
+  await dismissTour(page);
+  await switchMobilePanel(page, "preview");
+  await expect(page.getByRole("textbox", { name: /raw aamva payload string/i })).toBeVisible({
+    timeout: 15_000
+  });
 }
