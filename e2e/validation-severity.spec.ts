@@ -9,7 +9,10 @@ import { fillField, selectStateAndVersion, waitForPreview } from "./helpers";
 // The Validation Report section auto-opens when issueCount > 0, so we
 // don't click the toggle — that would close it.
 
+import { dismissTour, switchMobilePanel } from "./helpers";
+
 async function ensureValidationReportOpen(page: import("@playwright/test").Page) {
+  await switchMobilePanel(page, "preview");
   const button = page.getByRole("button", { name: /validation report/i });
   await expect(button).toBeVisible({ timeout: 10_000 });
   if ((await button.getAttribute("aria-expanded")) !== "true") {
@@ -20,6 +23,7 @@ async function ensureValidationReportOpen(page: import("@playwright/test").Page)
 test.describe("validation report severity", () => {
   test("a required-empty form surfaces errors", async ({ page }) => {
     await page.goto("/");
+    await dismissTour(page);
     await waitForPreview(page);
     await selectStateAndVersion(page, "CA", "10");
     await ensureValidationReportOpen(page);
@@ -30,6 +34,7 @@ test.describe("validation report severity", () => {
 
   test("a >5-year CA validity span is flagged as a warning", async ({ page }) => {
     await page.goto("/");
+    await dismissTour(page);
     await waitForPreview(page);
     await selectStateAndVersion(page, "CA", "10");
 
