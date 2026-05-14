@@ -253,7 +253,7 @@ export const BatchProcessor: React.FC = () => {
       </div>
 
       {showExample && (
-        <pre className="mb-4 max-h-48 overflow-auto rounded border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 p-3 text-[11px] font-mono text-gray-700 dark:text-gray-300">
+        <pre className="mb-4 max-h-48 overflow-auto rounded border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 p-3 text-xs font-mono text-gray-700 dark:text-gray-300">
           {JSON.stringify(SAMPLE_BATCH, null, 2)}
         </pre>
       )}
