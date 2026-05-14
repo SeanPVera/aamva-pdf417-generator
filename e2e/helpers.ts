@@ -37,11 +37,20 @@ export async function dismissTour(page: Page) {
 
 /** Switches the mobile UI to a specific panel (config, form, preview). */
 export async function switchMobilePanel(page: Page, panel: "config" | "form" | "preview") {
-  const btn = page.getByRole("button", { name: new RegExp(panel, "i") }).filter({
-    hasText: new RegExp(`^${panel}$`, "i")
-  });
+  const labels: Record<string, string> = {
+    config: "Config",
+    form: "Fields",
+    preview: "Preview"
+  };
+  const label = labels[panel]!;
+  const btn = page.getByRole("button", { name: label, exact: true });
+
+  // On mobile, the navigation bar is visible. On desktop, it's hidden.
+  // Only click if the button is visible (mobile view).
   if (await btn.isVisible()) {
     await btn.click();
+    // Brief wait for React state update and DOM transition
+    await page.waitForTimeout(100);
   }
 }
 
