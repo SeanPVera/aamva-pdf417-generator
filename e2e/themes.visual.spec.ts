@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { dismissTour, selectStateAndVersion } from "./helpers";
 
 // Theme regression for representative state palettes. Themes are applied
 // as CSS custom properties on <html> by applyStateThemeToDocument; we
@@ -39,9 +40,9 @@ async function readVar(
 for (const [state, palette] of Object.entries(EXPECTED)) {
   test(`state theme variables: ${state}`, async ({ page }) => {
     await page.goto("/");
-    await page
-      .getByRole("combobox", { name: /select state or territory/i })
-      .selectOption(state);
+    await dismissTour(page);
+    // selectStateAndVersion handles mobile panel switching and tour dismissal
+    await selectStateAndVersion(page, state, "10");
 
     // Wait for the React effect that calls applyStateThemeToDocument to
     // flush. setProperty is synchronous once the effect runs, but the
