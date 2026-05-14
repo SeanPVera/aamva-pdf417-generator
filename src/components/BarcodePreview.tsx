@@ -285,10 +285,10 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
               Or load a sample profile from <span className="font-medium">Presets</span> in the
               header to see a generated barcode immediately.
             </p>
-            {issues.length > 0 && (
+            {issues.length > 0 && issues[0] && (
               <button
                 type="button"
-                onClick={() => scrollToField(issues[0].code)}
+                onClick={() => scrollToField(issues[0]!.code)}
                 className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold shadow-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-dark-surface"
               >
                 <ArrowDownToLine size={13} />
