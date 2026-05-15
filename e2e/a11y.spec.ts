@@ -1,9 +1,11 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
+import { dismissTour } from "./helpers";
 
 test.describe("accessibility", () => {
   test("homepage has no axe violations on WCAG 2.1 AA", async ({ page }) => {
     await page.goto("/");
+    await dismissTour(page);
 
     const accessibilityScanResults = await new AxeBuilder({ page })
       .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
@@ -24,6 +26,15 @@ test.describe("accessibility", () => {
 
   test("keyboard tab order reaches the state selector first", async ({ page }) => {
     await page.goto("/");
+    await dismissTour(page);
+
+    // On mobile, the configuration panel might not be active, so tab order will be different.
+    // Ensure we are on the config panel if on mobile.
+    const isMobile = page.viewportSize()?.width && page.viewportSize()!.width < 1024;
+    if (isMobile) {
+      await page.getByRole("button", { name: /config/i }).click();
+    }
+
     // Reset focus to the document start. `body.click()` focuses whatever
     // element happens to be under the click point, which can land mid-form
     // and skip the header entirely.

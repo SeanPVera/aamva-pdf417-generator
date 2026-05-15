@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { fillCaliforniaForm, waitForPreview } from "./helpers";
+import { fillCaliforniaForm, waitForPreview, dismissTour } from "./helpers";
 
 // The critical loop: select state → fill required fields → render barcode →
 // confirm the rendered canvas exists and the payload textarea round-trips.
@@ -12,6 +12,7 @@ test.describe("AAMVA generator end-to-end", () => {
     page
   }) => {
     await page.goto("/");
+    await dismissTour(page);
 
     // BarcodePreview is React.lazy — wait for the chunk to mount before
     // looking for the canvas, otherwise the default 5s locator timeout can
