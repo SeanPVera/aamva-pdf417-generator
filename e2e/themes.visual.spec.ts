@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { dismissTour } from "./helpers";
 
 // Theme regression for representative state palettes. Themes are applied
 // as CSS custom properties on <html> by applyStateThemeToDocument; we
@@ -39,6 +40,14 @@ async function readVar(
 for (const [state, palette] of Object.entries(EXPECTED)) {
   test(`state theme variables: ${state}`, async ({ page }) => {
     await page.goto("/");
+    await dismissTour(page);
+
+    // On mobile, ensure configuration panel is visible
+    const isMobile = page.viewportSize()?.width && page.viewportSize()!.width < 1024;
+    if (isMobile) {
+      await page.getByRole("button", { name: /config/i }).click();
+    }
+
     await page
       .getByRole("combobox", { name: /select state or territory/i })
       .selectOption(state);

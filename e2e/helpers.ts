@@ -28,6 +28,12 @@ export const CA_REQUIRED_FIELDS: Array<[string, string]> = [
 ];
 
 export async function selectStateAndVersion(page: Page, state: string, version: string) {
+  // On mobile, the configuration panel might not be active.
+  const isMobile = page.viewportSize()?.width && page.viewportSize()!.width < 1024;
+  if (isMobile) {
+    await page.getByRole("button", { name: /config/i }).click();
+  }
+
   await page.getByRole("combobox", { name: /select state or territory/i }).selectOption(state);
   await page.getByRole("combobox", { name: /select aamva version/i }).selectOption(version);
 }
@@ -37,6 +43,12 @@ export async function selectStateAndVersion(page: Page, state: string, version: 
  * as <input> — autodetect via tagName so callers don't have to care.
  */
 export async function fillField(page: Page, code: string, value: string) {
+  // On mobile, the form panel might not be active.
+  const isMobile = page.viewportSize()?.width && page.viewportSize()!.width < 1024;
+  if (isMobile) {
+    await page.getByRole("button", { name: /fields/i }).click();
+  }
+
   const locator = page.locator(`#${code}`);
   await locator.waitFor({ state: "attached" });
   const tagName = await locator.evaluate((el) => el.tagName.toLowerCase());
@@ -57,7 +69,22 @@ export async function fillCaliforniaForm(page: Page) {
 
 /** Waits for the lazy-loaded BarcodePreview pane to mount. */
 export async function waitForPreview(page: Page) {
-  await expect(
-    page.getByRole("textbox", { name: /raw aamva payload string/i })
-  ).toBeVisible({ timeout: 15_000 });
+  // On mobile, the preview pane is in a separate panel.
+  const isMobile = page.viewportSize()?.width && page.viewportSize()!.width < 1024;
+  if (isMobile) {
+    await page.getByRole("button", { name: /preview/i }).click();
+  }
+
+  await expect(page.getByRole("textbox", { name: /raw aamva payload string/i })).toBeVisible({
+    timeout: 15_000
+  });
+}
+
+/** Dismisses the Welcome Tour if it's visible. */
+export async function dismissTour(page: Page) {
+  const skipBtn = page.getByRole("button", { name: /skip tour/i });
+  if (await skipBtn.isVisible()) {
+    await skipBtn.click();
+    await expect(skipBtn).not.toBeVisible();
+  }
 }
