@@ -42,7 +42,7 @@ const SHORTCUTS: Array<{ category: string; entries: Shortcut[] }> = [
 
 function Key({ children }: { children: React.ReactNode }) {
   return (
-    <kbd className="inline-flex items-center px-1.5 py-0.5 rounded border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-[11px] font-mono font-semibold text-gray-700 dark:text-gray-200 shadow-sm">
+    <kbd className="inline-flex items-center px-1.5 py-0.5 rounded border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-xs font-mono font-semibold text-gray-700 dark:text-gray-200 shadow-sm">
       {children}
     </kbd>
   );
@@ -114,7 +114,7 @@ export const ShortcutsModal: React.FC<ShortcutsModalProps> = ({ open, onClose, o
                   {group.entries.map((s) => (
                     <tr
                       key={s.description}
-                      className="border-b border-gray-100 dark:border-gray-700 last:border-0"
+                      className="border-b border-gray-100 dark:border-gray-700 last:border-0 hover:bg-gray-50 dark:hover:bg-dark-surface2 transition-colors"
                     >
                       <td className="py-1.5 pr-4">
                         <span className="inline-flex items-center gap-1">
@@ -135,14 +135,14 @@ export const ShortcutsModal: React.FC<ShortcutsModalProps> = ({ open, onClose, o
           ))}
         </div>
         <div className="px-4 pb-3 flex items-center justify-between gap-2">
-          <span className="text-[11px] text-gray-500 dark:text-gray-400">
+          <span className="text-xs text-gray-500 dark:text-gray-400">
             Press <Key>Esc</Key> to close.
           </span>
           {onReplayTour && (
             <button
               type="button"
               onClick={onReplayTour}
-              className="text-[11px] font-medium text-brand-700 dark:text-brand-300 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded"
+              className="text-xs font-medium text-brand-700 dark:text-brand-300 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded"
             >
               Replay welcome tour
             </button>
