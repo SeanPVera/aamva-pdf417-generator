@@ -27,7 +27,18 @@ export const CA_REQUIRED_FIELDS: Array<[string, string]> = [
   ["DDB", "01012024"]
 ];
 
+/**
+ * Switches to a specific panel on mobile viewports.
+ */
+export async function ensurePanel(page: Page, panel: "config" | "form" | "preview") {
+  const tab = page.getByRole("button", { name: new RegExp(`^${panel}$`, "i") });
+  if (await tab.isVisible()) {
+    await tab.click();
+  }
+}
+
 export async function selectStateAndVersion(page: Page, state: string, version: string) {
+  await ensurePanel(page, "config");
   await page.getByRole("combobox", { name: /select state or territory/i }).selectOption(state);
   await page.getByRole("combobox", { name: /select aamva version/i }).selectOption(version);
 }
@@ -48,15 +59,29 @@ export async function fillField(page: Page, code: string, value: string) {
 }
 
 export async function fillCaliforniaForm(page: Page) {
+  await dismissTour(page);
   await selectStateAndVersion(page, "CA", "10");
+  await ensurePanel(page, "form");
   for (const [code, value] of CA_REQUIRED_FIELDS) {
     await fillField(page, code, value);
   }
   await page.keyboard.press("Tab");
 }
 
+/**
+ * Dismisses the welcome tour if it appears.
+ */
+export async function dismissTour(page: Page) {
+  const skipBtn = page.getByRole("button", { name: /skip tour/i });
+  if (await skipBtn.isVisible()) {
+    await skipBtn.click();
+  }
+}
+
 /** Waits for the lazy-loaded BarcodePreview pane to mount. */
 export async function waitForPreview(page: Page) {
+  await dismissTour(page);
+  await ensurePanel(page, "preview");
   await expect(
     page.getByRole("textbox", { name: /raw aamva payload string/i })
   ).toBeVisible({ timeout: 15_000 });
