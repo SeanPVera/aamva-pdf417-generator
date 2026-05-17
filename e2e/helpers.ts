@@ -31,13 +31,22 @@ export const CA_REQUIRED_FIELDS: Array<[string, string]> = [
  * Switches to a specific panel on mobile viewports.
  */
 export async function ensurePanel(page: Page, panel: "config" | "form" | "preview") {
-  const tab = page.getByRole("button", { name: new RegExp(`^${panel}$`, "i") });
-  if (await tab.isVisible()) {
+  const isMobile = page.viewportSize()?.width ? page.viewportSize()!.width < 1024 : false;
+  if (!isMobile) return;
+
+  const tabName = panel === "form" ? "fields" : panel;
+  const tab = page.getByRole("button", { name: new RegExp(`^${tabName}$`, "i") });
+
+  // On mobile, these tabs should be visible. Wait for them to ensure the UI is ready.
+  await expect(tab).toBeVisible({ timeout: 5000 });
+  if ((await tab.getAttribute("aria-current")) !== "true") {
     await tab.click();
+    await expect(tab).toHaveAttribute("aria-current", "true");
   }
 }
 
 export async function selectStateAndVersion(page: Page, state: string, version: string) {
+  await dismissTour(page);
   await ensurePanel(page, "config");
   await page.getByRole("combobox", { name: /select state or territory/i }).selectOption(state);
   await page.getByRole("combobox", { name: /select aamva version/i }).selectOption(version);
@@ -72,9 +81,20 @@ export async function fillCaliforniaForm(page: Page) {
  * Dismisses the welcome tour if it appears.
  */
 export async function dismissTour(page: Page) {
+  const tourDialog = page.getByRole("dialog", { name: /pick a state and version/i });
   const skipBtn = page.getByRole("button", { name: /skip tour/i });
-  if (await skipBtn.isVisible()) {
-    await skipBtn.click();
+
+  // The tour might take a moment to pop up as the app initializes.
+  // We use a short timeout and try/catch to handle both cases gracefully.
+  try {
+    if (await skipBtn.isVisible({ timeout: 2000 })) {
+      await skipBtn.click();
+      // Ensure the tour is actually gone before returning.
+      // This is crucial for tests that expect focus to be restored.
+      await expect(tourDialog).not.toBeVisible();
+    }
+  } catch {
+    // If it's not visible within 2s, assume it's already gone or won't show.
   }
 }
 

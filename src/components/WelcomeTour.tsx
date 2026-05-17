@@ -77,9 +77,20 @@ export const WelcomeTour: React.FC<WelcomeTourProps> = ({ open, onClose }) => {
 const WelcomeTourBody: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [step, setStep] = React.useState(0);
   const closeBtnRef = React.useRef<HTMLButtonElement>(null);
+  const previousFocusRef = React.useRef<HTMLElement | null>(null);
 
   React.useEffect(() => {
+    previousFocusRef.current = document.activeElement as HTMLElement;
     closeBtnRef.current?.focus();
+
+    return () => {
+      // Restore focus when the tour is dismissed. This prevents the focus
+      // from being lost, which can break keyboard navigation tests.
+      previousFocusRef.current?.focus();
+    };
+  }, []);
+
+  React.useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         e.preventDefault();
