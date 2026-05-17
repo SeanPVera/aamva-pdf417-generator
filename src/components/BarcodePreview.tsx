@@ -270,7 +270,8 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
         <canvas
           ref={canvasRef}
           className="max-w-full select-none"
-          aria-label="PDF417 barcode preview (pinch to zoom)"
+          aria-label="PDF417 barcode preview"
+          title="PDF417 barcode preview (pinch to zoom)"
         />
         {error && isMissingRequiredError(error) ? (
           <div
@@ -284,6 +285,18 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
               Or load a sample profile from <span className="font-medium">Presets</span> in the
               header to see a generated barcode immediately.
             </p>
+            {issues?.some((i) => i.severity === "error") && (
+              <button
+                type="button"
+                onClick={() => {
+                  const firstError = issues.find((i) => i.severity === "error");
+                  if (firstError) scrollToField(firstError.code);
+                }}
+                className="mt-2 px-3 py-1.5 bg-brand-600 hover:bg-brand-700 text-white text-xs font-medium rounded shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-gray-900"
+              >
+                Fix required fields
+              </button>
+            )}
           </div>
         ) : error ? (
           <div
