@@ -238,7 +238,7 @@ export function WebcamScanner({ onClose }: WebcamScannerProps) {
           Hold the PDF417 barcode steadily in front of the camera. The form will auto-fill when
           successfully decoded.
         </p>
-        <p className="text-center text-[11px] text-slate-400 dark:text-slate-500 mt-1">
+        <p className="text-center text-xs text-slate-400 dark:text-slate-500 mt-1">
           The camera feed stays on this device — nothing is uploaded.
         </p>
       </div>
