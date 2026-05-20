@@ -1,5 +1,11 @@
 import { test, expect } from "@playwright/test";
-import { dismissTour, fillField, selectStateAndVersion, waitForPreview } from "./helpers";
+import {
+  dismissTour,
+  ensurePanel,
+  fillField,
+  selectStateAndVersion,
+  waitForPreview
+} from "./helpers";
 
 // The validation report must show errors and warnings as visually
 // distinct items. We assert that:
@@ -10,6 +16,7 @@ import { dismissTour, fillField, selectStateAndVersion, waitForPreview } from ".
 // don't click the toggle — that would close it.
 
 async function ensureValidationReportOpen(page: import("@playwright/test").Page) {
+  await ensurePanel(page, "preview");
   const button = page.getByRole("button", { name: /validation report/i });
   await expect(button).toBeVisible({ timeout: 10_000 });
   if ((await button.getAttribute("aria-expanded")) !== "true") {
