@@ -50,7 +50,7 @@ export async function dismissTour(page: Page) {
 export async function ensurePanel(page: Page, panel: "config" | "form" | "preview") {
   const viewport = page.viewportSize();
   if (viewport && viewport.width < 1024) {
-    const tab = page.getByRole("button", { name: new RegExp(panel, "i") });
+    const labels = { config: "Config", form: "Fields", preview: "Preview" }; const tab = page.getByRole("button", { name: labels[panel] });
     // Check if the tab is already active to avoid redundant clicks
     const isActive = (await tab.getAttribute("aria-current")) === "true";
     if (!isActive) {
