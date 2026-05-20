@@ -409,7 +409,7 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
                   <li key={`${issue.code}:${issue.severity}:${idx}`}>
                     <button
                       type="button"
-                      className="w-full flex items-start gap-2 text-xs text-left cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800/50 p-1 rounded transition-colors group/issue focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                      className="w-full flex items-start gap-2 text-xs text-left cursor-pointer hover:bg-gray-50 dark:hover:bg-dark-surface2 p-1 rounded transition-colors group/issue focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                       data-severity={issue.severity}
                       onClick={() => scrollToField(issue.code)}
                       title={`Jump to ${issue.label} (${issue.code})`}
@@ -453,7 +453,7 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
               {decodedEntries.map(([code, val]) => (
                 <tr
                   key={code}
-                  className="border-b border-gray-100 dark:border-gray-700 last:border-0"
+                  className="border-b border-gray-100 dark:border-gray-700 last:border-0 hover:bg-gray-50 dark:hover:bg-dark-surface2 transition-colors"
                 >
                   <td className="py-1 pr-2 font-mono font-semibold">
                     <button

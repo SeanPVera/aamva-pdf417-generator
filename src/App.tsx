@@ -381,7 +381,7 @@ function App() {
             </button>
           ))}
         </div>
-        <p className="text-[10px] text-gray-400 dark:text-gray-500 text-center mt-1 select-none">
+        <p className="text-xs text-gray-400 dark:text-gray-500 text-center mt-1 select-none">
           Swipe left or right to switch panels
         </p>
       </nav>

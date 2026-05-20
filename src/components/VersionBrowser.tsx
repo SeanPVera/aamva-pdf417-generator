@@ -102,7 +102,7 @@ export const VersionBrowser: React.FC = () => {
                     {versionDef.fields.map((field) => (
                       <tr
                         key={field.code}
-                        className="border-b border-gray-100 dark:border-gray-700 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-700/40"
+                        className="border-b border-gray-100 dark:border-gray-700 last:border-0 hover:bg-gray-50 dark:hover:bg-dark-surface2 transition-colors"
                       >
                         <td className="py-1 px-2 font-mono font-semibold text-blue-700 dark:text-blue-400 whitespace-nowrap">
                           {field.code}
