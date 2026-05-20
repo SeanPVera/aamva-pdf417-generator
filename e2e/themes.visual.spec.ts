@@ -36,9 +36,13 @@ async function readVar(
   );
 }
 
+import { dismissTour, ensurePanel } from "./helpers";
+
 for (const [state, palette] of Object.entries(EXPECTED)) {
   test(`state theme variables: ${state}`, async ({ page }) => {
     await page.goto("/");
+    await dismissTour(page);
+    await ensurePanel(page, "config");
     await page
       .getByRole("combobox", { name: /select state or territory/i })
       .selectOption(state);
