@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
-import { dismissTour } from "./helpers";
+import { dismissTour, ensurePanel } from "./helpers";
 
 test.describe("accessibility", () => {
   test("homepage has no axe violations on WCAG 2.1 AA", async ({ page }) => {
@@ -27,6 +27,8 @@ test.describe("accessibility", () => {
   test("keyboard tab order reaches the state selector first", async ({ page }) => {
     await page.goto("/");
     await dismissTour(page);
+    // On mobile viewports, the state selector is in the 'config' panel.
+    await ensurePanel(page, "config");
 
     // Reset focus to the document start. `body.click()` focuses whatever
     // element happens to be under the click point, which can land mid-form
