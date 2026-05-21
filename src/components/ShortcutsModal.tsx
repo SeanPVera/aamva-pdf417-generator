@@ -114,7 +114,7 @@ export const ShortcutsModal: React.FC<ShortcutsModalProps> = ({ open, onClose, o
                   {group.entries.map((s) => (
                     <tr
                       key={s.description}
-                      className="border-b border-gray-100 dark:border-gray-700 last:border-0"
+                      className="border-b border-gray-100 dark:border-gray-700 last:border-0 hover:bg-gray-50 dark:hover:bg-dark-surface2 transition-colors"
                     >
                       <td className="py-1.5 pr-4">
                         <span className="inline-flex items-center gap-1">
