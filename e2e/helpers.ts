@@ -29,8 +29,14 @@ export const CA_REQUIRED_FIELDS: Array<[string, string]> = [
 
 /** Switches the mobile panel if on a small screen. */
 export async function ensurePanel(page: Page, panel: "config" | "form" | "preview") {
-  const isMobile = (await page.viewportSize()?.width ?? 1024) < 1024;
+  // Use evaluate to get the actual client width, which is more reliable for
+  // the CSS media query breakpoints (lg: 1024px).
+  const width = await page.evaluate(() => window.innerWidth);
+  const isMobile = width < 1024;
   if (!isMobile) return;
+
+  // The tour can obscure the panel tabs; ensure it's gone.
+  await dismissTour(page);
 
   const labels = {
     config: "Config",
@@ -39,10 +45,11 @@ export async function ensurePanel(page: Page, panel: "config" | "form" | "previe
   };
 
   const tab = page.getByRole("button", { name: labels[panel], exact: true });
+  // If we aren't already on this panel, click the tab.
   if ((await tab.getAttribute("aria-current")) !== "true") {
     await tab.click();
-    // Wait for the panel transition
-    await expect(tab).toHaveAttribute("aria-current", "true");
+    // Wait for the transition to finish so elements are interactable.
+    await expect(tab).toHaveAttribute("aria-current", "true", { timeout: 5000 });
   }
 }
 
@@ -55,9 +62,9 @@ export async function selectStateAndVersion(page: Page, state: string, version: 
 /**
  * Fills a single AAMVA field. Some fields are rendered as <select>, others
  * as <input> — autodetect via tagName so callers don't have to care.
+ * Note: Caller should ensure the "Fields" panel is active on mobile.
  */
 export async function fillField(page: Page, code: string, value: string) {
-  await ensurePanel(page, "form");
   const locator = page.locator(`#${code}`);
   await locator.waitFor({ state: "attached" });
   const tagName = await locator.evaluate((el) => el.tagName.toLowerCase());
@@ -70,6 +77,7 @@ export async function fillField(page: Page, code: string, value: string) {
 
 export async function fillCaliforniaForm(page: Page) {
   await selectStateAndVersion(page, "CA", "10");
+  await ensurePanel(page, "form");
   for (const [code, value] of CA_REQUIRED_FIELDS) {
     await fillField(page, code, value);
   }
@@ -79,21 +87,21 @@ export async function fillCaliforniaForm(page: Page) {
 /** Waits for the lazy-loaded BarcodePreview pane to mount. */
 export async function waitForPreview(page: Page) {
   await ensurePanel(page, "preview");
-  await expect(
-    page.getByRole("textbox", { name: /raw aamva payload string/i })
-  ).toBeVisible({ timeout: 15_000 });
+  // Wait for the heading which is always visible in the preview aside
+  await expect(page.getByRole("heading", { name: /preview/i })).toBeVisible({ timeout: 15_000 });
 }
 
 /** Dismisses the Welcome Tour if it's visible. */
 export async function dismissTour(page: Page) {
   const skipBtn = page.getByRole("button", { name: /skip tour/i });
   try {
-    // Wait a short bit for the tour to potentially appear
+    // Wait up to 3s for the tour skip button to be visible.
+    // In CI, mounting can sometimes be delayed.
     await skipBtn.waitFor({ state: "visible", timeout: 3000 });
     await skipBtn.click();
-    // Wait for it to disappear
+    // Confirm it's gone so it doesn't obscure future clicks.
     await expect(page.getByRole("dialog")).not.toBeVisible();
   } catch {
-    // If it doesn't show up within 3s, assume it's already dismissed or not showing
+    // If it doesn't show up within 3s, assume it's already dismissed or not showing.
   }
 }

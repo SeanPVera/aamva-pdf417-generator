@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { dismissTour, fillCaliforniaForm, waitForPreview } from "./helpers";
+import { dismissTour, ensurePanel, fillCaliforniaForm, waitForPreview } from "./helpers";
 
 // Smokes the PNG, SVG, and JSON export buttons. We don't validate the
 // byte stream — bwip-js is upstream and tested heavily — only that the
@@ -12,6 +12,7 @@ test.describe("export buttons", () => {
     await dismissTour(page);
     await waitForPreview(page);
     await fillCaliforniaForm(page);
+    await ensurePanel(page, "preview");
     await expect(page.getByRole("textbox", { name: /raw aamva payload string/i })).not.toHaveValue(
       "",
       { timeout: 10_000 }
@@ -29,6 +30,7 @@ test.describe("export buttons", () => {
     await dismissTour(page);
     await waitForPreview(page);
     await fillCaliforniaForm(page);
+    await ensurePanel(page, "preview");
     await expect(page.getByRole("textbox", { name: /raw aamva payload string/i })).not.toHaveValue(
       "",
       { timeout: 10_000 }
