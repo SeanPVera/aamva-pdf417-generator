@@ -284,6 +284,18 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
               Or load a sample profile from <span className="font-medium">Presets</span> in the
               header to see a generated barcode immediately.
             </p>
+            <button
+              type="button"
+              onClick={() => {
+                // error is "Missing mandatory fields for STATE (vXX): Label (CODE), ..."
+                // skip (vXX) and find the first (CODE)
+                const firstMissingCode = error.match(/\(([A-Z]{3})\)/)?.[1];
+                if (firstMissingCode) scrollToField(firstMissingCode);
+              }}
+              className="mt-2 text-xs font-semibold px-3 py-1.5 rounded-md bg-brand-50 hover:bg-brand-100 dark:bg-brand-900/30 dark:hover:bg-brand-900/50 text-brand-700 dark:text-brand-300 border border-brand-200 dark:border-brand-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            >
+              Fix required fields
+            </button>
           </div>
         ) : error ? (
           <div
@@ -453,7 +465,7 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
               {decodedEntries.map(([code, val]) => (
                 <tr
                   key={code}
-                  className="border-b border-gray-100 dark:border-gray-700 last:border-0"
+                  className="border-b border-gray-100 dark:border-gray-700 last:border-0 hover:bg-gray-50 dark:hover:bg-dark-surface2 transition-colors"
                 >
                   <td className="py-1 pr-2 font-mono font-semibold">
                     <button
