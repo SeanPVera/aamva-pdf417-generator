@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { fillField, selectStateAndVersion, waitForPreview } from "./helpers";
+import { dismissTour, fillField, selectStateAndVersion, waitForPreview } from "./helpers";
 
 // The validation report must show errors and warnings as visually
 // distinct items. We assert that:
@@ -18,8 +18,12 @@ async function ensureValidationReportOpen(page: import("@playwright/test").Page)
 }
 
 test.describe("validation report severity", () => {
-  test("a required-empty form surfaces errors", async ({ page }) => {
+  test.beforeEach(async ({ page }) => {
     await page.goto("/");
+    await dismissTour(page);
+  });
+
+  test("a required-empty form surfaces errors", async ({ page }) => {
     await waitForPreview(page);
     await selectStateAndVersion(page, "CA", "10");
     await ensureValidationReportOpen(page);
@@ -29,7 +33,6 @@ test.describe("validation report severity", () => {
   });
 
   test("a >5-year CA validity span is flagged as a warning", async ({ page }) => {
-    await page.goto("/");
     await waitForPreview(page);
     await selectStateAndVersion(page, "CA", "10");
 

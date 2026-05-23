@@ -7,8 +7,12 @@ import { fillCaliforniaForm, waitForPreview } from "./helpers";
 // (not lazy), so it works without waiting for the BarcodePreview chunk.
 
 test.describe("export buttons", () => {
-  test("PNG export triggers a download", async ({ page }) => {
+  test.beforeEach(async ({ page }) => {
     await page.goto("/");
+    await dismissTour(page);
+  });
+
+  test("PNG export triggers a download", async ({ page }) => {
     await waitForPreview(page);
     await fillCaliforniaForm(page);
     await expect(page.getByRole("textbox", { name: /raw aamva payload string/i })).not.toHaveValue(
@@ -24,7 +28,6 @@ test.describe("export buttons", () => {
   });
 
   test("SVG export triggers a download", async ({ page }) => {
-    await page.goto("/");
     await waitForPreview(page);
     await fillCaliforniaForm(page);
     await expect(page.getByRole("textbox", { name: /raw aamva payload string/i })).not.toHaveValue(
@@ -40,7 +43,6 @@ test.describe("export buttons", () => {
   });
 
   test("JSON export triggers a download with the right filename", async ({ page }) => {
-    await page.goto("/");
     await fillCaliforniaForm(page);
 
     const [download] = await Promise.all([

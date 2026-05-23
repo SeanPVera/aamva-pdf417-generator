@@ -9,6 +9,7 @@ import { fillCaliforniaForm, waitForPreview } from "./helpers";
 test.describe("CA v10 happy-path form fill", () => {
   test("filling all required fields produces a non-empty AAMVA payload", async ({ page }) => {
     await page.goto("/");
+    await dismissTour(page);
     await waitForPreview(page);
     await fillCaliforniaForm(page);
 

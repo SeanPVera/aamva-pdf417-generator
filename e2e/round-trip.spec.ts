@@ -12,6 +12,7 @@ test.describe("AAMVA generator end-to-end", () => {
     page
   }) => {
     await page.goto("/");
+    await dismissTour(page);
 
     // BarcodePreview is React.lazy — wait for the chunk to mount before
     // looking for the canvas, otherwise the default 5s locator timeout can

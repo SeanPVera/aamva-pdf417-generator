@@ -28,6 +28,7 @@ export const CA_REQUIRED_FIELDS: Array<[string, string]> = [
 ];
 
 export async function selectStateAndVersion(page: Page, state: string, version: string) {
+  await ensurePanel(page, "config");
   await page.getByRole("combobox", { name: /select state or territory/i }).selectOption(state);
   await page.getByRole("combobox", { name: /select aamva version/i }).selectOption(version);
 }
@@ -37,6 +38,7 @@ export async function selectStateAndVersion(page: Page, state: string, version: 
  * as <input> — autodetect via tagName so callers don't have to care.
  */
 export async function fillField(page: Page, code: string, value: string) {
+  await ensurePanel(page, "form");
   const locator = page.locator(`#${code}`);
   await locator.waitFor({ state: "attached" });
   const tagName = await locator.evaluate((el) => el.tagName.toLowerCase());
@@ -49,15 +51,46 @@ export async function fillField(page: Page, code: string, value: string) {
 
 export async function fillCaliforniaForm(page: Page) {
   await selectStateAndVersion(page, "CA", "10");
+  // ensurePanel("form") is called inside fillField, but we can do it once here for speed
+  await ensurePanel(page, "form");
   for (const [code, value] of CA_REQUIRED_FIELDS) {
     await fillField(page, code, value);
   }
   await page.keyboard.press("Tab");
 }
 
+/**
+ * Dismisses the welcome tour if it appears.
+ */
+export async function dismissTour(page: Page) {
+  const skipBtn = page.getByRole("button", { name: /skip tour/i });
+  try {
+    await skipBtn.waitFor({ state: "visible", timeout: 3000 });
+    await skipBtn.click();
+    // Wait for overlay to fade out
+    await page.locator('role=dialog[name="Pick a state and version"]').waitFor({ state: "hidden" });
+  } catch {
+    // Already dismissed or never showed
+  }
+}
+
+/**
+ * On mobile viewports, ensures the correct panel is visible.
+ */
+export async function ensurePanel(page: Page, panel: "config" | "form" | "preview") {
+  const isMobile = page.viewportSize()!.width < 1024;
+  if (!isMobile) return;
+
+  const btn = page.getByRole("button", { name: new RegExp(panel, "i") });
+  if ((await btn.getAttribute("aria-current")) !== "true") {
+    await btn.click();
+  }
+}
+
 /** Waits for the lazy-loaded BarcodePreview pane to mount. */
 export async function waitForPreview(page: Page) {
-  await expect(
-    page.getByRole("textbox", { name: /raw aamva payload string/i })
-  ).toBeVisible({ timeout: 15_000 });
+  await ensurePanel(page, "preview");
+  await expect(page.getByRole("textbox", { name: /raw aamva payload string/i })).toBeVisible({
+    timeout: 15_000
+  });
 }
