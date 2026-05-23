@@ -7,6 +7,7 @@ import { WelcomeTour } from "./components/WelcomeTour";
 import { FieldInput } from "./components/FieldInput";
 import { FieldGroup } from "./components/FieldGroup";
 import { FieldFilters } from "./components/FieldFilters";
+import { Search } from "lucide-react";
 import { DropZoneOverlay } from "./components/DropZoneOverlay";
 import { useToast } from "./components/Toast";
 import { useFormStore } from "./hooks/useFormStore";
@@ -381,7 +382,7 @@ function App() {
             </button>
           ))}
         </div>
-        <p className="text-[10px] text-gray-400 dark:text-gray-500 text-center mt-1 select-none">
+        <p className="text-xs text-gray-400 dark:text-gray-500 text-center mt-1 select-none">
           Swipe left or right to switch panels
         </p>
       </nav>
@@ -423,9 +424,27 @@ function App() {
 
           <div className="p-4 lg:p-6">
             {visibleFields.length === 0 ? (
-              <p className="text-sm text-gray-500 dark:text-gray-400 italic px-1">
-                No fields match the current filters.
-              </p>
+              <div className="py-12 flex flex-col items-center justify-center text-center px-4">
+                <div className="bg-gray-100 dark:bg-dark-surface2 p-4 rounded-full mb-4">
+                  <Search size={32} className="text-gray-400" />
+                </div>
+                <p className="text-lg font-medium text-gray-800 dark:text-gray-200 mb-2">
+                  No fields match the current filters
+                </p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 max-w-xs">
+                  Try adjusting your search query or unchecking "Required only" to find what you're
+                  looking for.
+                </p>
+                <button
+                  onClick={() => {
+                    setSearchQuery("");
+                    setRequiredOnly(false);
+                  }}
+                  className="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-dark-surface"
+                >
+                  Clear all filters
+                </button>
+              </div>
             ) : (
               AAMVA_FIELD_GROUPS.map((group) => {
                 const groupFields = fieldsByGroup.get(group.id);
