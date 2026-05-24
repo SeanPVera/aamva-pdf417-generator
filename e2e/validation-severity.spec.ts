@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { fillField, selectStateAndVersion, waitForPreview } from "./helpers";
+import { fillField, selectStateAndVersion, waitForPreview, dismissTour, ensurePanel } from "./helpers";
 
 // The validation report must show errors and warnings as visually
 // distinct items. We assert that:
@@ -10,6 +10,7 @@ import { fillField, selectStateAndVersion, waitForPreview } from "./helpers";
 // don't click the toggle — that would close it.
 
 async function ensureValidationReportOpen(page: import("@playwright/test").Page) {
+  await ensurePanel(page, "preview");
   const button = page.getByRole("button", { name: /validation report/i });
   await expect(button).toBeVisible({ timeout: 10_000 });
   if ((await button.getAttribute("aria-expanded")) !== "true") {
@@ -20,6 +21,7 @@ async function ensureValidationReportOpen(page: import("@playwright/test").Page)
 test.describe("validation report severity", () => {
   test("a required-empty form surfaces errors", async ({ page }) => {
     await page.goto("/");
+    await dismissTour(page);
     await waitForPreview(page);
     await selectStateAndVersion(page, "CA", "10");
     await ensureValidationReportOpen(page);
@@ -30,6 +32,7 @@ test.describe("validation report severity", () => {
 
   test("a >5-year CA validity span is flagged as a warning", async ({ page }) => {
     await page.goto("/");
+    await dismissTour(page);
     await waitForPreview(page);
     await selectStateAndVersion(page, "CA", "10");
 

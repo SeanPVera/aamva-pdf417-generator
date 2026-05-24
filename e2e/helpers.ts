@@ -27,7 +27,39 @@ export const CA_REQUIRED_FIELDS: Array<[string, string]> = [
   ["DDB", "01012024"]
 ];
 
+/**
+ * Dismisses the welcome tour if it appears. Used at the start of tests to
+ * ensure the dialog doesn't obscure interactive elements.
+ */
+export async function dismissTour(page: Page) {
+  const skipBtn = page.getByRole("button", { name: /skip tour/i });
+  try {
+    // Short timeout; if it's not there, we move on.
+    await skipBtn.waitFor({ state: "visible", timeout: 3000 });
+    await skipBtn.click();
+    // Wait for it to actually disappear to avoid click interception.
+    await skipBtn.waitFor({ state: "hidden" });
+  } catch (e) {
+    // Ignore timeout - tour might have been seen/disabled.
+  }
+}
+
+/**
+ * On mobile viewports, the app uses a tabbed navigation. This helper
+ * ensures the requested panel is active before proceeding.
+ */
+export async function ensurePanel(page: Page, panel: "config" | "form" | "preview") {
+  const nav = page.getByLabel("Mobile panel navigation");
+  if (await nav.isVisible()) {
+    const btn = nav.getByRole("button", { name: new RegExp(panel, "i") });
+    if ((await btn.getAttribute("aria-current")) !== "true") {
+      await btn.click();
+    }
+  }
+}
+
 export async function selectStateAndVersion(page: Page, state: string, version: string) {
+  await ensurePanel(page, "config");
   await page.getByRole("combobox", { name: /select state or territory/i }).selectOption(state);
   await page.getByRole("combobox", { name: /select aamva version/i }).selectOption(version);
 }
@@ -37,6 +69,7 @@ export async function selectStateAndVersion(page: Page, state: string, version: 
  * as <input> — autodetect via tagName so callers don't have to care.
  */
 export async function fillField(page: Page, code: string, value: string) {
+  await ensurePanel(page, "form");
   const locator = page.locator(`#${code}`);
   await locator.waitFor({ state: "attached" });
   const tagName = await locator.evaluate((el) => el.tagName.toLowerCase());
@@ -57,6 +90,7 @@ export async function fillCaliforniaForm(page: Page) {
 
 /** Waits for the lazy-loaded BarcodePreview pane to mount. */
 export async function waitForPreview(page: Page) {
+  await ensurePanel(page, "preview");
   await expect(
     page.getByRole("textbox", { name: /raw aamva payload string/i })
   ).toBeVisible({ timeout: 15_000 });

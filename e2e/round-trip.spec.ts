@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { fillCaliforniaForm, waitForPreview } from "./helpers";
+import { fillCaliforniaForm, waitForPreview, dismissTour } from "./helpers";
 
 // The critical loop: select state → fill required fields → render barcode →
 // confirm the rendered canvas exists and the payload textarea round-trips.
@@ -12,6 +12,7 @@ test.describe("AAMVA generator end-to-end", () => {
     page
   }) => {
     await page.goto("/");
+    await dismissTour(page);
 
     // BarcodePreview is React.lazy — wait for the chunk to mount before
     // looking for the canvas, otherwise the default 5s locator timeout can
@@ -27,7 +28,7 @@ test.describe("AAMVA generator end-to-end", () => {
     // <canvas> with aria-label isn't auto-assigned role=img by Chromium —
     // the accessibility tree exposes it as a generic with the label, so
     // match by attribute rather than role.
-    const canvas = page.locator('canvas[aria-label="PDF417 barcode preview"]');
+    const canvas = page.locator('canvas[aria-label="PDF417 barcode preview (pinch to zoom)"]');
     await expect(canvas).toBeVisible();
 
     const textarea = page.getByRole("textbox", { name: /raw aamva payload string/i });
