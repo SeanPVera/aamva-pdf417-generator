@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useId, useRef, useState } from "react";
 import bwipjs from "bwip-js";
 import {
   ChevronDown,
@@ -53,6 +53,7 @@ function CollapsibleSection({
   defaultOpen?: boolean;
 }) {
   const [open, setOpen] = useState(defaultOpen);
+  const id = useId();
   const badgeClasses = {
     gray: "bg-gray-200 dark:bg-[#333] text-gray-700 dark:text-gray-200",
     green: "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300",
@@ -68,6 +69,7 @@ function CollapsibleSection({
         onClick={() => setOpen((v) => !v)}
         className="w-full flex items-center justify-between px-3 py-2 bg-gray-50 dark:bg-dark-surface2 hover:bg-gray-100 dark:hover:bg-[#383838] transition-colors text-sm font-semibold text-gray-700 dark:text-gray-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-500"
         aria-expanded={open}
+        aria-controls={id}
       >
         <span className="flex items-center gap-2">
           {open ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
@@ -79,7 +81,11 @@ function CollapsibleSection({
           </span>
         )}
       </button>
-      {open && <div className="px-3 py-2 bg-white dark:bg-dark-surface">{children}</div>}
+      {open && (
+        <div id={id} className="px-3 py-2 bg-white dark:bg-dark-surface">
+          {children}
+        </div>
+      )}
     </div>
   );
 }
@@ -284,6 +290,17 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
               Or load a sample profile from <span className="font-medium">Presets</span> in the
               header to see a generated barcode immediately.
             </p>
+            <button
+              type="button"
+              onClick={() => {
+                const first = issues.find((i) => i.severity === "error");
+                if (first) scrollToField(first.code);
+              }}
+              className="mt-1 flex items-center gap-1.5 bg-brand-600 hover:bg-brand-700 text-white px-3 py-1.5 rounded-md text-xs font-semibold shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            >
+              <ArrowDownToLine size={13} />
+              Fix required fields
+            </button>
           </div>
         ) : error ? (
           <div
@@ -453,7 +470,7 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
               {decodedEntries.map(([code, val]) => (
                 <tr
                   key={code}
-                  className="border-b border-gray-100 dark:border-gray-700 last:border-0"
+                  className="border-b border-gray-100 dark:border-gray-700 last:border-0 hover:bg-gray-50 dark:hover:bg-dark-surface2 transition-colors"
                 >
                   <td className="py-1 pr-2 font-mono font-semibold">
                     <button
