@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { fillCaliforniaForm, waitForPreview } from "./helpers";
+import { dismissTour, ensurePanel, fillCaliforniaForm, waitForPreview } from "./helpers";
 
 // Smokes the PNG, SVG, and JSON export buttons. We don't validate the
 // byte stream — bwip-js is upstream and tested heavily — only that the
@@ -11,6 +11,7 @@ test.describe("export buttons", () => {
     await page.goto("/");
     await waitForPreview(page);
     await fillCaliforniaForm(page);
+    await ensurePanel(page, "preview");
     await expect(page.getByRole("textbox", { name: /raw aamva payload string/i })).not.toHaveValue(
       "",
       { timeout: 10_000 }
@@ -27,6 +28,7 @@ test.describe("export buttons", () => {
     await page.goto("/");
     await waitForPreview(page);
     await fillCaliforniaForm(page);
+    await ensurePanel(page, "preview");
     await expect(page.getByRole("textbox", { name: /raw aamva payload string/i })).not.toHaveValue(
       "",
       { timeout: 10_000 }
@@ -41,6 +43,7 @@ test.describe("export buttons", () => {
 
   test("JSON export triggers a download with the right filename", async ({ page }) => {
     await page.goto("/");
+    await dismissTour(page);
     await fillCaliforniaForm(page);
 
     const [download] = await Promise.all([
