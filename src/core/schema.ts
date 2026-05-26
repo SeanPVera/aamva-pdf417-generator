@@ -514,15 +514,36 @@ export function getFieldsForVersion(v: string): AAMVAField[] {
   return AAMVA_VERSIONS[v]?.fields || [];
 }
 
+// Pre-built Sets of excluded field codes per state — avoids repeated Set construction.
+const _EXCLUDED_SETS: Readonly<Record<string, ReadonlySet<string>>> = Object.fromEntries(
+  Object.entries(AAMVA_STATE_EXCLUDED_FIELDS).map(([k, v]) => [k, new Set(v)])
+);
+
+// Memoization cache for getFieldsForStateAndVersion — the set of (state, version) combos
+// is small and fixed at runtime, so this Map grows to at most ~54×10 = 540 entries.
+const _stateVersionFieldCache = new Map<string, AAMVAField[]>();
+
 export function getFieldsForStateAndVersion(stateCode: string, v: string): AAMVAField[] {
+  const cacheKey = `${stateCode}:${v}`;
+  const cached = _stateVersionFieldCache.get(cacheKey);
+  if (cached) return cached;
+
   const allFields = getFieldsForVersion(v);
-  if (!stateCode || !AAMVA_STATE_EXCLUDED_FIELDS) return allFields;
+  let result: AAMVAField[];
 
-  const excluded = AAMVA_STATE_EXCLUDED_FIELDS[stateCode];
-  if (!excluded || excluded.length === 0) return allFields;
+  if (!stateCode) {
+    result = allFields;
+  } else {
+    const excludedSet = _EXCLUDED_SETS[stateCode];
+    if (!excludedSet || excludedSet.size === 0) {
+      result = allFields;
+    } else {
+      result = allFields.filter((f) => f.required || !excludedSet.has(f.code));
+    }
+  }
 
-  const excludedSet = new Set(excluded);
-  return allFields.filter((f) => f.required || !excludedSet.has(f.code));
+  _stateVersionFieldCache.set(cacheKey, result);
+  return result;
 }
 
 export function getMandatoryFields(_stateCode: string, version: string): AAMVAField[] {
