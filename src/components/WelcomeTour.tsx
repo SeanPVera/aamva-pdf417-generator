@@ -77,8 +77,12 @@ export const WelcomeTour: React.FC<WelcomeTourProps> = ({ open, onClose }) => {
 const WelcomeTourBody: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [step, setStep] = React.useState(0);
   const closeBtnRef = React.useRef<HTMLButtonElement>(null);
+  const previousActiveElement = React.useRef<HTMLElement | null>(
+    typeof document !== "undefined" ? (document.activeElement as HTMLElement) : null
+  );
 
   React.useEffect(() => {
+    const elToRestore = previousActiveElement.current;
     closeBtnRef.current?.focus();
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -91,7 +95,14 @@ const WelcomeTourBody: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       }
     };
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      // Restore focus to the element that was active before the tour opened.
+      // Small timeout ensures the modal removal from DOM has settled.
+      setTimeout(() => {
+        elToRestore?.focus();
+      }, 0);
+    };
   }, [onClose]);
 
   const current = STEPS[step] ?? STEPS[0]!;
@@ -133,7 +144,7 @@ const WelcomeTourBody: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         </div>
 
         <div className="px-4 pb-4 flex items-center justify-between gap-2">
-          <div className="flex items-center gap-1.5" aria-label="Tour progress">
+          <div className="flex items-center gap-1.5" role="group" aria-label="Tour progress">
             {STEPS.map((_, i) => (
               <span
                 key={i}
