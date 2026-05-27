@@ -1,6 +1,43 @@
 import { AAMVAField, AAMVA_FIELD_OPTIONS, AAMVA_FIELD_LIMITS } from "./schema";
 import { AAMVA_STATES } from "./states";
 import { secureGetRandomInt } from "./crypto";
+
+// ---------------------------------------------------------------------------
+// Static regex patterns — hoisted once at module load to avoid per-call
+// regex compilation overhead in hot validation paths.
+// ---------------------------------------------------------------------------
+const RE_8_DIGITS = /^\d{8}$/;
+const RE_ZIP = /^\d{5}(-?\d{4})?$/;
+const RE_CHAR_ALNUM = /^[A-Z0-9]$/;
+// eslint-disable-next-line no-control-regex
+const RE_CONTROL = /[\x00-\x1f\x7f]/g;
+
+// ---------------------------------------------------------------------------
+// Pre-built allowed-value Sets for AAMVA_FIELD_OPTIONS — avoids creating a
+// new Set on every call to validateFieldValue / evaluateFieldValue.
+// ---------------------------------------------------------------------------
+const _GLOBAL_OPTION_SETS = new Map<string, Set<string>>(
+  Object.entries(AAMVA_FIELD_OPTIONS).map(([code, opts]) => [
+    code,
+    new Set(opts.map((o) => o.value))
+  ])
+);
+
+// Cache for field-specific inline options (e.g. DBC M/F in version 01).
+// Keyed by the field object reference (stable module-level constants in AAMVA_VERSIONS).
+const _inlineOptionSets = new WeakMap<AAMVAField, Set<string>>();
+
+function getAllowedSet(field: AAMVAField): Set<string> | undefined {
+  if (field.options && field.options.length > 0) {
+    let s = _inlineOptionSets.get(field);
+    if (!s) {
+      s = new Set(field.options.map((o) => o.value));
+      _inlineOptionSets.set(field, s);
+    }
+    return s;
+  }
+  return _GLOBAL_OPTION_SETS.get(field.code);
+}
 import {
   JURISDICTION_RULE_PACKS,
   getEffectiveDateRules,
@@ -54,7 +91,7 @@ const VERSION_ERA_RANGES: Record<string, [number, number]> = {
 
 function randomDateInRange(startYear: number, endYear: number, beforeDateStr?: string) {
   let capMs: number | null = null;
-  if (beforeDateStr && /^\d{8}$/.test(beforeDateStr)) {
+  if (beforeDateStr && RE_8_DIGITS.test(beforeDateStr)) {
     const bm = parseInt(beforeDateStr.substring(0, 2), 10);
     const bd = parseInt(beforeDateStr.substring(2, 4), 10);
     const by = parseInt(beforeDateStr.substring(4, 8), 10);
@@ -172,11 +209,8 @@ export function validateFieldValue(
   if (field.required && !value) return false;
   if (!value) return true;
 
-  const constrainedOptions = field.options || AAMVA_FIELD_OPTIONS[field.code];
-  if (Array.isArray(constrainedOptions) && constrainedOptions.length > 0) {
-    const allowedValues = new Set(constrainedOptions.map((opt) => opt.value));
-    if (!allowedValues.has(value)) return false;
-  }
+  const allowedValues = getAllowedSet(field);
+  if (allowedValues && !allowedValues.has(value)) return false;
 
   const maxLen = AAMVA_FIELD_LIMITS[field.code];
   if (maxLen && value.length > maxLen) return false;
@@ -191,7 +225,7 @@ export function validateFieldValue(
   switch (field.type) {
     case "date": {
       const dateFormat = field.dateFormat || "MMDDYYYY";
-      if (!/^\d{8}$/.test(value)) return false;
+      if (!RE_8_DIGITS.test(value)) return false;
 
       let year, month, day;
       if (dateFormat === "YYYYMMDD") {
@@ -214,9 +248,9 @@ export function validateFieldValue(
       );
     }
     case "zip":
-      return /^\d{5}(-?\d{4})?$/.test(value);
+      return RE_ZIP.test(value);
     case "char":
-      return /^[A-Z0-9]$/.test(value);
+      return RE_CHAR_ALNUM.test(value);
     case "string":
     default:
       return true;
@@ -227,7 +261,7 @@ function parseAamvaDate(
   value: string,
   dateFormat: "MMDDYYYY" | "YYYYMMDD" = "MMDDYYYY"
 ): Date | null {
-  if (!/^\d{8}$/.test(value)) return null;
+  if (!RE_8_DIGITS.test(value)) return null;
 
   let year: number;
   let month: number;
@@ -254,9 +288,14 @@ function parseAamvaDate(
   return date;
 }
 
-function getDateFormatForCode(fields: AAMVAField[], code: string): "MMDDYYYY" | "YYYYMMDD" {
-  const dateField = fields.find((field) => field.code === code);
-  return dateField?.dateFormat === "YYYYMMDD" ? "YYYYMMDD" : "MMDDYYYY";
+function buildDateFormatMap(fields: AAMVAField[]): Map<string, "MMDDYYYY" | "YYYYMMDD"> {
+  const map = new Map<string, "MMDDYYYY" | "YYYYMMDD">();
+  for (const f of fields) {
+    if (f.type === "date") {
+      map.set(f.code, f.dateFormat === "YYYYMMDD" ? "YYYYMMDD" : "MMDDYYYY");
+    }
+  }
+  return map;
 }
 
 function ageAtDate(birth: Date, target: Date): number {
@@ -295,17 +334,20 @@ export function validateCrossFieldConsistency(
 ): CrossFieldValidationIssue[] {
   const issues: CrossFieldValidationIssue[] = [];
 
+  // Single-pass Map built once; replaces 4 separate Array.find() calls.
+  const dateFormats = buildDateFormatMap(fields);
+
   const birthDate = dataObj.DBB
-    ? parseAamvaDate(dataObj.DBB, getDateFormatForCode(fields, "DBB"))
+    ? parseAamvaDate(dataObj.DBB, dateFormats.get("DBB") ?? "MMDDYYYY")
     : null;
   const issueDate = dataObj.DBD
-    ? parseAamvaDate(dataObj.DBD, getDateFormatForCode(fields, "DBD"))
+    ? parseAamvaDate(dataObj.DBD, dateFormats.get("DBD") ?? "MMDDYYYY")
     : null;
   const expiryDate = dataObj.DBA
-    ? parseAamvaDate(dataObj.DBA, getDateFormatForCode(fields, "DBA"))
+    ? parseAamvaDate(dataObj.DBA, dateFormats.get("DBA") ?? "MMDDYYYY")
     : null;
   const revisionDate = dataObj.DDB
-    ? parseAamvaDate(dataObj.DDB, getDateFormatForCode(fields, "DDB"))
+    ? parseAamvaDate(dataObj.DDB, dateFormats.get("DDB") ?? "MMDDYYYY")
     : null;
 
   if (birthDate && issueDate && issueDate < birthDate) {
@@ -451,8 +493,7 @@ export function validateCrossFieldConsistency(
 }
 
 export function sanitizeFieldValue(value: string): string {
-  // eslint-disable-next-line no-control-regex
-  return value.replace(/[\x00-\x1f\x7f]/g, "");
+  return value.replace(RE_CONTROL, "");
 }
 
 /**
@@ -477,16 +518,13 @@ export function evaluateFieldValue(
   }
   if (!value) return { ok: true, severity: "info" };
 
-  const constrainedOptions = field.options || AAMVA_FIELD_OPTIONS[field.code];
-  if (Array.isArray(constrainedOptions) && constrainedOptions.length > 0) {
-    const allowed = new Set(constrainedOptions.map((o) => o.value));
-    if (!allowed.has(value)) {
-      return {
-        ok: false,
-        severity: "error",
-        message: `Value must be one of: ${[...allowed].join(", ")}.`
-      };
-    }
+  const allowed = getAllowedSet(field);
+  if (allowed && !allowed.has(value)) {
+    return {
+      ok: false,
+      severity: "error",
+      message: `Value must be one of: ${[...allowed].join(", ")}.`
+    };
   }
 
   const maxLen = AAMVA_FIELD_LIMITS[field.code];

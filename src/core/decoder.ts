@@ -1,6 +1,20 @@
 import { AAMVA_STATES } from "./states";
 import { AAMVA_VERSIONS } from "./schema";
 
+// Pre-built IIN → state-code Map for O(1) lookup during decoding.
+// Replaces an O(n) linear scan through all 54 jurisdictions on every decode.
+const _IIN_TO_STATE = new Map<string, string>(
+  Object.entries(AAMVA_STATES).map(([code, def]) => [def.IIN, code])
+);
+
+// Hoisted regex for AAMVA data element identifier validation (e.g. "DCS", "DAQ").
+const RE_FIELD_CODE = /^[A-Z]{2}[A-Z0-9]$/;
+
+// Hoisted regex patterns used in structural validation.
+const RE_6_DIGITS = /^\d{6}$/;
+const RE_2_DIGITS = /^\d{2}$/;
+const RE_4_DIGITS = /^\d{4}$/;
+
 export interface ValidationResult {
   ok: boolean;
   error?: string;
@@ -20,14 +34,15 @@ export function validateAAMVAPayloadStructure(
   if (payload.charAt(2) !== "\x1e") return { ok: false, error: "Invalid record separator" };
   if (payload.charAt(3) !== "\r") return { ok: false, error: "Invalid segment terminator" };
   if (payload.substring(4, 9) !== "ANSI ") return { ok: false, error: "Invalid file type" };
-  if (!/^\d{6}$/.test(payload.substring(9, 15))) return { ok: false, error: "Invalid IIN" };
-  if (!/^\d{2}$/.test(payload.substring(15, 17)))
+  if (!RE_6_DIGITS.test(payload.substring(9, 15))) return { ok: false, error: "Invalid IIN" };
+  if (!RE_2_DIGITS.test(payload.substring(15, 17)))
     return { ok: false, error: "Invalid AAMVA version token" };
-  if (!/^\d{2}$/.test(payload.substring(17, 19)))
+  if (!RE_2_DIGITS.test(payload.substring(17, 19)))
     return { ok: false, error: "Invalid jurisdiction version token" };
 
   const numEntriesStr = payload.substring(19, 21);
-  if (!/^\d{2}$/.test(numEntriesStr)) return { ok: false, error: "Invalid directory entry count" };
+  if (!RE_2_DIGITS.test(numEntriesStr))
+    return { ok: false, error: "Invalid directory entry count" };
 
   const numEntries = parseInt(numEntriesStr, 10);
   if (numEntries < 1)
@@ -43,7 +58,7 @@ export function validateAAMVAPayloadStructure(
 
   const offsetToken = payload.substring(23, 27);
   const lengthToken = payload.substring(27, 31);
-  if (!/^\d{4}$/.test(offsetToken) || !/^\d{4}$/.test(lengthToken)) {
+  if (!RE_4_DIGITS.test(offsetToken) || !RE_4_DIGITS.test(lengthToken)) {
     return { ok: false, error: "Invalid directory offset/length" };
   }
 
@@ -116,20 +131,14 @@ export function decodeAAMVAFormat(text: string): DecodeResult {
         const code = entry.substring(0, 3);
         let value = entry.substring(3);
         value = value.replace(/\r$/, "");
-        if (code.match(/^[A-Z]{2}[A-Z0-9]$/)) {
+        if (RE_FIELD_CODE.test(code)) {
           obj[code] = value;
         }
       }
     }
 
-    if (AAMVA_STATES) {
-      for (const [stateCode, stateDef] of Object.entries(AAMVA_STATES)) {
-        if (stateDef && stateDef.IIN === iin) {
-          obj.state = stateCode;
-          break;
-        }
-      }
-    }
+    const stateCode = _IIN_TO_STATE.get(iin);
+    if (stateCode) obj.state = stateCode;
 
     return { data: obj };
   } catch (err) {
