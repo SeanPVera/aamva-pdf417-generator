@@ -234,7 +234,15 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
 
   // Validation report
   const schemaFields = getFieldsForStateAndVersion(state, version);
-  const issues = getValidationIssues(schemaFields, { ...fields, DAJ: state }, state, strictMode);
+  const rawIssues = getValidationIssues(schemaFields, { ...fields, DAJ: state }, state, strictMode);
+
+  // Sort issues by severity so Errors always appear above Warnings.
+  const issues = [...rawIssues].sort((a, b) => {
+    if (a.severity === "error" && b.severity === "warning") return -1;
+    if (a.severity === "warning" && b.severity === "error") return 1;
+    return 0;
+  });
+
   const errorCount = issues.filter((i) => i.severity === "error").length;
   const warningCount = issues.filter((i) => i.severity === "warning").length;
   const issueCount = issues.length;
