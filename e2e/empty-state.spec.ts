@@ -27,7 +27,8 @@ test.describe("Actionable Empty State", () => {
     await expect(searchInput).toHaveValue("");
     await expect(page.getByText(/no fields match your filters/i)).not.toBeVisible();
 
-    // Check that some fields are visible again (e.g., First Name or DCS)
+    // Check that some fields are visible again
+    // DCS is "Customer Family Name", usually the first field
     await expect(page.getByText(/DCS — Customer Family Name/)).toBeVisible();
   });
 
