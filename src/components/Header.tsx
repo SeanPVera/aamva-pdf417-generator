@@ -204,6 +204,7 @@ export const Header: React.FC<HeaderProps> = ({ onStartScan, onOpenShortcuts, on
                 key={t}
                 onClick={() => setTheme(t)}
                 title={`${meta.label} theme — ${meta.description}`}
+                aria-label={`${meta.label} theme`}
                 aria-pressed={theme === t}
                 className={`flex items-center gap-1.5 px-2 py-1.5 text-xs transition focus:outline-none ${
                   theme === t
