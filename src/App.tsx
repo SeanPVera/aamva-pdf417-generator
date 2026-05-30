@@ -1,4 +1,5 @@
 import React from "react";
+import { Search } from "lucide-react";
 import { Sidebar } from "./components/Sidebar";
 import { Header } from "./components/Header";
 import { ShortcutsModal } from "./components/ShortcutsModal";
@@ -423,9 +424,27 @@ function App() {
 
           <div className="p-4 lg:p-6">
             {visibleFields.length === 0 ? (
-              <p className="text-sm text-gray-500 dark:text-gray-400 italic px-1">
-                No fields match the current filters.
-              </p>
+              <div className="flex flex-col items-center justify-center py-12 px-4 text-center border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-xl mx-2">
+                <div className="bg-gray-50 dark:bg-dark-surface2 p-3 rounded-full mb-4">
+                  <Search className="h-6 w-6 text-gray-400" />
+                </div>
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-1">
+                  No fields match your search
+                </h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-4 max-w-[200px]">
+                  Try adjusting your filters or search query to find what you're looking for.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchQuery("");
+                    setRequiredOnly(false);
+                  }}
+                  className="text-xs font-medium text-brand-600 dark:text-brand-400 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded px-2 py-1"
+                >
+                  Clear all filters
+                </button>
+              </div>
             ) : (
               AAMVA_FIELD_GROUPS.map((group) => {
                 const groupFields = fieldsByGroup.get(group.id);
