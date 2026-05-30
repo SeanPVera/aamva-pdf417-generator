@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { dismissTour, fillCaliforniaForm, waitForPreview } from "./helpers";
+import { dismissTour, fillCaliforniaForm, waitForPreview, ensurePanel } from "./helpers";
 
 // The critical loop: select state → fill required fields → render barcode →
 // confirm the rendered canvas exists and the payload textarea round-trips.
@@ -28,6 +28,7 @@ test.describe("AAMVA generator end-to-end", () => {
     // <canvas> with aria-label isn't auto-assigned role=img by Chromium —
     // the accessibility tree exposes it as a generic with the label, so
     // match by attribute rather than role.
+    await ensurePanel(page, "preview");
     const canvas = page.locator('canvas[aria-label="PDF417 barcode preview"]');
     await expect(canvas).toBeVisible();
 
