@@ -363,7 +363,7 @@ function App() {
       >
         <div className="grid grid-cols-3 gap-2">
           {[
-            { key: "config", label: "Config" },
+            { key: "config", label: "Configuration" },
             { key: "form", label: "Fields" },
             { key: "preview", label: "Preview" }
           ].map((panel) => (

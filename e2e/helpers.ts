@@ -45,9 +45,18 @@ export async function ensurePanel(page: Page, panel: "config" | "form" | "previe
   const labelMap = { config: "Config", form: "Fields", preview: "Preview" };
   const tabButton = page.getByRole("button", { name: labelMap[panel], exact: true });
 
-  // Only click if it's not already active (aria-current is truthy)
-  if ((await tabButton.count()) > 0 && (await tabButton.getAttribute("aria-current")) !== "true") {
-    await tabButton.click();
+  if ((await tabButton.count()) > 0) {
+    const current = await tabButton.getAttribute("aria-current");
+    if (current !== "true") {
+      // Use force: true to ensure we click even if the tour or a transition
+      // backdrop is momentarily in the way.
+      await tabButton.click({ force: true });
+      // Ensure transition is complete and DOM has updated
+      await expect(tabButton).toHaveAttribute("aria-current", "true", { timeout: 5000 });
+      // Buffer for React state to propagate to visibility classes and for
+      // CSS transitions (150ms in Tailwind) to settle.
+      await page.waitForTimeout(300);
+    }
   }
 }
 
@@ -56,17 +65,24 @@ export async function ensurePanel(page: Page, panel: "config" | "form" | "previe
  * Dismiss it early so it doesn't interfere with test interactions.
  */
 export async function dismissTour(page: Page) {
+  const dialog = page.getByRole("dialog");
   const skipBtn = page.getByRole("button", { name: /skip tour/i });
+
   try {
-    // The tour is gated behind a React.lazy chunk in some versions or might
-    // take a moment to appear. Wait up to 3s for the button.
+    // The tour is gated behind a React.lazy chunk. In CI, this can take a
+    // moment to appear. Wait up to 3s.
     await skipBtn.waitFor({ state: "visible", timeout: 3000 });
-    await skipBtn.click();
+    await skipBtn.click({ force: true });
+    // Also try Escape as a fallback
+    await page.keyboard.press("Escape");
     // Ensure the dialog is actually gone before returning control.
-    await expect(page.getByRole("dialog")).not.toBeVisible();
-  } catch {
-    // If the tour didn't show up (e.g. session already marked it seen),
-    // just continue.
+    await expect(dialog).not.toBeVisible({ timeout: 5000 });
+  } catch (e) {
+    // If the tour showed up but we failed to dismiss it, that's a real error.
+    // If it never showed up, that's fine (e.g. session already marked seen).
+    if (await dialog.isVisible()) {
+      throw new Error(`Failed to dismiss Welcome Tour: ${e}`);
+    }
   }
 }
 
