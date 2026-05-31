@@ -46,6 +46,11 @@ test.describe("export buttons", () => {
     await dismissTour(page);
     await fillCaliforniaForm(page);
 
+    // On mobile, the export buttons are in the "preview" panel (some) or header.
+    // JSON export is in the header, so it should be visible regardless of panel,
+    // but ensuring a panel is good for consistency.
+    await ensurePanel(page, "preview");
+
     const [download] = await Promise.all([
       page.waitForEvent("download"),
       page.getByRole("button", { name: /export current fields as json/i }).click()

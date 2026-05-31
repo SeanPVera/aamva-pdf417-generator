@@ -88,6 +88,9 @@ export async function fillField(page: Page, code: string, value: string) {
 
 export async function fillCaliforniaForm(page: Page) {
   await selectStateAndVersion(page, "CA", "10");
+  // On mobile, ensure we are on the form panel once before starting the loop
+  // to avoid redundant ensurePanel calls inside fillField.
+  await ensurePanel(page, "form");
   for (const [code, value] of CA_REQUIRED_FIELDS) {
     await fillField(page, code, value);
   }
