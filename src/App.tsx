@@ -428,10 +428,10 @@ function App() {
                 <div className="w-12 h-12 rounded-full bg-gray-50 dark:bg-dark-surface2 flex items-center justify-center mb-4">
                   <Search className="text-gray-600 dark:text-gray-300" size={24} />
                 </div>
-                <h3 className="text-sm font-bold text-gray-900 dark:text-white">
+                <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100">
                   No matching fields found
                 </h3>
-                <p className="mt-1 text-xs text-gray-900 dark:text-gray-100 max-w-xs">
+                <p className="mt-1 text-xs text-gray-600 dark:text-gray-300 max-w-xs">
                   {searchQuery ? (
                     <>We couldn't find any fields matching "{searchQuery}".</>
                   ) : (

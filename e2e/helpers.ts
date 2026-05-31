@@ -48,6 +48,8 @@ export async function ensurePanel(page: Page, panel: "config" | "form" | "previe
   // Only click if it's not already active (aria-current is truthy)
   if ((await tabButton.count()) > 0 && (await tabButton.getAttribute("aria-current")) !== "true") {
     await tabButton.click();
+    // Give the panel a moment to animate in/render
+    await page.waitForTimeout(100);
   }
 }
 
@@ -56,17 +58,23 @@ export async function ensurePanel(page: Page, panel: "config" | "form" | "previe
  * Dismiss it early so it doesn't interfere with test interactions.
  */
 export async function dismissTour(page: Page) {
+  const dialog = page.getByRole("dialog");
   const skipBtn = page.getByRole("button", { name: /skip tour/i });
+
   try {
-    // The tour is gated behind a React.lazy chunk in some versions or might
-    // take a moment to appear. Wait up to 3s for the button.
-    await skipBtn.waitFor({ state: "visible", timeout: 3000 });
+    // If it's already there, kill it immediately.
+    if (await dialog.isVisible()) {
+      await skipBtn.click();
+      await expect(dialog).not.toBeVisible();
+      return;
+    }
+
+    // Otherwise wait up to 2s for it to lazy-load.
+    await skipBtn.waitFor({ state: "visible", timeout: 2000 });
     await skipBtn.click();
-    // Ensure the dialog is actually gone before returning control.
-    await expect(page.getByRole("dialog")).not.toBeVisible();
+    await expect(dialog).not.toBeVisible();
   } catch {
-    // If the tour didn't show up (e.g. session already marked it seen),
-    // just continue.
+    // Tour already dismissed or never showed.
   }
 }
 
