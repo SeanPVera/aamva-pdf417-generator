@@ -432,8 +432,12 @@ function App() {
                   No matching fields found
                 </h3>
                 <p className="mt-1 text-xs text-gray-900 dark:text-gray-100 max-w-xs">
-                  We couldn't find any fields matching "{searchQuery}". Try a different term or
-                  clear your filters.
+                  {searchQuery ? (
+                    <>We couldn't find any fields matching "{searchQuery}".</>
+                  ) : (
+                    <>We couldn't find any fields matching your current filters.</>
+                  )}{" "}
+                  Try a different term or clear your filters.
                 </p>
                 <button
                   type="button"
