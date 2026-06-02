@@ -1,4 +1,5 @@
 import React from "react";
+import { Search, X } from "lucide-react";
 import { Sidebar } from "./components/Sidebar";
 import { Header } from "./components/Header";
 import { ShortcutsModal } from "./components/ShortcutsModal";
@@ -423,9 +424,28 @@ function App() {
 
           <div className="p-4 lg:p-6">
             {visibleFields.length === 0 ? (
-              <p className="text-sm text-gray-500 dark:text-gray-400 italic px-1">
-                No fields match the current filters.
-              </p>
+              <div className="flex flex-col items-center justify-center py-12 px-4 text-center border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-xl">
+                <div className="w-12 h-12 rounded-full bg-gray-50 dark:bg-dark-surface2 flex items-center justify-center mb-4">
+                  <Search size={24} className="text-gray-400 dark:text-gray-500" />
+                </div>
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-1">
+                  No fields match your filters
+                </h3>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mb-4 max-w-[200px]">
+                  Try adjusting your search query or clearing the "Required only" filter.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchQuery("");
+                    setRequiredOnly(false);
+                  }}
+                  className="inline-flex items-center gap-1.5 bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-md text-xs font-semibold shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                >
+                  <X size={14} />
+                  Clear all filters
+                </button>
+              </div>
             ) : (
               AAMVA_FIELD_GROUPS.map((group) => {
                 const groupFields = fieldsByGroup.get(group.id);
