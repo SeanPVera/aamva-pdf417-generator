@@ -48,6 +48,8 @@ export async function ensurePanel(page: Page, panel: "config" | "form" | "previe
   // Only click if it's not already active (aria-current is truthy)
   if ((await tabButton.count()) > 0 && (await tabButton.getAttribute("aria-current")) !== "true") {
     await tabButton.click();
+    // Small delay to allow CSS transitions to finish on mobile viewports.
+    await page.waitForTimeout(100);
   }
 }
 
@@ -57,6 +59,7 @@ export async function ensurePanel(page: Page, panel: "config" | "form" | "previe
  */
 export async function dismissTour(page: Page) {
   const skipBtn = page.getByRole("button", { name: /skip tour/i });
+
   try {
     // The tour is gated behind a React.lazy chunk in some versions or might
     // take a moment to appear. Wait up to 3s for the button.
@@ -88,6 +91,8 @@ export async function fillField(page: Page, code: string, value: string) {
 
 export async function fillCaliforniaForm(page: Page) {
   await selectStateAndVersion(page, "CA", "10");
+  // Transition to form panel once before the loop to optimize mobile performance.
+  await ensurePanel(page, "form");
   for (const [code, value] of CA_REQUIRED_FIELDS) {
     await fillField(page, code, value);
   }

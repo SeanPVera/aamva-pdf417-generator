@@ -428,10 +428,10 @@ function App() {
                 <div className="w-12 h-12 rounded-full bg-gray-50 dark:bg-dark-surface2 flex items-center justify-center mb-4">
                   <Search size={24} className="text-gray-400 dark:text-gray-500" />
                 </div>
-                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-1">
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">
                   No fields match your filters
                 </h3>
-                <p className="text-xs text-gray-600 dark:text-gray-400 mb-4 max-w-[200px]">
+                <p className="text-xs text-gray-800 dark:text-gray-100 mb-4 max-w-[200px]">
                   Try adjusting your search query or clearing the "Required only" filter.
                 </p>
                 <button
