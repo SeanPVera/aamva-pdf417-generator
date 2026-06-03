@@ -25,6 +25,7 @@ import {
 } from "./core/generator";
 import { buildSampleFill } from "./core/sampleFiller";
 import { useSwipe } from "./hooks/useSwipe";
+import { Search } from "lucide-react";
 
 const MOBILE_PANELS = ["config", "form", "preview"] as const;
 type MobilePanel = (typeof MOBILE_PANELS)[number];
@@ -423,9 +424,27 @@ function App() {
 
           <div className="p-4 lg:p-6">
             {visibleFields.length === 0 ? (
-              <p className="text-sm text-gray-500 dark:text-gray-400 italic px-1">
-                No fields match the current filters.
-              </p>
+              <div className="flex flex-col items-center justify-center py-12 px-4 text-center border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-xl bg-gray-50/50 dark:bg-dark-surface2/30">
+                <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-dark-surface2 flex items-center justify-center mb-4">
+                  <Search size={24} className="text-gray-400" />
+                </div>
+                <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-1">
+                  No fields found
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-100 max-w-xs mb-6">
+                  We couldn't find any fields matching your current search or filter criteria.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchQuery("");
+                    setRequiredOnly(false);
+                  }}
+                  className="inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                >
+                  Clear all filters
+                </button>
+              </div>
             ) : (
               AAMVA_FIELD_GROUPS.map((group) => {
                 const groupFields = fieldsByGroup.get(group.id);
