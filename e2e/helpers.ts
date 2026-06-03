@@ -48,6 +48,8 @@ export async function ensurePanel(page: Page, panel: "config" | "form" | "previe
   // Only click if it's not already active (aria-current is truthy)
   if ((await tabButton.count()) > 0 && (await tabButton.getAttribute("aria-current")) !== "true") {
     await tabButton.click();
+    // Allow CSS transition to settle
+    await page.waitForTimeout(100);
   }
 }
 
@@ -75,7 +77,6 @@ export async function dismissTour(page: Page) {
  * as <input> — autodetect via tagName so callers don't have to care.
  */
 export async function fillField(page: Page, code: string, value: string) {
-  await ensurePanel(page, "form");
   const locator = page.locator(`#${code}`);
   await locator.waitFor({ state: "attached" });
   const tagName = await locator.evaluate((el) => el.tagName.toLowerCase());
@@ -88,6 +89,7 @@ export async function fillField(page: Page, code: string, value: string) {
 
 export async function fillCaliforniaForm(page: Page) {
   await selectStateAndVersion(page, "CA", "10");
+  await ensurePanel(page, "form");
   for (const [code, value] of CA_REQUIRED_FIELDS) {
     await fillField(page, code, value);
   }

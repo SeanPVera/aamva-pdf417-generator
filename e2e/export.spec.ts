@@ -45,6 +45,7 @@ test.describe("export buttons", () => {
     await page.goto("/");
     await dismissTour(page);
     await fillCaliforniaForm(page);
+    await ensurePanel(page, "preview");
 
     const [download] = await Promise.all([
       page.waitForEvent("download"),
