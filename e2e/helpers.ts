@@ -48,6 +48,9 @@ export async function ensurePanel(page: Page, panel: "config" | "form" | "previe
   // Only click if it's not already active (aria-current is truthy)
   if ((await tabButton.count()) > 0 && (await tabButton.getAttribute("aria-current")) !== "true") {
     await tabButton.click();
+    // Allow a small window for the CSS transition between panels to complete
+    // so locators don't fail by being "hidden" during the animation.
+    await page.waitForTimeout(100);
   }
 }
 
@@ -88,6 +91,9 @@ export async function fillField(page: Page, code: string, value: string) {
 
 export async function fillCaliforniaForm(page: Page) {
   await selectStateAndVersion(page, "CA", "10");
+  // On mobile, ensure we stay on the form panel during the fill loop
+  // to avoid redundant visibility checks inside fillField.
+  await ensurePanel(page, "form");
   for (const [code, value] of CA_REQUIRED_FIELDS) {
     await fillField(page, code, value);
   }

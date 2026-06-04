@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { dismissTour, fillCaliforniaForm, waitForPreview } from "./helpers";
+import { dismissTour, fillCaliforniaForm, waitForPreview, ensurePanel } from "./helpers";
 
 // The critical loop: select state → fill required fields → render barcode →
 // confirm the rendered canvas exists and the payload textarea round-trips.
@@ -19,6 +19,9 @@ test.describe("AAMVA generator end-to-end", () => {
     // fire while the bwip-js bundle is still downloading.
     await waitForPreview(page);
 
+    // switch back to form for filling
+    await ensurePanel(page, "form");
+
     // Strict mode is on by default, so the canvas only renders once every
     // required field is satisfied. Fill the CA v10 happy-path values rather
     // than just selecting the state — otherwise the error overlay covers
@@ -29,6 +32,8 @@ test.describe("AAMVA generator end-to-end", () => {
     // the accessibility tree exposes it as a generic with the label, so
     // match by attribute rather than role.
     const canvas = page.locator('canvas[aria-label="PDF417 barcode preview"]');
+    // On mobile, results are in the 'preview' panel.
+    await ensurePanel(page, "preview");
     await expect(canvas).toBeVisible();
 
     const textarea = page.getByRole("textbox", { name: /raw aamva payload string/i });
