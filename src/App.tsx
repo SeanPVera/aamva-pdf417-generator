@@ -434,7 +434,7 @@ function App() {
                 <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">
                   No fields match your search
                 </h3>
-                <p className="text-xs text-gray-500 dark:text-gray-100 text-center max-w-[240px] mb-4">
+                <p className="text-xs text-gray-500 dark:text-gray-400 text-center max-w-[240px] mb-4">
                   Try adjusting your filters or search query to find the field you're looking for.
                 </p>
                 <button
