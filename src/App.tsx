@@ -1,4 +1,5 @@
 import React from "react";
+import { Search } from "lucide-react";
 import { Sidebar } from "./components/Sidebar";
 import { Header } from "./components/Header";
 import { ShortcutsModal } from "./components/ShortcutsModal";
@@ -423,9 +424,30 @@ function App() {
 
           <div className="p-4 lg:p-6">
             {visibleFields.length === 0 ? (
-              <p className="text-sm text-gray-500 dark:text-gray-400 italic px-1">
-                No fields match the current filters.
-              </p>
+              <div
+                className="flex flex-col items-center justify-center py-12 px-4 rounded-lg border-2 border-dashed border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-dark-surface2/30"
+                role="status"
+              >
+                <div className="p-3 rounded-full bg-gray-100 dark:bg-dark-surface2 mb-4">
+                  <Search className="w-6 h-6 text-gray-400 dark:text-gray-500" aria-hidden="true" />
+                </div>
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">
+                  No fields match your search
+                </h3>
+                <p className="text-xs text-gray-500 dark:text-gray-100 text-center max-w-[240px] mb-4">
+                  Try adjusting your filters or search query to find the field you're looking for.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchQuery("");
+                    setRequiredOnly(false);
+                  }}
+                  className="text-xs font-semibold bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-md shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                >
+                  Clear all filters
+                </button>
+              </div>
             ) : (
               AAMVA_FIELD_GROUPS.map((group) => {
                 const groupFields = fieldsByGroup.get(group.id);
