@@ -12,6 +12,7 @@ test.describe("CA v10 happy-path form fill", () => {
     await dismissTour(page);
     await waitForPreview(page);
     await fillCaliforniaForm(page);
+    await ensurePanel(page, "preview");
 
     const textarea = page.getByRole("textbox", { name: /raw aamva payload string/i });
     await expect(textarea).not.toHaveValue("", { timeout: 10_000 });

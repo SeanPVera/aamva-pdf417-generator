@@ -24,6 +24,7 @@ test.describe("AAMVA generator end-to-end", () => {
     // than just selecting the state — otherwise the error overlay covers
     // the canvas and toBeVisible() fails by occlusion.
     await fillCaliforniaForm(page);
+    await ensurePanel(page, "preview");
 
     // <canvas> with aria-label isn't auto-assigned role=img by Chromium —
     // the accessibility tree exposes it as a generic with the label, so

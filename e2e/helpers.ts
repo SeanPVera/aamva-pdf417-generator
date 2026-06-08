@@ -46,8 +46,12 @@ export async function ensurePanel(page: Page, panel: "config" | "form" | "previe
   const tabButton = page.getByRole("button", { name: labelMap[panel], exact: true });
 
   // Only click if it's not already active (aria-current is truthy)
+  // We use count() here to avoid hanging if the button isn't found (e.g. desktop)
   if ((await tabButton.count()) > 0 && (await tabButton.getAttribute("aria-current")) !== "true") {
     await tabButton.click();
+    // Allow a small window for the CSS transition to complete on mobile
+    // viewports so that elements in the panel are considered visible.
+    await page.waitForTimeout(200);
   }
 }
 
@@ -88,6 +92,7 @@ export async function fillField(page: Page, code: string, value: string) {
 
 export async function fillCaliforniaForm(page: Page) {
   await selectStateAndVersion(page, "CA", "10");
+  await ensurePanel(page, "form");
   for (const [code, value] of CA_REQUIRED_FIELDS) {
     await fillField(page, code, value);
   }
