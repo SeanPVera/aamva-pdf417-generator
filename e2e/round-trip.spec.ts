@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { dismissTour, fillCaliforniaForm, waitForPreview } from "./helpers";
+import { dismissTour, ensurePanel, fillCaliforniaForm, waitForPreview } from "./helpers";
 
 // The critical loop: select state → fill required fields → render barcode →
 // confirm the rendered canvas exists and the payload textarea round-trips.

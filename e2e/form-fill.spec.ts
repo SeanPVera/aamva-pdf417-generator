@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { dismissTour, fillCaliforniaForm, waitForPreview } from "./helpers";
+import { dismissTour, ensurePanel, fillCaliforniaForm, waitForPreview } from "./helpers";
 
 // Drives the form through a complete CA-v10 fill-out and asserts the
 // resulting payload (a) renders into the payload textarea and (b) starts
