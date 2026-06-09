@@ -1,9 +1,23 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { BrowserPDF417Reader } from "@zxing/browser";
 import { decodeAAMVA } from "../core/decoder";
-import { Camera, X, AlertTriangle, ImagePlus, Video } from "lucide-react";
+import {
+  Camera,
+  X,
+  AlertTriangle,
+  ImagePlus,
+  Video,
+  FlipHorizontal2,
+  Flashlight,
+  FlashlightOff
+} from "lucide-react";
 import { useFormStore } from "../hooks/useFormStore";
 import { useToast } from "./Toast";
+
+// `torch` is a non-standard MediaTrack constraint/capability not yet in the DOM
+// typings; narrow it locally so we can feature-detect without `any`.
+type TorchCapabilities = MediaTrackCapabilities & { torch?: boolean };
+type TorchConstraintSet = MediaTrackConstraintSet & { torch?: boolean };
 
 interface WebcamScannerProps {
   onClose: () => void;
@@ -36,13 +50,18 @@ function describeCameraError(err: unknown): string {
 export function WebcamScanner({ onClose }: WebcamScannerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
+  const trackRef = useRef<MediaStreamTrack | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [scanning, setScanning] = useState(false);
   const [imageScanning, setImageScanning] = useState(false);
   const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
   const [selectedDeviceId, setSelectedDeviceId] = useState<string>("");
+  const [torchSupported, setTorchSupported] = useState(false);
+  const [torchOn, setTorchOn] = useState(false);
   const loadJson = useFormStore((s) => s.loadJson);
   const setStateVersion = useFormStore((s) => s.setStateVersion);
+  const storedCameraId = useFormStore((s) => s.cameraDeviceId);
+  const setCameraDeviceId = useFormStore((s) => s.setCameraDeviceId);
   const toast = useToast();
 
   const applyDecodedPayload = useCallback(
@@ -61,18 +80,22 @@ export function WebcamScanner({ onClose }: WebcamScannerProps) {
     [loadJson, onClose, setStateVersion, toast]
   );
 
-  // Load available cameras once on mount
+  // Load available cameras once on mount. Prefer the camera the user scanned
+  // with last time; otherwise default to the last device (usually the rear
+  // camera on phones).
   useEffect(() => {
     BrowserPDF417Reader.listVideoInputDevices()
       .then((devs) => {
         setDevices(devs);
-        const last = devs[devs.length - 1];
-        if (last) setSelectedDeviceId(last.deviceId);
+        const remembered = devs.find((d) => d.deviceId === storedCameraId);
+        const fallback = devs[devs.length - 1];
+        const chosen = remembered ?? fallback;
+        if (chosen) setSelectedDeviceId(chosen.deviceId);
       })
       .catch(() => {
         // Permission not yet granted — scanner start will surface the real error
       });
-  }, []);
+  }, [storedCameraId]);
 
   // Start/restart scanner whenever selectedDeviceId changes
   useEffect(() => {
@@ -86,6 +109,8 @@ export function WebcamScanner({ onClose }: WebcamScannerProps) {
       try {
         setScanning(true);
         setError(null);
+        setTorchOn(false);
+        setTorchSupported(false);
         reader = new BrowserPDF417Reader();
 
         if (videoRef.current && !cancelled) {
@@ -99,6 +124,16 @@ export function WebcamScanner({ onClose }: WebcamScannerProps) {
               }
             }
           );
+
+          // Remember the working camera and detect torch support.
+          if (selectedDeviceId) setCameraDeviceId(selectedDeviceId);
+          const stream = videoRef.current.srcObject as MediaStream | null;
+          const track = stream?.getVideoTracks()[0] ?? null;
+          trackRef.current = track;
+          if (track && typeof track.getCapabilities === "function") {
+            const caps = track.getCapabilities() as TorchCapabilities;
+            setTorchSupported(!!caps.torch);
+          }
         }
       } catch (err: unknown) {
         if (!cancelled) {
@@ -113,8 +148,28 @@ export function WebcamScanner({ onClose }: WebcamScannerProps) {
     return () => {
       cancelled = true;
       controls?.stop();
+      trackRef.current = null;
     };
-  }, [selectedDeviceId, applyDecodedPayload]);
+  }, [selectedDeviceId, applyDecodedPayload, setCameraDeviceId]);
+
+  const handleFlipCamera = () => {
+    if (devices.length < 2) return;
+    const idx = devices.findIndex((d) => d.deviceId === selectedDeviceId);
+    const next = devices[(idx + 1) % devices.length];
+    if (next) setSelectedDeviceId(next.deviceId);
+  };
+
+  const handleToggleTorch = async () => {
+    const track = trackRef.current;
+    if (!track) return;
+    const next = !torchOn;
+    try {
+      await track.applyConstraints({ advanced: [{ torch: next } as TorchConstraintSet] });
+      setTorchOn(next);
+    } catch {
+      setTorchSupported(false);
+    }
+  };
 
   const handleImageSelection = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -229,6 +284,35 @@ export function WebcamScanner({ onClose }: WebcamScannerProps) {
             <ImagePlus className="h-4 w-4" aria-hidden />
             {imageScanning ? "Scanning image…" : "Use photo (iPhone-friendly)"}
           </button>
+          {devices.length > 1 && (
+            <button
+              type="button"
+              onClick={handleFlipCamera}
+              className="inline-flex items-center gap-2 rounded border border-slate-300 dark:border-slate-600 px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700"
+              title="Switch to the next camera"
+              aria-label="Flip camera"
+            >
+              <FlipHorizontal2 className="h-4 w-4" aria-hidden />
+              Flip
+            </button>
+          )}
+          {torchSupported && (
+            <button
+              type="button"
+              onClick={handleToggleTorch}
+              aria-pressed={torchOn}
+              className="inline-flex items-center gap-2 rounded border border-slate-300 dark:border-slate-600 px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700"
+              title="Toggle the camera flashlight"
+              aria-label="Toggle flashlight"
+            >
+              {torchOn ? (
+                <FlashlightOff className="h-4 w-4" aria-hidden />
+              ) : (
+                <Flashlight className="h-4 w-4" aria-hidden />
+              )}
+              {torchOn ? "Light off" : "Light on"}
+            </button>
+          )}
           <span className="text-xs text-slate-500 dark:text-slate-400">
             Pick from Photos or open camera directly on mobile.
           </span>

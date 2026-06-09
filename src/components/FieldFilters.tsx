@@ -1,5 +1,13 @@
 import React from "react";
-import { Search, X as XIcon, ArrowDown, Wand2, FlaskConical } from "lucide-react";
+import {
+  Search,
+  X as XIcon,
+  ArrowDown,
+  Wand2,
+  FlaskConical,
+  ChevronsDownUp,
+  ChevronsUpDown
+} from "lucide-react";
 
 interface FieldFiltersProps {
   query: string;
@@ -14,6 +22,8 @@ interface FieldFiltersProps {
   hasNextEmpty: boolean;
   onGenerateAutoFields: () => void;
   onFillSample?: () => void;
+  onCollapseAll?: () => void;
+  onExpandAll?: () => void;
 }
 
 export const FieldFilters: React.FC<FieldFiltersProps> = ({
@@ -28,7 +38,9 @@ export const FieldFilters: React.FC<FieldFiltersProps> = ({
   onJumpToNextEmpty,
   hasNextEmpty,
   onGenerateAutoFields,
-  onFillSample
+  onFillSample,
+  onCollapseAll,
+  onExpandAll
 }) => {
   const inputRef = React.useRef<HTMLInputElement | null>(null);
 
@@ -123,12 +135,38 @@ export const FieldFilters: React.FC<FieldFiltersProps> = ({
           <button
             type="button"
             onClick={onFillSample}
-            aria-label="Fill all fields with sample data (dev only)"
-            title="Fill all fields with sample data (dev only)"
+            aria-label="Fill all fields with demo data"
+            title="Fill all fields with realistic demo data"
             className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 text-xs font-medium text-amber-800 dark:text-amber-200 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           >
             <FlaskConical size={12} aria-hidden="true" />
-            Fill sample (dev)
+            Autofill demo
+          </button>
+        )}
+
+        {onCollapseAll && (
+          <button
+            type="button"
+            onClick={onCollapseAll}
+            aria-label="Collapse all field groups"
+            title="Collapse all field groups"
+            className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-gray-100 dark:bg-[#2C2C2C] border border-gray-200 dark:border-[#444] text-xs font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-[#333] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          >
+            <ChevronsDownUp size={12} aria-hidden="true" />
+            Collapse all
+          </button>
+        )}
+
+        {onExpandAll && (
+          <button
+            type="button"
+            onClick={onExpandAll}
+            aria-label="Expand all field groups"
+            title="Expand all field groups"
+            className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-gray-100 dark:bg-[#2C2C2C] border border-gray-200 dark:border-[#444] text-xs font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-[#333] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          >
+            <ChevronsUpDown size={12} aria-hidden="true" />
+            Expand all
           </button>
         )}
       </div>

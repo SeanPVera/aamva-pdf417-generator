@@ -11,7 +11,12 @@ import {
   Copy,
   Check,
   ArrowDownToLine,
-  Printer
+  Printer,
+  Braces,
+  Clipboard,
+  ZoomIn,
+  ZoomOut,
+  ShieldCheck
 } from "lucide-react";
 import { useFormStore } from "../hooks/useFormStore";
 import { generateAAMVAPayload } from "../core/generator";
@@ -19,6 +24,11 @@ import { getFieldsForStateAndVersion } from "../core/schema";
 import { decodeAAMVA } from "../core/decoder";
 import { getValidationIssues } from "../core/validation";
 import { getBarcodeDimensions } from "../core/barcodeDimensions";
+import { buildExportBasename } from "../core/exportNaming";
+import { getStateCritter } from "../core/stateCritters";
+import { HoloShimmer } from "./HoloShimmer";
+import { CritterConfetti } from "./CritterConfetti";
+import { ApprovalStamp } from "./ApprovalStamp";
 
 const EXPORT_DPI = 300;
 
@@ -93,16 +103,25 @@ function CollapsibleSection({
 interface BarcodePreviewProps {
   mobileHidden?: boolean;
   onScrollToField?: (code: string) => void;
+  whimsy?: boolean;
 }
 
 export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
   mobileHidden = false,
-  onScrollToField
+  onScrollToField,
+  whimsy = true
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { state, version, fields, strictMode, subfileType } = useFormStore();
   const [error, setError] = useState<string | null>(null);
   const [payloadStr, setPayloadStr] = useState<string>("");
+  const [zoom, setZoom] = useState(1);
+  const [confettiKey, setConfettiKey] = useState(0);
+  const [stampKey, setStampKey] = useState(0);
+  const [jsonCopied, setJsonCopied] = useState(false);
+  const [imgCopied, setImgCopied] = useState(false);
+  const wasReadyRef = useRef(false);
+  const wasValidRef = useRef(false);
 
   useEffect(() => {
     const generate = () => {
@@ -158,9 +177,12 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
     const url = target.toDataURL("image/png");
     const a = document.createElement("a");
     a.href = url;
-    a.download = `barcode_${state}_${version}.png`;
+    a.download = exportBasename() + ".png";
     a.click();
   };
+
+  const exportBasename = () =>
+    buildExportBasename({ state, version, fields, subfileType, prefix: "barcode" });
 
   const handleExportSVG = () => {
     if (!payloadStr || error) return;
@@ -176,7 +198,7 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `barcode_${state}_${version}.svg`;
+      a.download = exportBasename() + ".svg";
       a.click();
       URL.revokeObjectURL(url);
     } catch {
@@ -190,7 +212,7 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `barcode_${state}_${version}.svg`;
+      a.download = exportBasename() + ".svg";
       a.click();
       URL.revokeObjectURL(url);
     }
@@ -228,6 +250,39 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
 
   // Decoded output
   const decoded = payloadStr ? decodeAAMVA(payloadStr) : null;
+
+  const handleCopyJson = async () => {
+    if (!decoded?.json) return;
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(decoded.json, null, 2));
+      setJsonCopied(true);
+      setTimeout(() => setJsonCopied(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy JSON:", err);
+    }
+  };
+
+  const handleCopyImage = async () => {
+    const canvas = canvasRef.current;
+    if (!canvas || error || !payloadStr) return;
+    const ClipboardItemCtor = (window as unknown as { ClipboardItem?: typeof ClipboardItem })
+      .ClipboardItem;
+    if (!ClipboardItemCtor || !navigator.clipboard?.write) return;
+    try {
+      const blob = await new Promise<Blob | null>((resolve) =>
+        canvas.toBlob((b) => resolve(b), "image/png")
+      );
+      if (!blob) return;
+      await navigator.clipboard.write([new ClipboardItemCtor({ "image/png": blob })]);
+      setImgCopied(true);
+      setTimeout(() => setImgCopied(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy image:", err);
+    }
+  };
+
+  const canCopyImage =
+    typeof window !== "undefined" && "ClipboardItem" in window && !!navigator.clipboard?.write;
   const decodedEntries = decoded?.json
     ? Object.entries(decoded.json).filter(([k]) => k !== "version" && k !== "state")
     : [];
@@ -238,6 +293,32 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
   const errorCount = issues.filter((i) => i.severity === "error").length;
   const warningCount = issues.filter((i) => i.severity === "warning").length;
   const issueCount = issues.length;
+
+  const success = !!payloadStr && !error;
+  const emptyRequired = schemaFields.filter((f) => f.required && !(fields[f.code] || "").trim());
+  const dims = getBarcodeDimensions(state);
+  const critter = getStateCritter(state);
+
+  // Fire the celebratory confetti on the rising edge of a successful render.
+  useEffect(() => {
+    if (success && !wasReadyRef.current) {
+      wasReadyRef.current = true;
+      if (whimsy) setTimeout(() => setConfettiKey((k) => k + 1), 0);
+    } else if (!success) {
+      wasReadyRef.current = false;
+    }
+  }, [success, whimsy]);
+
+  // Thunk the APPROVED stamp on the rising edge of a fully-valid payload.
+  useEffect(() => {
+    const valid = success && issueCount === 0;
+    if (valid && !wasValidRef.current) {
+      wasValidRef.current = true;
+      if (whimsy) setTimeout(() => setStampKey((k) => k + 1), 0);
+    } else if (!valid) {
+      wasValidRef.current = false;
+    }
+  }, [success, issueCount, whimsy]);
   const reportBadge =
     issueCount === 0
       ? "Pass"
@@ -266,18 +347,70 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
       }`}
       aria-label="Barcode preview and diagnostics"
     >
-      <h2 className="text-lg font-medium tracking-tight text-gray-900 dark:text-gray-100">
-        Preview
-      </h2>
+      <div className="flex items-center justify-between gap-2">
+        <h2 className="text-lg font-medium tracking-tight text-gray-900 dark:text-gray-100">
+          Preview
+        </h2>
+        {strictMode && (
+          <span
+            className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded-full bg-brand-50 dark:bg-brand-900/40 text-brand-700 dark:text-brand-300 border border-brand-200 dark:border-brand-800"
+            title="Strict compliance mode is on — warnings block generation."
+          >
+            <ShieldCheck size={11} /> Strict
+          </span>
+        )}
+      </div>
 
       {/* Canvas — wrapped in a pinch-zoomable scroller. The browser handles
           the gesture natively when `touch-action: pinch-zoom` is set. */}
       <div className="printable-barcode bg-white dark:bg-gray-900 border border-gray-200 dark:border-dark-border p-4 rounded-md flex items-center justify-center min-h-[150px] relative overflow-auto barcode-zoom">
         <canvas
           ref={canvasRef}
-          className="max-w-full select-none"
+          className="max-w-full select-none origin-center transition-transform duration-150"
+          style={{ transform: `scale(${zoom})` }}
           aria-label="PDF417 barcode preview (pinch to zoom)"
         />
+        {success && whimsy && <HoloShimmer state={state} enabled={whimsy} />}
+        {success && (
+          <CritterConfetti emoji={critter.emoji} fireKey={confettiKey} enabled={whimsy} />
+        )}
+        {success && <ApprovalStamp stampKey={stampKey} enabled={whimsy} />}
+
+        {/* Zoom controls — complement native pinch-zoom with explicit buttons. */}
+        {success && (
+          <div className="absolute bottom-1.5 right-1.5 z-10 flex items-center gap-0.5 rounded-md bg-white/85 dark:bg-gray-800/85 border border-gray-200 dark:border-gray-700 shadow-sm backdrop-blur-sm print:hidden">
+            <button
+              type="button"
+              onClick={() => setZoom((z) => Math.max(0.5, Math.round((z - 0.25) * 100) / 100))}
+              disabled={zoom <= 0.5}
+              aria-label="Zoom out"
+              title="Zoom out"
+              className="p-1 text-gray-600 dark:text-gray-300 hover:text-brand-600 disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded"
+            >
+              <ZoomOut size={13} />
+            </button>
+            <button
+              type="button"
+              onClick={() => setZoom(1)}
+              aria-label="Reset zoom"
+              title="Reset zoom"
+              className="px-1 text-[10px] font-mono tabular-nums text-gray-600 dark:text-gray-300 hover:text-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded"
+            >
+              {Math.round(zoom * 100)}%
+            </button>
+            <button
+              type="button"
+              onClick={() => setZoom((z) => Math.min(3, Math.round((z + 0.25) * 100) / 100))}
+              disabled={zoom >= 3}
+              aria-label="Zoom in"
+              title="Zoom in"
+              className="p-1 text-gray-600 dark:text-gray-300 hover:text-brand-600 disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded"
+            >
+              <ZoomIn size={13} />
+            </button>
+          </div>
+        )}
+
         {error && isMissingRequiredError(error) ? (
           <div
             role="status"
@@ -293,13 +426,17 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
             <button
               type="button"
               onClick={() => {
-                const first = issues.find((i) => i.severity === "error");
-                if (first) scrollToField(first.code);
+                const code =
+                  emptyRequired[0]?.code ?? issues.find((i) => i.severity === "error")?.code;
+                if (code) scrollToField(code);
               }}
-              className="mt-1 flex items-center gap-1.5 bg-brand-600 hover:bg-brand-700 text-white px-3 py-1.5 rounded-md text-xs font-semibold shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+              disabled={emptyRequired.length === 0}
+              className="mt-1 flex items-center gap-1.5 bg-brand-600 hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-3 py-1.5 rounded-md text-xs font-semibold shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
             >
               <ArrowDownToLine size={13} />
-              Fix required fields
+              {emptyRequired.length > 0
+                ? `Fix ${emptyRequired.length} required field${emptyRequired.length === 1 ? "" : "s"}`
+                : "Required fields ready"}
             </button>
           </div>
         ) : error ? (
@@ -310,6 +447,18 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
             {error}
           </div>
         ) : null}
+      </div>
+
+      {/* Printed-size readout */}
+      <div className="-mt-2 flex items-center justify-between text-[11px] text-gray-500 dark:text-gray-400">
+        <span title="Target printed size of the PDF417 area on the credential">
+          Print size: {dims.widthInches}″ × {dims.heightInches}″ @ {EXPORT_DPI} DPI
+        </span>
+        {success && whimsy && (
+          <span title={critter.name} aria-hidden>
+            {critter.emoji} {state}
+          </span>
+        )}
       </div>
 
       {/* Export buttons */}
@@ -341,6 +490,32 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
         >
           <Printer size={14} />
           Print
+        </button>
+      </div>
+
+      {/* Secondary copy actions */}
+      <div className="-mt-2 flex gap-2">
+        {canCopyImage && (
+          <button
+            onClick={handleCopyImage}
+            disabled={!success}
+            aria-label="Copy barcode image to clipboard"
+            title="Copy the barcode PNG to the clipboard"
+            className="flex-1 flex items-center justify-center gap-1.5 bg-gray-100 dark:bg-dark-surface2 hover:bg-gray-200 dark:hover:bg-[#383838] disabled:opacity-40 disabled:cursor-not-allowed text-gray-700 dark:text-gray-200 py-1.5 rounded text-xs font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          >
+            {imgCopied ? <Check size={13} className="text-green-500" /> : <Clipboard size={13} />}
+            {imgCopied ? "Copied!" : "Copy image"}
+          </button>
+        )}
+        <button
+          onClick={handleCopyJson}
+          disabled={!decoded?.json}
+          aria-label="Copy decoded payload as JSON"
+          title="Copy the decoded payload as structured JSON"
+          className="flex-1 flex items-center justify-center gap-1.5 bg-gray-100 dark:bg-dark-surface2 hover:bg-gray-200 dark:hover:bg-[#383838] disabled:opacity-40 disabled:cursor-not-allowed text-gray-700 dark:text-gray-200 py-1.5 rounded text-xs font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+        >
+          {jsonCopied ? <Check size={13} className="text-green-500" /> : <Braces size={13} />}
+          {jsonCopied ? "Copied!" : "Copy JSON"}
         </button>
       </div>
 

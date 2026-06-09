@@ -13,7 +13,10 @@ import {
   Sparkles,
   Keyboard,
   GitCompare,
-  ChevronDown
+  ChevronDown,
+  PartyPopper,
+  Volume2,
+  VolumeX
 } from "lucide-react";
 import { useFormStore, Theme } from "../hooks/useFormStore";
 import { InstallPrompt } from "./InstallPrompt";
@@ -21,6 +24,7 @@ import { useToast } from "./Toast";
 import { QUICK_FILL_PRESETS } from "../core/presets";
 import { getStateTheme } from "../core/stateThemes";
 import { AAMVA_STATES } from "../core/states";
+import { buildExportBasename } from "../core/exportNaming";
 
 interface HeaderProps {
   onStartScan: () => void;
@@ -60,17 +64,28 @@ export const Header: React.FC<HeaderProps> = ({ onStartScan, onOpenShortcuts, on
     fields,
     state,
     version,
+    subfileType,
     loadJson,
     theme,
     setTheme,
     undo,
     redo,
     canUndo,
-    canRedo
+    canRedo,
+    whimsy,
+    setWhimsy,
+    soundOn,
+    setSoundOn,
+    _history,
+    _future
   } = useFormStore();
   const importRef = useRef<HTMLInputElement>(null);
   const presetsRef = useRef<HTMLDivElement>(null);
+  const funRef = useRef<HTMLDivElement>(null);
   const [presetsOpen, setPresetsOpen] = useState(false);
+  const [funOpen, setFunOpen] = useState(false);
+  const undoDepth = _history.length;
+  const redoDepth = _future.length;
   const toast = useToast();
   const activeStateTheme = getStateTheme(state);
   const activeStateName = AAMVA_STATES[state]?.name ?? state;
@@ -93,13 +108,32 @@ export const Header: React.FC<HeaderProps> = ({ onStartScan, onOpenShortcuts, on
     };
   }, [presetsOpen]);
 
+  useEffect(() => {
+    if (!funOpen) return;
+    const onClick = (e: MouseEvent) => {
+      if (funRef.current && !funRef.current.contains(e.target as Node)) {
+        setFunOpen(false);
+      }
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setFunOpen(false);
+    };
+    window.addEventListener("mousedown", onClick);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("mousedown", onClick);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [funOpen]);
+
   const handleExportJson = () => {
     const data = { state, version, ...fields };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `aamva_${state}_${version}.json`;
+    a.download =
+      buildExportBasename({ state, version, fields, subfileType, prefix: "aamva" }) + ".json";
     a.click();
     URL.revokeObjectURL(url);
     toast.success(`Exported ${a.download}`);
@@ -128,11 +162,20 @@ export const Header: React.FC<HeaderProps> = ({ onStartScan, onOpenShortcuts, on
   };
 
   const handleClearData = () => {
-    if (window.confirm("Are you sure you want to clear all PII from memory?")) {
+    const filledCount = Object.values(fields).filter((v) => (v ?? "").trim().length > 0).length;
+    // PII lives only in memory — it is never persisted (see useFormStore), so
+    // clearing the in-memory fields is the complete and honest cleanup.
+    const prompt =
+      filledCount > 0
+        ? `Clear all ${filledCount} filled field${filledCount === 1 ? "" : "s"} from memory?`
+        : "Clear the form? No fields are currently filled.";
+    if (window.confirm(prompt)) {
       clearFields();
-      // Must match the persist name in useFormStore
-      localStorage.removeItem("aamva_form_data_secure");
-      toast.success("Cleared all PII fields");
+      toast.success(
+        filledCount > 0
+          ? `Cleared ${filledCount} field${filledCount === 1 ? "" : "s"}`
+          : "Form cleared"
+      );
     }
   };
 
@@ -176,20 +219,36 @@ export const Header: React.FC<HeaderProps> = ({ onStartScan, onOpenShortcuts, on
         <button
           onClick={undo}
           disabled={!canUndo()}
-          title="Undo (Ctrl+Z)"
-          aria-label="Undo last field change"
-          className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 disabled:opacity-40 disabled:cursor-not-allowed px-2 py-1.5 rounded transition text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          title={`Undo (Ctrl+Z)${undoDepth ? ` — ${undoDepth} step${undoDepth === 1 ? "" : "s"}` : ""}`}
+          aria-label={`Undo last field change${undoDepth ? ` (${undoDepth} available)` : ""}`}
+          className="relative flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 disabled:opacity-40 disabled:cursor-not-allowed px-2 py-1.5 rounded transition text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
         >
           <Undo2 size={15} />
+          {undoDepth > 0 && (
+            <span
+              aria-hidden
+              className="absolute -top-0.5 -right-0.5 min-w-[14px] h-[14px] px-0.5 rounded-full bg-brand-600 text-white text-[9px] leading-[14px] text-center font-semibold shadow"
+            >
+              {undoDepth > 9 ? "9+" : undoDepth}
+            </span>
+          )}
         </button>
         <button
           onClick={redo}
           disabled={!canRedo()}
-          title="Redo (Ctrl+Shift+Z)"
-          aria-label="Redo field change"
-          className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 disabled:opacity-40 disabled:cursor-not-allowed px-2 py-1.5 rounded transition text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          title={`Redo (Ctrl+Shift+Z)${redoDepth ? ` — ${redoDepth} step${redoDepth === 1 ? "" : "s"}` : ""}`}
+          aria-label={`Redo field change${redoDepth ? ` (${redoDepth} available)` : ""}`}
+          className="relative flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 disabled:opacity-40 disabled:cursor-not-allowed px-2 py-1.5 rounded transition text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
         >
           <Redo2 size={15} />
+          {redoDepth > 0 && (
+            <span
+              aria-hidden
+              className="absolute -top-0.5 -right-0.5 min-w-[14px] h-[14px] px-0.5 rounded-full bg-brand-600 text-white text-[9px] leading-[14px] text-center font-semibold shadow"
+            >
+              {redoDepth > 9 ? "9+" : redoDepth}
+            </span>
+          )}
         </button>
 
         <div className="state-divider w-px h-5 bg-gray-200 dark:bg-dark-border mx-1" />
@@ -331,6 +390,73 @@ export const Header: React.FC<HeaderProps> = ({ onStartScan, onOpenShortcuts, on
         >
           <Keyboard size={15} />
         </button>
+
+        {/* Fun / whimsy toggles */}
+        <div className="relative" ref={funRef}>
+          <button
+            onClick={() => setFunOpen((v) => !v)}
+            title="Playful extras"
+            aria-haspopup="menu"
+            aria-expanded={funOpen}
+            aria-label="Toggle playful extras"
+            className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 px-2 py-1.5 rounded transition text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          >
+            <PartyPopper size={15} />
+          </button>
+          {funOpen && (
+            <div
+              role="menu"
+              className="absolute right-0 mt-1 w-64 bg-white dark:bg-dark-surface border border-gray-200 dark:border-dark-border rounded-md shadow-lg z-30 overflow-hidden text-gray-800 dark:text-gray-100"
+            >
+              <div className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 border-b border-gray-100 dark:border-dark-border">
+                Playful extras
+              </div>
+              <button
+                type="button"
+                role="menuitemcheckbox"
+                aria-checked={whimsy}
+                onClick={() => {
+                  setWhimsy(!whimsy);
+                  toast.info(whimsy ? "Whimsy off — all business." : "Whimsy on ✨");
+                }}
+                className="w-full flex items-center justify-between px-3 py-2 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-sm focus-visible:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-dark-surface2"
+              >
+                <span className="flex items-center gap-2">
+                  <PartyPopper size={14} /> Whimsy effects
+                </span>
+                <span
+                  aria-hidden
+                  className={`text-xs font-semibold ${whimsy ? "text-green-600 dark:text-green-400" : "text-gray-400"}`}
+                >
+                  {whimsy ? "ON" : "OFF"}
+                </span>
+              </button>
+              <button
+                type="button"
+                role="menuitemcheckbox"
+                aria-checked={soundOn}
+                onClick={() => {
+                  setSoundOn(!soundOn);
+                  toast.info(soundOn ? "Clerk sounds muted" : "Clerk sounds on 🔊");
+                }}
+                className="w-full flex items-center justify-between px-3 py-2 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-sm focus-visible:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-dark-surface2"
+              >
+                <span className="flex items-center gap-2">
+                  {soundOn ? <Volume2 size={14} /> : <VolumeX size={14} />} Clerk sound FX
+                </span>
+                <span
+                  aria-hidden
+                  className={`text-xs font-semibold ${soundOn ? "text-green-600 dark:text-green-400" : "text-gray-400"}`}
+                >
+                  {soundOn ? "ON" : "OFF"}
+                </span>
+              </button>
+              <p className="px-3 py-2 text-[11px] text-gray-400 dark:text-gray-500 border-t border-gray-100 dark:border-dark-border">
+                Cosmetic only — never affects the barcode. Psst: try the Konami code.
+              </p>
+            </div>
+          )}
+        </div>
 
         {/* Clear PII */}
         <button

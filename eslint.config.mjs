@@ -42,6 +42,10 @@ export default [
         { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
       ],
       "no-unused-vars": "off",
+      // TypeScript's compiler catches undefined references; the base rule
+      // incorrectly flags TypeScript-only types (e.g. DOM interfaces used as
+      // type operands) that are valid in a `lib: ["dom"]` TS project.
+      "no-undef": "off",
     },
   },
 

@@ -8,6 +8,7 @@ import { FieldInput } from "./components/FieldInput";
 import { FieldGroup } from "./components/FieldGroup";
 import { FieldFilters } from "./components/FieldFilters";
 import { DropZoneOverlay } from "./components/DropZoneOverlay";
+import { ClerkMascot } from "./components/ClerkMascot";
 import { useToast } from "./components/Toast";
 import { useFormStore } from "./hooks/useFormStore";
 import {
@@ -17,6 +18,7 @@ import {
   type AAMVAField,
   type FieldGroupId
 } from "./core/schema";
+import { getValidationIssues } from "./core/validation";
 import { applyStateThemeToDocument } from "./core/stateThemes";
 import {
   generateStateDiscriminator,
@@ -25,6 +27,8 @@ import {
 } from "./core/generator";
 import { buildSampleFill } from "./core/sampleFiller";
 import { useSwipe } from "./hooks/useSwipe";
+import { useClickClack } from "./hooks/useClickClack";
+import { useKonami } from "./hooks/useKonami";
 
 const MOBILE_PANELS = ["config", "form", "preview"] as const;
 type MobilePanel = (typeof MOBILE_PANELS)[number];
@@ -77,10 +81,16 @@ function App() {
     requiredOnly,
     setRequiredOnly,
     tourSeenAt,
-    markTourSeen
+    markTourSeen,
+    whimsy,
+    soundOn,
+    _changedAt,
+    _changedCodes
   } = useFormStore();
   const [copiedField, setCopiedField] = React.useState<string | null>(null);
   const [searchQuery, setSearchQuery] = React.useState("");
+  const [party, setParty] = React.useState(false);
+  const playClack = useClickClack(soundOn && whimsy);
   const copyTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const schemaFields = getFieldsForStateAndVersion(state, version);
   const toast = useToast();
@@ -121,6 +131,22 @@ function App() {
 
   const isFieldFilled = (code: string) => (fields[code] || "").trim().length > 0;
 
+  // Single source of validation truth for the mobile tab badges and the clerk
+  // mascot. BarcodePreview keeps its own report for the payload-specific view.
+  const errorCount = React.useMemo(
+    () =>
+      getValidationIssues(schemaFields, { ...fields, DAJ: state }, state, strictMode).filter(
+        (i) => i.severity === "error"
+      ).length,
+    [schemaFields, fields, state, strictMode]
+  );
+  const anyFields = React.useMemo(
+    () => Object.values(fields).some((v) => (v || "").trim().length > 0),
+    [fields]
+  );
+  const requiredComplete = requiredTotal > 0 && requiredFilled === requiredTotal;
+  const previewReady = anyFields && errorCount === 0 && requiredComplete;
+
   // Apply global theme + state palette to <html> element
   React.useEffect(() => {
     const html = document.documentElement;
@@ -157,6 +183,48 @@ function App() {
 
   const handleChange = (code: string, value: string) => {
     setField(code, value);
+    playClack();
+  };
+
+  // Konami code → DMV disco. Cosmetic; gated behind the whimsy preference.
+  useKonami(() => {
+    if (!whimsy) return;
+    setParty((p) => {
+      const next = !p;
+      toast.success(next ? "🪩 DMV disco mode engaged!" : "Back to business.");
+      return next;
+    });
+  });
+
+  // Diff-highlight: flash fields that changed in the last bulk load
+  // (import / scan / preset) so the user sees exactly what landed.
+  React.useEffect(() => {
+    if (!_changedAt || _changedCodes.length === 0) return;
+    const flashed: HTMLElement[] = [];
+    for (const code of _changedCodes) {
+      const el = document.getElementById(code);
+      if (!el) continue;
+      el.classList.remove("field-diff-flash");
+      void el.offsetWidth; // restart the animation
+      el.classList.add("field-diff-flash");
+      flashed.push(el);
+    }
+    const t = window.setTimeout(
+      () => flashed.forEach((el) => el.classList.remove("field-diff-flash")),
+      1600
+    );
+    return () => window.clearTimeout(t);
+  }, [_changedAt, _changedCodes]);
+
+  const handleCollapseAll = () => {
+    for (const group of AAMVA_FIELD_GROUPS) {
+      if (!collapsedGroups[group.id]) toggleGroupCollapsed(group.id);
+    }
+  };
+  const handleExpandAll = () => {
+    for (const group of AAMVA_FIELD_GROUPS) {
+      if (collapsedGroups[group.id]) toggleGroupCollapsed(group.id);
+    }
   };
 
   const handleGenerate = (code: string) => {
@@ -349,7 +417,11 @@ function App() {
   }, [undo, redo, canUndo, canRedo]);
 
   return (
-    <div className="app-shell flex flex-col min-h-screen bg-white dark:bg-[#121212] text-gray-900 dark:text-gray-200 font-sans">
+    <div
+      className={`app-shell flex flex-col min-h-screen bg-white dark:bg-[#121212] text-gray-900 dark:text-gray-200 font-sans${
+        party && whimsy ? " party-mode" : ""
+      }`}
+    >
       <Header
         onStartScan={() => setIsScanning(true)}
         onOpenShortcuts={() => setShortcutsOpen(true)}
@@ -365,21 +437,41 @@ function App() {
             { key: "config", label: "Config" },
             { key: "form", label: "Fields" },
             { key: "preview", label: "Preview" }
-          ].map((panel) => (
-            <button
-              key={panel.key}
-              type="button"
-              onClick={() => setMobilePanel(panel.key as MobilePanel)}
-              aria-current={mobilePanel === panel.key}
-              className={`state-themed-tab rounded-md px-3 py-2 text-sm font-medium transition ${
-                mobilePanel === panel.key
-                  ? "state-primary-bg text-white"
-                  : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200"
-              }`}
-            >
-              {panel.label}
-            </button>
-          ))}
+          ].map((panel) => {
+            const showErrorBadge = panel.key === "form" && errorCount > 0;
+            const showReadyBadge = panel.key === "preview" && previewReady;
+            return (
+              <button
+                key={panel.key}
+                type="button"
+                onClick={() => setMobilePanel(panel.key as MobilePanel)}
+                aria-current={mobilePanel === panel.key}
+                className={`state-themed-tab relative rounded-md px-3 py-2 text-sm font-medium transition ${
+                  mobilePanel === panel.key
+                    ? "state-primary-bg text-white"
+                    : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200"
+                }`}
+              >
+                {panel.label}
+                {showErrorBadge && (
+                  <span
+                    className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 rounded-full bg-red-600 text-white text-[10px] leading-4 font-semibold shadow"
+                    aria-label={`${errorCount} validation error${errorCount === 1 ? "" : "s"}`}
+                  >
+                    {errorCount > 9 ? "9+" : errorCount}
+                  </span>
+                )}
+                {showReadyBadge && (
+                  <span
+                    className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-green-500 text-white text-[10px] leading-4 text-center shadow"
+                    aria-label="Barcode ready"
+                  >
+                    ✓
+                  </span>
+                )}
+              </button>
+            );
+          })}
         </div>
         <p className="text-xs text-gray-400 dark:text-gray-500 text-center mt-1 select-none">
           Swipe left or right to switch panels
@@ -418,7 +510,9 @@ function App() {
             onJumpToNextEmpty={handleJumpToNextEmpty}
             hasNextEmpty={!!nextEmptyRequiredCode}
             onGenerateAutoFields={handleGenerateAllAuto}
-            onFillSample={import.meta.env.DEV ? handleFillSample : undefined}
+            onFillSample={handleFillSample}
+            onCollapseAll={handleCollapseAll}
+            onExpandAll={handleExpandAll}
           />
 
           <div className="p-4 lg:p-6">
@@ -481,6 +575,7 @@ function App() {
           <BarcodePreview
             mobileHidden={mobilePanel !== "preview"}
             onScrollToField={handleScrollToField}
+            whimsy={whimsy}
           />
         </React.Suspense>
       </main>
@@ -502,6 +597,12 @@ function App() {
       <CompareView open={compareOpen} onClose={() => setCompareOpen(false)} />
       <WelcomeTour open={showTour} onClose={handleCloseTour} />
       <DropZoneOverlay />
+      <ClerkMascot
+        enabled={whimsy}
+        errorCount={errorCount}
+        requiredComplete={requiredComplete}
+        anyFields={anyFields}
+      />
     </div>
   );
 }
