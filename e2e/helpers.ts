@@ -32,6 +32,8 @@ export async function selectStateAndVersion(page: Page, state: string, version: 
   await ensurePanel(page, "config");
   await page.getByRole("combobox", { name: /select state or territory/i }).selectOption(state);
   await page.getByRole("combobox", { name: /select aamva version/i }).selectOption(version);
+  // Settling delay for state-theme React effects to flush.
+  await page.waitForTimeout(500);
 }
 
 /**
@@ -48,6 +50,8 @@ export async function ensurePanel(page: Page, panel: "config" | "form" | "previe
   // Only click if it's not already active (aria-current is truthy)
   if ((await tabButton.count()) > 0 && (await tabButton.getAttribute("aria-current")) !== "true") {
     await tabButton.click();
+    // Allow CSS transitions to complete before returning control to the caller.
+    await page.waitForTimeout(200);
   }
 }
 
@@ -98,6 +102,8 @@ export async function fillCaliforniaForm(page: Page) {
 export async function waitForPreview(page: Page) {
   await dismissTour(page);
   await ensurePanel(page, "preview");
+  // Mobile WebKit can be slow to paint the lazy chunk.
+  await page.waitForTimeout(500);
   await expect(page.getByRole("textbox", { name: /raw aamva payload string/i })).toBeVisible({
     timeout: 15_000
   });

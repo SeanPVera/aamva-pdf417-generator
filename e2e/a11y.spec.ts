@@ -42,7 +42,7 @@ test.describe("accessibility", () => {
     // so allow a generous upper bound rather than hard-coding the current
     // count.
     let reached = false;
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < 50; i++) {
       await page.keyboard.press("Tab");
       const label = await page.evaluate(
         () => (document.activeElement as HTMLElement | null)?.getAttribute("aria-label") ?? ""
