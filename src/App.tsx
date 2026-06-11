@@ -1,4 +1,5 @@
 import React from "react";
+import { Search, X } from "lucide-react";
 import { Sidebar } from "./components/Sidebar";
 import { Header } from "./components/Header";
 import { ShortcutsModal } from "./components/ShortcutsModal";
@@ -423,9 +424,29 @@ function App() {
 
           <div className="p-4 lg:p-6">
             {visibleFields.length === 0 ? (
-              <p className="text-sm text-gray-500 dark:text-gray-400 italic px-1">
-                No fields match the current filters.
-              </p>
+              <div className="flex flex-col items-center justify-center py-12 px-4 text-center bg-gray-50/50 dark:bg-dark-surface2/30 rounded-lg border-2 border-dashed border-gray-100 dark:border-gray-800">
+                <div className="bg-gray-100 dark:bg-dark-surface2 p-3 rounded-full mb-4">
+                  <Search className="text-gray-400" size={24} />
+                </div>
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-1">
+                  No matching fields
+                </h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400 max-w-[240px] mb-4">
+                  No fields match {searchQuery ? `"${searchQuery}"` : "the current filters"}. Try
+                  adjusting your search or filters.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchQuery("");
+                    setRequiredOnly(false);
+                  }}
+                  className="flex items-center gap-1.5 bg-white dark:bg-dark-surface border border-gray-200 dark:border-dark-border hover:bg-gray-50 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-200 px-3 py-1.5 rounded-md text-xs font-semibold shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                >
+                  <X size={14} />
+                  Clear all filters
+                </button>
+              </div>
             ) : (
               AAMVA_FIELD_GROUPS.map((group) => {
                 const groupFields = fieldsByGroup.get(group.id);
