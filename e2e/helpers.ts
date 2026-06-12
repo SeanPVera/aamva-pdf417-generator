@@ -47,9 +47,9 @@ export async function ensurePanel(page: Page, panel: "config" | "form" | "previe
 
   // Only click if it's not already active (aria-current is truthy)
   if ((await tabButton.count()) > 0 && (await tabButton.getAttribute("aria-current")) !== "true") {
-    await tabButton.click();
+    await tabButton.click({ force: true });
     // Allow panel transitions/visibility to settle.
-    await page.waitForTimeout(200);
+    await page.waitForTimeout(400);
   }
 }
 
