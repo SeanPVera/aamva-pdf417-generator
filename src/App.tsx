@@ -1,4 +1,5 @@
 import React from "react";
+import { Search } from "lucide-react";
 import { Sidebar } from "./components/Sidebar";
 import { Header } from "./components/Header";
 import { ShortcutsModal } from "./components/ShortcutsModal";
@@ -258,20 +259,22 @@ function App() {
     }
     // Defer to allow the panel to become visible.
     requestAnimationFrame(() => {
-      const el = document.getElementById(code);
-      if (!el) return;
-      el.scrollIntoView({ behavior: "smooth", block: "center" });
-      try {
-        el.focus({ preventScroll: true });
-      } catch {
-        el.focus();
-      }
-      // Flash the field briefly so the user can see where they landed.
-      el.classList.remove("field-flash");
-      // Force reflow so the animation re-runs even if the class was just removed.
-      void el.offsetWidth;
-      el.classList.add("field-flash");
-      window.setTimeout(() => el.classList.remove("field-flash"), 1200);
+      window.setTimeout(() => {
+        const el = document.getElementById(code);
+        if (!el) return;
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        try {
+          el.focus({ preventScroll: true });
+        } catch {
+          el.focus();
+        }
+        // Flash the field briefly so the user can see where they landed.
+        el.classList.remove("field-flash");
+        // Force reflow so the animation re-runs even if the class was just removed.
+        void el.offsetWidth;
+        el.classList.add("field-flash");
+        window.setTimeout(() => el.classList.remove("field-flash"), 1200);
+      }, 100);
     });
   };
 
@@ -423,9 +426,27 @@ function App() {
 
           <div className="p-4 lg:p-6">
             {visibleFields.length === 0 ? (
-              <p className="text-sm text-gray-500 dark:text-gray-400 italic px-1">
-                No fields match the current filters.
-              </p>
+              <div className="flex flex-col items-center justify-center py-12 px-4 text-center bg-gray-50/50 dark:bg-dark-surface2/30 rounded-xl border-2 border-dashed border-gray-100 dark:border-gray-800">
+                <div className="w-12 h-12 bg-gray-100 dark:bg-dark-surface2 rounded-full flex items-center justify-center mb-4">
+                  <Search className="text-gray-400" size={24} />
+                </div>
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-1">
+                  No matching fields found
+                </h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400 max-w-[200px] mb-4">
+                  No fields match "{searchQuery || "the current filters"}".
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchQuery("");
+                    setRequiredOnly(false);
+                  }}
+                  className="text-xs font-semibold text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:hover:text-brand-300 transition-colors"
+                >
+                  Clear all filters
+                </button>
+              </div>
             ) : (
               AAMVA_FIELD_GROUPS.map((group) => {
                 const groupFields = fieldsByGroup.get(group.id);
