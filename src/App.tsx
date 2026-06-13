@@ -432,8 +432,8 @@ function App() {
                   No matching fields
                 </h3>
                 <p className="text-xs text-gray-500 dark:text-gray-400 max-w-[240px] mb-4">
-                  No fields match {searchQuery ? `"${searchQuery}"` : "the current filters"}.
-                  Try adjusting your search or filters.
+                  No fields match {searchQuery ? `"${searchQuery}"` : "the current filters"}. Try
+                  adjusting your search or filters.
                 </p>
                 <button
                   type="button"
