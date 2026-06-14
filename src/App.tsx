@@ -432,8 +432,17 @@ function App() {
                   No fields found
                 </h3>
                 <p className="text-sm text-gray-500 dark:text-gray-400 max-w-[240px] mb-4">
-                  We couldn't find any fields matching "
-                  {searchQuery || (requiredOnly ? "Required only" : "the current filters")}".
+                  No fields matching{" "}
+                  <span className="font-medium text-gray-900 dark:text-gray-100">
+                    {searchQuery && requiredOnly
+                      ? `"${searchQuery}" and "Required only"`
+                      : searchQuery
+                        ? `"${searchQuery}"`
+                        : requiredOnly
+                          ? '"Required only"'
+                          : "the current filters"}
+                  </span>
+                  .
                 </p>
                 <button
                   type="button"
