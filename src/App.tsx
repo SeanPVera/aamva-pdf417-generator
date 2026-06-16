@@ -1,4 +1,5 @@
 import React from "react";
+import { Search } from "lucide-react";
 import { Sidebar } from "./components/Sidebar";
 import { Header } from "./components/Header";
 import { ShortcutsModal } from "./components/ShortcutsModal";
@@ -423,9 +424,34 @@ function App() {
 
           <div className="p-4 lg:p-6">
             {visibleFields.length === 0 ? (
-              <p className="text-sm text-gray-500 dark:text-gray-400 italic px-1">
-                No fields match the current filters.
-              </p>
+              <div
+                className="flex flex-col items-center justify-center p-8 text-center rounded-xl border-2 border-dashed border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-dark-surface2/30"
+                role="status"
+              >
+                <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-dark-surface2 flex items-center justify-center mb-4">
+                  <Search className="text-gray-400" size={24} aria-hidden="true" />
+                </div>
+                <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-1">
+                  No matching fields
+                </h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 max-w-[280px] mb-6">
+                  We couldn't find any fields matching{" "}
+                  <span className="font-medium text-gray-900 dark:text-gray-100">
+                    {normalizedQuery ? `'${normalizedQuery}'` : "the current filters"}
+                  </span>
+                  . Try adjusting your search or filters.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchQuery("");
+                    setRequiredOnly(false);
+                  }}
+                  className="inline-flex items-center justify-center px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium rounded-md shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                >
+                  Clear all filters
+                </button>
+              </div>
             ) : (
               AAMVA_FIELD_GROUPS.map((group) => {
                 const groupFields = fieldsByGroup.get(group.id);

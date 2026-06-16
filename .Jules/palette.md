@@ -1,3 +1,7 @@
 ## 2025-05-14 - Focus Management & Tour Interaction
 **Learning:** Adding interactive overlays (like a Welcome Tour) can disrupt keyboard navigation flow and break E2E tests that expect immediate access to the underlying UI. Modals must implement focus restoration to satisfy WCAG 2.1 (Success Criterion 2.4.3), and E2E suites require explicit "dismiss" helpers to maintain stability in CI environments where the tour might persistent across sessions.
 **Action:** Always implement focus restoration using `useId` and `useEffect` cleanup for new overlays, and provide a `dismissTour` utility in `e2e/helpers.ts` to be called at the start of all visual/interaction tests.
+
+## 2026-06-16 - Actionable Search Empty States & Redundant A11y Indicators
+**Learning:** Providing an actionable empty state (with a reset button) when search results are filtered to zero significantly reduces user frustration and prevents "dead ends" in the interface. Additionally, visual-only required indicators (like red asterisks) should be hidden from screen readers using `aria-hidden="true"` when the field already correctly implements semantic `aria-required`, preventing redundant and potentially confusing announcements.
+**Action:** Implement a centered, dashed-border empty state with a "Clear all filters" button whenever a filtered list can return zero results. Always audit required field labels for redundant visual indicators and hide them from screen readers if the input is already semantically marked as required.
