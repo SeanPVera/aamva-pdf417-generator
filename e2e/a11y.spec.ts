@@ -29,9 +29,8 @@ test.describe("accessibility", () => {
     await dismissTour(page);
     await ensurePanel(page, "config");
 
-    // Reset focus to the document start. `body.click()` focuses whatever
-    // element happens to be under the click point, which can land mid-form
-    // and skip the header entirely.
+    // Reset focus to the document start AFTER ensuring the correct panel is
+    // active on mobile, preventing focus traps in the navigation bar.
     await page.evaluate(() => {
       (document.activeElement as HTMLElement | null)?.blur();
       document.body.focus();

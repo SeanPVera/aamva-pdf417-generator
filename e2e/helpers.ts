@@ -39,18 +39,20 @@ export async function selectStateAndVersion(page: Page, state: string, version: 
  * This helper ensures the requested panel is active before interaction.
  */
 export async function ensurePanel(page: Page, panel: "config" | "form" | "preview") {
-  const isMobile = await page.evaluate(() => window.innerWidth < 1024);
+  // Detect mobile by the presence of the mobile navigation bar
+  const nav = page.getByLabel("Mobile panel navigation");
+  const isMobile = await nav.isVisible();
   if (!isMobile) return;
 
   const labelMap = { config: "Config", form: "Fields", preview: "Preview" };
-  const tabButton = page.getByRole("button", { name: labelMap[panel], exact: true });
+  const tabButton = nav.getByRole("button", { name: labelMap[panel], exact: true });
 
-  // Wait for the navigation to be stable and visible
+  // Wait for the tab to be visible and stable
   await tabButton.waitFor({ state: "visible", timeout: 5000 });
 
   // Only click if it's not already active (aria-current is truthy)
   if ((await tabButton.getAttribute("aria-current")) !== "true") {
-    // Force click to bypass any lingering overlays like the tour transition
+    // Force click to bypass any lingering overlays or animations
     await tabButton.click({ force: true });
     // WebKit/mobile-safari on CI needs a moment for the panel transition
     // and React state to settle before elements become visible/actionable.
