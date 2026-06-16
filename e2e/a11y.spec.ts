@@ -40,9 +40,10 @@ test.describe("accessibility", () => {
     // toolbar. The toolbar grows as features are added (undo/redo, theme
     // toggle, presets, compare, scanner, import/export, shortcuts, clear),
     // so allow a generous upper bound rather than hard-coding the current
-    // count.
+    // count. On mobile viewports, the tab order includes navigation buttons
+    // and panels, so we increase the limit to ensure coverage.
     let reached = false;
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < 80; i++) {
       await page.keyboard.press("Tab");
       const label = await page.evaluate(
         () => (document.activeElement as HTMLElement | null)?.getAttribute("aria-label") ?? ""
