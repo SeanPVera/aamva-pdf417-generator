@@ -1,4 +1,5 @@
 import React from "react";
+import { Search } from "lucide-react";
 import { Sidebar } from "./components/Sidebar";
 import { Header } from "./components/Header";
 import { ShortcutsModal } from "./components/ShortcutsModal";
@@ -286,6 +287,11 @@ function App() {
     if (nextEmptyRequiredCode) handleScrollToField(nextEmptyRequiredCode);
   };
 
+  const handleClearFilters = React.useCallback(() => {
+    setSearchQuery("");
+    setRequiredOnly(false);
+  }, [setSearchQuery, setRequiredOnly]);
+
   // Keyboard shortcuts (see ShortcutsModal for the user-facing list). Handlers
   // are routed through a ref so the global keydown listener doesn't need to
   // re-bind on every keystroke that touches store state.
@@ -423,9 +429,42 @@ function App() {
 
           <div className="p-4 lg:p-6">
             {visibleFields.length === 0 ? (
-              <p className="text-sm text-gray-500 dark:text-gray-400 italic px-1">
-                No fields match the current filters.
-              </p>
+              <div className="flex flex-col items-center justify-center py-12 px-4 text-center bg-gray-50/50 dark:bg-dark-surface2/30 rounded-lg border-2 border-dashed border-gray-100 dark:border-gray-800">
+                <div className="p-3 bg-gray-100 dark:bg-dark-surface2 rounded-full mb-4">
+                  <Search className="h-6 w-6 text-gray-400 dark:text-gray-500" />
+                </div>
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                  No matching fields
+                </h3>
+                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400 max-w-xs">
+                  {searchQuery ? (
+                    <>
+                      No fields match{" "}
+                      <span className="font-medium text-gray-900 dark:text-white">
+                        "{searchQuery}"
+                      </span>
+                      {requiredOnly && " and "}
+                    </>
+                  ) : null}
+                  {requiredOnly && (
+                    <>
+                      the{" "}
+                      <span className="font-medium text-gray-900 dark:text-white">
+                        Required only
+                      </span>{" "}
+                      filter is active
+                    </>
+                  )}
+                  .
+                </p>
+                <button
+                  type="button"
+                  onClick={handleClearFilters}
+                  className="mt-4 inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-brand-600 hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 transition-colors"
+                >
+                  Clear all filters
+                </button>
+              </div>
             ) : (
               AAMVA_FIELD_GROUPS.map((group) => {
                 const groupFields = fieldsByGroup.get(group.id);
