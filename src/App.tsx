@@ -1,4 +1,5 @@
 import React from "react";
+import { Search } from "lucide-react";
 import { Sidebar } from "./components/Sidebar";
 import { Header } from "./components/Header";
 import { ShortcutsModal } from "./components/ShortcutsModal";
@@ -81,6 +82,10 @@ function App() {
   } = useFormStore();
   const [copiedField, setCopiedField] = React.useState<string | null>(null);
   const [searchQuery, setSearchQuery] = React.useState("");
+  const handleClearFilters = React.useCallback(() => {
+    setSearchQuery("");
+    setRequiredOnly(false);
+  }, [setSearchQuery, setRequiredOnly]);
   const copyTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const schemaFields = getFieldsForStateAndVersion(state, version);
   const toast = useToast();
@@ -423,9 +428,46 @@ function App() {
 
           <div className="p-4 lg:p-6">
             {visibleFields.length === 0 ? (
-              <p className="text-sm text-gray-500 dark:text-gray-400 italic px-1">
-                No fields match the current filters.
-              </p>
+              <div className="flex flex-col items-center justify-center py-12 px-4 text-center bg-gray-50/50 dark:bg-dark-surface2/30 rounded-lg border-2 border-dashed border-gray-100 dark:border-gray-800">
+                <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-dark-surface2 flex items-center justify-center mb-4">
+                  <Search className="text-gray-400" size={24} />
+                </div>
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">
+                  No matching fields
+                </h3>
+                <p className="text-xs text-gray-500 dark:text-gray-100 max-w-[280px] mb-6">
+                  {searchQuery ? (
+                    <>
+                      No fields found matching{" "}
+                      <span className="font-medium text-gray-900 dark:text-white">
+                        "{searchQuery}"
+                      </span>
+                      {requiredOnly && (
+                        <>
+                          {" and "}
+                          <span className="font-medium text-gray-900 dark:text-white">
+                            Required Only
+                          </span>
+                        </>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      No fields match the{" "}
+                      <span className="font-medium text-gray-900 dark:text-white">
+                        Required Only
+                      </span>{" "}
+                      filter.
+                    </>
+                  )}
+                </p>
+                <button
+                  onClick={handleClearFilters}
+                  className="inline-flex items-center gap-1.5 bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-md text-sm font-medium shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                >
+                  Clear all filters
+                </button>
+              </div>
             ) : (
               AAMVA_FIELD_GROUPS.map((group) => {
                 const groupFields = fieldsByGroup.get(group.id);
