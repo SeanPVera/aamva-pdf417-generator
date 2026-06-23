@@ -1,4 +1,5 @@
 import React from "react";
+import { Search } from "lucide-react";
 import { Sidebar } from "./components/Sidebar";
 import { Header } from "./components/Header";
 import { ShortcutsModal } from "./components/ShortcutsModal";
@@ -242,6 +243,11 @@ function App() {
     toast.info(`Reset ${code}`);
   };
 
+  const handleClearFilters = React.useCallback(() => {
+    setSearchQuery("");
+    setRequiredOnly(false);
+  }, [setSearchQuery, setRequiredOnly]);
+
   const handleScrollToField = (code: string) => {
     // On mobile, the form column may be hidden — switch to it first.
     setMobilePanel("form");
@@ -423,9 +429,38 @@ function App() {
 
           <div className="p-4 lg:p-6">
             {visibleFields.length === 0 ? (
-              <p className="text-sm text-gray-500 dark:text-gray-400 italic px-1">
-                No fields match the current filters.
-              </p>
+              <div className="flex flex-col items-center justify-center py-12 px-4 text-center border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-xl bg-gray-50/50 dark:bg-dark-surface2/30">
+                <div className="mb-4 p-3 rounded-full bg-gray-100 dark:bg-dark-surface2 text-gray-400 dark:text-gray-500">
+                  <Search size={32} strokeWidth={1.5} />
+                </div>
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-1">
+                  No fields found
+                </h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 max-w-xs mb-4">
+                  No fields match{" "}
+                  {normalizedQuery ? (
+                    <>
+                      the term <span className="font-medium dark:text-white">"{searchQuery}"</span>
+                    </>
+                  ) : (
+                    "your filters"
+                  )}
+                  {requiredOnly && (
+                    <>
+                      {" "}
+                      and <span className="font-medium dark:text-white">Required only</span>
+                    </>
+                  )}
+                  . Try adjusting your search or filters.
+                </p>
+                <button
+                  type="button"
+                  onClick={handleClearFilters}
+                  className="inline-flex items-center justify-center px-4 py-2 rounded-md bg-white dark:bg-dark-surface border border-gray-200 dark:border-dark-border text-sm font-medium text-brand-600 dark:text-brand-400 hover:bg-gray-50 dark:hover:bg-dark-surface2 transition shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                >
+                  Clear all filters
+                </button>
+              </div>
             ) : (
               AAMVA_FIELD_GROUPS.map((group) => {
                 const groupFields = fieldsByGroup.get(group.id);
