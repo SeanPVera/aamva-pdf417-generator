@@ -10,6 +10,7 @@ import { FieldFilters } from "./components/FieldFilters";
 import { DropZoneOverlay } from "./components/DropZoneOverlay";
 import { useToast } from "./components/Toast";
 import { useFormStore } from "./hooks/useFormStore";
+import { Search } from "lucide-react";
 import {
   getFieldsForStateAndVersion,
   AAMVA_FIELD_GROUPS,
@@ -154,6 +155,11 @@ function App() {
     setTourOpen(false);
     markTourSeen();
   }, [markTourSeen]);
+
+  const handleClearFilters = React.useCallback(() => {
+    setSearchQuery("");
+    setRequiredOnly(false);
+  }, [setSearchQuery, setRequiredOnly]);
 
   const handleChange = (code: string, value: string) => {
     setField(code, value);
@@ -423,9 +429,34 @@ function App() {
 
           <div className="p-4 lg:p-6">
             {visibleFields.length === 0 ? (
-              <p className="text-sm text-gray-500 dark:text-gray-400 italic px-1">
-                No fields match the current filters.
-              </p>
+              <div className="flex flex-col items-center justify-center py-12 px-4 text-center bg-gray-50/50 dark:bg-dark-surface2/30 rounded-lg border-2 border-dashed border-gray-100 dark:border-gray-800">
+                <div className="w-12 h-12 bg-gray-100 dark:bg-dark-surface2 rounded-full flex items-center justify-center mb-4">
+                  <Search className="text-gray-400 dark:text-gray-500" size={24} />
+                </div>
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">
+                  No matching fields
+                </h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400 max-w-[240px] mb-4">
+                  We couldn't find any fields matching{" "}
+                  {searchQuery && (
+                    <>
+                      "<span className="font-medium dark:text-white">{searchQuery}</span>"
+                    </>
+                  )}
+                  {searchQuery && requiredOnly && " and "}
+                  {requiredOnly && (
+                    <span className="font-medium text-gray-900 dark:text-white">Required</span>
+                  )}
+                  . Try adjusting your filters.
+                </p>
+                <button
+                  type="button"
+                  onClick={handleClearFilters}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-dark-surface border border-gray-200 dark:border-dark-border rounded-md text-xs font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-dark-border shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                >
+                  Clear all filters
+                </button>
+              </div>
             ) : (
               AAMVA_FIELD_GROUPS.map((group) => {
                 const groupFields = fieldsByGroup.get(group.id);
