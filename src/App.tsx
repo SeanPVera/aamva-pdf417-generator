@@ -440,18 +440,21 @@ function App() {
                   No fields match{" "}
                   {searchQuery ? (
                     <>
-                      search for <span className="font-semibold dark:text-white">"{searchQuery}"</span>
+                      search for{" "}
+                      <span className="font-semibold dark:text-white">"{searchQuery}"</span>
                       {requiredOnly && (
                         <>
                           {" "}
                           and the{" "}
-                          <span className="font-semibold dark:text-white">Required only</span> filter
+                          <span className="font-semibold dark:text-white">Required only</span>{" "}
+                          filter
                         </>
                       )}
                     </>
                   ) : requiredOnly ? (
                     <>
-                      the <span className="font-semibold dark:text-white">Required only</span> filter
+                      the <span className="font-semibold dark:text-white">Required only</span>{" "}
+                      filter
                     </>
                   ) : (
                     "your filters"
