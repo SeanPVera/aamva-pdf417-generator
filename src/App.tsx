@@ -1,4 +1,5 @@
 import React from "react";
+import { Search, X } from "lucide-react";
 import { Sidebar } from "./components/Sidebar";
 import { Header } from "./components/Header";
 import { ShortcutsModal } from "./components/ShortcutsModal";
@@ -154,6 +155,11 @@ function App() {
     setTourOpen(false);
     markTourSeen();
   }, [markTourSeen]);
+
+  const handleClearFilters = React.useCallback(() => {
+    setSearchQuery("");
+    setRequiredOnly(false);
+  }, [setSearchQuery, setRequiredOnly]);
 
   const handleChange = (code: string, value: string) => {
     setField(code, value);
@@ -423,9 +429,44 @@ function App() {
 
           <div className="p-4 lg:p-6">
             {visibleFields.length === 0 ? (
-              <p className="text-sm text-gray-500 dark:text-gray-400 italic px-1">
-                No fields match the current filters.
-              </p>
+              <div className="flex flex-col items-center justify-center py-12 px-4 text-center bg-gray-50/50 dark:bg-dark-surface2/30 rounded-lg border-2 border-dashed border-gray-100 dark:border-gray-800">
+                <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-dark-surface2 flex items-center justify-center mb-4">
+                  <Search size={24} className="text-gray-400" aria-hidden="true" />
+                </div>
+                <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-1">
+                  No matching fields
+                </h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 max-w-xs mb-6">
+                  No fields match{" "}
+                  {searchQuery ? (
+                    <>
+                      search for <span className="font-semibold dark:text-white">"{searchQuery}"</span>
+                      {requiredOnly && (
+                        <>
+                          {" "}
+                          and the{" "}
+                          <span className="font-semibold dark:text-white">Required only</span> filter
+                        </>
+                      )}
+                    </>
+                  ) : requiredOnly ? (
+                    <>
+                      the <span className="font-semibold dark:text-white">Required only</span> filter
+                    </>
+                  ) : (
+                    "your filters"
+                  )}
+                  .
+                </p>
+                <button
+                  type="button"
+                  onClick={handleClearFilters}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-dark-surface border border-gray-200 dark:border-dark-border rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#383838] transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                >
+                  <X size={14} />
+                  Clear all filters
+                </button>
+              </div>
             ) : (
               AAMVA_FIELD_GROUPS.map((group) => {
                 const groupFields = fieldsByGroup.get(group.id);
