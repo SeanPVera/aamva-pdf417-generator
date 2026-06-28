@@ -438,10 +438,14 @@ function App() {
                 </h3>
                 <p className="text-xs text-gray-500 dark:text-gray-400 max-w-[200px] leading-relaxed mb-4">
                   No fields found matching{searchQuery ? ` "` : " "}
-                  {searchQuery && <span className="font-medium dark:text-white">{searchQuery}</span>}
+                  {searchQuery && (
+                    <span className="font-medium dark:text-white">{searchQuery}</span>
+                  )}
                   {searchQuery ? `"` : ""}
                   {searchQuery && requiredOnly && " and "}
-                  {requiredOnly && <span className="font-medium dark:text-white">Required</span>}{" "}
+                  {requiredOnly && (
+                    <span className="font-medium dark:text-white">Required</span>
+                  )}{" "}
                   {searchQuery && requiredOnly ? "filters" : "filter"}.
                 </p>
                 <button
