@@ -1,4 +1,5 @@
 import React from "react";
+import { Search, X as XIcon } from "lucide-react";
 import { Sidebar } from "./components/Sidebar";
 import { Header } from "./components/Header";
 import { ShortcutsModal } from "./components/ShortcutsModal";
@@ -242,6 +243,12 @@ function App() {
     toast.info(`Reset ${code}`);
   };
 
+  const handleClearFilters = React.useCallback(() => {
+    setSearchQuery("");
+    setRequiredOnly(false);
+    toast.info("Filters cleared");
+  }, [setSearchQuery, setRequiredOnly, toast]);
+
   const handleScrollToField = (code: string) => {
     // On mobile, the form column may be hidden — switch to it first.
     setMobilePanel("form");
@@ -423,9 +430,24 @@ function App() {
 
           <div className="p-4 lg:p-6">
             {visibleFields.length === 0 ? (
-              <p className="text-sm text-gray-500 dark:text-gray-400 italic px-1">
-                No fields match the current filters.
-              </p>
+              <div className="flex flex-col items-center justify-center py-12 px-4 text-center border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-xl">
+                <div className="w-16 h-16 bg-gray-100 dark:bg-dark-surface2 rounded-full flex items-center justify-center mb-4">
+                  <Search className="text-gray-400" size={32} />
+                </div>
+                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-1">
+                  No fields found
+                </h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 max-w-xs mb-6 text-balance">
+                  Try adjusting your search term or filters to find what you're looking for.
+                </p>
+                <button
+                  onClick={handleClearFilters}
+                  className="inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                >
+                  <XIcon size={16} />
+                  Clear all filters
+                </button>
+              </div>
             ) : (
               AAMVA_FIELD_GROUPS.map((group) => {
                 const groupFields = fieldsByGroup.get(group.id);
