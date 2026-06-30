@@ -433,24 +433,32 @@ function App() {
                 <div className="w-20 h-20 bg-white dark:bg-dark-surface2 rounded-full flex items-center justify-center mb-6 shadow-sm border border-gray-100 dark:border-gray-700">
                   <Search className="text-gray-300 dark:text-gray-500" size={40} />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">No fields found</h3>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                  No fields found
+                </h3>
                 <p className="text-sm text-gray-500 dark:text-gray-400 max-w-sm mb-8 leading-relaxed">
                   We couldn't find any fields matching{" "}
                   {normalizedQuery && (
                     <>
-                      "<span className="font-semibold text-gray-900 dark:text-white">{searchQuery}</span>"
+                      "
+                      <span className="font-semibold text-gray-900 dark:text-white">
+                        {searchQuery}
+                      </span>
+                      "
                     </>
                   )}
                   {normalizedQuery && requiredOnly && " and the "}
                   {requiredOnly && (
                     <>
                       {!normalizedQuery && "the "}
-                      <span className="font-semibold text-gray-900 dark:text-white">Required</span>
-                      {" "}filter
+                      <span className="font-semibold text-gray-900 dark:text-white">
+                        Required
+                      </span>{" "}
+                      filter
                     </>
                   )}
-                  {!normalizedQuery && !requiredOnly && "the current filters"}
-                  . Try adjusting your search or filters.
+                  {!normalizedQuery && !requiredOnly && "the current filters"}. Try adjusting your
+                  search or filters.
                 </p>
                 <button
                   onClick={handleClearFilters}
