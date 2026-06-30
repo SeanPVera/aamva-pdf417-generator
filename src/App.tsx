@@ -1,6 +1,7 @@
 import React from "react";
 import { Sidebar } from "./components/Sidebar";
 import { Header } from "./components/Header";
+import { Search, X as XIcon } from "lucide-react";
 import { ShortcutsModal } from "./components/ShortcutsModal";
 import { CompareView } from "./components/CompareView";
 import { WelcomeTour } from "./components/WelcomeTour";
@@ -154,6 +155,11 @@ function App() {
     setTourOpen(false);
     markTourSeen();
   }, [markTourSeen]);
+
+  const handleClearFilters = React.useCallback(() => {
+    setSearchQuery("");
+    setRequiredOnly(false);
+  }, [setSearchQuery, setRequiredOnly]);
 
   const handleChange = (code: string, value: string) => {
     setField(code, value);
@@ -423,9 +429,37 @@ function App() {
 
           <div className="p-4 lg:p-6">
             {visibleFields.length === 0 ? (
-              <p className="text-sm text-gray-500 dark:text-gray-400 italic px-1">
-                No fields match the current filters.
-              </p>
+              <div className="flex flex-col items-center justify-center py-16 px-4 text-center border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-xl bg-gray-50/30 dark:bg-dark-surface/10">
+                <div className="w-20 h-20 bg-white dark:bg-dark-surface2 rounded-full flex items-center justify-center mb-6 shadow-sm border border-gray-100 dark:border-gray-700">
+                  <Search className="text-gray-300 dark:text-gray-500" size={40} />
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">No fields found</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 max-w-sm mb-8 leading-relaxed">
+                  We couldn't find any fields matching{" "}
+                  {normalizedQuery && (
+                    <>
+                      "<span className="font-semibold text-gray-900 dark:text-white">{searchQuery}</span>"
+                    </>
+                  )}
+                  {normalizedQuery && requiredOnly && " and the "}
+                  {requiredOnly && (
+                    <>
+                      {!normalizedQuery && "the "}
+                      <span className="font-semibold text-gray-900 dark:text-white">Required</span>
+                      {" "}filter
+                    </>
+                  )}
+                  {!normalizedQuery && !requiredOnly && "the current filters"}
+                  . Try adjusting your search or filters.
+                </p>
+                <button
+                  onClick={handleClearFilters}
+                  className="flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white px-6 py-3 rounded-xl text-sm font-bold shadow-google hover:shadow-google-hover transition-all active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-dark-surface"
+                >
+                  <XIcon size={18} />
+                  Clear all filters
+                </button>
+              </div>
             ) : (
               AAMVA_FIELD_GROUPS.map((group) => {
                 const groupFields = fieldsByGroup.get(group.id);
