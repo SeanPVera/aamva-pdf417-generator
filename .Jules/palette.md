@@ -1,3 +1,7 @@
 ## 2025-05-14 - Focus Management & Tour Interaction
 **Learning:** Adding interactive overlays (like a Welcome Tour) can disrupt keyboard navigation flow and break E2E tests that expect immediate access to the underlying UI. Modals must implement focus restoration to satisfy WCAG 2.1 (Success Criterion 2.4.3), and E2E suites require explicit "dismiss" helpers to maintain stability in CI environments where the tour might persistent across sessions.
 **Action:** Always implement focus restoration using `useId` and `useEffect` cleanup for new overlays, and provide a `dismissTour` utility in `e2e/helpers.ts` to be called at the start of all visual/interaction tests.
+
+## 2025-05-15 - Actionable Empty States with Multi-Filter Feedback
+**Learning:** When filters (like search + "required only") result in an empty list, providing generic feedback like "No matches" is frustrating. A high-quality empty state should explicitly echo the active filters (e.g., "No fields matching 'term' and the Required filter") and provide a single-click escape hatch to reset all state. Using high-contrast `<span>` tags (like `dark:text-white`) for the user's search term within the descriptive text significantly improves scannability.
+**Action:** Always implement descriptive, multi-state empty feedback that acknowledges all active filters and provides a primary "Clear all" action. Use template literals and explicit `{" "}` spacing in JSX to ensure grammatical correctness when concatenating multiple filter descriptions.
