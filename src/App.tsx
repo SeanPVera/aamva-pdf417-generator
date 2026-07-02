@@ -437,24 +437,20 @@ function App() {
                   No fields found
                 </h3>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 max-w-xs mx-auto">
-                  No fields{" "}
-                  {searchQuery ? (
+                  No fields
+                  {searchQuery && (
                     <>
+                      {" "}
                       matching{" "}
                       <span className="font-semibold text-gray-900 dark:text-white">
-                        "{searchQuery}"
+                        &quot;{searchQuery}&quot;
                       </span>
                     </>
-                  ) : (
-                    ""
                   )}
-                  {searchQuery && requiredOnly
-                    ? " and the "
-                    : !searchQuery && requiredOnly
-                      ? "matching the "
-                      : ""}
-                  {requiredOnly ? "Required" : ""}
-                  {requiredOnly || searchQuery ? " filter" : " found"}.
+                  {requiredOnly && (
+                    <>{searchQuery ? " and the" : " matching the"} Required</>
+                  )}
+                  {searchQuery || requiredOnly ? " filter" : " found"}.
                 </p>
                 <button
                   onClick={handleClearFilters}
