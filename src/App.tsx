@@ -438,7 +438,7 @@ function App() {
                 </h3>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 max-w-xs mx-auto">
                   No fields
-                  {searchQuery && (
+                  {normalizedQuery && (
                     <>
                       {" "}
                       matching{" "}
@@ -448,9 +448,14 @@ function App() {
                     </>
                   )}
                   {requiredOnly && (
-                    <>{searchQuery ? " and the" : " matching the"} Required</>
+                    <>
+                      {normalizedQuery ? " and the " : " matching the "}
+                      <span className="font-semibold text-gray-900 dark:text-white">
+                        Required filter
+                      </span>
+                    </>
                   )}
-                  {searchQuery || requiredOnly ? " filter" : " found"}.
+                  {normalizedQuery || requiredOnly ? "" : " found"}.
                 </p>
                 <button
                   onClick={handleClearFilters}
