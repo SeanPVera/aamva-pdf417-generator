@@ -429,18 +429,42 @@ function App() {
 
           <div className="p-4 lg:p-6">
             {visibleFields.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-12 px-4 text-center" role="status">
+              <div
+                className="flex flex-col items-center justify-center py-12 px-4 text-center"
+                role="status"
+              >
                 <div className="bg-gray-100 dark:bg-dark-surface2 p-4 rounded-full mb-4">
                   <Search className="w-8 h-8 text-gray-400 dark:text-gray-500" />
                 </div>
-                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-1">No matching fields</h3>
+                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-1">
+                  No matching fields
+                </h3>
                 <p className="text-sm text-gray-500 dark:text-gray-400 max-w-xs mx-auto mb-6">
                   No fields found matching
-                  {normalizedQuery && <> '<span className="font-semibold text-gray-900 dark:text-white">{searchQuery}</span>'</>}
-                  {requiredOnly && <>{normalizedQuery ? " and " : " "}the <span className="font-semibold text-gray-900 dark:text-white">Required</span> filter</>}
+                  {normalizedQuery && (
+                    <>
+                      {" "}
+                      '
+                      <span className="font-semibold text-gray-900 dark:text-white">
+                        {searchQuery}
+                      </span>
+                      '
+                    </>
+                  )}
+                  {requiredOnly && (
+                    <>
+                      {normalizedQuery ? " and " : " "}the{" "}
+                      <span className="font-semibold text-gray-900 dark:text-white">Required</span>{" "}
+                      filter
+                    </>
+                  )}
                   .
                 </p>
-                <button type="button" onClick={handleClearFilters} className="inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500">
+                <button
+                  type="button"
+                  onClick={handleClearFilters}
+                  className="inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                >
                   <XIcon size={16} /> Clear all filters
                 </button>
               </div>
