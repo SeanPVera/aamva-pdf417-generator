@@ -441,13 +441,19 @@ function App() {
                   No fields match{" "}
                   {normalizedQuery && (
                     <span>
-                      &lsquo;<span className="font-semibold text-gray-900 dark:text-white">{normalizedQuery}</span>&rsquo;
+                      &lsquo;
+                      <span className="font-semibold text-gray-900 dark:text-white">
+                        {normalizedQuery}
+                      </span>
+                      &rsquo;
                     </span>
                   )}
                   {normalizedQuery && requiredOnly && " and "}
                   {requiredOnly && (
                     <span>
-                      the <span className="font-semibold text-gray-900 dark:text-white">Required</span> filter
+                      the{" "}
+                      <span className="font-semibold text-gray-900 dark:text-white">Required</span>{" "}
+                      filter
                     </span>
                   )}
                   .
