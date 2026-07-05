@@ -126,7 +126,7 @@ export const FieldInput: React.FC<FieldInputProps> = ({
               "transform -translate-y-3 scale-75 top-4"
             )}
           >
-            {field.code} — {field.label} {field.required && <span className="text-red-500">*</span>}
+            {field.code} — {field.label} {field.required && <span className="text-red-500" aria-hidden="true">*</span>}
           </label>
         </div>
       ) : field.type === "date" ? (
@@ -150,7 +150,7 @@ export const FieldInput: React.FC<FieldInputProps> = ({
               "transform -translate-y-3 scale-75 top-4"
             )}
           >
-            {field.code} — {field.label} {field.required && <span className="text-red-500">*</span>}
+            {field.code} — {field.label} {field.required && <span className="text-red-500" aria-hidden="true">*</span>}
           </label>
           <div className="absolute right-1.5 top-2 bottom-2 flex gap-1 z-20">
             {field.code === "DDB" && (
@@ -198,7 +198,7 @@ export const FieldInput: React.FC<FieldInputProps> = ({
               "transform -translate-y-3 scale-75 top-4"
             )}
           >
-            {field.code} — {field.label} {field.required && <span className="text-red-500">*</span>}
+            {field.code} — {field.label} {field.required && <span className="text-red-500" aria-hidden="true">*</span>}
           </label>
           <div className="absolute right-1.5 top-2 bottom-2 flex gap-1 z-20">
             {(field.code === "DCF" || field.code === "DAQ") && (
