@@ -1,4 +1,5 @@
 import React from "react";
+import { Search, X as XIcon } from "lucide-react";
 import { Sidebar } from "./components/Sidebar";
 import { Header } from "./components/Header";
 import { ShortcutsModal } from "./components/ShortcutsModal";
@@ -286,6 +287,11 @@ function App() {
     if (nextEmptyRequiredCode) handleScrollToField(nextEmptyRequiredCode);
   };
 
+  const handleClearFilters = React.useCallback(() => {
+    setSearchQuery("");
+    setRequiredOnly(false);
+  }, [setSearchQuery, setRequiredOnly]);
+
   // Keyboard shortcuts (see ShortcutsModal for the user-facing list). Handlers
   // are routed through a ref so the global keydown listener doesn't need to
   // re-bind on every keystroke that touches store state.
@@ -423,9 +429,29 @@ function App() {
 
           <div className="p-4 lg:p-6">
             {visibleFields.length === 0 ? (
-              <p className="text-sm text-gray-500 dark:text-gray-400 italic px-1">
-                No fields match the current filters.
-              </p>
+              <div
+                className="flex flex-col items-center justify-center py-12 px-4 text-center animate-in fade-in slide-in-from-bottom-4 duration-500"
+                role="status"
+              >
+                <div className="bg-gray-100 dark:bg-dark-surface2 p-4 rounded-full mb-4">
+                  <Search className="h-8 w-8 text-gray-400 dark:text-gray-500" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-1">
+                  No matching fields found
+                </h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 max-w-xs mb-6">
+                  No fields match {normalizedQuery ? <>&lsquo;<span className="text-gray-900 dark:text-white font-medium">{normalizedQuery}</span>&rsquo;</> : "the selected criteria"}
+                  {requiredOnly && <> and the <span className="text-gray-900 dark:text-white font-medium">Required</span> filter</>}.
+                </p>
+                <button
+                  type="button"
+                  onClick={handleClearFilters}
+                  className="inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-md text-sm font-semibold shadow-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-dark-surface"
+                >
+                  <XIcon size={16} />
+                  Clear all filters
+                </button>
+              </div>
             ) : (
               AAMVA_FIELD_GROUPS.map((group) => {
                 const groupFields = fieldsByGroup.get(group.id);
