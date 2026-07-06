@@ -440,8 +440,29 @@ function App() {
                   No matching fields found
                 </h3>
                 <p className="text-sm text-gray-500 dark:text-gray-400 max-w-xs mb-6">
-                  No fields match {normalizedQuery ? <>&lsquo;<span className="text-gray-900 dark:text-white font-medium">{normalizedQuery}</span>&rsquo;</> : "the selected criteria"}
-                  {requiredOnly && <> and the <span className="text-gray-900 dark:text-white font-medium">Required</span> filter</>}.
+                  No fields match{" "}
+                  {normalizedQuery ? (
+                    <>
+                      &lsquo;
+                      <span className="text-gray-900 dark:text-white font-medium">
+                        {normalizedQuery}
+                      </span>
+                      &rsquo;
+                    </>
+                  ) : (
+                    "the selected criteria"
+                  )}
+                  {requiredOnly && (
+                    <>
+                      {" "}
+                      and the{" "}
+                      <span className="text-gray-900 dark:text-white font-medium">
+                        Required
+                      </span>{" "}
+                      filter
+                    </>
+                  )}
+                  .
                 </p>
                 <button
                   type="button"
