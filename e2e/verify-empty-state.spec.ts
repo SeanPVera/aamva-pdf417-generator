@@ -17,7 +17,8 @@ test.describe("Actionable Empty State", () => {
     // Verify empty state is visible
     await expect(page.getByText("No matching fields")).toBeVisible();
     await expect(page.getByText(/No fields found matching/)).toBeVisible();
-    await expect(page.getByText("NONEXISTENT_FIELD")).toBeVisible();
+    // The UI displays the normalized (lowercased) query
+    await expect(page.getByText("nonexistent_field")).toBeVisible();
 
     // Verify "Clear all filters" button works
     const clearButton = page.getByRole("button", { name: "Clear all filters" });
@@ -45,7 +46,8 @@ test.describe("Actionable Empty State", () => {
     // Verify complex message
     await expect(page.getByText("No matching fields")).toBeVisible();
     await expect(page.getByText(/No fields found matching/)).toBeVisible();
-    await expect(page.getByText("ZXZX")).toBeVisible();
+    // The UI displays the normalized (lowercased) query
+    await expect(page.getByText("zxzx")).toBeVisible();
     await expect(page.getByText("and the Required filter")).toBeVisible();
 
     // Clear all filters
