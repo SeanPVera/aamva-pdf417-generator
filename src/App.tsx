@@ -433,11 +433,17 @@ function App() {
                 <div className="bg-gray-100 dark:bg-dark-surface2 p-4 rounded-full mb-4">
                   <Search className="h-8 w-8 text-gray-400" />
                 </div>
-                <h3 className="text-lg font-medium text-gray-900 mb-1">
-                  No matching fields
-                </h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-1">No matching fields</h3>
                 <p className="text-sm text-gray-500 max-w-xs mb-6">
-                  No fields found matching {normalizedQuery ? <>&lsquo;<span className="text-gray-900 font-medium">{normalizedQuery}</span>&rsquo;</> : ""}
+                  No fields found matching{" "}
+                  {normalizedQuery ? (
+                    <>
+                      &lsquo;<span className="text-gray-900 font-medium">{normalizedQuery}</span>
+                      &rsquo;
+                    </>
+                  ) : (
+                    ""
+                  )}
                   {normalizedQuery && requiredOnly ? " and " : ""}
                   {requiredOnly ? "the Required filter" : ""}.
                 </p>
