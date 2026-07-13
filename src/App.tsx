@@ -433,9 +433,7 @@ function App() {
                 <div className="bg-white dark:bg-dark-surface2 p-3 rounded-full shadow-sm mb-4">
                   <Search className="h-6 w-6 text-gray-400" />
                 </div>
-                <h3 className="text-sm font-semibold text-gray-900">
-                  No matching fields found
-                </h3>
+                <h3 className="text-sm font-semibold text-gray-900">No matching fields found</h3>
                 <p className="mt-1 text-sm text-gray-600 max-w-xs">
                   We couldn&rsquo;t find any fields matching{" "}
                   {normalizedQuery && (
