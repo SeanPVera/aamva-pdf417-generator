@@ -1,4 +1,5 @@
 import React from "react";
+import { Search, X as XIcon } from "lucide-react";
 import { Sidebar } from "./components/Sidebar";
 import { Header } from "./components/Header";
 import { ShortcutsModal } from "./components/ShortcutsModal";
@@ -154,6 +155,11 @@ function App() {
     setTourOpen(false);
     markTourSeen();
   }, [markTourSeen]);
+
+  const handleClearFilters = React.useCallback(() => {
+    setSearchQuery("");
+    setRequiredOnly(false);
+  }, [setSearchQuery, setRequiredOnly]);
 
   const handleChange = (code: string, value: string) => {
     setField(code, value);
@@ -423,9 +429,32 @@ function App() {
 
           <div className="p-4 lg:p-6">
             {visibleFields.length === 0 ? (
-              <p className="text-sm text-gray-500 dark:text-gray-400 italic px-1">
-                No fields match the current filters.
-              </p>
+              <div className="flex flex-col items-center justify-center py-12 px-4 text-center bg-gray-50/50 dark:bg-dark-surface/30 rounded-lg border-2 border-dashed border-gray-200 dark:border-dark-border">
+                <div className="bg-white dark:bg-dark-surface2 p-3 rounded-full shadow-sm mb-4">
+                  <Search className="h-6 w-6 text-gray-400" />
+                </div>
+                <h3 className="text-sm font-semibold text-gray-900">
+                  No matching fields found
+                </h3>
+                <p className="mt-1 text-sm text-gray-600 max-w-xs">
+                  We couldn&rsquo;t find any fields matching{" "}
+                  {normalizedQuery && (
+                    <>
+                      &lsquo;<span className="text-gray-900 font-bold">{searchQuery}</span>&rsquo;
+                    </>
+                  )}
+                  {normalizedQuery && requiredOnly && " and "}
+                  {requiredOnly && "the Required filter"}. Try adjusting your search or filters.
+                </p>
+                <button
+                  type="button"
+                  onClick={handleClearFilters}
+                  className="mt-6 inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white state-primary-bg rounded-md shadow-sm hover:opacity-90 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                >
+                  <XIcon className="h-4 w-4" />
+                  Clear all filters
+                </button>
+              </div>
             ) : (
               AAMVA_FIELD_GROUPS.map((group) => {
                 const groupFields = fieldsByGroup.get(group.id);
