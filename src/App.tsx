@@ -25,6 +25,7 @@ import {
 } from "./core/generator";
 import { buildSampleFill } from "./core/sampleFiller";
 import { useSwipe } from "./hooks/useSwipe";
+import { Search, X as XIcon } from "lucide-react";
 
 const MOBILE_PANELS = ["config", "form", "preview"] as const;
 type MobilePanel = (typeof MOBILE_PANELS)[number];
@@ -149,6 +150,11 @@ function App() {
   // explicitly chose to replay it. Closing it both hides it and persists the
   // "seen" timestamp so it doesn't auto-open on the next session.
   const showTour = tourOpen || !tourSeenAt;
+
+  const handleClearFilters = React.useCallback(() => {
+    setSearchQuery("");
+    setRequiredOnly(false);
+  }, [setRequiredOnly]);
 
   const handleCloseTour = React.useCallback(() => {
     setTourOpen(false);
@@ -423,9 +429,37 @@ function App() {
 
           <div className="p-4 lg:p-6">
             {visibleFields.length === 0 ? (
-              <p className="text-sm text-gray-500 dark:text-gray-400 italic px-1">
-                No fields match the current filters.
-              </p>
+              <div className="flex flex-col items-center justify-center py-12 px-4 text-center border-2 border-dashed border-gray-200 dark:border-dark-border rounded-xl bg-gray-50/50 dark:bg-dark-surface/30">
+                <div className="p-3 bg-white dark:bg-dark-surface2 rounded-full shadow-sm mb-4">
+                  <Search size={24} className="text-gray-400" />
+                </div>
+                <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-1">
+                  No matching fields found
+                </h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 max-w-[280px] mb-6">
+                  No fields matching
+                  {normalizedQuery && (
+                    <>
+                      {" "}
+                      <span className="font-semibold text-gray-900 dark:text-gray-100 underline decoration-brand-500/30">
+                        &lsquo;{normalizedQuery}&rsquo;
+                      </span>
+                    </>
+                  )}
+                  {normalizedQuery && requiredOnly ? " and the " : requiredOnly ? " the " : ""}
+                  {requiredOnly && (
+                    <span className="font-semibold text-gray-900 dark:text-gray-100">Required</span>
+                  )}
+                  {requiredOnly ? " filter" : ""}.
+                </p>
+                <button
+                  onClick={handleClearFilters}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-lg text-sm font-medium shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-dark-bg"
+                >
+                  <XIcon size={16} />
+                  Clear all filters
+                </button>
+              </div>
             ) : (
               AAMVA_FIELD_GROUPS.map((group) => {
                 const groupFields = fieldsByGroup.get(group.id);
