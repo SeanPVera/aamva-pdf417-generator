@@ -1,4 +1,5 @@
 import React from "react";
+import { Search, X as XIcon } from "lucide-react";
 import { Sidebar } from "./components/Sidebar";
 import { Header } from "./components/Header";
 import { ShortcutsModal } from "./components/ShortcutsModal";
@@ -154,6 +155,11 @@ function App() {
     setTourOpen(false);
     markTourSeen();
   }, [markTourSeen]);
+
+  const handleClearFilters = React.useCallback(() => {
+    setSearchQuery("");
+    setRequiredOnly(false);
+  }, [setSearchQuery, setRequiredOnly]);
 
   const handleChange = (code: string, value: string) => {
     setField(code, value);
@@ -421,11 +427,44 @@ function App() {
             onFillSample={import.meta.env.DEV ? handleFillSample : undefined}
           />
 
-          <div className="p-4 lg:p-6">
+          <div className="p-4 lg:p-6 flex-1">
             {visibleFields.length === 0 ? (
-              <p className="text-sm text-gray-500 dark:text-gray-400 italic px-1">
-                No fields match the current filters.
-              </p>
+              <div
+                className="flex flex-col items-center justify-center py-12 px-4 text-center"
+                role="status"
+              >
+                <div className="bg-gray-100 dark:bg-dark-surface2 p-4 rounded-full mb-4">
+                  <Search className="text-gray-400" size={32} />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-1">No fields matching</h3>
+                <p className="text-sm text-gray-500 max-w-xs mb-6">
+                  No fields match{" "}
+                  {normalizedQuery ? (
+                    <>
+                      the search &lsquo;
+                      <span className="text-gray-900 font-medium">{searchQuery}</span>
+                      &rsquo;
+                    </>
+                  ) : (
+                    "your criteria"
+                  )}
+                  {requiredOnly && (
+                    <>
+                      {" "}
+                      and the <span className="font-medium text-gray-900">Required</span> filter
+                    </>
+                  )}
+                  .
+                </p>
+                <button
+                  type="button"
+                  onClick={handleClearFilters}
+                  className="inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                >
+                  <XIcon size={16} />
+                  Clear all filters
+                </button>
+              </div>
             ) : (
               AAMVA_FIELD_GROUPS.map((group) => {
                 const groupFields = fieldsByGroup.get(group.id);
