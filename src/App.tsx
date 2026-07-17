@@ -1,4 +1,5 @@
 import React from "react";
+import { Search, X as XIcon } from "lucide-react";
 import { Sidebar } from "./components/Sidebar";
 import { Header } from "./components/Header";
 import { ShortcutsModal } from "./components/ShortcutsModal";
@@ -81,11 +82,40 @@ function App() {
   } = useFormStore();
   const [copiedField, setCopiedField] = React.useState<string | null>(null);
   const [searchQuery, setSearchQuery] = React.useState("");
+
+  const handleClearFilters = React.useCallback(() => {
+    setSearchQuery("");
+    setRequiredOnly(false);
+  }, [setSearchQuery, setRequiredOnly]);
+
+  const normalizedQuery = searchQuery.trim().toLowerCase();
+
+  const emptyStateMessage = React.useMemo(() => {
+    const base = `No fields matching`;
+    if (normalizedQuery && requiredOnly) {
+      return (
+        <>
+          {base}{" "}
+          <span className="font-semibold text-gray-900">&lsquo;{normalizedQuery}&rsquo;</span> and
+          the Required filter
+        </>
+      );
+    }
+    if (normalizedQuery) {
+      return (
+        <>
+          {base}{" "}
+          <span className="font-semibold text-gray-900">&lsquo;{normalizedQuery}&rsquo;</span>
+        </>
+      );
+    }
+    return `${base} the Required filter`;
+  }, [normalizedQuery, requiredOnly]);
+
   const copyTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const schemaFields = getFieldsForStateAndVersion(state, version);
   const toast = useToast();
 
-  const normalizedQuery = searchQuery.trim().toLowerCase();
   const visibleFields = React.useMemo(
     () =>
       schemaFields.filter((f) => {
@@ -423,9 +453,24 @@ function App() {
 
           <div className="p-4 lg:p-6">
             {visibleFields.length === 0 ? (
-              <p className="text-sm text-gray-500 dark:text-gray-400 italic px-1">
-                No fields match the current filters.
-              </p>
+              <div
+                role="status"
+                className="flex flex-col items-center justify-center p-8 text-center"
+              >
+                <div className="p-3 bg-gray-100 rounded-full mb-3">
+                  <Search size={24} className="text-gray-400" />
+                </div>
+                <h3 className="text-sm font-semibold text-gray-900">No fields found</h3>
+                <p className="text-xs text-gray-600 mt-1 max-w-xs">{emptyStateMessage}.</p>
+                <button
+                  type="button"
+                  onClick={handleClearFilters}
+                  className="mt-4 inline-flex items-center gap-1.5 bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs font-semibold py-1.5 px-3 rounded-md transition"
+                >
+                  <XIcon size={12} />
+                  Clear Filters
+                </button>
+              </div>
             ) : (
               AAMVA_FIELD_GROUPS.map((group) => {
                 const groupFields = fieldsByGroup.get(group.id);
