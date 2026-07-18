@@ -12,7 +12,7 @@ test.describe("Actionable Empty State for field filters", () => {
     await searchInput.fill("NONEXISTENTFIELD123");
 
     // 2. Expect the empty state container to appear with role="status"
-    const emptyState = page.locator('div[role="status"]');
+    const emptyState = page.locator('.dmv-main div[role="status"]');
     await expect(emptyState).toBeVisible();
 
     // 3. Confirm it contains the dynamic searchQuery with smart quotes
@@ -40,7 +40,7 @@ test.describe("Actionable Empty State for field filters", () => {
     await requiredCheckbox.check();
     await searchInput.fill("NONEXISTENTFIELD123");
 
-    const emptyState = page.locator('div[role="status"]');
+    const emptyState = page.locator('.dmv-main div[role="status"]');
     await expect(emptyState).toBeVisible();
 
     // 2. Dynamic description should reference both
