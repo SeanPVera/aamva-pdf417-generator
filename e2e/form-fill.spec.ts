@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { dismissTour, fillCaliforniaForm, waitForPreview } from "./helpers";
+import { dismissTour, fillCaliforniaForm, waitForPreview, ensurePanel } from "./helpers";
 
 // Drives the form through a complete CA-v10 fill-out and asserts the
 // resulting payload (a) renders into the payload textarea and (b) starts
@@ -12,6 +12,10 @@ test.describe("CA v10 happy-path form fill", () => {
     await dismissTour(page);
     await waitForPreview(page);
     await fillCaliforniaForm(page);
+
+    // On mobile viewports, filling the form switches to the "Fields" tab.
+    // Switch back to the "Preview" tab to inspect the raw payload string.
+    await ensurePanel(page, "preview");
 
     const textarea = page.getByRole("textbox", { name: /raw aamva payload string/i });
     await expect(textarea).not.toHaveValue("", { timeout: 10_000 });
