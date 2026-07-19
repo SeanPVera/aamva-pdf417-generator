@@ -10,6 +10,7 @@ import { FieldFilters } from "./components/FieldFilters";
 import { DropZoneOverlay } from "./components/DropZoneOverlay";
 import { useToast } from "./components/Toast";
 import { useFormStore } from "./hooks/useFormStore";
+import { Search, X as XIcon } from "lucide-react";
 import {
   getFieldsForStateAndVersion,
   AAMVA_FIELD_GROUPS,
@@ -81,6 +82,11 @@ function App() {
   } = useFormStore();
   const [copiedField, setCopiedField] = React.useState<string | null>(null);
   const [searchQuery, setSearchQuery] = React.useState("");
+
+  const handleClearFilters = React.useCallback(() => {
+    setSearchQuery("");
+    setRequiredOnly(false);
+  }, [setSearchQuery, setRequiredOnly]);
   const copyTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const schemaFields = getFieldsForStateAndVersion(state, version);
   const toast = useToast();
@@ -423,9 +429,42 @@ function App() {
 
           <div className="p-4 lg:p-6">
             {visibleFields.length === 0 ? (
-              <p className="text-sm text-gray-500 dark:text-gray-400 italic px-1">
-                No fields match the current filters.
-              </p>
+              <div
+                role="status"
+                className="flex flex-col items-center justify-center py-12 px-4 text-center bg-gray-50 dark:bg-dark-surface rounded-lg border border-dashed border-gray-300 dark:border-dark-border"
+              >
+                <div className="p-3 bg-gray-100 dark:bg-dark-surface2 rounded-full mb-4">
+                  <Search className="h-6 w-6 text-gray-400 dark:text-gray-300" aria-hidden="true" />
+                </div>
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-1">
+                  No fields found
+                </h3>
+                <p className="text-xs text-gray-700 dark:text-gray-300 max-w-sm mb-4 leading-relaxed">
+                  No fields matching
+                  {normalizedQuery ? (
+                    <>
+                      {" "}
+                      &lsquo;
+                      <span className="font-semibold text-gray-900 dark:text-gray-100">
+                        {searchQuery}
+                      </span>
+                      &rsquo;
+                    </>
+                  ) : null}
+                  {requiredOnly ? (
+                    <>{normalizedQuery ? " and " : " "}the &ldquo;Required&rdquo; filter</>
+                  ) : null}
+                  .
+                </p>
+                <button
+                  type="button"
+                  onClick={handleClearFilters}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-brand-600 hover:bg-brand-700 rounded-md shadow transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                >
+                  <XIcon size={14} aria-hidden="true" />
+                  Clear all filters
+                </button>
+              </div>
             ) : (
               AAMVA_FIELD_GROUPS.map((group) => {
                 const groupFields = fieldsByGroup.get(group.id);
