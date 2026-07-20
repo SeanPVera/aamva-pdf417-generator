@@ -431,16 +431,21 @@ function App() {
             {visibleFields.length === 0 ? (
               <div
                 role="status"
-                className="flex flex-col items-center justify-center text-center p-8 bg-gray-50 rounded-lg border border-dashed border-gray-300 my-4 mx-4"
+                className="flex flex-col items-center justify-center text-center p-8 bg-gray-50 dark:bg-dark-surface border border-dashed border-gray-300 dark:border-dark-border rounded-lg my-4 mx-4"
               >
-                <Search className="h-8 w-8 text-gray-400 mb-3" aria-hidden="true" />
-                <h3 className="text-sm font-semibold text-gray-900 mb-1">No Results Found</h3>
-                <p className="text-sm text-gray-600 max-w-md mb-4">
+                <Search
+                  className="h-8 w-8 text-gray-400 dark:text-gray-500 mb-3"
+                  aria-hidden="true"
+                />
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-1">
+                  No Results Found
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 max-w-md mb-4">
                   {"No fields matching"}
                   {searchQuery.trim() && (
                     <>
                       {" "}
-                      <span className="text-gray-900 font-semibold">
+                      <span className="text-gray-900 dark:text-gray-100 font-semibold">
                         {`\u2018${searchQuery.trim()}\u2019`}
                       </span>
                     </>
