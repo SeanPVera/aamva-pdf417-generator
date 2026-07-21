@@ -18,6 +18,7 @@ import {
   type FieldGroupId
 } from "./core/schema";
 import { applyStateThemeToDocument } from "./core/stateThemes";
+import { Search, X as XIcon } from "lucide-react";
 import {
   generateStateDiscriminator,
   generateStateLicenseNumber,
@@ -286,6 +287,11 @@ function App() {
     if (nextEmptyRequiredCode) handleScrollToField(nextEmptyRequiredCode);
   };
 
+  const handleClearFilters = React.useCallback(() => {
+    setSearchQuery("");
+    setRequiredOnly(false);
+  }, [setSearchQuery, setRequiredOnly]);
+
   // Keyboard shortcuts (see ShortcutsModal for the user-facing list). Handlers
   // are routed through a ref so the global keydown listener doesn't need to
   // re-bind on every keystroke that touches store state.
@@ -423,9 +429,48 @@ function App() {
 
           <div className="p-4 lg:p-6">
             {visibleFields.length === 0 ? (
-              <p className="text-sm text-gray-500 dark:text-gray-400 italic px-1">
-                No fields match the current filters.
-              </p>
+              <div
+                role="status"
+                className="flex flex-col items-center justify-center p-8 text-center bg-gray-50 dark:bg-dark-surface2 rounded-lg border border-dashed border-gray-200 dark:border-dark-border"
+              >
+                <div className="p-3 bg-white dark:bg-dark-surface rounded-full shadow-sm text-gray-400 dark:text-gray-500 mb-3">
+                  <Search size={20} />
+                </div>
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                  No fields match filters
+                </h3>
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400 max-w-xs leading-relaxed">
+                  {normalizedQuery && requiredOnly ? (
+                    <>
+                      No fields matching &lsquo;
+                      <span className="text-gray-950 dark:text-gray-50 font-semibold">
+                        {searchQuery}
+                      </span>
+                      &rsquo; and the Required filter.
+                    </>
+                  ) : normalizedQuery ? (
+                    <>
+                      No fields matching &lsquo;
+                      <span className="text-gray-950 dark:text-gray-50 font-semibold">
+                        {searchQuery}
+                      </span>
+                      &rsquo;.
+                    </>
+                  ) : requiredOnly ? (
+                    <>No fields matching the Required filter.</>
+                  ) : (
+                    <>No fields available.</>
+                  )}
+                </p>
+                <button
+                  type="button"
+                  onClick={handleClearFilters}
+                  className="mt-4 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                >
+                  <XIcon size={12} />
+                  Clear filters
+                </button>
+              </div>
             ) : (
               AAMVA_FIELD_GROUPS.map((group) => {
                 const groupFields = fieldsByGroup.get(group.id);
