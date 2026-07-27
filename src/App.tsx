@@ -25,6 +25,7 @@ import {
 } from "./core/generator";
 import { buildSampleFill } from "./core/sampleFiller";
 import { useSwipe } from "./hooks/useSwipe";
+import { Search, X as XIcon } from "lucide-react";
 
 const MOBILE_PANELS = ["config", "form", "preview"] as const;
 type MobilePanel = (typeof MOBILE_PANELS)[number];
@@ -242,6 +243,11 @@ function App() {
     toast.info(`Reset ${code}`);
   };
 
+  const handleClearFilters = React.useCallback(() => {
+    setSearchQuery("");
+    setRequiredOnly(false);
+  }, [setSearchQuery, setRequiredOnly]);
+
   const handleScrollToField = (code: string) => {
     // On mobile, the form column may be hidden — switch to it first.
     setMobilePanel("form");
@@ -423,9 +429,50 @@ function App() {
 
           <div className="p-4 lg:p-6">
             {visibleFields.length === 0 ? (
-              <p className="text-sm text-gray-500 dark:text-gray-400 italic px-1">
-                No fields match the current filters.
-              </p>
+              <div
+                role="status"
+                className="flex flex-col items-center justify-center py-12 px-4 text-center border border-dashed border-gray-200 dark:border-dark-border rounded-lg bg-gray-50/50 dark:bg-dark-surface/30"
+              >
+                <div className="p-3 bg-gray-100 dark:bg-dark-surface2 rounded-full text-gray-400 mb-4">
+                  <Search size={24} aria-hidden="true" />
+                </div>
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-1">
+                  No fields found
+                </h3>
+                <p className="text-xs text-gray-700 dark:text-gray-300 max-w-sm mb-4">
+                  No fields matching{" "}
+                  {normalizedQuery ? (
+                    <>
+                      &lsquo;
+                      <span className="font-semibold text-gray-950 dark:text-gray-50">
+                        {searchQuery}
+                      </span>
+                      &rsquo;
+                    </>
+                  ) : (
+                    "the criteria"
+                  )}
+                  {requiredOnly && (
+                    <>
+                      {" "}
+                      and the{" "}
+                      <span className="font-semibold text-gray-950 dark:text-gray-50">
+                        Required
+                      </span>{" "}
+                      filter
+                    </>
+                  )}{" "}
+                  were found in version {version}.
+                </p>
+                <button
+                  type="button"
+                  onClick={handleClearFilters}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-brand-600 hover:bg-brand-700 text-white rounded-md shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-dark-surface"
+                >
+                  <XIcon size={13} aria-hidden="true" />
+                  Clear filters
+                </button>
+              </div>
             ) : (
               AAMVA_FIELD_GROUPS.map((group) => {
                 const groupFields = fieldsByGroup.get(group.id);
