@@ -1,3 +1,7 @@
 ## 2025-05-14 - Focus Management & Tour Interaction
 **Learning:** Adding interactive overlays (like a Welcome Tour) can disrupt keyboard navigation flow and break E2E tests that expect immediate access to the underlying UI. Modals must implement focus restoration to satisfy WCAG 2.1 (Success Criterion 2.4.3), and E2E suites require explicit "dismiss" helpers to maintain stability in CI environments where the tour might persistent across sessions.
 **Action:** Always implement focus restoration using `useId` and `useEffect` cleanup for new overlays, and provide a `dismissTour` utility in `e2e/helpers.ts` to be called at the start of all visual/interaction tests.
+
+## 2025-05-15 - Actionable Empty State & Context Scoping
+**Learning:** Replacing generic, dry empty states with interactive ones that dynamic-feed search parameters and provide an explicit button to reset active filters drastically improves the user recovery loop. When implementing accessibility attributes like `role="status"` on multiple dynamic areas (such as field lists and preview generators), locate elements by scoping them specifically within their main container regions to prevent strict-mode locator conflicts in end-to-end tests.
+**Action:** Scope E2E status locators with parent container classnames (e.g., `.dmv-main div[role="status"]`) and ensure color palette variables (e.g., `text-gray-950 dark:text-gray-50`) are standard to avoid Tailwind contrast regressions.
