@@ -436,15 +436,15 @@ function App() {
                 <div className="p-3 bg-gray-100 dark:bg-[#2C2C2C] rounded-full text-gray-400 mb-4">
                   <Search size={24} aria-hidden="true" />
                 </div>
-                <h3 className="text-base font-semibold text-gray-900 dark:text-gray-900 mb-1">
+                <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-1">
                   No fields found
                 </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-600 max-w-sm mb-4">
+                <p className="text-sm text-gray-600 dark:text-gray-400 max-w-sm mb-4">
                   {`No fields matching `}
                   {normalizedQuery && (
                     <span>
                       {`the search term `}
-                      <span className="font-semibold text-gray-900 dark:text-gray-900">
+                      <span className="font-semibold text-gray-950 dark:text-gray-50">
                         &lsquo;{normalizedQuery}&rsquo;
                       </span>
                     </span>
@@ -452,7 +452,7 @@ function App() {
                   {requiredOnly && (
                     <span>
                       {normalizedQuery ? ` and the ` : ` the `}
-                      <span className="font-semibold text-gray-900 dark:text-gray-900">
+                      <span className="font-semibold text-gray-950 dark:text-gray-50">
                         Required
                       </span>
                       {` filter`}
