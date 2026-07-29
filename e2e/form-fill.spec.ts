@@ -26,4 +26,31 @@ test.describe("CA v10 happy-path form fill", () => {
     // The family name we typed round-trips through the AAMVA wire format.
     expect(payload).toContain("DCSDOE");
   });
+
+  test("displays an actionable empty state when filters find no fields", async ({ page }) => {
+    await page.goto("/");
+    await dismissTour(page);
+    await waitForPreview(page);
+
+    // Search for a non-existent field
+    const searchInput = page.getByLabel("Search fields");
+    await searchInput.fill("NONEXISTENT_FIELD_QUERY");
+
+    // The empty state container should be visible and have role="status"
+    const emptyState = page.locator('.dmv-main div[role="status"]');
+    await expect(emptyState).toBeVisible();
+
+    // Check that it contains the search query and the clear button
+    await expect(emptyState).toContainText("nonexistent_field_query");
+
+    // Click the clear all filters button
+    const clearButton = emptyState.getByRole("button", { name: "Clear all filters" });
+    await clearButton.click();
+
+    // The search input should be empty now
+    await expect(searchInput).toHaveValue("");
+
+    // The empty state should be gone
+    await expect(emptyState).not.toBeVisible();
+  });
 });

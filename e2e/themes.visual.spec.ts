@@ -27,10 +27,7 @@ const EXPECTED: Record<string, ExpectedPalette> = {
   DC: { primary: "#BF0A30", accent: "#002868", tint: "#f8dfe4" }
 };
 
-async function readVar(
-  page: import("@playwright/test").Page,
-  name: string
-): Promise<string> {
+async function readVar(page: import("@playwright/test").Page, name: string): Promise<string> {
   return page.evaluate(
     (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim(),
     name
@@ -41,9 +38,7 @@ for (const [state, palette] of Object.entries(EXPECTED)) {
   test(`state theme variables: ${state}`, async ({ page }) => {
     await page.goto("/");
     await dismissTour(page);
-    await page
-      .getByRole("combobox", { name: /select state or territory/i })
-      .selectOption(state);
+    await page.getByRole("combobox", { name: /select state or territory/i }).selectOption(state);
 
     // Wait for the React effect that calls applyStateThemeToDocument to
     // flush. setProperty is synchronous once the effect runs, but the
