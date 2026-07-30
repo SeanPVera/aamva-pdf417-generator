@@ -28,7 +28,7 @@ test.describe("AAMVA generator end-to-end", () => {
     // <canvas> with aria-label isn't auto-assigned role=img by Chromium —
     // the accessibility tree exposes it as a generic with the label, so
     // match by attribute rather than role.
-    const canvas = page.locator('canvas[aria-label="PDF417 barcode preview"]');
+    const canvas = page.locator('canvas[aria-label="PDF417 barcode preview (pinch to zoom)"]');
     await expect(canvas).toBeVisible();
 
     const textarea = page.getByRole("textbox", { name: /raw aamva payload string/i });
