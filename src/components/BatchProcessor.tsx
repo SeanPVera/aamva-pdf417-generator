@@ -269,7 +269,7 @@ export const BatchProcessor: React.FC = () => {
         />
         <button
           onClick={() => fileInputRef.current?.click()}
-          className="flex items-center space-x-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-100 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded text-sm transition font-medium"
+          className="flex items-center space-x-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-100 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded text-sm transition font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-1 focus-visible:ring-offset-white dark:focus-visible:ring-offset-dark-surface"
           aria-label="Select JSON file for batch processing"
         >
           <Upload size={16} />
@@ -285,7 +285,7 @@ export const BatchProcessor: React.FC = () => {
         <button
           onClick={processBatch}
           disabled={!file || processing}
-          className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 dark:disabled:bg-blue-900 text-white px-6 py-2 rounded text-sm transition shadow font-medium"
+          className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 dark:disabled:bg-blue-900 text-white px-6 py-2 rounded text-sm transition shadow font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-1 focus-visible:ring-offset-white dark:focus-visible:ring-offset-dark-surface"
           aria-busy={processing}
         >
           <Download size={16} />
