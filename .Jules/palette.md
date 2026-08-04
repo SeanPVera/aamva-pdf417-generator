@@ -1,3 +1,7 @@
 ## 2025-05-14 - Focus Management & Tour Interaction
 **Learning:** Adding interactive overlays (like a Welcome Tour) can disrupt keyboard navigation flow and break E2E tests that expect immediate access to the underlying UI. Modals must implement focus restoration to satisfy WCAG 2.1 (Success Criterion 2.4.3), and E2E suites require explicit "dismiss" helpers to maintain stability in CI environments where the tour might persistent across sessions.
 **Action:** Always implement focus restoration using `useId` and `useEffect` cleanup for new overlays, and provide a `dismissTour` utility in `e2e/helpers.ts` to be called at the start of all visual/interaction tests.
+
+## 2025-05-20 - Actionable Empty State Pattern & Spacing Robustness
+**Learning:** For filterable list interfaces with multiple state constraints, a generic "No results" message is unhelpful and screen-reader unfriendly. Implementing an actionable empty state with a semantic `role="status"` and clear recovery pathway (e.g. dynamic reset action button) dramatically improves usability. Furthermore, when rendering dynamic descriptions with variable connectors, template literals are necessary within conditional blocks to safeguard proper whitespace spacing and avoid text concatenation issues across viewport sizes.
+**Action:** Always provide an actionable recovery path (such as a clear "reset" button) in empty views, and use template literals to handle localized spacing of dynamically appended filter variables.
