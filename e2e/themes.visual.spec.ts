@@ -27,6 +27,8 @@ const EXPECTED: Record<string, ExpectedPalette> = {
   DC: { primary: "#BF0A30", accent: "#002868", tint: "#f8dfe4" }
 };
 
+import { ensurePanel } from "./helpers";
+
 async function readVar(
   page: import("@playwright/test").Page,
   name: string
@@ -41,6 +43,7 @@ for (const [state, palette] of Object.entries(EXPECTED)) {
   test(`state theme variables: ${state}`, async ({ page }) => {
     await page.goto("/");
     await dismissTour(page);
+    await ensurePanel(page, "config");
     await page
       .getByRole("combobox", { name: /select state or territory/i })
       .selectOption(state);
