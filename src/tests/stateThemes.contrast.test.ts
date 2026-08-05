@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { STATE_THEMES, DEFAULT_STATE_THEME, type StateTheme } from "../core/stateThemes";
+import { STATE_THEMES, DEFAULT_STATE_THEME } from "../core/stateThemes";
 
 // WCAG 2.1 contrast computation (sRGB -> linear -> relative luminance -> ratio).
 function hexToRgb(hex: string): [number, number, number] {
@@ -33,18 +33,12 @@ function contrastRatio(fg: string, bg: string): number {
 const WCAG_AA_NORMAL = 4.5;
 const WCAG_AA_LARGE = 3.0; // Large text or non-text UI components.
 
-function checkPalette(theme: StateTheme): { primary: number; accent: number } {
-  return {
-    primary: contrastRatio(theme.onPrimary, theme.primary),
-    accent: contrastRatio(theme.onAccent, theme.accent)
-  };
-}
-
 describe("state themes WCAG AA contrast", () => {
   it("DEFAULT_STATE_THEME meets AA for both surface pairs", () => {
-    const ratios = checkPalette(DEFAULT_STATE_THEME);
-    expect(ratios.primary).toBeGreaterThanOrEqual(WCAG_AA_NORMAL);
-    expect(ratios.accent).toBeGreaterThanOrEqual(WCAG_AA_NORMAL);
+    const rPrimary = contrastRatio(DEFAULT_STATE_THEME.onPrimary, DEFAULT_STATE_THEME.primary);
+    const rAccent = contrastRatio(DEFAULT_STATE_THEME.onAccent, DEFAULT_STATE_THEME.accent);
+    expect(rPrimary).toBeGreaterThanOrEqual(WCAG_AA_NORMAL);
+    expect(rAccent).toBeGreaterThanOrEqual(WCAG_AA_NORMAL);
   });
 
   for (const [code, theme] of Object.entries(STATE_THEMES)) {
