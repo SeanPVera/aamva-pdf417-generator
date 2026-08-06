@@ -94,6 +94,25 @@ export function generateAAMVAPayload(
     dataObj.DCF = generateDocumentDiscriminator();
   }
 
+  // Normalise before the mandatory/format checks so values that arrive from an
+  // import or a scan are judged on their real content. Decoded AAMVA values
+  // carry the encoder's fixed-width space padding, and a required field holding
+  // nothing but whitespace is missing, not present.
+  for (const field of fields) {
+    const raw = dataObj[field.code];
+    if (raw) {
+      let val = raw;
+      if (["string", "char", "zip"].includes(field.type)) val = val.toUpperCase();
+      dataObj[field.code] = val
+        .normalize("NFKD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^\x20-\x7e]/g, "")
+        // eslint-disable-next-line no-control-regex
+        .replace(/[\x00-\x1f\x7f]/g, "")
+        .trim();
+    }
+  }
+
   const mandatoryFields = getMandatoryFields(stateCode, version);
   const missing = mandatoryFields
     .filter((f) => !dataObj[f.code])
@@ -109,20 +128,6 @@ export function generateAAMVAPayload(
     if (strictMode)
       throw new Error(`Strict Mode: DAJ (${dataObj.DAJ}) must match state code (${stateCode})`);
     dataObj.DAJ = stateCode;
-  }
-
-  for (const field of fields) {
-    const raw = dataObj[field.code];
-    if (raw) {
-      let val = raw;
-      if (["string", "char", "zip"].includes(field.type)) val = val.toUpperCase();
-      dataObj[field.code] = val
-        .normalize("NFKD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/[^\x20-\x7e]/g, "")
-        // eslint-disable-next-line no-control-regex
-        .replace(/[\x00-\x1f\x7f]/g, "");
-    }
   }
 
   const invalidFields = fields

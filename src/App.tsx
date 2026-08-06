@@ -283,7 +283,7 @@ function App() {
   // Dev-only convenience: fill the form with valid sample values so we can
   // verify changes against a generated barcode without typing every field.
   const handleFillSample = () => {
-    const sample = buildSampleFill(schemaFields);
+    const sample = buildSampleFill(schemaFields, state);
     let count = 0;
     for (const [code, value] of Object.entries(sample)) {
       setField(code, value);

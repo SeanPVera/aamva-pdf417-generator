@@ -13,6 +13,7 @@ import { generateAAMVAPayload } from "../core/generator";
 import { getFieldsForStateAndVersion } from "../core/schema";
 import { jsPDF } from "jspdf";
 import bwipjs from "bwip-js";
+import { PDF417_ENCODER_OPTIONS } from "../core/barcodeDimensions";
 
 const SAMPLE_BATCH = [
   {
@@ -67,6 +68,10 @@ const SAMPLE_BATCH = [
     DDG: "N"
   }
 ];
+
+// Print resolution for the PDF export — the symbol is placed at a uniform
+// scale, so modules stay square and the row-height : X-dimension ratio holds.
+const BATCH_SCALE = 3;
 
 interface BatchEntry {
   state: string;
@@ -182,13 +187,9 @@ export const BatchProcessor: React.FC = () => {
 
           const canvas = document.createElement("canvas");
           bwipjs.toCanvas(canvas, {
-            bcid: "pdf417",
-            text: payload,
-            scale: 3,
-            paddingwidth: 2,
-            paddingheight: 2,
-            // bwip-js accepts these options at runtime but omits them from RenderOptions
-            ...({ eclevel: 5 } as Record<string, number>)
+            ...PDF417_ENCODER_OPTIONS,
+            scale: BATCH_SCALE,
+            text: payload
           });
 
           const imgData = canvas.toDataURL("image/png");

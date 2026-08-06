@@ -23,7 +23,12 @@ import { generateAAMVAPayload } from "../core/generator";
 import { getFieldsForStateAndVersion } from "../core/schema";
 import { decodeAAMVA } from "../core/decoder";
 import { getValidationIssues } from "../core/validation";
-import { getBarcodeDimensions } from "../core/barcodeDimensions";
+import {
+  PDF417_ENCODER_OPTIONS,
+  PREVIEW_SCALE,
+  computeExportLayout,
+  getBarcodeDimensions
+} from "../core/barcodeDimensions";
 import { buildExportBasename } from "../core/exportNaming";
 import { getStateCritter } from "../core/stateCritters";
 import { HoloShimmer } from "./HoloShimmer";
@@ -32,15 +37,7 @@ import { ApprovalStamp } from "./ApprovalStamp";
 
 const EXPORT_DPI = 300;
 
-const BWIP_OPTIONS = {
-  bcid: "pdf417",
-  scale: 2,
-  columns: 5,
-  eclevel: 5,
-  compact: false as const,
-  paddingwidth: 2,
-  paddingheight: 2
-} as const;
+const BWIP_OPTIONS = PDF417_ENCODER_OPTIONS;
 
 // Heuristic — generator throws "Missing mandatory fields for STATE (vXX): …"
 // when the user simply hasn't filled the form yet, which is the common empty
@@ -156,12 +153,25 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
   }, [state, version, fields, strictMode, subfileType]);
 
   const handleExportPNG = () => {
-    if (!canvasRef.current || error) return;
+    if (!canvasRef.current || error || !payloadStr) return;
 
     const source = canvasRef.current;
     const { widthInches, heightInches } = getBarcodeDimensions(state);
     const targetWidth = Math.round(widthInches * EXPORT_DPI);
     const targetHeight = Math.round(heightInches * EXPORT_DPI);
+
+    // The preview canvas is rendered at PREVIEW_SCALE px per module, so dividing
+    // gives the symbol's module grid. Re-encode at the scale that fills the
+    // credential's barcode area instead of resampling the screen-resolution
+    // canvas — upscaling it by a fractional, per-axis factor made neighbouring
+    // modules different pixel widths and collapsed the row-height : X-dimension
+    // ratio below the 3:1 minimum PDF417 needs, which stops the print decoding.
+    const layout = computeExportLayout(
+      source.width / PREVIEW_SCALE,
+      source.height / PREVIEW_SCALE,
+      targetWidth,
+      targetHeight
+    );
 
     const target = document.createElement("canvas");
     target.width = targetWidth;
@@ -172,7 +182,30 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
     ctx.imageSmoothingEnabled = false;
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, targetWidth, targetHeight);
-    ctx.drawImage(source, 0, 0, source.width, source.height, 0, 0, targetWidth, targetHeight);
+
+    try {
+      const printCanvas = document.createElement("canvas");
+      bwipjs.toCanvas(printCanvas, {
+        ...BWIP_OPTIONS,
+        scale: layout.scale,
+        text: payloadStr
+      });
+      ctx.drawImage(printCanvas, layout.offsetX, layout.offsetY);
+    } catch {
+      // Re-encoding failed for some reason — fall back to the preview canvas,
+      // still scaled uniformly so the symbol stays undistorted.
+      ctx.drawImage(
+        source,
+        0,
+        0,
+        source.width,
+        source.height,
+        layout.offsetX,
+        layout.offsetY,
+        layout.drawWidth,
+        layout.drawHeight
+      );
+    }
 
     const url = target.toDataURL("image/png");
     const a = document.createElement("a");

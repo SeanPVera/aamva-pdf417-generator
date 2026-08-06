@@ -130,7 +130,12 @@ export function decodeAAMVAFormat(text: string): DecodeResult {
       if (entry.length >= 3) {
         const code = entry.substring(0, 3);
         let value = entry.substring(3);
-        value = value.replace(/\r$/, "");
+        // Strip the segment terminator and any fixed-width space padding the
+        // encoder added (AAMVA space-fills DAK to 11 characters, for example).
+        // The padding is an encoding artefact, never data — leaving it on the
+        // decoded value made the postal code fail re-validation, so a scanned
+        // or imported barcode could not be regenerated.
+        value = value.replace(/\r$/, "").replace(/ +$/, "");
         if (RE_FIELD_CODE.test(code)) {
           obj[code] = value;
         }
