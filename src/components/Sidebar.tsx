@@ -36,6 +36,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileHidden = false }) => {
   };
 
   const fields = getFieldsForStateAndVersion(state, version);
+  const defaultVersion = AAMVA_STATES[state]?.aamvaVersion;
   const requiredFields = fields.filter((f) => f.required);
   const requiredCount = requiredFields.length;
   const requiredFilled = requiredFields.filter(
@@ -70,7 +71,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileHidden = false }) => {
             id="state-select"
             value={state}
             onChange={handleStateChange}
-            className="w-full w-full border-gray-300 dark:border-[#555] dark:bg-dark-surface2 dark:text-gray-100 rounded-lg shadow-sm focus:ring-brand-500 focus:border-brand-500 text-sm p-2.5 border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            className="w-full border-gray-300 dark:border-[#555] dark:bg-dark-surface2 dark:text-gray-100 rounded-lg shadow-sm focus:ring-brand-500 focus:border-brand-500 text-sm p-2.5 border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
             aria-label="Select state or territory"
           >
             {Object.keys(AAMVA_STATES)
@@ -90,17 +91,29 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileHidden = false }) => {
 
         {/* AAMVA Version */}
         <div>
-          <label
-            htmlFor="version-select"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-          >
-            AAMVA Version
-          </label>
+          <div className="flex items-center justify-between mb-1">
+            <label
+              htmlFor="version-select"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
+              AAMVA Version
+            </label>
+            {defaultVersion && version !== defaultVersion && (
+              <button
+                type="button"
+                onClick={() => setStateVersion(state, defaultVersion)}
+                className="text-xs font-medium text-brand-600 dark:text-brand-400 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded"
+                title={`Reset to ${state}'s default version (${defaultVersion})`}
+              >
+                Reset to v{defaultVersion}
+              </button>
+            )}
+          </div>
           <select
             id="version-select"
             value={version}
             onChange={handleVersionChange}
-            className="w-full w-full border-gray-300 dark:border-[#555] dark:bg-dark-surface2 dark:text-gray-100 rounded-lg shadow-sm focus:ring-brand-500 focus:border-brand-500 text-sm p-2.5 border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            className="w-full border-gray-300 dark:border-[#555] dark:bg-dark-surface2 dark:text-gray-100 rounded-lg shadow-sm focus:ring-brand-500 focus:border-brand-500 text-sm p-2.5 border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
             aria-label="Select AAMVA version"
           >
             {Object.keys(AAMVA_VERSIONS).map((v) => {
@@ -127,7 +140,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileHidden = false }) => {
             id="subfile-select"
             value={subfileType}
             onChange={(e) => setSubfileType(e.target.value as "DL" | "ID")}
-            className="w-full w-full border-gray-300 dark:border-[#555] dark:bg-dark-surface2 dark:text-gray-100 rounded-lg shadow-sm focus:ring-brand-500 focus:border-brand-500 text-sm p-2.5 border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            className="w-full border-gray-300 dark:border-[#555] dark:bg-dark-surface2 dark:text-gray-100 rounded-lg shadow-sm focus:ring-brand-500 focus:border-brand-500 text-sm p-2.5 border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
             aria-label="Select subfile type"
           >
             <option value="DL">Driver's License (DL)</option>

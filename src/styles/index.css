@@ -328,6 +328,270 @@ div {
   border-radius: 6px;
 }
 
+/* Field diff-flash — used when a bulk load (import / scan / preset) changes a
+   field, so the user can see exactly what landed. Amber to distinguish it from
+   the blue jump-to-field flash. */
+@keyframes field-diff-flash {
+  0% {
+    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.65);
+    background-color: rgba(245, 158, 11, 0.12);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0);
+    background-color: transparent;
+  }
+}
+.field-diff-flash {
+  animation: field-diff-flash 1500ms ease-out 1;
+  border-radius: 6px;
+}
+
+/* ─── Whimsy: holographic shimmer over the barcode ───────────────────────── */
+.holo-shimmer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 6;
+  border-radius: 6px;
+  overflow: hidden;
+  mix-blend-mode: screen;
+  opacity: 0.5;
+  --holo-x: 50%;
+  --holo-y: 40%;
+  background:
+    radial-gradient(
+      120% 120% at var(--holo-x) var(--holo-y),
+      color-mix(in srgb, var(--holo-accent, #fbbc04) 65%, transparent) 0%,
+      color-mix(in srgb, var(--holo-primary, #1a73e8) 45%, transparent) 30%,
+      transparent 58%
+    ),
+    repeating-linear-gradient(
+      115deg,
+      rgba(255, 0, 128, 0.1) 0 8px,
+      rgba(0, 255, 200, 0.1) 8px 16px,
+      rgba(120, 80, 255, 0.1) 16px 24px
+    );
+}
+.holo-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: repeating-radial-gradient(
+    circle at var(--holo-x) var(--holo-y),
+    transparent 0 6px,
+    color-mix(in srgb, var(--holo-primary, #1a73e8) 22%, transparent) 6px 7px
+  );
+  opacity: 0.35;
+}
+.holo-microtext {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6rem;
+  letter-spacing: 0.5em;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--holo-primary, #1a73e8) 55%, white);
+  opacity: 0.4;
+}
+
+/* ─── Whimsy: state-animal confetti ──────────────────────────────────────── */
+.critter-confetti {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 20;
+}
+.critter-piece {
+  position: absolute;
+  top: -12%;
+  font-size: 1.25rem;
+  will-change: transform, opacity;
+  animation-name: critter-fall;
+  animation-timing-function: cubic-bezier(0.3, 0.7, 0.4, 1);
+  animation-fill-mode: forwards;
+}
+@keyframes critter-fall {
+  0% {
+    transform: translateY(-20%) translateX(0) rotate(0);
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(180%) translateX(var(--drift, 0)) rotate(var(--rot, 360deg));
+    opacity: 0;
+  }
+}
+
+/* ─── Whimsy: APPROVED rubber stamp ──────────────────────────────────────── */
+.approval-stamp {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 15;
+}
+.approval-stamp-ink {
+  font-family: "Roboto", system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  font-size: clamp(1.1rem, 6vw, 1.9rem);
+  text-transform: uppercase;
+  color: #c0392b;
+  border: 3px solid #c0392b;
+  border-radius: 8px;
+  padding: 0.25em 0.6em;
+  transform: rotate(-14deg) scale(2.4);
+  opacity: 0;
+  mix-blend-mode: multiply;
+  box-shadow: inset 0 0 0 2px rgba(192, 57, 43, 0.35);
+  animation: stamp-thunk 1500ms ease-out forwards;
+}
+@keyframes stamp-thunk {
+  0% {
+    opacity: 0;
+    transform: rotate(-14deg) scale(2.4);
+  }
+  18% {
+    opacity: 0.92;
+    transform: rotate(-14deg) scale(0.95);
+  }
+  26% {
+    transform: rotate(-14deg) scale(1.04);
+  }
+  34% {
+    transform: rotate(-14deg) scale(1);
+  }
+  78% {
+    opacity: 0.88;
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(-14deg) scale(1);
+  }
+}
+
+/* ─── Whimsy: Gus the clerk mascot ───────────────────────────────────────── */
+.clerk-mascot {
+  position: fixed;
+  left: 12px;
+  bottom: calc(12px + env(safe-area-inset-bottom, 0));
+  z-index: 40;
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  max-width: min(78vw, 320px);
+}
+.clerk-face {
+  font-size: 1.9rem;
+  line-height: 1;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.25));
+  user-select: none;
+}
+.clerk-happy {
+  animation: clerk-bounce 1.4s ease-in-out infinite;
+}
+.clerk-error {
+  animation: clerk-shake 0.5s ease-in-out;
+}
+.clerk-asleep {
+  opacity: 0.7;
+}
+@keyframes clerk-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+@keyframes clerk-shake {
+  0%,
+  100% {
+    transform: translateX(0) rotate(0);
+  }
+  25% {
+    transform: translateX(-2px) rotate(-4deg);
+  }
+  75% {
+    transform: translateX(2px) rotate(4deg);
+  }
+}
+.clerk-bubble {
+  position: relative;
+  background: white;
+  color: #1f2937;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 7px 10px;
+  font-size: 0.72rem;
+  line-height: 1.25;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.14);
+  max-width: 240px;
+}
+html.dark .clerk-bubble {
+  background: #1f1f1f;
+  color: #e5e7eb;
+  border-color: #333;
+}
+.clerk-dismiss {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: #6b7280;
+  color: white;
+  border-radius: 9999px;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+.clerk-dismiss:hover {
+  background: #ef4444;
+}
+
+/* ─── Whimsy: Konami "DMV disco" party mode ──────────────────────────────── */
+@keyframes party-hue {
+  to {
+    filter: hue-rotate(360deg);
+  }
+}
+.party-mode header.state-themed,
+.party-mode .state-primary-bg,
+.party-mode .holo-shimmer {
+  animation: party-hue 3s linear infinite;
+}
+.party-mode .clerk-face {
+  animation: clerk-bounce 0.5s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .holo-shimmer,
+  .critter-confetti {
+    display: none;
+  }
+  .approval-stamp-ink,
+  .clerk-happy,
+  .clerk-error,
+  .party-mode header.state-themed,
+  .party-mode .state-primary-bg {
+    animation: none;
+  }
+  .field-diff-flash {
+    animation: none;
+  }
+}
+
 /* Print: when the user clicks "Print" we add `printing-barcode` to <html>,
    then hide everything except the marked barcode container and center it. */
 @media print {

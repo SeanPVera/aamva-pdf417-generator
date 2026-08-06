@@ -25,9 +25,19 @@ export interface FormState {
   requiredOnly: boolean;
   // ISO timestamp the user finished or skipped the welcome tour. Empty = never seen.
   tourSeenAt: string;
+  // Decorative preferences (persisted). `whimsy` gates all the playful flourishes;
+  // `soundOn` gates the synthesized clerk-stamp clicks.
+  whimsy: boolean;
+  soundOn: boolean;
+  // Last camera the user scanned with, so the scanner reopens on the same one.
+  cameraDeviceId: string;
   // undo/redo stacks — not persisted
   _history: Array<Record<string, string>>;
   _future: Array<Record<string, string>>;
+  // Transient diff-highlight signal: which field codes changed in the last bulk
+  // load (import / scan / preset) and when. Not persisted.
+  _changedCodes: string[];
+  _changedAt: number;
   setField: (code: string, value: string) => void;
   setStateVersion: (state: string, version: string) => void;
   setStrictMode: (mode: boolean) => void;
@@ -37,12 +47,24 @@ export interface FormState {
   setRequiredOnly: (value: boolean) => void;
   markTourSeen: () => void;
   resetTour: () => void;
+  setWhimsy: (value: boolean) => void;
+  setSoundOn: (value: boolean) => void;
+  setCameraDeviceId: (id: string) => void;
   clearFields: () => void;
   loadJson: (data: Record<string, string>) => void;
   undo: () => void;
   redo: () => void;
   canUndo: () => boolean;
   canRedo: () => boolean;
+}
+
+/** Field codes whose value differs between two payload maps (added or changed). */
+function diffChangedCodes(prev: Record<string, string>, next: Record<string, string>): string[] {
+  const changed: string[] = [];
+  for (const [code, value] of Object.entries(next)) {
+    if (prev[code] !== value) changed.push(code);
+  }
+  return changed;
 }
 
 export const useFormStore = create<FormState>()(
@@ -57,8 +79,13 @@ export const useFormStore = create<FormState>()(
       collapsedGroups: {},
       requiredOnly: false,
       tourSeenAt: "",
+      whimsy: true,
+      soundOn: false,
+      cameraDeviceId: "",
       _history: [],
       _future: [],
+      _changedCodes: [],
+      _changedAt: 0,
 
       setField: (code, value) =>
         set((s) => {
@@ -89,6 +116,12 @@ export const useFormStore = create<FormState>()(
 
       resetTour: () => set({ tourSeenAt: "" }),
 
+      setWhimsy: (value) => set({ whimsy: value }),
+
+      setSoundOn: (value) => set({ soundOn: value }),
+
+      setCameraDeviceId: (id) => set({ cameraDeviceId: id }),
+
       clearFields: () =>
         set((s) => ({
           fields: {},
@@ -108,7 +141,9 @@ export const useFormStore = create<FormState>()(
             version: version || s.version,
             fields: newFields,
             _history: history,
-            _future: []
+            _future: [],
+            _changedCodes: diffChangedCodes(s.fields, newFields),
+            _changedAt: Date.now()
           };
         }),
 
@@ -146,7 +181,10 @@ export const useFormStore = create<FormState>()(
         theme: s.theme,
         collapsedGroups: s.collapsedGroups,
         requiredOnly: s.requiredOnly,
-        tourSeenAt: s.tourSeenAt
+        tourSeenAt: s.tourSeenAt,
+        whimsy: s.whimsy,
+        soundOn: s.soundOn,
+        cameraDeviceId: s.cameraDeviceId
       })
     }
   )
