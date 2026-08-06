@@ -1,4 +1,5 @@
 import React from "react";
+import { Search, X as XIcon } from "lucide-react";
 import { Sidebar } from "./components/Sidebar";
 import { Header } from "./components/Header";
 import { ShortcutsModal } from "./components/ShortcutsModal";
@@ -90,6 +91,11 @@ function App() {
   const [copiedField, setCopiedField] = React.useState<string | null>(null);
   const [searchQuery, setSearchQuery] = React.useState("");
   const [party, setParty] = React.useState(false);
+
+  const handleClearFilters = React.useCallback(() => {
+    setSearchQuery("");
+    setRequiredOnly(false);
+  }, [setSearchQuery, setRequiredOnly]);
   const playClack = useClickClack(soundOn && whimsy);
   const copyTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const schemaFields = getFieldsForStateAndVersion(state, version);
@@ -517,9 +523,52 @@ function App() {
 
           <div className="p-4 lg:p-6">
             {visibleFields.length === 0 ? (
-              <p className="text-sm text-gray-500 dark:text-gray-400 italic px-1">
-                No fields match the current filters.
-              </p>
+              <div
+                role="status"
+                className="flex flex-col items-center justify-center text-center p-8 bg-gray-50 dark:bg-dark-surface border border-dashed border-gray-200 dark:border-dark-border rounded-lg"
+              >
+                <Search
+                  className="w-8 h-8 text-gray-400 dark:text-gray-500 mb-3"
+                  aria-hidden="true"
+                />
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-1">
+                  No fields found
+                </h3>
+                <p className="text-xs text-gray-600 dark:text-gray-400 max-w-sm mb-4">
+                  No fields matching
+                  {searchQuery.trim() ? (
+                    <>
+                      {" "}
+                      the search query{" "}
+                      <span className="font-semibold text-gray-950 dark:text-gray-50">
+                        &lsquo;{searchQuery.trim()}&rsquo;
+                      </span>
+                    </>
+                  ) : (
+                    ""
+                  )}
+                  {requiredOnly ? (
+                    <>
+                      {searchQuery.trim() ? " and " : " "}the{" "}
+                      <span className="font-semibold text-gray-950 dark:text-gray-50">
+                        Required
+                      </span>{" "}
+                      filter
+                    </>
+                  ) : (
+                    ""
+                  )}
+                  . Try adjusting or resetting your active filters to view other fields.
+                </p>
+                <button
+                  type="button"
+                  onClick={handleClearFilters}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md shadow-sm text-white bg-brand-600 hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                >
+                  <XIcon className="w-3.5 h-3.5" aria-hidden="true" />
+                  Reset all filters
+                </button>
+              </div>
             ) : (
               AAMVA_FIELD_GROUPS.map((group) => {
                 const groupFields = fieldsByGroup.get(group.id);
