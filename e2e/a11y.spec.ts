@@ -29,12 +29,22 @@ test.describe("accessibility", () => {
     await dismissTour(page);
     await ensurePanel(page, "config");
 
-    // Reset focus to the document start. `body.click()` focuses whatever
-    // element happens to be under the click point, which can land mid-form
-    // and skip the header entirely.
+    // Reset the sequential focus navigation starting point to the very top of
+    // the document. Neither `body.click()` nor `body.focus()` does this
+    // reliably: the former focuses whatever sits under the click point, and
+    // <body> is not focusable, so Firefox ignores the latter and resumes
+    // tabbing from wherever the starting point already was — in practice the
+    // dismissed tour's position near the end of the DOM, which lands on the
+    // fixed-position mascot (focusable index ~119 of 120) instead of the
+    // header. Focusing a real sentinel node inserted at the top of <body>
+    // moves the starting point in every browser.
     await page.evaluate(() => {
       (document.activeElement as HTMLElement | null)?.blur();
-      document.body.focus();
+      const sentinel = document.createElement("span");
+      sentinel.id = "__tab-order-sentinel";
+      sentinel.tabIndex = 0;
+      document.body.insertBefore(sentinel, document.body.firstChild);
+      sentinel.focus();
     });
     // The state combobox is the first interactive control after the header
     // toolbar. The toolbar grows as features are added (undo/redo, theme
@@ -42,16 +52,25 @@ test.describe("accessibility", () => {
     // so allow a generous upper bound rather than hard-coding the current
     // count.
     let reached = false;
+    const walked: string[] = [];
     for (let i = 0; i < 30; i++) {
       await page.keyboard.press("Tab");
-      const label = await page.evaluate(
-        () => (document.activeElement as HTMLElement | null)?.getAttribute("aria-label") ?? ""
-      );
+      const label = await page.evaluate(() => {
+        const el = document.activeElement as HTMLElement | null;
+        return el?.getAttribute("aria-label") ?? el?.id ?? el?.tagName ?? "";
+      });
+      walked.push(label);
       if (/select state or territory/i.test(label)) {
         reached = true;
         break;
       }
     }
-    expect(reached).toBe(true);
+
+    await page.evaluate(() => document.getElementById("__tab-order-sentinel")?.remove());
+
+    // Surface the walk on failure — "expected true, received false" alone
+    // says nothing about where the tab order actually went.
+    expect(reached, `tab order never reached the state selector; visited: ${walked.join(" -> ")}`)
+      .toBe(true);
   });
 });

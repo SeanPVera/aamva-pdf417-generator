@@ -25,6 +25,11 @@ test.describe("AAMVA generator end-to-end", () => {
     // the canvas and toBeVisible() fails by occlusion.
     await fillCaliforniaForm(page);
 
+    // Filling leaves the Fields panel active. On mobile the panels are
+    // mutually exclusive, so re-enter Preview before asserting on the canvas
+    // and payload, both of which live in the Preview panel.
+    await waitForPreview(page);
+
     // <canvas> with aria-label isn't auto-assigned role=img by Chromium —
     // the accessibility tree exposes it as a generic with the label, so
     // match by attribute rather than role.

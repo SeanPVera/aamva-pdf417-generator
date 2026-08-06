@@ -43,11 +43,23 @@ export async function ensurePanel(page: Page, panel: "config" | "form" | "previe
   if (!isMobile) return;
 
   const labelMap = { config: "Config", form: "Fields", preview: "Preview" };
-  const tabButton = page.getByRole("button", { name: labelMap[panel], exact: true });
+  // Match on the label as a substring within the mobile nav rather than by
+  // exact accessible name. The tabs carry status badges — "Fields" gains an
+  // error count ("20 validation errors") and "Preview" a "Barcode ready"
+  // marker — which fold into the button's accessible name, so an exact-name
+  // lookup silently matches nothing precisely when a badge is showing.
+  const tabButton = page
+    .locator("nav[aria-label='Mobile panel navigation'] button")
+    .filter({ hasText: labelMap[panel] });
 
-  // Only click if it's not already active (aria-current is truthy)
-  if ((await tabButton.count()) > 0 && (await tabButton.getAttribute("aria-current")) !== "true") {
+  // Fail loudly if the tab is missing; skipping the click silently just
+  // defers the failure to an unrelated "element is not visible" timeout.
+  await tabButton.waitFor({ state: "visible" });
+
+  if ((await tabButton.getAttribute("aria-current")) !== "true") {
     await tabButton.click();
+    // Wait for the panel swap to land before returning control.
+    await expect(tabButton).toHaveAttribute("aria-current", "true");
   }
 }
 
