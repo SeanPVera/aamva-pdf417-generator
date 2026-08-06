@@ -22,7 +22,7 @@ This file provides AI assistants (Claude, Copilot, etc.) with the context needed
 ├── index.html                    # Vite HTML entry point
 ├── main.js                       # Electron entry point (BrowserWindow setup, security hardening)
 ├── preload.js                    # Electron contextBridge — exposes ping/version to renderer
-├── vite.config.ts                # Vite + Vitest configuration
+├── vite.config.mts               # Vite + Vitest configuration
 ├── tsconfig.json                 # TypeScript config (app)
 ├── tsconfig.node.json            # TypeScript config (Node/build tooling)
 ├── tailwind.config.js            # Tailwind CSS config
@@ -62,7 +62,7 @@ This file provides AI assistants (Claude, Copilot, etc.) with the context needed
 ├── LICENSE                       # MIT license
 └── .github/
     └── workflows/
-        └── node.js.yml           # CI: Node 18/20/22, lint/format/typecheck/build/test/coverage/size/audit
+        └── node.js.yml           # CI: Node 20/22, lint/format/typecheck/build/test/coverage/size/audit
 ```
 
 ---
@@ -221,7 +221,7 @@ npm run format:check    # Prettier check (used in CI)
 
 ## Testing Conventions
 
-- **Framework:** Vitest with jsdom environment (configured in `vite.config.ts`)
+- **Framework:** Vitest with jsdom environment (configured in `vite.config.mts`)
 - **Test files:** `src/tests/*.test.ts`
 - **Setup:** `src/setupTests.ts` imports `@testing-library/jest-dom`
 - Use `describe()`, `it()` / `test()`, `expect()` — Vitest API
@@ -290,10 +290,10 @@ When enabled, validation warnings are treated as errors and block payload genera
 
 GitHub Actions workflow (`.github/workflows/node.js.yml`):
 - **Triggers:** Push to `main`, PRs targeting `main`
-- **Matrix:** Node.js 18.x, 20.x, 22.x
+- **Matrix:** Node.js 20.x, 22.x
 - **Steps (in order):** `npm ci` → `npm run lint` → `npm run format:check` → `npm run typecheck` → `npm run build` → `npm run test:run` → (Node 22 only) `npm run test:coverage` with thresholds → (Node 22 only) `npm run size` (size-limit budget) → upload coverage artifact → `npm audit --audit-level=high`
 
-All steps must pass on all three Node versions before merging. Coverage thresholds (lines 85, branches 80, functions 85, statements 85) are configured in `vite.config.ts`. Bundle-size budgets per chunk are defined in `.size-limit.json`.
+All steps must pass on both Node versions before merging. Coverage thresholds (lines 85, branches 80, functions 85, statements 85) are configured in `vite.config.mts`. Bundle-size budgets per chunk are defined in `.size-limit.json`.
 
 A separate workflow (`.github/workflows/e2e.yml`) runs Playwright end-to-end tests (`e2e/*.spec.ts`). Releases are handled by `.github/workflows/release.yml`.
 

@@ -584,7 +584,7 @@ Track these in CI and release notes:
 ├── main.js
 ├── preload.js
 ├── package.json
-├── vite.config.ts
+├── vite.config.mts
 ├── tsconfig.json
 ├── README.md
 └── LICENSE
