@@ -65,6 +65,14 @@ export default defineConfig({
     alias: {
       '@': path.resolve(rootDir, './src'),
       '@aamva/core': path.resolve(rootDir, './src/core'),
+      // jspdf dynamic-imports these three optional renderer deps from its
+      // .html() path, which this app never calls. Without the aliases they
+      // still get bundled — 378 kB raw / 105 kB gzipped of unreachable JS,
+      // all of it precached by the service worker. The stub is
+      // side-effect-free and throws only on use; see it for why that matters.
+      html2canvas: path.resolve(rootDir, './src/stubs/jspdfOptionalRenderer.ts'),
+      dompurify: path.resolve(rootDir, './src/stubs/jspdfOptionalRenderer.ts'),
+      canvg: path.resolve(rootDir, './src/stubs/jspdfOptionalRenderer.ts'),
     },
   },
   build: {
