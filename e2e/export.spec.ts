@@ -5,6 +5,9 @@ import { dismissTour, ensurePanel, fillCaliforniaForm, waitForPreview } from "./
 // byte stream — bwip-js is upstream and tested heavily — only that the
 // download fires with a sane filename. JSON export is in the header
 // (not lazy), so it works without waiting for the BarcodePreview chunk.
+//
+// Filenames come from `buildExportBasename`, which encodes jurisdiction,
+// name tokens and subfile type: `BARCODE_CA_DOE_JANE_DL.png`.
 
 test.describe("export buttons", () => {
   test("PNG export triggers a download", async ({ page }) => {
@@ -21,7 +24,7 @@ test.describe("export buttons", () => {
       page.waitForEvent("download"),
       page.getByRole("button", { name: /export barcode as png/i }).click()
     ]);
-    expect(download.suggestedFilename()).toMatch(/^barcode_CA_10\.png$/i);
+    expect(download.suggestedFilename()).toMatch(/^barcode_CA_DOE_JANE_DL\.png$/i);
   });
 
   test("SVG export triggers a download", async ({ page }) => {
@@ -38,7 +41,7 @@ test.describe("export buttons", () => {
       page.waitForEvent("download"),
       page.getByRole("button", { name: /export barcode as svg/i }).click()
     ]);
-    expect(download.suggestedFilename()).toMatch(/^barcode_CA_10\.svg$/i);
+    expect(download.suggestedFilename()).toMatch(/^barcode_CA_DOE_JANE_DL\.svg$/i);
   });
 
   test("JSON export triggers a download with the right filename", async ({ page }) => {
@@ -50,6 +53,6 @@ test.describe("export buttons", () => {
       page.waitForEvent("download"),
       page.getByRole("button", { name: /export current fields as json/i }).click()
     ]);
-    expect(download.suggestedFilename()).toMatch(/^aamva_CA_10\.json$/i);
+    expect(download.suggestedFilename()).toMatch(/^aamva_CA_DOE_JANE_DL\.json$/i);
   });
 });
