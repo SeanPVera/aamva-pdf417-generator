@@ -89,6 +89,8 @@ const VERSION_ERA_RANGES: Record<string, [number, number]> = {
   "04": [2009, 2012]
 };
 
+const ONE_YEAR_MS = 365 * 24 * 60 * 60 * 1000;
+
 function randomDateInRange(startYear: number, endYear: number, beforeDateStr?: string) {
   let capMs: number | null = null;
   if (beforeDateStr && RE_8_DIGITS.test(beforeDateStr)) {
@@ -99,13 +101,17 @@ function randomDateInRange(startYear: number, endYear: number, beforeDateStr?: s
       capMs = Date.UTC(by, bm - 1, bd);
     }
   }
-  const rangeStart = Date.UTC(startYear, 0, 1);
+  let rangeStart = Date.UTC(startYear, 0, 1);
   let rangeEnd = Date.UTC(endYear, 11, 31);
   if (capMs !== null && capMs < rangeEnd) {
     rangeEnd = capMs;
   }
   if (rangeEnd < rangeStart) {
-    rangeEnd = rangeStart;
+    // The issue date predates this AAMVA version's era. Slide the window back
+    // to sit behind the cap rather than snapping forward to the era start —
+    // otherwise the generated card revision date postdates the issue date,
+    // which the cross-field check flags and strict mode then refuses to build.
+    rangeStart = rangeEnd - ONE_YEAR_MS;
   }
   const ts = rangeStart + secureGetRandomInt(rangeEnd - rangeStart + 1);
   const dt = new Date(ts);
