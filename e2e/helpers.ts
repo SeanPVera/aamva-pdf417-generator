@@ -43,7 +43,7 @@ export async function ensurePanel(page: Page, panel: "config" | "form" | "previe
   if (!isMobile) return;
 
   const labelMap = { config: "Config", form: "Fields", preview: "Preview" };
-  const tabButton = page.getByRole("button", { name: labelMap[panel], exact: true });
+  const tabButton = page.getByRole("button", { name: labelMap[panel] });
 
   // Only click if it's not already active (aria-current is truthy)
   if ((await tabButton.count()) > 0 && (await tabButton.getAttribute("aria-current")) !== "true") {
@@ -59,8 +59,8 @@ export async function dismissTour(page: Page) {
   const skipBtn = page.getByRole("button", { name: /skip tour/i });
   try {
     // The tour is gated behind a React.lazy chunk in some versions or might
-    // take a moment to appear. Wait up to 3s for the button.
-    await skipBtn.waitFor({ state: "visible", timeout: 3000 });
+    // take a moment to appear. Wait up to 5s for the button.
+    await skipBtn.waitFor({ state: "visible", timeout: 5000 });
     await skipBtn.click();
     // Ensure the dialog is actually gone before returning control.
     await expect(page.getByRole("dialog")).not.toBeVisible();
