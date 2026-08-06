@@ -42,7 +42,7 @@ export async function ensurePanel(page: Page, panel: "config" | "form" | "previe
   const isMobile = await page.evaluate(() => window.innerWidth < 1024);
   if (!isMobile) return;
 
-  const labelMap = { config: "Config", form: "Fields", preview: "Preview" };
+  const labelMap = { config: /^Config/, form: /^Fields/, preview: /^Preview/ };
   const tabButton = page.getByRole("button", { name: labelMap[panel] });
 
   // Only click if it's not already active (aria-current is truthy)

@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { dismissTour, fillCaliforniaForm, waitForPreview } from "./helpers";
+import { dismissTour, fillCaliforniaForm, waitForPreview, ensurePanel } from "./helpers";
 
 // The critical loop: select state → fill required fields → render barcode →
 // confirm the rendered canvas exists and the payload textarea round-trips.
@@ -24,6 +24,7 @@ test.describe("AAMVA generator end-to-end", () => {
     // than just selecting the state — otherwise the error overlay covers
     // the canvas and toBeVisible() fails by occlusion.
     await fillCaliforniaForm(page);
+    await ensurePanel(page, "preview");
 
     // <canvas> with aria-label isn't auto-assigned role=img by Chromium —
     // the accessibility tree exposes it as a generic with the label, so

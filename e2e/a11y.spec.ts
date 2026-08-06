@@ -33,8 +33,12 @@ test.describe("accessibility", () => {
     // element happens to be under the click point, which can land mid-form
     // and skip the header entirely.
     await page.evaluate(() => {
-      (document.activeElement as HTMLElement | null)?.blur();
-      document.body.focus();
+      const temp = document.createElement("div");
+      temp.tabIndex = -1;
+      document.body.insertBefore(temp, document.body.firstChild);
+      temp.focus();
+      temp.blur();
+      temp.remove();
     });
     // The state combobox is the first interactive control after the header
     // toolbar. The toolbar grows as features are added (undo/redo, theme
