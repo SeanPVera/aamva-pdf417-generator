@@ -151,3 +151,44 @@ describe("getValidationIssues", () => {
     expect(codes).toContain("DAK");
   });
 });
+
+describe("getValidationIssues: severity ordering", () => {
+  const fields: AAMVAField[] = [
+    { code: "DCS", label: "Family Name", type: "string", required: true },
+    { code: "DAC", label: "First Name", type: "string", required: true },
+    { code: "DBB", label: "Date of Birth", type: "date", required: true },
+    { code: "DBD", label: "Issue Date", type: "date", required: true },
+    { code: "DBA", label: "Expiration Date", type: "date", required: true },
+    { code: "DAQ", label: "License Number", type: "string", required: true }
+  ];
+
+  // Cross-field and rule-pack issues are appended after the per-field pass,
+  // so without an explicit sort a warning can precede a blocking error.
+  it("puts every error ahead of every warning", () => {
+    const issues = getValidationIssues(
+      fields,
+      // Missing DCS/DAC/DAQ produce errors; the 12-year age at issuance and
+      // the long validity span produce warnings.
+      { DBB: "01012010", DBD: "01012022", DBA: "01012035" },
+      "CA",
+      false
+    );
+
+    const errorCount = issues.filter((i) => i.severity === "error").length;
+    const warningCount = issues.filter((i) => i.severity === "warning").length;
+    expect(errorCount).toBeGreaterThan(0);
+    expect(warningCount).toBeGreaterThan(0);
+
+    const firstWarning = issues.findIndex((i) => i.severity === "warning");
+    const lastError = issues.map((i) => i.severity).lastIndexOf("error");
+    expect(lastError).toBeLessThan(firstWarning);
+  });
+
+  it("keeps field order stable within a severity", () => {
+    const issues = getValidationIssues(fields, {}, "CA", false);
+    const errorCodes = issues.filter((i) => i.severity === "error").map((i) => i.code);
+    const schemaOrder = fields.map((f) => f.code);
+    const expected = schemaOrder.filter((c) => errorCodes.includes(c));
+    expect(errorCodes.filter((c) => schemaOrder.includes(c))).toEqual(expected);
+  });
+});

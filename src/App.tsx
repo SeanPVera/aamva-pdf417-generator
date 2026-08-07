@@ -1,4 +1,5 @@
 import React from "react";
+import { SearchX } from "lucide-react";
 import { Sidebar } from "./components/Sidebar";
 import { Header } from "./components/Header";
 import { ShortcutsModal } from "./components/ShortcutsModal";
@@ -7,6 +8,7 @@ import { WelcomeTour } from "./components/WelcomeTour";
 import { FieldInput } from "./components/FieldInput";
 import { FieldGroup } from "./components/FieldGroup";
 import { FieldFilters } from "./components/FieldFilters";
+import { describeActiveFilters } from "./components/filterSummary";
 import { DropZoneOverlay } from "./components/DropZoneOverlay";
 import { ClerkMascot } from "./components/ClerkMascot";
 import { useToast } from "./components/Toast";
@@ -90,6 +92,11 @@ function App() {
   const [copiedField, setCopiedField] = React.useState<string | null>(null);
   const [searchQuery, setSearchQuery] = React.useState("");
   const [party, setParty] = React.useState(false);
+
+  const handleResetFilters = React.useCallback(() => {
+    setSearchQuery("");
+    setRequiredOnly(false);
+  }, [setRequiredOnly]);
   const playClack = useClickClack(soundOn && whimsy);
   const copyTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const schemaFields = getFieldsForStateAndVersion(state, version);
@@ -517,9 +524,28 @@ function App() {
 
           <div className="p-4 lg:p-6">
             {visibleFields.length === 0 ? (
-              <p className="text-sm text-gray-500 dark:text-gray-400 italic px-1">
-                No fields match the current filters.
-              </p>
+              // role="status" so screen readers announce the dead end as soon
+              // as the filters produce nothing, and a reset button so the user
+              // can recover without hunting for which filter to undo.
+              <div
+                role="status"
+                className="flex flex-col items-center justify-center rounded-lg border border-dashed border-gray-200 bg-gray-50 p-8 text-center dark:border-dark-border dark:bg-dark-surface"
+              >
+                <SearchX className="mb-3 h-8 w-8 text-gray-400 dark:text-gray-500" aria-hidden />
+                <h3 className="mb-1 text-sm font-semibold text-gray-900 dark:text-gray-100">
+                  No fields found
+                </h3>
+                <p className="mb-4 max-w-sm text-xs text-gray-600 dark:text-gray-400">
+                  {describeActiveFilters(searchQuery, requiredOnly)}
+                </p>
+                <button
+                  type="button"
+                  onClick={handleResetFilters}
+                  className="inline-flex items-center gap-1.5 rounded-md bg-brand-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                >
+                  Reset all filters
+                </button>
+              </div>
             ) : (
               AAMVA_FIELD_GROUPS.map((group) => {
                 const groupFields = fieldsByGroup.get(group.id);

@@ -650,7 +650,16 @@ export function getValidationIssues(
     issues.push(ci);
   }
 
-  return issues;
+  // Blockers first. Rule-pack warnings and cross-field issues are appended
+  // after the per-field pass, so without this an error can sort below a
+  // warning and the user has to hunt for what is actually blocking them.
+  // Array.prototype.sort is stable, so ordering within a severity is kept.
+  return issues.sort((a, b) => severityRank(a.severity) - severityRank(b.severity));
+}
+
+/** Sort weight for issue severity — lower sorts first. */
+function severityRank(severity: ValidationIssue["severity"]): number {
+  return severity === "error" ? 0 : 1;
 }
 
 /** Returns true when the issue list contains any blocking errors. */
