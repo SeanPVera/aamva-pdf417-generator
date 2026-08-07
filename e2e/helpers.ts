@@ -84,12 +84,18 @@ export async function ensurePanel(page: Page, panel: "config" | "form" | "previe
  * The Welcome Tour appears on first load and can obscure elements.
  * Dismiss it early so it doesn't interfere with test interactions.
  */
+// The tour is shown once per browser context and its "seen" flag persists, so
+// it can only ever need dismissing once per page. Tracking that lets repeat
+// calls return immediately instead of each burning a full timeout waiting for
+// a button that will never come back.
+const tourHandled = new WeakSet<Page>();
+
 export async function dismissTour(page: Page) {
+  if (tourHandled.has(page)) return;
+
   const skipBtn = page.getByRole("button", { name: /skip tour/i });
   try {
-    // The tour is gated behind a React.lazy chunk in some versions or might
-    // take a moment to appear. Wait up to 3s for the button.
-    await skipBtn.waitFor({ state: "visible", timeout: 3000 });
+    await skipBtn.waitFor({ state: "visible", timeout: 10_000 });
     await skipBtn.click();
     // Ensure the dialog is actually gone before returning control.
     await expect(page.getByRole("dialog")).not.toBeVisible();
@@ -97,6 +103,13 @@ export async function dismissTour(page: Page) {
     // If the tour didn't show up (e.g. session already marked it seen),
     // just continue.
   }
+  tourHandled.add(page);
+
+  // The tour carries aria-modal, so while it is open every role-based query
+  // outside it resolves to nothing. Assert it is gone here, where the failure
+  // names the real cause, rather than letting it surface later as an
+  // "element not found" on whatever the modal was hiding.
+  await expect(page.locator('[aria-modal="true"]')).toHaveCount(0);
 }
 
 /**

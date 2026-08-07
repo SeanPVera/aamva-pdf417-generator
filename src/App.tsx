@@ -1,11 +1,15 @@
 import React from "react";
 import { Sidebar } from "./components/Sidebar";
 import { Header } from "./components/Header";
+// Static on purpose: the tour auto-opens on first load. Behind React.lazy it
+// mounted *after* the page was already interactive, dropping an aria-modal
+// dialog over a usable page — which also hides everything outside it from the
+// accessibility tree. The bundle saving is not worth that.
+import { WelcomeTour } from "./components/WelcomeTour";
 import { FieldInput } from "./components/FieldInput";
 import { FieldGroup } from "./components/FieldGroup";
 import { FieldFilters } from "./components/FieldFilters";
 import { DropZoneOverlay } from "./components/DropZoneOverlay";
-import { ClerkMascot } from "./components/ClerkMascot";
 import { useToast } from "./components/Toast";
 import { useFormStore } from "./hooks/useFormStore";
 import {
@@ -59,12 +63,13 @@ const EmployeeOfTheMonth = React.lazy(() =>
 const DmvBingo = React.lazy(() =>
   import("./components/DmvBingo").then((module) => ({ default: module.DmvBingo }))
 );
-const WelcomeTour = React.lazy(() =>
-  import("./components/WelcomeTour").then((module) => ({ default: module.WelcomeTour }))
-);
-// Decorative and gated behind the whimsy preference — never part of first paint.
+// Decorative and gated behind the whimsy preference — never part of first paint,
+// and nothing blocks on them appearing.
 const TicketDispenser = React.lazy(() =>
   import("./components/TicketDispenser").then((module) => ({ default: module.TicketDispenser }))
+);
+const ClerkMascot = React.lazy(() =>
+  import("./components/ClerkMascot").then((module) => ({ default: module.ClerkMascot }))
 );
 
 function App() {
@@ -763,11 +768,7 @@ function App() {
           <CompareView open={compareOpen} onClose={() => setCompareOpen(false)} />
         </React.Suspense>
       )}
-      {showTour && (
-        <React.Suspense fallback={null}>
-          <WelcomeTour open={showTour} onClose={handleCloseTour} />
-        </React.Suspense>
-      )}
+      <WelcomeTour open={showTour} onClose={handleCloseTour} />
       {badgesOpen && (
         <React.Suspense fallback={null}>
           <EmployeeOfTheMonth
@@ -797,13 +798,17 @@ function App() {
           />
         </React.Suspense>
       )}
-      <ClerkMascot
-        enabled={whimsy}
-        errorCount={errorCount}
-        requiredComplete={requiredComplete}
-        anyFields={anyFields}
-        onDismiss={() => markBingo("dismissed-gus")}
-      />
+      {whimsy && (
+        <React.Suspense fallback={null}>
+          <ClerkMascot
+            enabled={whimsy}
+            errorCount={errorCount}
+            requiredComplete={requiredComplete}
+            anyFields={anyFields}
+            onDismiss={() => markBingo("dismissed-gus")}
+          />
+        </React.Suspense>
+      )}
     </div>
   );
 }
