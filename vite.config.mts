@@ -3,6 +3,12 @@ import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 import fs from 'fs';
+import { fileURLToPath } from 'node:url';
+
+// This config is ESM (.mts), so __dirname does not exist. Derive it from
+// import.meta.url rather than using import.meta.dirname, which would pin the
+// config to Node >= 20.11 for no benefit.
+const rootDir = path.dirname(fileURLToPath(import.meta.url));
 
 // In production, drop dev-only WebSocket sources from connect-src so the CSP
 // in index.html is as tight as the offline-first design allows.
@@ -28,7 +34,7 @@ function injectSwPrecacheManifest(): Plugin {
     name: 'inject-sw-precache-manifest',
     apply: 'build',
     closeBundle() {
-      const distDir = path.resolve(__dirname, 'dist');
+      const distDir = path.resolve(rootDir, 'dist');
       const swPath = path.join(distDir, 'sw.js');
       const assetsDir = path.join(distDir, 'assets');
       if (!fs.existsSync(swPath) || !fs.existsSync(assetsDir)) return;
@@ -57,8 +63,16 @@ export default defineConfig({
   base: './', // Important for Electron
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
-      '@aamva/core': path.resolve(__dirname, './src/core'),
+      '@': path.resolve(rootDir, './src'),
+      '@aamva/core': path.resolve(rootDir, './src/core'),
+      // jspdf dynamic-imports these three optional renderer deps from its
+      // .html() path, which this app never calls. Without the aliases they
+      // still get bundled — 378 kB raw / 105 kB gzipped of unreachable JS,
+      // all of it precached by the service worker. The stub is
+      // side-effect-free and throws only on use; see it for why that matters.
+      html2canvas: path.resolve(rootDir, './src/stubs/jspdfOptionalRenderer.ts'),
+      dompurify: path.resolve(rootDir, './src/stubs/jspdfOptionalRenderer.ts'),
+      canvg: path.resolve(rootDir, './src/stubs/jspdfOptionalRenderer.ts'),
     },
   },
   build: {

@@ -12,6 +12,9 @@ test.describe("CA v10 happy-path form fill", () => {
     await dismissTour(page);
     await waitForPreview(page);
     await fillCaliforniaForm(page);
+    // Filling leaves the Fields panel active. On mobile the panels are
+    // mutually exclusive, so re-enter Preview before reading the payload.
+    await waitForPreview(page);
 
     const textarea = page.getByRole("textbox", { name: /raw aamva payload string/i });
     await expect(textarea).not.toHaveValue("", { timeout: 10_000 });

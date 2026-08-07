@@ -106,7 +106,7 @@ export default [
 
   // Build/tooling scripts
   {
-    files: ["scripts/**/*.{js,mjs,ts}", "vite.config.ts", "playwright.config.ts"],
+    files: ["scripts/**/*.{js,mjs,ts}", "vite.config.mts", "playwright.config.ts"],
     languageOptions: {
       parser: tsparser,
       parserOptions: { ecmaVersion: 2022, sourceType: "module" },
