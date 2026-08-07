@@ -184,7 +184,18 @@ From the release page, download the artifact that matches your OS:
 | macOS | `.dmg` | Drag app to Applications after opening DMG. |
 | Linux | `.AppImage` or `.deb` | Use AppImage for portable use; `.deb` for Debian/Ubuntu installs. |
 
-If you do not see an installer for your OS in the latest release, you can build it locally with the commands in [Step 4](#step-4-build-one-click-installers-optional).
+Installers are published automatically for each tagged version by
+[`.github/workflows/release.yml`](.github/workflows/release.yml). If you do not
+see an installer for your OS in the latest release, you can build it locally
+with the commands in [Step 4](#step-4-build-one-click-installers-optional).
+
+> [!NOTE]
+> **These builds are not code-signed.** On first launch, macOS Gatekeeper will
+> say the app "cannot be opened because the developer cannot be verified"
+> (right-click → **Open**, then confirm), and Windows SmartScreen will show a
+> blue "Windows protected your PC" panel (**More info** → **Run anyway**). If
+> you would rather not bypass those prompts, build from source instead — the
+> result is identical.
 
 ---
 
@@ -472,15 +483,31 @@ Before shipping this app in an internal or external environment, run through:
   - Keep this tool restricted to legal and authorized use cases only.
   - Avoid processing real production PII unless your environment has approved controls (device security, encryption, access controls, retention policy).
 
-Suggested release command sequence:
+Suggested release command sequence (mirrors CI):
 
 ```bash
 npm ci
 npm run lint
 npm run format:check
-npm test
-npm audit
+npm run typecheck
+npm run build
+npm run test:run
+npm run test:coverage   # enforces the coverage thresholds
+npm run size            # enforces the per-chunk bundle budgets
+npm audit --audit-level=high
 ```
+
+End-to-end checks run separately and need browsers installed once:
+
+```bash
+npm run test:e2e:install
+npm run test:e2e
+```
+
+Releases themselves are automated. Add a changeset describing your change
+(`npm run changeset`) and merge it; the release workflow opens a version PR,
+and merging that PR tags the version, builds the desktop installers on all
+three platforms, and publishes the GitHub Release with them attached.
 
 ---
 

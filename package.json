@@ -135,10 +135,11 @@
     },
     "files": [
       "dist/**/*",
+      "electron/**/*",
       "main.js",
       "preload.js"
     ],
-    "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
+    "artifactName": "${name}-${version}-${os}-${arch}.${ext}",
     "win": {
       "target": [
         {
