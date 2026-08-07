@@ -3,9 +3,22 @@ import { CheckCircle2, XCircle, Info, AlertTriangle, X } from "lucide-react";
 
 export type ToastType = "success" | "error" | "info" | "warning";
 
+export interface ToastAction {
+  label: string;
+  onClick: () => void;
+}
+
 export interface ToastOptions {
   /** When true the toast stays until the user dismisses it. */
   persistent?: boolean;
+  /**
+   * An inline button, used to make a destructive action recoverable without a
+   * blocking confirm dialog — clear, apply a preset, import over a filled form.
+   * Clicking it runs the handler and dismisses the toast.
+   */
+  action?: ToastAction;
+  /** Override the auto-dismiss delay. Ignored when `persistent` is set. */
+  durationMs?: number;
 }
 
 interface Toast {
@@ -13,6 +26,7 @@ interface Toast {
   message: string;
   type: ToastType;
   persistent: boolean;
+  action?: ToastAction;
 }
 
 interface ToastContextValue {
@@ -50,6 +64,8 @@ const COLORS: Record<ToastType, string> = {
 };
 
 const DURATION_MS = 3000;
+/** Toasts carrying an action stay long enough to actually click it. */
+const ACTION_DURATION_MS = 8000;
 
 export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [toasts, setToasts] = useState<Toast[]>([]);
@@ -64,9 +80,12 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       idRef.current += 1;
       const id = idRef.current;
       const persistent = !!options?.persistent;
-      setToasts((list) => [...list, { id, message, type, persistent }]);
+      setToasts((list) => [...list, { id, message, type, persistent, action: options?.action }]);
       if (!persistent) {
-        window.setTimeout(() => dismiss(id), DURATION_MS);
+        // An undo affordance needs longer than a status message to be usable.
+        const duration =
+          options?.durationMs ?? (options?.action ? ACTION_DURATION_MS : DURATION_MS);
+        window.setTimeout(() => dismiss(id), duration);
       }
     },
     [dismiss]
@@ -97,6 +116,18 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           >
             <span className="mt-0.5 shrink-0">{ICONS[t.type]}</span>
             <span className="flex-1 break-words">{t.message}</span>
+            {t.action && (
+              <button
+                type="button"
+                onClick={() => {
+                  t.action?.onClick();
+                  dismiss(t.id);
+                }}
+                className="shrink-0 self-start px-2 py-0.5 rounded border border-current/30 text-xs font-semibold uppercase tracking-wide hover:bg-black/5 dark:hover:bg-white/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+              >
+                {t.action.label}
+              </button>
+            )}
             <button
               type="button"
               aria-label="Dismiss notification"

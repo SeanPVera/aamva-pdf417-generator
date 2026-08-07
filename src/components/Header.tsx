@@ -16,7 +16,11 @@ import {
   ChevronDown,
   PartyPopper,
   Volume2,
-  VolumeX
+  VolumeX,
+  MonitorCog,
+  Layers,
+  Tag,
+  Award
 } from "lucide-react";
 import { useFormStore, Theme } from "../hooks/useFormStore";
 import { InstallPrompt } from "./InstallPrompt";
@@ -25,6 +29,8 @@ import { QUICK_FILL_PRESETS } from "../core/presets";
 import { getStateTheme } from "../core/stateThemes";
 import { AAMVA_STATES } from "../core/states";
 import { buildExportBasename } from "../core/exportNaming";
+import { getFieldsForStateAndVersion } from "../core/schema";
+import { detectPlatform, formatShortcut } from "../core/modKey";
 
 interface HeaderProps {
   onStartScan: () => void;
@@ -36,6 +42,12 @@ const THEME_LABELS: Record<
   Theme,
   { label: string; icon: React.ReactNode; description: string; swatch: string }
 > = {
+  system: {
+    label: "Auto",
+    icon: <MonitorCog size={13} />,
+    description: "Follows your operating system's light/dark setting",
+    swatch: "linear-gradient(135deg, #ffffff 50%, #1e1e1e 50%)"
+  },
   light: {
     label: "Light",
     icon: <Sun size={13} />,
@@ -56,9 +68,22 @@ const THEME_LABELS: Record<
   }
 };
 
-const THEMES: Theme[] = ["light", "dark", "dmv"];
+const THEMES: Theme[] = ["system", "light", "dark", "dmv"];
 
-export const Header: React.FC<HeaderProps> = ({ onStartScan, onOpenShortcuts, onOpenCompare }) => {
+interface HeaderActionProps extends HeaderProps {
+  onOpenBatch: () => void;
+  onOpenBadges: () => void;
+  onOpenBingo: () => void;
+}
+
+export const Header: React.FC<HeaderActionProps> = ({
+  onStartScan,
+  onOpenShortcuts,
+  onOpenCompare,
+  onOpenBatch,
+  onOpenBadges,
+  onOpenBingo
+}) => {
   const {
     clearFields,
     fields,
@@ -76,6 +101,9 @@ export const Header: React.FC<HeaderProps> = ({ onStartScan, onOpenShortcuts, on
     setWhimsy,
     soundOn,
     setSoundOn,
+    includeNameInExport,
+    restoreFields,
+    markBingo,
     _history,
     _future
   } = useFormStore();
@@ -89,6 +117,16 @@ export const Header: React.FC<HeaderProps> = ({ onStartScan, onOpenShortcuts, on
   const toast = useToast();
   const activeStateTheme = getStateTheme(state);
   const activeStateName = AAMVA_STATES[state]?.name ?? state;
+  const platform = React.useMemo(() => detectPlatform(), []);
+  const undoLabel = formatShortcut(["mod", "Z"], platform);
+  const redoLabel = formatShortcut(["mod", "shift", "Z"], platform);
+
+  // Bingo: three theme flips in a session counts as fidgeting.
+  const themeToggleCountRef = useRef(0);
+  const bumpThemeToggles = () => {
+    themeToggleCountRef.current += 1;
+    if (themeToggleCountRef.current >= 3) markBingo("toggled-theme");
+  };
 
   useEffect(() => {
     if (!presetsOpen) return;
@@ -127,28 +165,65 @@ export const Header: React.FC<HeaderProps> = ({ onStartScan, onOpenShortcuts, on
   }, [funOpen]);
 
   const handleExportJson = () => {
-    const data = { state, version, ...fields };
+    // Only export what the active jurisdiction + version actually encodes.
+    // `fields` is a single flat map that survives state/version switches, so it
+    // can hold values orphaned by an earlier schema — invisible in the form,
+    // absent from the payload, but previously written straight into the file.
+    const schemaCodes = new Set(getFieldsForStateAndVersion(state, version).map((f) => f.code));
+    const kept: Record<string, string> = {};
+    const dropped: string[] = [];
+    for (const [code, value] of Object.entries(fields)) {
+      if (!value) continue;
+      if (schemaCodes.has(code)) kept[code] = value;
+      else dropped.push(code);
+    }
+
+    const data = { state, version, ...kept };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
     a.download =
-      buildExportBasename({ state, version, fields, subfileType, prefix: "aamva" }) + ".json";
+      buildExportBasename({
+        state,
+        version,
+        fields,
+        subfileType,
+        prefix: "aamva",
+        includeName: includeNameInExport
+      }) + ".json";
     a.click();
     URL.revokeObjectURL(url);
+
     toast.success(`Exported ${a.download}`);
+    if (dropped.length > 0) {
+      toast.info(
+        `${dropped.length} value${dropped.length === 1 ? "" : "s"} from another version ` +
+          `(${dropped.slice(0, 4).join(", ")}${dropped.length > 4 ? "…" : ""}) ` +
+          `${dropped.length === 1 ? "is" : "are"} not part of ${state} v${version} and ${
+            dropped.length === 1 ? "was" : "were"
+          } not exported.`
+      );
+    }
   };
 
   const handleImportJson = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
+    const snapshot = { ...fields };
+    const hadValues = Object.values(fields).some((v) => (v ?? "").trim().length > 0);
     reader.onload = (evt) => {
       try {
         const parsed = JSON.parse(evt.target?.result as string);
         if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
           loadJson(parsed as Record<string, string>);
-          toast.success(`Imported ${file.name}`);
+          toast.success(
+            `Imported ${file.name}`,
+            hadValues
+              ? { action: { label: "Undo", onClick: () => restoreFields(snapshot) } }
+              : undefined
+          );
         } else {
           toast.error("Invalid JSON: expected a single payload object.", { persistent: true });
         }
@@ -161,30 +236,40 @@ export const Header: React.FC<HeaderProps> = ({ onStartScan, onOpenShortcuts, on
     e.target.value = "";
   };
 
+  // Both of these replace the whole form. Rather than gating them behind a
+  // blocking native confirm — which cannot be themed, is easy to click through,
+  // and renders as an OS modal in Electron — they act immediately and hand back
+  // a one-click Undo. `clearFields`/`loadJson` already snapshot the previous
+  // map, so the recovery is exact.
   const handleClearData = () => {
+    const snapshot = { ...fields };
     const filledCount = Object.values(fields).filter((v) => (v ?? "").trim().length > 0).length;
     // PII lives only in memory — it is never persisted (see useFormStore), so
     // clearing the in-memory fields is the complete and honest cleanup.
-    const prompt =
+    clearFields();
+    markBingo("cleared-all");
+    toast.success(
       filledCount > 0
-        ? `Clear all ${filledCount} filled field${filledCount === 1 ? "" : "s"} from memory?`
-        : "Clear the form? No fields are currently filled.";
-    if (window.confirm(prompt)) {
-      clearFields();
-      toast.success(
-        filledCount > 0
-          ? `Cleared ${filledCount} field${filledCount === 1 ? "" : "s"}`
-          : "Form cleared"
-      );
-    }
+        ? `Cleared ${filledCount} field${filledCount === 1 ? "" : "s"} from memory`
+        : "Form cleared",
+      filledCount > 0
+        ? { action: { label: "Undo", onClick: () => restoreFields(snapshot) } }
+        : undefined
+    );
   };
 
   const handleApplyPreset = (presetId: string) => {
     const preset = QUICK_FILL_PRESETS.find((p) => p.id === presetId);
     if (!preset) return;
+    const snapshot = { ...fields };
+    const hadValues = Object.values(fields).some((v) => (v ?? "").trim().length > 0);
     loadJson({ state: preset.state, version: preset.version, ...preset.fields });
     setPresetsOpen(false);
-    toast.success(`Loaded preset: ${preset.label}`);
+    markBingo("used-preset");
+    toast.success(
+      `Loaded preset: ${preset.label}`,
+      hadValues ? { action: { label: "Undo", onClick: () => restoreFields(snapshot) } } : undefined
+    );
   };
 
   return (
@@ -219,7 +304,7 @@ export const Header: React.FC<HeaderProps> = ({ onStartScan, onOpenShortcuts, on
         <button
           onClick={undo}
           disabled={!canUndo()}
-          title={`Undo (Ctrl+Z)${undoDepth ? ` — ${undoDepth} step${undoDepth === 1 ? "" : "s"}` : ""}`}
+          title={`Undo (${undoLabel})${undoDepth ? ` — ${undoDepth} step${undoDepth === 1 ? "" : "s"}` : ""}`}
           aria-label={`Undo last field change${undoDepth ? ` (${undoDepth} available)` : ""}`}
           className="relative flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 disabled:opacity-40 disabled:cursor-not-allowed px-2 py-1.5 rounded transition text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
         >
@@ -236,7 +321,7 @@ export const Header: React.FC<HeaderProps> = ({ onStartScan, onOpenShortcuts, on
         <button
           onClick={redo}
           disabled={!canRedo()}
-          title={`Redo (Ctrl+Shift+Z)${redoDepth ? ` — ${redoDepth} step${redoDepth === 1 ? "" : "s"}` : ""}`}
+          title={`Redo (${redoLabel})${redoDepth ? ` — ${redoDepth} step${redoDepth === 1 ? "" : "s"}` : ""}`}
           aria-label={`Redo field change${redoDepth ? ` (${redoDepth} available)` : ""}`}
           className="relative flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 disabled:opacity-40 disabled:cursor-not-allowed px-2 py-1.5 rounded transition text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
         >
@@ -258,10 +343,17 @@ export const Header: React.FC<HeaderProps> = ({ onStartScan, onOpenShortcuts, on
           {THEMES.map((t) => {
             const meta = THEME_LABELS[t];
             const swatch = t === "dmv" ? getStateTheme(state).primary : meta.swatch;
+            // "Auto" uses a split swatch, so it needs `background`, not `backgroundColor`.
+            const swatchStyle = swatch.includes("gradient")
+              ? { background: swatch }
+              : { backgroundColor: swatch };
             return (
               <button
                 key={t}
-                onClick={() => setTheme(t)}
+                onClick={() => {
+                  setTheme(t);
+                  bumpThemeToggles();
+                }}
                 title={`${meta.label} theme — ${meta.description}`}
                 aria-pressed={theme === t}
                 className={`flex items-center gap-1.5 px-2 py-1.5 text-xs transition focus:outline-none ${
@@ -273,7 +365,7 @@ export const Header: React.FC<HeaderProps> = ({ onStartScan, onOpenShortcuts, on
                 <span
                   aria-hidden
                   className="inline-block w-3 h-3 rounded-full border border-black/15 shadow-sm"
-                  style={{ backgroundColor: swatch }}
+                  style={swatchStyle}
                 />
                 {meta.icon}
                 <span className="hidden sm:inline">{meta.label}</span>
@@ -325,6 +417,18 @@ export const Header: React.FC<HeaderProps> = ({ onStartScan, onOpenShortcuts, on
             </div>
           )}
         </div>
+
+        {/* Batch — a different task from single-payload editing, so it gets its
+            own modal instead of living at the bottom of the field form. */}
+        <button
+          onClick={onOpenBatch}
+          className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 px-2 py-1.5 rounded transition text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          title="Generate many barcodes from a JSON or CSV file"
+          aria-label="Open batch processing"
+        >
+          <Layers size={15} />
+          <span className="hidden sm:inline">Batch</span>
+        </button>
 
         {/* Compare */}
         <button
@@ -383,7 +487,10 @@ export const Header: React.FC<HeaderProps> = ({ onStartScan, onOpenShortcuts, on
 
         {/* Shortcuts */}
         <button
-          onClick={onOpenShortcuts}
+          onClick={() => {
+            markBingo("opened-shortcuts");
+            onOpenShortcuts();
+          }}
           className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 px-2 py-1.5 rounded transition text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           title="Keyboard shortcuts (?)"
           aria-label="Show keyboard shortcuts"
@@ -450,6 +557,28 @@ export const Header: React.FC<HeaderProps> = ({ onStartScan, onOpenShortcuts, on
                 >
                   {soundOn ? "ON" : "OFF"}
                 </span>
+              </button>
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => {
+                  setFunOpen(false);
+                  onOpenBadges();
+                }}
+                className="w-full flex items-center gap-2 px-3 py-2 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-sm focus-visible:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-dark-surface2"
+              >
+                <Award size={14} /> Employee of the Month
+              </button>
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => {
+                  setFunOpen(false);
+                  onOpenBingo();
+                }}
+                className="w-full flex items-center gap-2 px-3 py-2 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-sm focus-visible:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-dark-surface2"
+              >
+                <Tag size={14} /> DMV Bingo
               </button>
               <p className="px-3 py-2 text-[11px] text-gray-400 dark:text-gray-500 border-t border-gray-100 dark:border-dark-border">
                 Cosmetic only — never affects the barcode. Psst: try the Konami code.

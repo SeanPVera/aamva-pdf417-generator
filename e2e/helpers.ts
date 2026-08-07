@@ -27,10 +27,27 @@ export const CA_REQUIRED_FIELDS: Array<[string, string]> = [
   ["DDB", "01012024"]
 ];
 
+/**
+ * Picks a jurisdiction. The picker is a type-to-filter ARIA combobox (an input
+ * plus an owned listbox), not a native <select>, so it is driven by typing the
+ * code and clicking the matching option.
+ */
+export async function selectState(page: Page, state: string) {
+  await ensurePanel(page, "config");
+  const combo = page.getByRole("combobox", { name: /select state or territory/i });
+  await combo.click();
+  await combo.fill(state);
+  const option = page.getByRole("option", { name: new RegExp(`^${state}\\s`) }).first();
+  await option.waitFor({ state: "visible" });
+  await option.click();
+  // The listbox closes on commit; wait for it so the next interaction isn't
+  // swallowed by the overlay.
+  await expect(combo).toHaveAttribute("aria-expanded", "false");
+}
+
 export async function selectStateAndVersion(page: Page, state: string, version: string) {
   await dismissTour(page);
-  await ensurePanel(page, "config");
-  await page.getByRole("combobox", { name: /select state or territory/i }).selectOption(state);
+  await selectState(page, state);
   await page.getByRole("combobox", { name: /select aamva version/i }).selectOption(version);
 }
 

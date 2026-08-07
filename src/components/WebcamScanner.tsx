@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useFormStore } from "../hooks/useFormStore";
 import { useToast } from "./Toast";
+import { useModalShell } from "../hooks/useModalShell";
 
 // `torch` is a non-standard MediaTrack constraint/capability not yet in the DOM
 // typings; narrow it locally so we can feature-detect without `any`.
@@ -63,6 +64,7 @@ export function WebcamScanner({ onClose }: WebcamScannerProps) {
   const storedCameraId = useFormStore((s) => s.cameraDeviceId);
   const setCameraDeviceId = useFormStore((s) => s.setCameraDeviceId);
   const toast = useToast();
+  const dialogRef = useModalShell<HTMLDivElement>({ open: true, onClose });
 
   const applyDecodedPayload = useCallback(
     (text: string) => {
@@ -194,17 +196,19 @@ export function WebcamScanner({ onClose }: WebcamScannerProps) {
   };
 
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-label="Scan DL/ID Barcode"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm"
-    >
-      <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-2xl max-w-lg w-full relative">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm">
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Scan DL/ID Barcode"
+        className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-2xl max-w-lg w-full relative"
+      >
         <button
+          data-autofocus
           onClick={onClose}
           aria-label="Close scanner"
-          className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+          className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
         >
           <X className="w-6 h-6" />
         </button>

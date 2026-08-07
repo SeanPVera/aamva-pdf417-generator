@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { dismissTour, ensurePanel } from "./helpers";
+import { dismissTour, selectState } from "./helpers";
 
 // Theme regression for representative state palettes. Themes are applied
 // as CSS custom properties on <html> by applyStateThemeToDocument; we
@@ -42,11 +42,9 @@ for (const [state, palette] of Object.entries(EXPECTED)) {
     await page.goto("/");
     await dismissTour(page);
     // The state selector lives in the Config panel, which is not the default
-    // panel on mobile viewports.
-    await ensurePanel(page, "config");
-    await page
-      .getByRole("combobox", { name: /select state or territory/i })
-      .selectOption(state);
+    // panel on mobile viewports. `selectState` also handles the picker being a
+    // type-to-filter combobox rather than a native <select>.
+    await selectState(page, state);
 
     // Wait for the React effect that calls applyStateThemeToDocument to
     // flush. setProperty is synchronous once the effect runs, but the

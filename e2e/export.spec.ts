@@ -6,8 +6,10 @@ import { dismissTour, ensurePanel, fillCaliforniaForm, waitForPreview } from "./
 // download fires with a sane filename. JSON export is in the header
 // (not lazy), so it works without waiting for the BarcodePreview chunk.
 //
-// Filenames come from `buildExportBasename`, which encodes jurisdiction,
-// name tokens and subfile type: `BARCODE_CA_DOE_JANE_DL.png`.
+// Filenames come from `buildExportBasename`. By default they carry NO personal
+// data — `barcode_CA_DL_V10_<dd>.png` — because a download filename is the one
+// place a field value would escape the tab. The cardholder's name is added only
+// when the user ticks the opt-in beside the export buttons.
 
 test.describe("export buttons", () => {
   test("PNG export triggers a download", async ({ page }) => {
@@ -24,7 +26,9 @@ test.describe("export buttons", () => {
       page.waitForEvent("download"),
       page.getByRole("button", { name: /export barcode as png/i }).click()
     ]);
-    expect(download.suggestedFilename()).toMatch(/^barcode_CA_DOE_JANE_DL\.png$/i);
+    const name = download.suggestedFilename();
+    expect(name).toMatch(/^barcode_CA_DL_V10(_[A-Z0-9]+)?\.png$/i);
+    expect(name).not.toMatch(/DOE|JANE/i);
   });
 
   test("SVG export triggers a download", async ({ page }) => {
@@ -41,7 +45,9 @@ test.describe("export buttons", () => {
       page.waitForEvent("download"),
       page.getByRole("button", { name: /export barcode as svg/i }).click()
     ]);
-    expect(download.suggestedFilename()).toMatch(/^barcode_CA_DOE_JANE_DL\.svg$/i);
+    const name = download.suggestedFilename();
+    expect(name).toMatch(/^barcode_CA_DL_V10(_[A-Z0-9]+)?\.svg$/i);
+    expect(name).not.toMatch(/DOE|JANE/i);
   });
 
   test("JSON export triggers a download with the right filename", async ({ page }) => {
@@ -53,6 +59,8 @@ test.describe("export buttons", () => {
       page.waitForEvent("download"),
       page.getByRole("button", { name: /export current fields as json/i }).click()
     ]);
-    expect(download.suggestedFilename()).toMatch(/^aamva_CA_DOE_JANE_DL\.json$/i);
+    const name = download.suggestedFilename();
+    expect(name).toMatch(/^aamva_CA_DL_V10(_[A-Z0-9]+)?\.json$/i);
+    expect(name).not.toMatch(/DOE|JANE/i);
   });
 });
