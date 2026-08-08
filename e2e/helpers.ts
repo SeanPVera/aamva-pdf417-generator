@@ -27,10 +27,27 @@ export const CA_REQUIRED_FIELDS: Array<[string, string]> = [
   ["DDB", "01012024"]
 ];
 
+/**
+ * Picks a jurisdiction. The picker is a type-to-filter ARIA combobox (an input
+ * plus an owned listbox), not a native <select>, so it is driven by typing the
+ * code and clicking the matching option.
+ */
+export async function selectState(page: Page, state: string) {
+  await ensurePanel(page, "config");
+  const combo = page.getByRole("combobox", { name: /select state or territory/i });
+  await combo.click();
+  await combo.fill(state);
+  const option = page.getByRole("option", { name: new RegExp(`^${state}\\s`) }).first();
+  await option.waitFor({ state: "visible" });
+  await option.click();
+  // The listbox closes on commit; wait for it so the next interaction isn't
+  // swallowed by the overlay.
+  await expect(combo).toHaveAttribute("aria-expanded", "false");
+}
+
 export async function selectStateAndVersion(page: Page, state: string, version: string) {
   await dismissTour(page);
-  await ensurePanel(page, "config");
-  await page.getByRole("combobox", { name: /select state or territory/i }).selectOption(state);
+  await selectState(page, state);
   await page.getByRole("combobox", { name: /select aamva version/i }).selectOption(version);
 }
 
@@ -67,12 +84,18 @@ export async function ensurePanel(page: Page, panel: "config" | "form" | "previe
  * The Welcome Tour appears on first load and can obscure elements.
  * Dismiss it early so it doesn't interfere with test interactions.
  */
+// The tour is shown once per browser context and its "seen" flag persists, so
+// it can only ever need dismissing once per page. Tracking that lets repeat
+// calls return immediately instead of each burning a full timeout waiting for
+// a button that will never come back.
+const tourHandled = new WeakSet<Page>();
+
 export async function dismissTour(page: Page) {
+  if (tourHandled.has(page)) return;
+
   const skipBtn = page.getByRole("button", { name: /skip tour/i });
   try {
-    // The tour is gated behind a React.lazy chunk in some versions or might
-    // take a moment to appear. Wait up to 3s for the button.
-    await skipBtn.waitFor({ state: "visible", timeout: 3000 });
+    await skipBtn.waitFor({ state: "visible", timeout: 10_000 });
     await skipBtn.click();
     // Ensure the dialog is actually gone before returning control.
     await expect(page.getByRole("dialog")).not.toBeVisible();
@@ -80,6 +103,13 @@ export async function dismissTour(page: Page) {
     // If the tour didn't show up (e.g. session already marked it seen),
     // just continue.
   }
+  tourHandled.add(page);
+
+  // The tour carries aria-modal, so while it is open every role-based query
+  // outside it resolves to nothing. Assert it is gone here, where the failure
+  // names the real cause, rather than letting it surface later as an
+  // "element not found" on whatever the modal was hiding.
+  await expect(page.locator('[aria-modal="true"]')).toHaveCount(0);
 }
 
 /**

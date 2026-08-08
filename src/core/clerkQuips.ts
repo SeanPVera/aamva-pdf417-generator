@@ -2,7 +2,7 @@
 // decorative. Quips are bucketed by the mascot's mood so the line matches what
 // the form is doing.
 
-export type ClerkMood = "idle" | "happy" | "error" | "asleep";
+export type ClerkMood = "idle" | "happy" | "error" | "asleep" | "break";
 
 const QUIPS: Record<ClerkMood, string[]> = {
   idle: [
@@ -31,6 +31,12 @@ const QUIPS: Record<ClerkMood, string[]> = {
     "Five more minutes… the queue can wait…",
     "Dreaming of a paperless DMV…",
     "Zzz… next… zzz…"
+  ],
+  break: [
+    "Window closed. Back in fifteen. Possibly twenty.",
+    "On break. The other window is also on break.",
+    "Stepped out. The sign is load-bearing.",
+    "…fine. You can be my last one today."
   ]
 };
 

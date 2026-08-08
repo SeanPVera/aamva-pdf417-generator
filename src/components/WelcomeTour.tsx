@@ -1,5 +1,6 @@
 import React from "react";
 import { X, ChevronRight, ChevronLeft, Sparkles, Search, Camera, ScanBarcode } from "lucide-react";
+import { useModalShell } from "../hooks/useModalShell";
 
 interface WelcomeTourProps {
   open: boolean;
@@ -76,34 +77,21 @@ export const WelcomeTour: React.FC<WelcomeTourProps> = ({ open, onClose }) => {
 
 const WelcomeTourBody: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [step, setStep] = React.useState(0);
-  const closeBtnRef = React.useRef<HTMLButtonElement>(null);
-  const previousActiveElement = React.useRef<HTMLElement | null>(
-    typeof document !== "undefined" ? (document.activeElement as HTMLElement) : null
-  );
+  // Focus trap, focus restore, and Escape all come from the shared shell.
+  const dialogRef = useModalShell<HTMLDivElement>({ open: true, onClose });
 
+  // Arrow-key step navigation is specific to the tour.
   React.useEffect(() => {
-    const elToRestore = previousActiveElement.current;
-    closeBtnRef.current?.focus();
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        e.preventDefault();
-        onClose();
-      } else if (e.key === "ArrowRight") {
+      if (e.key === "ArrowRight") {
         setStep((s) => Math.min(STEPS.length - 1, s + 1));
       } else if (e.key === "ArrowLeft") {
         setStep((s) => Math.max(0, s - 1));
       }
     };
     window.addEventListener("keydown", onKey);
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      // Restore focus to the element that was active before the tour opened.
-      // Small timeout ensures the modal removal from DOM has settled.
-      setTimeout(() => {
-        elToRestore?.focus();
-      }, 0);
-    };
-  }, [onClose]);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   const current = STEPS[step] ?? STEPS[0]!;
   const isLast = step === STEPS.length - 1;
@@ -111,12 +99,13 @@ const WelcomeTourBody: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   return (
     <div
       className="fixed inset-0 z-[55] flex items-center justify-center bg-black/50 p-4"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="welcome-tour-title"
       onClick={onClose}
     >
       <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="welcome-tour-title"
         className="w-full max-w-md bg-white dark:bg-dark-surface rounded-lg shadow-xl border border-gray-200 dark:border-dark-border overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
@@ -129,7 +118,7 @@ const WelcomeTourBody: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             {current.title}
           </h2>
           <button
-            ref={closeBtnRef}
+            data-autofocus
             type="button"
             onClick={onClose}
             aria-label="Skip tour"

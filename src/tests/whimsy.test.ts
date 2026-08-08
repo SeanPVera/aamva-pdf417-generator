@@ -4,39 +4,96 @@ import { getStateCritter, STATE_CRITTERS, DEFAULT_CRITTER } from "../core/stateC
 import { getClerkQuip, clerkQuipCount, type ClerkMood } from "../core/clerkQuips";
 
 describe("buildExportBasename", () => {
-  it("includes state, split name fields, and subfile type", () => {
-    const name = buildExportBasename({
-      state: "CA",
-      version: "10",
-      fields: { DCS: "Doe", DAC: "Jane" },
-      subfileType: "DL",
-      prefix: "barcode"
+  // A download filename is the one place a field value would leave the tab —
+  // it lands in ~/Downloads, gets indexed by the OS, and syncs to drive
+  // clients. The default must therefore carry no personal data at all.
+  describe("privacy default", () => {
+    it("omits the cardholder's name unless asked", () => {
+      const name = buildExportBasename({
+        state: "CA",
+        version: "10",
+        fields: { DCS: "Doe", DAC: "Jane" },
+        subfileType: "DL",
+        prefix: "barcode"
+      });
+      expect(name).toBe("BARCODE_CA_DL_V10");
+      expect(name).not.toMatch(/DOE|JANE/);
     });
-    expect(name).toBe("BARCODE_CA_DOE_JANE_DL");
+
+    it("omits a combined v01 DAA name too", () => {
+      const name = buildExportBasename({
+        state: "NY",
+        version: "01",
+        fields: { DAA: "SMITH,JOHN,Q" },
+        subfileType: "ID"
+      });
+      expect(name).toBe("NY_ID_V01");
+      expect(name).not.toMatch(/SMITH|JOHN/);
+    });
+
+    it("appends a document-discriminator slice so sibling exports stay distinct", () => {
+      const a = buildExportBasename({
+        state: "CA",
+        version: "10",
+        fields: { DCF: "AB1234567890" }
+      });
+      const b = buildExportBasename({
+        state: "CA",
+        version: "10",
+        fields: { DCF: "ZZ9999999999" }
+      });
+      expect(a).toBe("CA_DL_V10_AB123456");
+      expect(a).not.toBe(b);
+    });
+
+    it("stays valid when no discriminator is present", () => {
+      expect(buildExportBasename({ state: "TX", version: "09", fields: {} })).toBe("TX_DL_V09");
+    });
   });
 
-  it("falls back to state + version when no name present", () => {
-    const name = buildExportBasename({ state: "TX", version: "09", fields: {} });
-    expect(name).toBe("TX_DL_V09");
-  });
-
-  it("derives name from a combined v01 DAA field", () => {
-    const name = buildExportBasename({
-      state: "NY",
-      version: "01",
-      fields: { DAA: "SMITH,JOHN,Q" },
-      subfileType: "ID"
+  describe("opt-in name inclusion", () => {
+    it("includes state, split name fields, and subfile type", () => {
+      const name = buildExportBasename({
+        state: "CA",
+        version: "10",
+        fields: { DCS: "Doe", DAC: "Jane" },
+        subfileType: "DL",
+        prefix: "barcode",
+        includeName: true
+      });
+      expect(name).toBe("BARCODE_CA_DOE_JANE_DL");
     });
-    expect(name).toBe("NY_SMITH_JOHN_ID");
-  });
 
-  it("strips unsafe characters and uppercases", () => {
-    const name = buildExportBasename({
-      state: "fl",
-      version: "10",
-      fields: { DCS: "O'Brien-Smith", DAC: "Mary Jo" }
+    it("falls back to state + version when no name present", () => {
+      const name = buildExportBasename({
+        state: "TX",
+        version: "09",
+        fields: {},
+        includeName: true
+      });
+      expect(name).toBe("TX_DL_V09");
     });
-    expect(name).toBe("FL_OBRIENSMITH_MARYJO_DL");
+
+    it("derives name from a combined v01 DAA field", () => {
+      const name = buildExportBasename({
+        state: "NY",
+        version: "01",
+        fields: { DAA: "SMITH,JOHN,Q" },
+        subfileType: "ID",
+        includeName: true
+      });
+      expect(name).toBe("NY_SMITH_JOHN_ID");
+    });
+
+    it("strips unsafe characters and uppercases", () => {
+      const name = buildExportBasename({
+        state: "fl",
+        version: "10",
+        fields: { DCS: "O'Brien-Smith", DAC: "Mary Jo" },
+        includeName: true
+      });
+      expect(name).toBe("FL_OBRIENSMITH_MARYJO_DL");
+    });
   });
 
   it("never emits an empty basename", () => {
@@ -63,7 +120,7 @@ describe("getStateCritter", () => {
 });
 
 describe("getClerkQuip", () => {
-  const moods: ClerkMood[] = ["idle", "happy", "error", "asleep"];
+  const moods: ClerkMood[] = ["idle", "happy", "error", "asleep", "break"];
 
   it("returns a stable quip for a given seed", () => {
     expect(getClerkQuip("happy", 1)).toBe(getClerkQuip("happy", 1));

@@ -620,3 +620,549 @@ html.dark .clerk-bubble {
     image-rendering: pixelated;
   }
 }
+
+/* ─── Resizable inspector column ─────────────────────────────────────────── */
+/* The preview panel used to be pinned at 20rem while the form spread across
+   four columns — the panel a QA user reads most was the most cramped thing on
+   the page. Its width now comes from the store. */
+.dmv-preview {
+  width: 100%;
+}
+
+@media (min-width: 1024px) {
+  .dmv-preview {
+    width: var(--inspector-width, 320px);
+  }
+}
+
+.panel-divider {
+  flex: 0 0 6px;
+  cursor: col-resize;
+  background: transparent;
+  position: relative;
+  touch-action: none;
+}
+
+.panel-divider::after {
+  content: "";
+  position: absolute;
+  inset: 12px 2px;
+  border-radius: 999px;
+  background: rgb(0 0 0 / 0.08);
+  transition: background 0.15s ease;
+}
+
+html.dark .panel-divider::after {
+  background: rgb(255 255 255 / 0.1);
+}
+
+.panel-divider:hover::after,
+.panel-divider:focus-visible::after {
+  background: var(--color-primary, #2563eb);
+}
+
+.panel-divider:focus-visible {
+  outline: none;
+}
+
+/* Two-line validation advisories. Enumerated messages used to be clipped to
+   about six useful characters by a single truncated line. */
+.field-advisory {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.25;
+}
+
+/* ─── Whimsy: height silhouette next to DAU ──────────────────────────────── */
+.height-silhouette {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 3px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.group:focus-within .height-silhouette,
+.group:hover .height-silhouette {
+  opacity: 1;
+}
+
+.height-chart {
+  position: relative;
+  display: block;
+  width: 12px;
+  height: 28px;
+  border-left: 1px dashed currentColor;
+  color: rgb(148 163 184 / 0.8);
+}
+
+.height-figure {
+  position: absolute;
+  bottom: 0;
+  left: 3px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  transition: height 0.25s ease;
+}
+
+.height-head {
+  width: 4px;
+  height: 4px;
+  border-radius: 999px;
+  background: currentColor;
+  color: rgb(100 116 139);
+}
+
+.height-body {
+  flex: 1;
+  width: 2px;
+  background: currentColor;
+  color: rgb(100 116 139);
+}
+
+.height-readout {
+  font-size: 9px;
+  font-family: ui-monospace, monospace;
+  color: rgb(148 163 184);
+  line-height: 1;
+  padding-bottom: 1px;
+}
+
+/* ─── Whimsy: license plate frame ────────────────────────────────────────── */
+.plate-frame {
+  position: relative;
+  padding: 14px 12px 16px;
+  border-radius: 8px;
+  border: 2px solid var(--plate-ink, #1f2937);
+  background: linear-gradient(180deg, #fdfdfd 0%, #f1f2f4 100%);
+  box-shadow:
+    inset 0 0 0 2px rgb(255 255 255 / 0.7),
+    0 1px 3px rgb(0 0 0 / 0.18);
+}
+
+html.dark .plate-frame {
+  background: linear-gradient(180deg, #e8e8e8 0%, #d4d6d9 100%);
+}
+
+.plate-title {
+  text-align: center;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--plate-ink, #1f2937);
+  margin-bottom: 6px;
+}
+
+.plate-slogan {
+  text-align: center;
+  font-size: 7px;
+  font-style: italic;
+  letter-spacing: 0.08em;
+  color: var(--plate-accent, #475569);
+  margin-top: 6px;
+}
+
+.plate-window {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.plate-bolt {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: radial-gradient(circle at 30% 30%, #ffffff, #94a3b8 70%, #64748b);
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 0.15);
+}
+
+.plate-bolt-tl {
+  top: 4px;
+  left: 4px;
+}
+.plate-bolt-tr {
+  top: 4px;
+  right: 4px;
+}
+.plate-bolt-bl {
+  bottom: 4px;
+  left: 4px;
+}
+.plate-bolt-br {
+  bottom: 4px;
+  right: 4px;
+}
+
+/* ─── Whimsy: laminator ──────────────────────────────────────────────────── */
+.laminator {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  border-radius: 6px;
+  z-index: 15;
+}
+
+.laminator-roller {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 10px;
+  background: linear-gradient(180deg, #64748b, #334155 60%, #1e293b);
+  box-shadow: 0 0 6px rgb(0 0 0 / 0.4);
+  animation: laminator-rollers 1.4s ease-in-out;
+}
+
+.laminator-roller-top {
+  top: 0;
+  transform: translateY(-100%);
+}
+
+.laminator-roller-bottom {
+  bottom: 0;
+  transform: translateY(100%);
+}
+
+.laminator-sheen {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 45%;
+  background: linear-gradient(
+    100deg,
+    transparent 0%,
+    rgb(255 255 255 / 0.75) 45%,
+    rgb(255 255 255 / 0.9) 55%,
+    transparent 100%
+  );
+  animation: laminator-sheen 1.4s ease-in-out;
+}
+
+.laminator-heat {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, rgb(251 191 36 / 0.18), transparent 70%);
+  animation: laminator-heat 1.4s ease-out;
+}
+
+@keyframes laminator-rollers {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  15%,
+  70% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes laminator-sheen {
+  0% {
+    left: -50%;
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    left: 105%;
+    opacity: 0;
+  }
+}
+
+@keyframes laminator-heat {
+  0%,
+  60% {
+    opacity: 0;
+  }
+  75% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* ─── Whimsy: stamp cursor ───────────────────────────────────────────────── */
+.stamp-surface {
+  position: absolute;
+  inset: 0;
+  z-index: 12;
+  cursor:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3E%3Crect x='9' y='3' width='12' height='9' rx='2' fill='%236b4423'/%3E%3Crect x='6' y='12' width='18' height='5' rx='1.5' fill='%238b5a2b'/%3E%3Crect x='4' y='17' width='22' height='6' rx='1' fill='%23b91c1c'/%3E%3C/svg%3E")
+      15 23,
+    crosshair;
+}
+
+.stamp-impression {
+  position: absolute;
+  font-family: ui-monospace, monospace;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  color: rgb(185 28 28 / 0.55);
+  border: 2px solid rgb(185 28 28 / 0.45);
+  border-radius: 3px;
+  padding: 2px 6px;
+  pointer-events: none;
+  text-shadow: 0 0 1px rgb(185 28 28 / 0.4);
+  animation: stamp-thunk 0.22s cubic-bezier(0.2, 1.4, 0.4, 1);
+}
+
+@keyframes stamp-thunk {
+  0% {
+    opacity: 0;
+    scale: 2.2;
+  }
+  60% {
+    opacity: 1;
+    scale: 0.94;
+  }
+  100% {
+    opacity: 1;
+    scale: 1;
+  }
+}
+
+/* ─── Whimsy: take-a-number ticket ───────────────────────────────────────── */
+.ticket-dispenser {
+  position: fixed;
+  left: 12px;
+  bottom: 12px;
+  z-index: 40;
+  display: flex;
+  align-items: stretch;
+  gap: 6px;
+  font-family: ui-monospace, monospace;
+  pointer-events: auto;
+}
+
+.ticket-dismiss {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  border: 1px solid rgb(0 0 0 / 0.2);
+  background: white;
+  color: #475569;
+  font-size: 11px;
+  line-height: 1;
+  z-index: 2;
+}
+
+.ticket-board {
+  background: #0f172a;
+  color: #fbbf24;
+  border-radius: 4px;
+  padding: 4px 8px;
+  border: 2px solid #1e293b;
+  text-align: center;
+  box-shadow: 0 2px 6px rgb(0 0 0 / 0.3);
+}
+
+.ticket-board-label {
+  font-size: 7px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+
+.ticket-board-number {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1.1;
+}
+
+.ticket-stub {
+  background: #fffbeb;
+  color: #78350f;
+  border: 1px dashed #d97706;
+  border-radius: 3px;
+  padding: 4px 8px;
+  text-align: center;
+  box-shadow: 0 2px 6px rgb(0 0 0 / 0.18);
+}
+
+.ticket-stub-label {
+  font-size: 7px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.ticket-stub-number {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.ticket-stub-note {
+  font-size: 7px;
+  opacity: 0.8;
+}
+
+.ticket-your-turn .ticket-board-number {
+  animation: ticket-blink 1.1s steps(2, start) infinite;
+}
+
+@keyframes ticket-blink {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+/* ─── Whimsy: Gus's break sign ───────────────────────────────────────────── */
+.clerk-break-sign {
+  position: absolute;
+  top: -30px;
+  right: 0;
+  transform: rotate(-6deg);
+  background: #fffbeb;
+  color: #78350f;
+  border: 1px solid #d97706;
+  border-radius: 2px;
+  padding: 3px 7px;
+  font-size: 8px;
+  line-height: 1.25;
+  text-align: center;
+  font-family: "Bradley Hand", "Segoe Print", cursive;
+  box-shadow: 0 2px 5px rgb(0 0 0 / 0.2);
+}
+
+.clerk-break-sign strong {
+  display: block;
+  font-size: 10px;
+}
+
+/* ─── Whimsy: Employee of the Month plaque ───────────────────────────────── */
+.plaque {
+  display: flex;
+  justify-content: center;
+}
+
+.plaque-frame {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 4px;
+  background: linear-gradient(135deg, #7c4a1e, #a9743d 45%, #6b3f19);
+  box-shadow:
+    inset 0 0 0 3px rgb(255 255 255 / 0.15),
+    inset 0 0 0 6px rgb(0 0 0 / 0.25),
+    0 4px 12px rgb(0 0 0 / 0.3);
+}
+
+.plaque-photo {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  background: #f8fafc;
+  border: 2px solid #d4a259;
+  border-radius: 2px;
+}
+
+.plaque-plate {
+  background: linear-gradient(180deg, #f5d68a, #d4a259);
+  border-radius: 2px;
+  padding: 6px 10px;
+  max-width: 260px;
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.2);
+}
+
+.plaque-plate-title {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #3b2410;
+}
+
+.plaque-plate-sub {
+  font-size: 10px;
+  color: #4a2f16;
+  line-height: 1.3;
+}
+
+/* ─── Whimsy: DMV Bingo ──────────────────────────────────────────────────── */
+.bingo-cell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  aspect-ratio: 1;
+  padding: 3px;
+  border-radius: 4px;
+  border: 1px solid rgb(148 163 184 / 0.5);
+  background: rgb(248 250 252);
+  font-size: 7.5px;
+  line-height: 1.15;
+  color: #334155;
+  overflow: hidden;
+}
+
+html.dark .bingo-cell {
+  background: rgb(30 30 30);
+  border-color: rgb(255 255 255 / 0.12);
+  color: #cbd5e1;
+}
+
+.bingo-cell-marked {
+  background: rgb(220 38 38 / 0.12);
+  border-color: rgb(220 38 38 / 0.5);
+  color: #991b1b;
+  font-weight: 600;
+}
+
+html.dark .bingo-cell-marked {
+  background: rgb(220 38 38 / 0.2);
+  color: #fca5a5;
+}
+
+.bingo-cell-marked::after {
+  content: "";
+  position: absolute;
+  inset: 8%;
+  border: 2px solid rgb(220 38 38 / 0.45);
+  border-radius: 999px;
+}
+
+.bingo-cell-winning {
+  box-shadow: 0 0 0 2px rgb(220 38 38 / 0.6);
+}
+
+.bingo-cell-free {
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+/* Reduced motion: keep the information, drop the movement. */
+@media (prefers-reduced-motion: reduce) {
+  .laminator,
+  .ticket-your-turn .ticket-board-number {
+    animation: none;
+  }
+  .stamp-impression {
+    animation: none;
+  }
+  .height-figure {
+    transition: none;
+  }
+}
