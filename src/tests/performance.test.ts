@@ -90,6 +90,21 @@ describe("Performance: getFieldsForStateAndVersion", () => {
 });
 
 // ---------------------------------------------------------------------------
+// 6. generateAAMVAPayload
+// ---------------------------------------------------------------------------
+
+describe("Performance: generateAAMVAPayload", () => {
+  it("generates 5k payloads quickly", () => {
+    const elapsed = bench(
+      "generateAAMVAPayload (CA payload)",
+      () => generateAAMVAPayload("CA", "10", CA_FIELDS, { ...CA_DATA }),
+      5_000
+    );
+    expect(elapsed).toBeLessThan(5_000);
+  });
+});
+
+// ---------------------------------------------------------------------------
 // 2. validateFieldValue — constrained option set path
 // ---------------------------------------------------------------------------
 
