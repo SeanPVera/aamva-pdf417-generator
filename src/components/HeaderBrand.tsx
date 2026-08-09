@@ -11,7 +11,7 @@ interface HeaderBrandProps {
 export const HeaderBrand: React.FC<HeaderBrandProps> = ({
   state,
   activeStateName,
-  activeStateTheme,
+  activeStateTheme
 }) => {
   return (
     <div className="flex items-center justify-between gap-2">
