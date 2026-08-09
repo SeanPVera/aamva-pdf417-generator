@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { ChevronDown, ChevronRight, BookOpen } from "lucide-react";
 import { AAMVA_VERSIONS } from "../core/schema";
 import { useFormStore } from "../hooks/useFormStore";
@@ -9,7 +9,7 @@ export const VersionBrowser: React.FC = () => {
   const [browsedVersion, setBrowsedVersion] = useState(activeVersion);
 
   const versionDef = AAMVA_VERSIONS[browsedVersion];
-  const requiredCount = versionDef?.fields.filter((f) => f.required).length ?? 0;
+  const requiredCount = useMemo(() => versionDef?.fields.filter((f) => f.required).length ?? 0, [versionDef]);
 
   return (
     <div className="border border-gray-200 dark:border-dark-border rounded-md overflow-hidden">
