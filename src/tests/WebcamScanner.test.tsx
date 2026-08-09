@@ -22,7 +22,7 @@ vi.mock("lucide-react", () => {
     Info: () => <div data-testid="icon-info" />,
     Loader2: () => <div data-testid="icon-loader" />,
     CheckCircle: () => <div data-testid="icon-check" />,
-    AlertCircle: () => <div data-testid="icon-alertcircle" />,
+    AlertCircle: () => <div data-testid="icon-alertcircle" />
   };
 });
 
@@ -33,19 +33,19 @@ vi.mock("../core/decoder", () => ({
       return { ok: true, json: { state: "CA", version: 1 } };
     }
     return { ok: false, error: "invalid" };
-  }),
+  })
 }));
 
 // Mock zxing browser reader
 vi.mock("@zxing/browser", () => {
-  const mockReader = vi.fn().mockImplementation(function() {
+  const mockReader = vi.fn().mockImplementation(function () {
     return {
       decodeFromVideoDevice: vi.fn(),
-      decodeFromImageUrl: vi.fn(),
+      decodeFromImageUrl: vi.fn()
     };
   });
   return {
-    BrowserPDF417Reader: mockReader,
+    BrowserPDF417Reader: mockReader
   };
 });
 
@@ -68,7 +68,7 @@ describe("WebcamScanner", () => {
     // Mock useFormStore
     useFormStore.setState({
       loadJson: mockLoadJson,
-      setStateVersion: mockSetStateVersion,
+      setStateVersion: mockSetStateVersion
     });
   });
 
@@ -76,7 +76,7 @@ describe("WebcamScanner", () => {
     // Mock the static listVideoInputDevices
     (BrowserPDF417Reader as any).listVideoInputDevices = vi.fn().mockResolvedValue([
       { deviceId: "cam1", label: "Front Camera" },
-      { deviceId: "cam2", label: "Back Camera" },
+      { deviceId: "cam2", label: "Back Camera" }
     ]);
 
     await act(async () => {
@@ -111,14 +111,14 @@ describe("WebcamScanner", () => {
   it("handles image file selection", async () => {
     (BrowserPDF417Reader as any).listVideoInputDevices = vi.fn().mockResolvedValue([]);
     const decodeFromImageUrlMock = vi.fn().mockResolvedValue({
-      getText: () => "valid_payload",
+      getText: () => "valid_payload"
     });
 
     // Override the instance mock for this test using mockImplementationOnce
     (BrowserPDF417Reader as any).mockImplementationOnce(function () {
       return {
         decodeFromImageUrl: decodeFromImageUrlMock,
-        decodeFromVideoDevice: vi.fn(),
+        decodeFromVideoDevice: vi.fn()
       };
     });
 
@@ -151,7 +151,7 @@ describe("WebcamScanner", () => {
     (BrowserPDF417Reader as any).mockImplementationOnce(function () {
       return {
         decodeFromImageUrl: decodeFromImageUrlMock,
-        decodeFromVideoDevice: vi.fn(),
+        decodeFromVideoDevice: vi.fn()
       };
     });
 
@@ -167,12 +167,16 @@ describe("WebcamScanner", () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByText("Could not find a readable PDF417 barcode in the selected image.")).toBeInTheDocument();
+      expect(
+        screen.getByText("Could not find a readable PDF417 barcode in the selected image.")
+      ).toBeInTheDocument();
     });
   });
 
   it("displays an error message if video device access fails", async () => {
-    (BrowserPDF417Reader as any).listVideoInputDevices = vi.fn().mockResolvedValue([{ deviceId: "cam1", label: "Cam 1" }]);
+    (BrowserPDF417Reader as any).listVideoInputDevices = vi
+      .fn()
+      .mockResolvedValue([{ deviceId: "cam1", label: "Cam 1" }]);
     const mockError = new Error("Not allowed");
     mockError.name = "NotAllowedError";
     const decodeFromVideoDeviceMock = vi.fn().mockRejectedValue(mockError);
@@ -180,7 +184,7 @@ describe("WebcamScanner", () => {
     (BrowserPDF417Reader as any).mockImplementation(function () {
       return {
         decodeFromVideoDevice: decodeFromVideoDeviceMock,
-        decodeFromImageUrl: vi.fn(),
+        decodeFromImageUrl: vi.fn()
       };
     });
 
