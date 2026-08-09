@@ -11,7 +11,7 @@ This file provides AI assistants (Claude, Copilot, etc.) with the context needed
 **Key traits:**
 - Zero server-side code — runs entirely in the browser or as an Electron desktop app
 - Built with React + TypeScript + Vite; Tailwind CSS for styling
-- Data never leaves the user's device (AES-encrypted localStorage only; PII fields are never persisted)
+- Data never leaves the user's device (UI preferences in localStorage only; PII fields are never persisted)
 
 ---
 
@@ -27,9 +27,21 @@ This file provides AI assistants (Claude, Copilot, etc.) with the context needed
 ├── tsconfig.node.json            # TypeScript config (Node/build tooling)
 ├── tailwind.config.js            # Tailwind CSS config
 ├── postcss.config.js             # PostCSS config
-├── .eslintrc.cjs                 # ESLint (TypeScript + React aware)
-├── .eslintrc.json                # ESLint fallback (browser globals, Electron overrides)
+├── eslint.config.mjs             # ESLint flat config (TS/React, Electron, SW, tooling blocks)
 ├── .prettierrc                   # Prettier (2-space, no trailing comma, 100-char line)
+├── .size-limit.json              # Per-chunk bundle-size budgets enforced in CI
+├── playwright.config.ts          # Playwright config (browser matrix via PW_BROWSERS)
+├── CHANGELOG.md                  # Release notes; changesets prepends new versions
+├── electron/
+│   └── urlPolicy.js              # Navigation allow-list for the Electron shell (unit tested)
+├── public/
+│   ├── manifest.webmanifest      # PWA manifest
+│   ├── sw.js                     # Service worker; precache manifest injected at build
+│   └── icons/                    # PWA icons
+├── scripts/
+│   ├── gen-vectors.mjs           # Regenerates golden conformance vectors
+│   └── release-notes.mjs         # Extracts a CHANGELOG section for a GitHub Release
+├── e2e/                          # Playwright specs (a11y, export, form fill, round-trip, themes)
 ├── src/
 │   ├── main.tsx                  # React root render with ErrorBoundary
 │   ├── App.tsx                   # Main app component: layout, keyboard shortcuts, theme
@@ -40,9 +52,16 @@ This file provides AI assistants (Claude, Copilot, etc.) with the context needed
 │   │   ├── generator.ts          # AAMVA payload generator with state-specific rules
 │   │   ├── decoder.ts            # Payload decoder and structural validator
 │   │   ├── validation.ts         # Field validation, cross-field checks, state-specific rules
-│   │   └── stateThemes.ts        # Per-jurisdiction color palettes for UI theming
+│   │   ├── jurisdictionRules.ts  # Per-jurisdiction rule packs
+│   │   ├── barcodeDimensions.ts  # PDF417 row/column sizing for the encoder
+│   │   ├── exportNaming.ts       # Filename construction for PNG/SVG/PDF/JSON exports
+│   │   ├── presets.ts            # Jurisdiction/sample presets
+│   │   ├── sampleFiller.ts       # Fills the form with plausible sample data
+│   │   ├── crypto.ts             # secureGetRandomInt (rejection sampling, no modulo bias)
+│   │   ├── stateThemes.ts        # Per-jurisdiction color palettes for UI theming
+│   │   └── conformance/vectors/  # Golden payload vectors per jurisdiction/version
 │   ├── hooks/
-│   │   └── useFormStore.ts       # Zustand store: encrypted persistence, undo/redo, all form state
+│   │   └── useFormStore.ts       # Zustand store: UI-pref persistence, undo/redo, form state
 │   ├── components/
 │   │   ├── Header.tsx            # Top bar: undo/redo, theme, import/export JSON, clear, scanner
 │   │   ├── Sidebar.tsx           # State/version selector, strict mode toggle, subfile type
@@ -51,18 +70,26 @@ This file provides AI assistants (Claude, Copilot, etc.) with the context needed
 │   │   ├── WebcamScanner.tsx     # ZXing-based barcode scanner modal
 │   │   ├── VersionBrowser.tsx    # Modal for exploring AAMVA versions 01–10
 │   │   └── ErrorBoundary.tsx     # React error boundary
-│   └── tests/
+│   ├── stubs/
+│   │   └── jspdfOptionalRenderer.ts  # Stubs jsPDF's unused html2canvas/dompurify/canvg
+│   └── tests/                    # Vitest suites (see Testing Conventions below)
 │       ├── aamva.test.ts         # Schema, payload, decoder, and validation tests
 │       ├── decoder.test.ts       # Decoder round-trip and edge case tests
 │       ├── crossFieldValidation.test.ts  # Date ordering, age-at-issuance checks
+│       ├── property.test.ts      # fast-check property-based invariants
+│       ├── electronUrlPolicy.test.ts     # Electron navigation allow-list
 │       ├── stateThemes.test.ts   # Color palette completeness and CSS variable tests
 │       └── helpers.test.ts       # Utility function tests
+├── docs/
+│   └── AAMVA_COMPLIANCE_MATRIX.md    # Per-jurisdiction implementation coverage
 ├── assets/
 │   └── sample.json               # Example import payload for manual testing
 ├── LICENSE                       # MIT license
 └── .github/
     └── workflows/
-        └── node.js.yml           # CI: Node 20/22, lint/format/typecheck/build/test/coverage/size/audit
+        ├── node.js.yml           # CI: Node 20/22, lint/format/typecheck/build/test/coverage/size/audit
+        ├── e2e.yml               # Playwright across chromium/firefox/webkit + mobile emulations
+        └── release.yml           # Changesets version PR, then installers + GitHub Release
 ```
 
 ---
@@ -151,7 +178,7 @@ Key actions:
 | `undo()` / `redo()` | Navigate edit history (20-item limit) |
 | `canUndo()` / `canRedo()` | Check history availability |
 
-**Persistence:** Zustand + CryptoJS AES encryption for localStorage. PII fields are intentionally excluded from persistence.
+**Persistence:** Zustand `persist` middleware over plain `localStorage`. `partialize` restricts what is written to UI preferences only — the AAMVA `fields` payload is never persisted, so no PII reaches disk. An earlier version wrapped storage in CryptoJS AES, but the key sat in plaintext localStorage beside the ciphertext and provided no real protection against same-origin access; it was removed rather than left as security theater. Do not reintroduce client-side encryption here without a key that lives outside the origin.
 
 ### `src/components/` — UI Components
 
@@ -181,7 +208,7 @@ Security settings are intentional and must be preserved:
 ### Quick Start (Browser Dev Server)
 ```bash
 npm run easy        # npm install && npm run dev
-# App runs at http://localhost:5173
+# App runs at http://localhost:3000 (vite.config.mts pins server.port)
 ```
 
 ### Mobile / Network Access
@@ -295,7 +322,22 @@ GitHub Actions workflow (`.github/workflows/node.js.yml`):
 
 All steps must pass on both Node versions before merging. Coverage thresholds (lines 85, branches 80, functions 85, statements 85) are configured in `vite.config.mts`. Bundle-size budgets per chunk are defined in `.size-limit.json`.
 
-A separate workflow (`.github/workflows/e2e.yml`) runs Playwright end-to-end tests (`e2e/*.spec.ts`). Releases are handled by `.github/workflows/release.yml`.
+A separate workflow (`.github/workflows/e2e.yml`) runs Playwright end-to-end tests (`e2e/*.spec.ts`) across chromium, firefox, webkit, and emulated mobile Chrome/Safari.
+
+### Releasing
+
+`.github/workflows/release.yml` runs on every push to `main` and has two modes:
+
+1. **Changesets pending** → `changesets/action` opens or updates a `chore: release` PR that bumps `package.json` and prepends a `CHANGELOG.md` section. Nothing is published.
+2. **No changesets pending, and `package.json`'s version has no matching `v<version>` git tag** → the workflow builds desktop installers on `ubuntu-latest`, `macos-latest`, and `windows-latest` (electron-builder, targets/arches taken from the `build` block in `package.json`), then publishes a GitHub Release at that tag with every installer attached.
+
+Notes for anyone touching this:
+
+- The release decision reads the version from the **pushed commit** (`git show "$GITHUB_SHA:package.json"`), not the working tree — `changeset version` can leave a bumped `package.json` behind in the runner.
+- Release notes come from `scripts/release-notes.mjs`, which extracts the `## <version>` section of `CHANGELOG.md`. If that section is missing the workflow falls back to GitHub's generated notes rather than shipping an empty body.
+- Installer uploads use `if-no-files-found: error`, and the publish job aborts on an empty artifact directory, so a packaging failure can't produce a release with no downloads.
+- Builds are unsigned (`CSC_IDENTITY_AUTO_DISCOVERY: false`). Adding signing means adding secrets and removing that env var.
+- To ship a change, add a changeset (`npm run changeset`). Version bumps are never hand-edited in `package.json`.
 
 Local hooks (Husky):
 - `pre-commit` — `npx lint-staged` (lint + Prettier on staged files)
@@ -353,7 +395,6 @@ Local hooks (Husky):
 |---|---|---|
 | `react` / `react-dom` | dependency | UI framework (v19) |
 | `zustand` | dependency | Lightweight state management with persistence |
-| `crypto-js` | dependency | AES encryption for localStorage |
 | `bwip-js` | dependency | PDF417 barcode encoding and canvas rendering |
 | `jspdf` | dependency | PDF generation for barcode export |
 | `lucide-react` | dependency | Icon library |

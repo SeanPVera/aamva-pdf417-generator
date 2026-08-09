@@ -8,8 +8,10 @@ PDF417 barcodes. Its design constraints define the security posture:
 - **No network calls.** The application is offline-capable by design. The
   production CSP enforces `connect-src 'none'` so the runtime cannot exfiltrate
   data even if a dependency is compromised.
-- **No PII persistence.** Field values that constitute personally identifiable
-  information are intentionally excluded from the encrypted Zustand store.
+- **No PII persistence.** The AAMVA field payload is never written to disk.
+  Only UI preferences — jurisdiction, version, strict mode, subfile type,
+  theme, and similar — are persisted, so there is no stored PII to protect at
+  rest.
 - **Sandboxed Electron shell.** `nodeIntegration: false`,
   `contextIsolation: true`, and `sandbox: true` are non-negotiable.
 - **No remote dependencies at runtime.** All assets ship in the bundle. There
@@ -58,10 +60,11 @@ within **14 business days**. Critical issues are prioritized.
 | CSP (prod)   | `default-src 'self'`, `connect-src 'none'`, `frame-ancestors 'none'`      |
 | CSP (dev)    | Same, with `connect-src 'self' ws: wss:` for HMR only                     |
 | Electron     | `nodeIntegration: false`, `contextIsolation: true`, `sandbox: true`       |
-| Storage      | AES-encrypted localStorage; PII fields excluded from persistence          |
+| Storage      | `localStorage` holds UI preferences only; no PII is ever persisted        |
+| Navigation   | Electron shell restricts navigation to app files; popups denied          |
 | Dependencies | `npm audit --audit-level=high` runs in CI on every PR                     |
 | Types        | `strict`, `noUncheckedIndexedAccess`, `no-explicit-any` all enforced      |
-| Tests        | 300+ unit tests, ~6,000 property-based runs, golden conformance vectors   |
+| Tests        | 560+ unit tests, ~1,400 property-based runs, golden conformance vectors   |
 
 ## Disclosure Coordination
 

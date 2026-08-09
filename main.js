@@ -10,6 +10,17 @@
 
 const { app, BrowserWindow, shell } = require("electron");
 const path = require("path");
+const { isInternalUrl, isWebUrl } = require("./electron/urlPolicy");
+
+const DEV_SERVER_ORIGIN = "http://localhost:3000";
+
+// Hand a URL to the OS browser, but only for real web schemes. Passing
+// arbitrary schemes to shell.openExternal can invoke other local handlers.
+function openExternalIfWeb(rawUrl) {
+  if (isWebUrl(rawUrl)) {
+    shell.openExternal(rawUrl);
+  }
+}
 
 function createWindow() {
   const isDev = process.env.NODE_ENV === 'development' || process.env.ELECTRON_IS_DEV === '1';
@@ -45,19 +56,24 @@ function createWindow() {
     win.loadFile(path.join(__dirname, "dist", "index.html"));
   }
 
-  // Block all new-window/popup attempts — this app has no need for them
-  win.webContents.setWindowOpenHandler(() => ({ action: "deny" }));
+  // Block all new-window/popup attempts — this app has no need for them.
+  // Web links still reach the user, just in their own browser.
+  win.webContents.setWindowOpenHandler(({ url }) => {
+    openExternalIfWeb(url);
+    return { action: "deny" };
+  });
 
-  // Prevent navigation away from the local app file
+  // Prevent navigation away from the local app
   win.webContents.on("will-navigate", (event, url) => {
-    const isLocalUrl = url.includes('localhost:') || url.includes('file://');
-    if (!isLocalUrl) {
-      event.preventDefault();
-      // Open external links in the system browser instead
-      if (url.startsWith("https://") || url.startsWith("http://")) {
-        shell.openExternal(url);
-      }
-    }
+    const internal = isInternalUrl(url, {
+      appDir: __dirname,
+      devServerOrigin: DEV_SERVER_ORIGIN,
+      isDev
+    });
+    if (internal) return;
+    event.preventDefault();
+    // Open external links in the system browser instead
+    openExternalIfWeb(url);
   });
 }
 

@@ -61,9 +61,9 @@ export default [
     },
   },
 
-  // Electron entry points (CommonJS, Node environment)
+  // Electron entry points and shell helpers (CommonJS, Node environment)
   {
-    files: ["main.js", "preload.js"],
+    files: ["main.js", "preload.js", "electron/**/*.js"],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: "commonjs",

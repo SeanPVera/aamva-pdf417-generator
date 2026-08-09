@@ -1,19 +1,28 @@
 name: Release
 
+# Pushes to main either open/update the "chore: release" version PR (when
+# changesets are pending) or, once that PR merges and package.json carries a
+# version with no matching tag, build the desktop installers and publish a
+# GitHub Release with them attached.
 on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 permissions:
-  contents: write
-  pull-requests: write
-  id-token: write
+  contents: read
 
 jobs:
-  release:
-    name: Version or Publish
+  version:
+    name: Version or decide to release
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    outputs:
+      should_release: ${{ steps.check.outputs.should_release }}
+      version: ${{ steps.check.outputs.version }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -29,12 +38,159 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Create Release Pull Request or Tag
+      # Opens or updates the release PR whenever changesets are pending. No
+      # `publish` input: this repo ships GitHub Releases, not npm packages, so
+      # tagging and publishing are handled explicitly below.
+      - name: Create release pull request
         uses: changesets/action@v1
         with:
           version: npm run changeset:version
-          publish: npx changeset tag
           commit: "chore: release"
           title: "chore: release"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Decide whether this commit needs a release
+        id: check
+        run: |
+          set -euo pipefail
+          # Read the version from the pushed commit rather than the working
+          # tree: the step above may have left a bumped package.json behind
+          # after preparing the release branch.
+          VERSION="$(git show "$GITHUB_SHA:package.json" | node -pe "JSON.parse(require('fs').readFileSync(0,'utf8')).version")"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          if git rev-parse -q --verify "refs/tags/v$VERSION" >/dev/null; then
+            echo "v$VERSION is already tagged - nothing to release."
+            echo "should_release=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "v$VERSION has no tag yet - building a release."
+            echo "should_release=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  installers:
+    name: Installers (${{ matrix.artifact }})
+    needs: version
+    if: needs.version.outputs.should_release == 'true'
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            artifact: linux
+            platform: --linux
+          - os: macos-latest
+            artifact: macos
+            platform: --mac
+          - os: windows-latest
+            artifact: windows
+            platform: --win
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build web assets
+        run: npm run build
+
+      # No target names on the CLI: electron-builder then uses the targets and
+      # architectures declared in package.json's `build` block verbatim.
+      - name: Package desktop app
+        run: npx electron-builder ${{ matrix.platform }} --publish never
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # These builds are intentionally unsigned; without this,
+          # electron-builder tries to auto-discover a signing identity and
+          # fails the job on runners that have none.
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+
+      - name: Upload installers
+        uses: actions/upload-artifact@v4
+        with:
+          name: installers-${{ matrix.artifact }}
+          if-no-files-found: error
+          retention-days: 7
+          path: |
+            dist_electron/*.exe
+            dist_electron/*.dmg
+            dist_electron/*.AppImage
+            dist_electron/*.deb
+
+  publish:
+    name: Publish GitHub Release
+    needs: [version, installers]
+    if: needs.version.outputs.should_release == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download installers
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          pattern: installers-*
+          merge-multiple: true
+
+      - name: Verify there is something to publish
+        run: |
+          set -euo pipefail
+          COUNT="$(find artifacts -type f 2>/dev/null | wc -l)"
+          echo "found $COUNT installer artifact(s)"
+          find artifacts -type f -exec ls -lh {} + 2>/dev/null || true
+          if [ "$COUNT" -eq 0 ]; then
+            echo "No installer artifacts were produced; refusing to publish an empty release."
+            exit 1
+          fi
+
+      - name: Assemble release notes
+        id: notes
+        env:
+          VERSION: ${{ needs.version.outputs.version }}
+        run: |
+          set -uo pipefail
+          if node scripts/release-notes.mjs "$VERSION" > release-notes.md; then
+            echo "source=changelog" >> "$GITHUB_OUTPUT"
+          else
+            echo "No CHANGELOG section for $VERSION; falling back to generated notes."
+            rm -f release-notes.md
+            echo "source=generated" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ needs.version.outputs.version }}
+          NOTES_SOURCE: ${{ steps.notes.outputs.source }}
+        run: |
+          set -euo pipefail
+          if [ "$NOTES_SOURCE" = "changelog" ]; then
+            NOTES_ARGS=(--notes-file release-notes.md)
+          else
+            NOTES_ARGS=(--generate-notes)
+          fi
+          # Collect assets into an array rather than globbing inline: installer
+          # filenames come from electron-builder's artifactName template and
+          # must survive any spacing without word-splitting.
+          mapfile -t ASSETS < <(find artifacts -type f | sort)
+          printf 'attaching: %s\n' "${ASSETS[@]}"
+          gh release create "v$VERSION" \
+            --target "$GITHUB_SHA" \
+            --title "v$VERSION" \
+            "${NOTES_ARGS[@]}" \
+            "${ASSETS[@]}"
