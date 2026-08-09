@@ -8,7 +8,7 @@ import { LaminatorOverlay } from "./LaminatorOverlay";
 import { StampCursor } from "./StampCursor";
 import { ValidationIssue } from "../core/validation";
 import { StateCritter } from "../core/stateCritters";
-import { BarcodeDimensions } from "../core/barcodeDimensions";
+import { BarcodeDimension } from "../core/barcodeDimensions";
 
 // Helper function from BarcodePreview.tsx
 function isMissingRequiredError(message: string): boolean {
@@ -16,7 +16,7 @@ function isMissingRequiredError(message: string): boolean {
 }
 
 interface BarcodeCanvasProps {
-  canvasRef: React.RefObject<HTMLCanvasElement>;
+  canvasRef: React.RefObject<HTMLCanvasElement | null>;
   zoom: number;
   setZoom: React.Dispatch<React.SetStateAction<number>>;
   stale: boolean;
@@ -32,7 +32,7 @@ interface BarcodeCanvasProps {
   emptyRequired: Array<{ code: string }>;
   issues: ValidationIssue[];
   scrollToField: (code: string) => void;
-  dims: BarcodeDimensions;
+  dims: BarcodeDimension;
   exportDpi: number;
 }
 
