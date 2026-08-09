@@ -107,9 +107,11 @@ describe("Sidebar Component", () => {
     // Note: Due to React testing-library's rendering of split elements,
     // it's sometimes better to match by role or sub-elements.
     // The strong tag contains NY, and the text says "does not encode".
-    expect(screen.getByText((content, element) => {
-      return element?.tagName.toLowerCase() === 'p' && content.includes("does not encode");
-    })).toBeInTheDocument();
+    expect(
+      screen.getByText((content, element) => {
+        return element?.tagName.toLowerCase() === "p" && content.includes("does not encode");
+      })
+    ).toBeInTheDocument();
 
     // Verify dismiss works
     const dismissButton = screen.getByRole("button", { name: "Dismiss exclusion notice" });
