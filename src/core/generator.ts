@@ -117,7 +117,7 @@ export function generateAAMVAPayload(
   const missing: string[] = [];
   for (let i = 0; i < mandatoryFields.length; i++) {
     const f = mandatoryFields[i];
-    if (!dataObj[f.code]) {
+    if (f && !dataObj[f.code]) {
       missing.push(`${f.label} (${f.code})`);
     }
   }
