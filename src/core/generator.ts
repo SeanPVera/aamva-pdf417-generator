@@ -114,9 +114,13 @@ export function generateAAMVAPayload(
   }
 
   const mandatoryFields = getMandatoryFields(stateCode, version);
-  const missing = mandatoryFields
-    .filter((f) => !dataObj[f.code])
-    .map((f) => `${f.label} (${f.code})`);
+  const missing: string[] = [];
+  for (let i = 0; i < mandatoryFields.length; i++) {
+    const f = mandatoryFields[i];
+    if (!dataObj[f.code]) {
+      missing.push(`${f.label} (${f.code})`);
+    }
+  }
 
   if (missing.length > 0) {
     throw new Error(
