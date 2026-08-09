@@ -539,7 +539,7 @@ export const BatchProcessor: React.FC<BatchProcessorProps> = ({ open, onClose })
                 checked={strict}
                 disabled={processing}
                 onChange={(e) => setStrict(e.target.checked)}
-                className="h-3.5 w-3.5 rounded text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-[#555] dark:bg-dark-surface2"
+                className="h-3.5 w-3.5 rounded text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-[#555] dark:bg-dark-surface2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
               />
               Strict validation
               <span className="text-gray-400 dark:text-gray-500 font-normal">
