@@ -130,12 +130,13 @@ export function generateAAMVAPayload(
     dataObj.DAJ = stateCode;
   }
 
-  const invalidFields = fields
-    .filter((field) => {
-      const val = dataObj[field.code];
-      return val && val !== "" && !validateFieldValue(field, val, stateCode, strictMode);
-    })
-    .map((f) => `${f.label} (${f.code})`);
+  const invalidFields: string[] = [];
+  for (const field of fields) {
+    const val = dataObj[field.code];
+    if (val && val !== "" && !validateFieldValue(field, val, stateCode, strictMode)) {
+      invalidFields.push(`${field.label} (${field.code})`);
+    }
+  }
 
   if (invalidFields.length > 0) {
     throw new Error(
