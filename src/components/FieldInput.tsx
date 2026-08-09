@@ -4,6 +4,22 @@ import type { AAMVAField } from "../core/schema";
 import { AAMVA_FIELD_LIMITS } from "../core/schema";
 import { evaluateFieldValue } from "../core/validation";
 import { getFieldHelp } from "../core/fieldHelp";
+import { HeightSilhouette } from "./HeightSilhouette";
+
+/**
+ * Pulls the allowed values out of an enumeration message so they can be offered
+ * as one-click chips instead of being truncated into illegibility. Mirrors the
+ * message `evaluateFieldValue` builds for `getAllowedSet` failures.
+ */
+function parseAllowedValues(message: string | undefined): string[] {
+  if (!message) return [];
+  const match = /^Value must be one of:\s*(.+?)\.?$/.exec(message);
+  if (!match?.[1]) return [];
+  return match[1]
+    .split(",")
+    .map((v) => v.trim())
+    .filter(Boolean);
+}
 
 interface FieldInputProps {
   field: AAMVAField;
@@ -11,11 +27,13 @@ interface FieldInputProps {
   state: string;
   strictMode: boolean;
   copied: boolean;
+  whimsy?: boolean;
   onChange: (code: string, value: string) => void;
   onCopy: (code: string, value: string) => void;
   onReset: (code: string) => void;
   onGenerate: (code: string) => void;
   onDisableStrict?: () => void;
+  onHelpOpened?: (code: string) => void;
 }
 
 export const FieldInput: React.FC<FieldInputProps> = ({
@@ -24,11 +42,13 @@ export const FieldInput: React.FC<FieldInputProps> = ({
   state,
   strictMode,
   copied,
+  whimsy = false,
   onChange,
   onCopy,
   onReset,
   onGenerate,
-  onDisableStrict
+  onDisableStrict,
+  onHelpOpened
 }) => {
   const evalResult = evaluateFieldValue(field, value, state, strictMode);
   const isWarning = !!value && evalResult.severity === "warning";
@@ -39,11 +59,30 @@ export const FieldInput: React.FC<FieldInputProps> = ({
   const helpText = getFieldHelp(field.code);
   const [helpOpen, setHelpOpen] = React.useState(false);
   const isResettable = field.code === "DCF" || field.code === "DAQ" || field.code === "DDB";
+  const allowedValues = hasError ? parseAllowedValues(evalResult.message) : [];
+  const maxLen = AAMVA_FIELD_LIMITS[field.code];
+
+  // The counter is deliberately NOT a live region: it changes on every
+  // keystroke, so announcing it drowns out the field's own feedback. Announce
+  // only when the length actually starts to matter.
+  const counterMilestone = React.useMemo(() => {
+    if (!maxLen) return "";
+    if (value.length >= maxLen) return `${field.code} is at its ${maxLen} character limit.`;
+    if (value.length >= Math.floor(maxLen * 0.8)) {
+      return `${maxLen - value.length} characters left in ${field.code}.`;
+    }
+    return "";
+  }, [value.length, maxLen, field.code]);
 
   const helpButton = helpText ? (
     <button
       type="button"
-      onClick={() => setHelpOpen((v) => !v)}
+      onClick={() => {
+        setHelpOpen((v) => {
+          if (!v) onHelpOpened?.(field.code);
+          return !v;
+        });
+      }}
       onBlur={() => setHelpOpen(false)}
       aria-expanded={helpOpen}
       aria-controls={helpId}
@@ -238,22 +277,29 @@ export const FieldInput: React.FC<FieldInputProps> = ({
         </div>
       )}
 
-      <div className="absolute -bottom-4 left-0 right-0 flex justify-between items-center pointer-events-none transition-opacity duration-200">
+      <div className="absolute -bottom-4 left-0 right-0 flex justify-between items-start pointer-events-none transition-opacity duration-200">
         <div className="flex-1 min-w-0">
           {showAdvisory && (
             <span
               id={errorId}
               role={hasError ? "alert" : "status"}
               data-severity={hasError ? "error" : "warning"}
-              className={`block text-xs font-medium truncate pointer-events-auto ${
+              // Two lines plus a title: enumeration messages ("Value must be one
+              // of: BLK, BLU, BRO, GRY, GRN, HAZ, MAR, PNK, DIC, UNK.") used to
+              // be clipped to about six useful characters with no way to read
+              // the rest.
+              title={evalResult.message}
+              className={`block text-xs font-medium field-advisory pointer-events-auto ${
                 hasError ? "text-red-500" : "text-amber-600 dark:text-amber-400"
               }`}
             >
-              {evalResult.message ||
-                (hasError
-                  ? `Invalid format${field.dateFormat ? ` (e.g. ${field.dateFormat})` : ""}`
-                  : "Advisory")}
-              {hasError && strictMode && onDisableStrict && (
+              {allowedValues.length > 0
+                ? "Value must be one of:"
+                : evalResult.message ||
+                  (hasError
+                    ? `Invalid format${field.dateFormat ? ` (e.g. ${field.dateFormat})` : ""}`
+                    : "Advisory")}
+              {hasError && strictMode && onDisableStrict && allowedValues.length === 0 && (
                 <>
                   {" "}
                   <button
@@ -267,16 +313,42 @@ export const FieldInput: React.FC<FieldInputProps> = ({
               )}
             </span>
           )}
+          {/* Enumerated values become one-click chips — reading the list and
+              fixing the field are the same gesture. */}
+          {allowedValues.length > 0 && (
+            <div className="mt-0.5 flex flex-wrap gap-1 pointer-events-auto">
+              {allowedValues.map((allowed) => (
+                <button
+                  key={allowed}
+                  type="button"
+                  onClick={() => onChange(field.code, allowed)}
+                  title={`Set ${field.code} to ${allowed}`}
+                  className="px-1.5 py-0.5 rounded border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-900/30 text-[10px] font-mono font-semibold text-red-700 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-900/60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                >
+                  {allowed}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
-        {!field.options && AAMVA_FIELD_LIMITS[field.code] && (
-          <span
-            aria-live="polite"
-            className="text-xs font-medium text-gray-400 opacity-0 group-focus-within:opacity-100 transition-opacity ml-2 whitespace-nowrap"
-          >
-            {value.length}/{AAMVA_FIELD_LIMITS[field.code]}
-          </span>
-        )}
+        <div className="flex items-center gap-1.5 shrink-0 ml-2">
+          {whimsy && field.code === "DAU" && <HeightSilhouette value={value} />}
+          {!field.options && maxLen && (
+            <span
+              className="text-xs font-medium text-gray-400 opacity-0 group-focus-within:opacity-100 transition-opacity whitespace-nowrap"
+              aria-hidden
+            >
+              {value.length}/{maxLen}
+            </span>
+          )}
+        </div>
       </div>
+      {/* The only part of the counter worth announcing. */}
+      {counterMilestone && (
+        <span className="sr-only" role="status" aria-live="polite">
+          {counterMilestone}
+        </span>
+      )}
     </div>
   );
 };

@@ -2,7 +2,7 @@
   {
     "name": "Initial JS (gzipped)",
     "path": "dist/assets/index-*.js",
-    "limit": "38 KB",
+    "limit": "40 KB",
     "gzip": true
   },
   {

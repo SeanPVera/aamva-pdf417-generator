@@ -1,5 +1,7 @@
-import React, { useEffect, useRef } from "react";
+import React from "react";
 import { X, Keyboard } from "lucide-react";
+import { useModalShell } from "../hooks/useModalShell";
+import { detectPlatform, shortcutToken } from "../core/modKey";
 
 interface ShortcutsModalProps {
   open: boolean;
@@ -8,6 +10,7 @@ interface ShortcutsModalProps {
 }
 
 interface Shortcut {
+  /** "mod" and "shift" resolve to the platform's labels at render time. */
   keys: string[];
   description: string;
 }
@@ -16,23 +19,25 @@ const SHORTCUTS: Array<{ category: string; entries: Shortcut[] }> = [
   {
     category: "Editing",
     entries: [
-      { keys: ["Ctrl", "Z"], description: "Undo last field change" },
-      { keys: ["Ctrl", "Shift", "Z"], description: "Redo field change" },
-      { keys: ["Ctrl", "Y"], description: "Redo (alternate)" },
-      { keys: ["Ctrl", "G"], description: "Generate all auto fields (DCF, DAQ, DDB)" }
+      { keys: ["mod", "Z"], description: "Undo last field change" },
+      { keys: ["mod", "shift", "Z"], description: "Redo field change" },
+      { keys: ["mod", "Y"], description: "Redo (alternate)" },
+      { keys: ["mod", "G"], description: "Generate all auto fields (DCF, DAQ, DDB)" }
     ]
   },
   {
     category: "Export",
     entries: [
-      { keys: ["Ctrl", "Shift", "C"], description: "Copy raw payload to clipboard" },
-      { keys: ["Ctrl", "E"], description: "Export barcode as PNG" }
+      { keys: ["mod", "shift", "C"], description: "Copy raw payload to clipboard" },
+      { keys: ["mod", "E"], description: "Export barcode as PNG" }
     ]
   },
   {
     category: "Navigation",
     entries: [
-      { keys: ["Ctrl", "K"], description: "Focus the field search box" },
+      { keys: ["mod", "K"], description: "Focus the field search box" },
+      { keys: ["F8"], description: "Jump to the next validation issue" },
+      { keys: ["shift", "F8"], description: "Jump to the previous validation issue" },
       { keys: ["?"], description: "Open this shortcuts cheat sheet" },
       { keys: ["Esc"], description: "Close any open modal" },
       { keys: ["Tab"], description: "Move focus to the next field" }
@@ -49,38 +54,22 @@ function Key({ children }: { children: React.ReactNode }) {
 }
 
 export const ShortcutsModal: React.FC<ShortcutsModalProps> = ({ open, onClose, onReplayTour }) => {
-  const closeBtnRef = useRef<HTMLButtonElement>(null);
-  const previouslyFocusedRef = useRef<HTMLElement | null>(null);
-
-  useEffect(() => {
-    if (!open) return;
-    previouslyFocusedRef.current = document.activeElement as HTMLElement | null;
-    closeBtnRef.current?.focus();
-
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        e.preventDefault();
-        onClose();
-      }
-    };
-    window.addEventListener("keydown", handleKey);
-    return () => {
-      window.removeEventListener("keydown", handleKey);
-      previouslyFocusedRef.current?.focus?.();
-    };
-  }, [open, onClose]);
+  const dialogRef = useModalShell<HTMLDivElement>({ open, onClose });
+  // Resolved once per mount — the platform does not change mid-session.
+  const platform = React.useMemo(() => detectPlatform(), []);
 
   if (!open) return null;
 
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="shortcuts-title"
       onClick={onClose}
     >
       <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="shortcuts-title"
         className="w-full max-w-md bg-white dark:bg-dark-surface rounded-lg shadow-xl border border-gray-200 dark:border-dark-border max-h-[80vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
@@ -93,7 +82,7 @@ export const ShortcutsModal: React.FC<ShortcutsModalProps> = ({ open, onClose, o
             Keyboard Shortcuts
           </h2>
           <button
-            ref={closeBtnRef}
+            data-autofocus
             type="button"
             onClick={onClose}
             aria-label="Close shortcuts"
@@ -121,7 +110,7 @@ export const ShortcutsModal: React.FC<ShortcutsModalProps> = ({ open, onClose, o
                           {s.keys.map((k, i) => (
                             <React.Fragment key={`${k}-${i}`}>
                               {i > 0 && <span className="text-gray-400">+</span>}
-                              <Key>{k}</Key>
+                              <Key>{shortcutToken(k, platform)}</Key>
                             </React.Fragment>
                           ))}
                         </span>

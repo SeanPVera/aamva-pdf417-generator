@@ -6,14 +6,19 @@ import {
   Wand2,
   FlaskConical,
   ChevronsDownUp,
-  ChevronsUpDown
+  ChevronsUpDown,
+  AlertCircle
 } from "lucide-react";
+import { formatShortcut } from "../core/modKey";
 
 interface FieldFiltersProps {
   query: string;
   onQueryChange: (value: string) => void;
   requiredOnly: boolean;
   onRequiredOnlyChange: (value: boolean) => void;
+  issuesOnly: boolean;
+  onIssuesOnlyChange: (value: boolean) => void;
+  issueCount: number;
   matchCount: number;
   totalCount: number;
   requiredFilled: number;
@@ -31,6 +36,9 @@ export const FieldFilters: React.FC<FieldFiltersProps> = ({
   onQueryChange,
   requiredOnly,
   onRequiredOnlyChange,
+  issuesOnly,
+  onIssuesOnlyChange,
+  issueCount,
   matchCount,
   totalCount,
   requiredFilled,
@@ -62,7 +70,7 @@ export const FieldFilters: React.FC<FieldFiltersProps> = ({
     requiredTotal === 0 ? 100 : Math.round((requiredFilled / requiredTotal) * 100);
   const requiredColor =
     requiredPct === 100 ? "bg-green-500" : requiredPct >= 50 ? "bg-brand-500" : "bg-amber-500";
-  const filtered = query.trim().length > 0 || requiredOnly;
+  const filtered = query.trim().length > 0 || requiredOnly || issuesOnly;
 
   return (
     <div className="sticky top-0 z-20 bg-white dark:bg-[#1E1E1E] border-b border-gray-100 dark:border-gray-700 px-4 lg:px-6 py-3 space-y-2">
@@ -78,7 +86,7 @@ export const FieldFilters: React.FC<FieldFiltersProps> = ({
             type="search"
             value={query}
             onChange={(e) => onQueryChange(e.target.value)}
-            placeholder="Search fields by code or label (Ctrl+K)"
+            placeholder={`Search code, label, or help text (${formatShortcut(["mod", "K"])})`}
             aria-label="Search fields"
             className="w-full pl-8 pr-8 py-1.5 text-sm rounded-md bg-gray-100 dark:bg-[#2C2C2C] border border-gray-200 dark:border-[#444] text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           />
@@ -106,6 +114,32 @@ export const FieldFilters: React.FC<FieldFiltersProps> = ({
           Required only
         </label>
 
+        {/* Issues-only: with errors scattered across collapsed groups, the old
+            workflow was jump → fix → scroll back → jump again. */}
+        <label
+          className={`inline-flex items-center gap-1.5 text-xs font-medium cursor-pointer select-none px-2 py-1 rounded-md border ${
+            issueCount > 0
+              ? "bg-red-50 dark:bg-red-900/25 border-red-200 dark:border-red-800 text-red-800 dark:text-red-200"
+              : "bg-gray-100 dark:bg-[#2C2C2C] border-gray-200 dark:border-[#444] text-gray-400 dark:text-gray-500 cursor-not-allowed"
+          }`}
+          title={
+            issueCount > 0
+              ? "Show only fields with a validation issue (F8 steps through them)"
+              : "No validation issues to filter"
+          }
+        >
+          <input
+            type="checkbox"
+            checked={issuesOnly}
+            disabled={issueCount === 0}
+            onChange={(e) => onIssuesOnlyChange(e.target.checked)}
+            className="h-3.5 w-3.5 rounded text-red-600 focus:ring-red-500 border-gray-300 dark:border-[#555] dark:bg-dark-surface2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            aria-label="Show only fields with validation issues"
+          />
+          <AlertCircle size={12} aria-hidden="true" />
+          Issues only{issueCount > 0 ? ` (${issueCount})` : ""}
+        </label>
+
         <button
           type="button"
           onClick={onJumpToNextEmpty}
@@ -124,7 +158,7 @@ export const FieldFilters: React.FC<FieldFiltersProps> = ({
           type="button"
           onClick={onGenerateAutoFields}
           aria-label="Generate auto fields (DCF, DAQ, DDB)"
-          title="Generate auto fields (Ctrl+G)"
+          title={`Generate auto fields (${formatShortcut(["mod", "G"])})`}
           className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-gray-100 dark:bg-[#2C2C2C] border border-gray-200 dark:border-[#444] text-xs font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-[#333] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
         >
           <Wand2 size={12} aria-hidden="true" />

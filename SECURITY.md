@@ -64,7 +64,7 @@ within **14 business days**. Critical issues are prioritized.
 | Navigation   | Electron shell restricts navigation to app files; popups denied          |
 | Dependencies | `npm audit --audit-level=high` runs in CI on every PR                     |
 | Types        | `strict`, `noUncheckedIndexedAccess`, `no-explicit-any` all enforced      |
-| Tests        | 480+ unit tests, ~1,400 property-based runs, golden conformance vectors   |
+| Tests        | 560+ unit tests, ~1,400 property-based runs, golden conformance vectors   |
 
 ## Disclosure Coordination
 

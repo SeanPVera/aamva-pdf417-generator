@@ -1,8 +1,14 @@
 import React, { useState } from "react";
-import { HelpCircle } from "lucide-react";
+import { HelpCircle, Info } from "lucide-react";
 import { useFormStore } from "../hooks/useFormStore";
-import { AAMVA_STATES, isJurisdictionSupported } from "../core/states";
-import { AAMVA_VERSIONS, getFieldsForStateAndVersion } from "../core/schema";
+import { AAMVA_STATES } from "../core/states";
+import {
+  AAMVA_VERSIONS,
+  AAMVA_STATE_EXCLUDED_FIELDS,
+  getFieldsForVersion,
+  getFieldsForStateAndVersion
+} from "../core/schema";
+import { JurisdictionCombobox } from "./JurisdictionCombobox";
 
 const VersionBrowser = React.lazy(() =>
   import("./VersionBrowser").then((module) => ({ default: module.VersionBrowser }))
@@ -21,14 +27,19 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileHidden = false }) => {
     setStrictMode,
     subfileType,
     setSubfileType,
+    recentStates,
+    markBingo,
     fields: fieldValues
   } = useFormStore();
   const [tipsOpen, setTipsOpen] = useState(false);
+  const [exclusionsDismissed, setExclusionsDismissed] = useState(false);
 
-  const handleStateChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newState = e.target.value;
+  const handleStateChange = (newState: string) => {
     const defaultVersion = AAMVA_STATES[newState]?.aamvaVersion || "10";
     setStateVersion(newState, defaultVersion);
+    if (["AS", "GU", "VI", "PR", "MP"].includes(newState)) markBingo("territory");
+    const anyFilled = Object.values(fieldValues).some((v) => (v || "").trim().length > 0);
+    if (anyFilled && newState !== state) markBingo("changed-state");
   };
 
   const handleVersionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -37,6 +48,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileHidden = false }) => {
 
   const fields = getFieldsForStateAndVersion(state, version);
   const defaultVersion = AAMVA_STATES[state]?.aamvaVersion;
+
+  // Only list exclusions the active version actually defines — a field the
+  // version never had is not an exclusion the user needs explaining.
+  const excludedHere = React.useMemo(() => {
+    const excluded = AAMVA_STATE_EXCLUDED_FIELDS[state] ?? [];
+    if (excluded.length === 0) return [];
+    const inVersion = new Set(getFieldsForVersion(version).map((f) => f.code));
+    return excluded.filter((code) => inVersion.has(code));
+  }, [state, version]);
+
   const requiredFields = fields.filter((f) => f.required);
   const requiredCount = requiredFields.length;
   const requiredFilled = requiredFields.filter(
@@ -67,27 +88,35 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileHidden = false }) => {
           >
             State / Territory
           </label>
-          <select
+          <JurisdictionCombobox
             id="state-select"
             value={state}
             onChange={handleStateChange}
-            className="w-full border-gray-300 dark:border-[#555] dark:bg-dark-surface2 dark:text-gray-100 rounded-lg shadow-sm focus:ring-brand-500 focus:border-brand-500 text-sm p-2.5 border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-            aria-label="Select state or territory"
-          >
-            {Object.keys(AAMVA_STATES)
-              .sort()
-              .map((code) => {
-                const meta = AAMVA_STATES[code];
-                if (!meta) return null;
-                const supported = isJurisdictionSupported(code);
-                return (
-                  <option key={code} value={code} disabled={!supported}>
-                    {code} — {meta.name} {!supported ? "(unsupported)" : ""}
-                  </option>
-                );
-              })}
-          </select>
+            recent={recentStates}
+          />
         </div>
+
+        {/* Jurisdiction exclusions — these fields are pruned from the form
+            silently, which reads as a bug unless we say so. */}
+        {excludedHere.length > 0 && !exclusionsDismissed && (
+          <div className="flex items-start gap-2 rounded border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/30 px-2.5 py-2 text-[11px] text-blue-900 dark:text-blue-100">
+            <Info size={13} className="mt-0.5 shrink-0" aria-hidden />
+            <p className="flex-1 leading-snug">
+              <strong>{state}</strong> does not encode {excludedHere.length} field
+              {excludedHere.length === 1 ? "" : "s"} at v{version}:{" "}
+              <span className="font-mono">{excludedHere.join(", ")}</span>. They are hidden from the
+              form and omitted from the payload.
+            </p>
+            <button
+              type="button"
+              onClick={() => setExclusionsDismissed(true)}
+              aria-label="Dismiss exclusion notice"
+              className="shrink-0 text-blue-700 dark:text-blue-300 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded"
+            >
+              OK
+            </button>
+          </div>
+        )}
 
         {/* AAMVA Version */}
         <div>

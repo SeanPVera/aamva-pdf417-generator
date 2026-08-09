@@ -1,6 +1,7 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { X, Upload, GitCompare } from "lucide-react";
 import { useToast } from "./Toast";
+import { useModalShell } from "../hooks/useModalShell";
 
 interface CompareViewProps {
   open: boolean;
@@ -28,26 +29,8 @@ export const CompareView: React.FC<CompareViewProps> = ({ open, onClose }) => {
   const [right, setRight] = useState<PayloadFile | null>(null);
   const leftInputRef = useRef<HTMLInputElement>(null);
   const rightInputRef = useRef<HTMLInputElement>(null);
-  const closeBtnRef = useRef<HTMLButtonElement>(null);
-  const previouslyFocusedRef = useRef<HTMLElement | null>(null);
   const toast = useToast();
-
-  useEffect(() => {
-    if (!open) return;
-    previouslyFocusedRef.current = document.activeElement as HTMLElement | null;
-    closeBtnRef.current?.focus();
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        e.preventDefault();
-        onClose();
-      }
-    };
-    window.addEventListener("keydown", handleKey);
-    return () => {
-      window.removeEventListener("keydown", handleKey);
-      previouslyFocusedRef.current?.focus?.();
-    };
-  }, [open, onClose]);
+  const dialogRef = useModalShell<HTMLDivElement>({ open, onClose });
 
   const handleLoad = async (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -93,12 +76,13 @@ export const CompareView: React.FC<CompareViewProps> = ({ open, onClose }) => {
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="compare-title"
       onClick={onClose}
     >
       <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="compare-title"
         className="w-full max-w-5xl bg-white dark:bg-dark-surface rounded-lg shadow-xl border border-gray-200 dark:border-dark-border max-h-[90vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
@@ -111,7 +95,7 @@ export const CompareView: React.FC<CompareViewProps> = ({ open, onClose }) => {
             Compare Two Payloads
           </h2>
           <button
-            ref={closeBtnRef}
+            data-autofocus
             type="button"
             onClick={onClose}
             aria-label="Close compare view"

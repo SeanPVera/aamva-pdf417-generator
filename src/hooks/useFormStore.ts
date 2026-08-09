@@ -1,6 +1,9 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import type { FieldGroupId } from "../core/schema";
+// Type-only: importing the badge *catalog* here would pull its definitions into
+// the initial chunk, even though only the plaque modal ever renders them.
+import type { BadgeStats } from "../core/badges";
 
 // Persisted state intentionally excludes the AAMVA `fields` payload, so no PII
 // is ever written to disk. Only UI preferences (state, version, strict mode,
@@ -9,9 +12,33 @@ import type { FieldGroupId } from "../core/schema";
 // plaintext localStorage next to the ciphertext, providing no real protection
 // against same-origin access. Plain localStorage is the honest choice.
 
-export type Theme = "light" | "dark" | "dmv";
+/** "system" follows prefers-color-scheme; the rest are explicit overrides. */
+export type Theme = "system" | "light" | "dark" | "dmv";
 
 const HISTORY_LIMIT = 20;
+
+/**
+ * Consecutive edits to the same field inside this window collapse into a single
+ * undo entry. Without it, typing "SAN FRANCISCO" burns 13 of the 20 history
+ * slots and Ctrl+Z can never reach the previous field.
+ */
+export const COALESCE_WINDOW_MS = 600;
+
+/** How many recent jurisdictions the picker keeps at the top. */
+const RECENT_STATES_LIMIT = 5;
+
+/** Fresh decorative counters. Mirrors `EMPTY_BADGE_STATS` in core/badges. */
+const INITIAL_BADGE_STATS: BadgeStats = {
+  visitedStates: [],
+  generated: 0,
+  cleanGenerated: 0,
+  firstTryClean: false,
+  undos: 0,
+  redos: 0,
+  exports: 0,
+  batchRows: 0,
+  nightShift: false
+};
 
 export interface FormState {
   state: string;
@@ -23,17 +50,33 @@ export interface FormState {
   // UI preferences for the form area (persisted, no PII).
   collapsedGroups: Partial<Record<FieldGroupId, boolean>>;
   requiredOnly: boolean;
+  issuesOnly: boolean;
+  // Jurisdiction codes recently selected, most recent first. Not PII.
+  recentStates: string[];
+  // Width of the preview/inspector column in px (desktop only).
+  inspectorWidth: number;
+  // Opt-in: write the cardholder's name into export filenames. Off by default —
+  // a filename is the one place field values would escape the tab.
+  includeNameInExport: boolean;
   // ISO timestamp the user finished or skipped the welcome tour. Empty = never seen.
   tourSeenAt: string;
   // Decorative preferences (persisted). `whimsy` gates all the playful flourishes;
   // `soundOn` gates the synthesized clerk-stamp clicks.
   whimsy: boolean;
   soundOn: boolean;
+  // Decorative counters behind the badge board and bingo card. Counters only —
+  // never field values.
+  badgeStats: BadgeStats;
+  bingoMarked: string[];
+  ticketNumber: number;
   // Last camera the user scanned with, so the scanner reopens on the same one.
   cameraDeviceId: string;
   // undo/redo stacks — not persisted
   _history: Array<Record<string, string>>;
   _future: Array<Record<string, string>>;
+  // Coalescing bookkeeping for `setField` — not persisted.
+  _lastEditCode: string;
+  _lastEditAt: number;
   // Transient diff-highlight signal: which field codes changed in the last bulk
   // load (import / scan / preset) and when. Not persisted.
   _changedCodes: string[];
@@ -45,12 +88,19 @@ export interface FormState {
   setTheme: (theme: Theme) => void;
   toggleGroupCollapsed: (group: FieldGroupId) => void;
   setRequiredOnly: (value: boolean) => void;
+  setIssuesOnly: (value: boolean) => void;
+  setInspectorWidth: (width: number) => void;
+  setIncludeNameInExport: (value: boolean) => void;
   markTourSeen: () => void;
   resetTour: () => void;
   setWhimsy: (value: boolean) => void;
   setSoundOn: (value: boolean) => void;
   setCameraDeviceId: (id: string) => void;
+  recordBadgeEvent: (patch: Partial<BadgeStats>) => void;
+  markBingo: (id: string) => void;
+  resetBingo: () => void;
   clearFields: () => void;
+  restoreFields: (fields: Record<string, string>) => void;
   loadJson: (data: Record<string, string>) => void;
   undo: () => void;
   redo: () => void;
@@ -67,6 +117,11 @@ function diffChangedCodes(prev: Record<string, string>, next: Record<string, str
   return changed;
 }
 
+/** Moves `code` to the front of the recent list, de-duplicated and capped. */
+function promoteRecent(list: string[], code: string): string[] {
+  return [code, ...list.filter((c) => c !== code)].slice(0, RECENT_STATES_LIMIT);
+}
+
 export const useFormStore = create<FormState>()(
   persist(
     (set, get) => ({
@@ -75,29 +130,61 @@ export const useFormStore = create<FormState>()(
       strictMode: true,
       subfileType: "DL",
       fields: {},
-      theme: "dark",
+      theme: "system",
       collapsedGroups: {},
       requiredOnly: false,
+      issuesOnly: false,
+      recentStates: [],
+      inspectorWidth: 320,
+      includeNameInExport: false,
       tourSeenAt: "",
       whimsy: true,
       soundOn: false,
+      badgeStats: { ...INITIAL_BADGE_STATS },
+      bingoMarked: [],
+      ticketNumber: 0,
       cameraDeviceId: "",
       _history: [],
       _future: [],
+      _lastEditCode: "",
+      _lastEditAt: 0,
       _changedCodes: [],
       _changedAt: 0,
 
       setField: (code, value) =>
         set((s) => {
-          const history = [...s._history, s.fields].slice(-HISTORY_LIMIT);
+          const now = Date.now();
+          // Keep typing inside one field as a single undo step, as long as the
+          // keystrokes keep coming and nothing else touched the form.
+          const coalesce =
+            s._lastEditCode === code &&
+            now - s._lastEditAt < COALESCE_WINDOW_MS &&
+            s._history.length > 0;
+          const history = coalesce ? s._history : [...s._history, s.fields].slice(-HISTORY_LIMIT);
           return {
             fields: { ...s.fields, [code]: value },
             _history: history,
-            _future: []
+            _future: [],
+            _lastEditCode: code,
+            _lastEditAt: now
           };
         }),
 
-      setStateVersion: (stateCode, version) => set(() => ({ state: stateCode, version })),
+      setStateVersion: (stateCode, version) =>
+        set((s) => {
+          const visited = s.badgeStats.visitedStates.includes(stateCode)
+            ? s.badgeStats.visitedStates
+            : [...s.badgeStats.visitedStates, stateCode];
+          return {
+            state: stateCode,
+            version,
+            recentStates: promoteRecent(s.recentStates, stateCode),
+            badgeStats: { ...s.badgeStats, visitedStates: visited },
+            // A jurisdiction switch is a deliberate break in the edit stream.
+            _lastEditCode: "",
+            _lastEditAt: 0
+          };
+        }),
 
       setStrictMode: (mode) => set({ strictMode: mode }),
 
@@ -112,6 +199,13 @@ export const useFormStore = create<FormState>()(
 
       setRequiredOnly: (value) => set({ requiredOnly: value }),
 
+      setIssuesOnly: (value) => set({ issuesOnly: value }),
+
+      setInspectorWidth: (width) =>
+        set({ inspectorWidth: Math.max(280, Math.min(720, Math.round(width))) }),
+
+      setIncludeNameInExport: (value) => set({ includeNameInExport: value }),
+
       markTourSeen: () => set({ tourSeenAt: new Date().toISOString() }),
 
       resetTour: () => set({ tourSeenAt: "" }),
@@ -122,11 +216,40 @@ export const useFormStore = create<FormState>()(
 
       setCameraDeviceId: (id) => set({ cameraDeviceId: id }),
 
+      recordBadgeEvent: (patch) =>
+        set((s) => ({
+          badgeStats: { ...s.badgeStats, ...patch },
+          ticketNumber:
+            patch.generated !== undefined && patch.generated > s.badgeStats.generated
+              ? s.ticketNumber + 1
+              : s.ticketNumber
+        })),
+
+      markBingo: (id) =>
+        set((s) => (s.bingoMarked.includes(id) ? s : { bingoMarked: [...s.bingoMarked, id] })),
+
+      resetBingo: () => set({ bingoMarked: [] }),
+
       clearFields: () =>
         set((s) => ({
           fields: {},
           _history: [...s._history, s.fields].slice(-HISTORY_LIMIT),
-          _future: []
+          _future: [],
+          _lastEditCode: "",
+          _lastEditAt: 0
+        })),
+
+      // Used by the Undo action on the "cleared"/"preset applied" toasts, which
+      // restore a specific snapshot rather than walking the history stack.
+      restoreFields: (fields) =>
+        set((s) => ({
+          fields,
+          _history: [...s._history, s.fields].slice(-HISTORY_LIMIT),
+          _future: [],
+          _lastEditCode: "",
+          _lastEditAt: 0,
+          _changedCodes: diffChangedCodes(s.fields, fields),
+          _changedAt: Date.now()
         })),
 
       loadJson: (data) =>
@@ -136,12 +259,17 @@ export const useFormStore = create<FormState>()(
             Object.entries(rest).map(([k, v]) => [k, String(v)])
           );
           const history = [...s._history, s.fields].slice(-HISTORY_LIMIT);
+          const nextState = newState || s.state;
           return {
-            state: newState || s.state,
+            state: nextState,
             version: version || s.version,
+            recentStates:
+              nextState === s.state ? s.recentStates : promoteRecent(s.recentStates, nextState),
             fields: newFields,
             _history: history,
             _future: [],
+            _lastEditCode: "",
+            _lastEditAt: 0,
             _changedCodes: diffChangedCodes(s.fields, newFields),
             _changedAt: Date.now()
           };
@@ -153,7 +281,14 @@ export const useFormStore = create<FormState>()(
           const prev = s._history[s._history.length - 1];
           const history = s._history.slice(0, -1);
           const future = [s.fields, ...s._future].slice(0, HISTORY_LIMIT);
-          return { fields: prev, _history: history, _future: future };
+          return {
+            fields: prev,
+            _history: history,
+            _future: future,
+            _lastEditCode: "",
+            _lastEditAt: 0,
+            badgeStats: { ...s.badgeStats, undos: s.badgeStats.undos + 1 }
+          };
         }),
 
       redo: () =>
@@ -162,7 +297,14 @@ export const useFormStore = create<FormState>()(
           const next = s._future[0];
           const future = s._future.slice(1);
           const history = [...s._history, s.fields].slice(-HISTORY_LIMIT);
-          return { fields: next, _history: history, _future: future };
+          return {
+            fields: next,
+            _history: history,
+            _future: future,
+            _lastEditCode: "",
+            _lastEditAt: 0,
+            badgeStats: { ...s.badgeStats, redos: s.badgeStats.redos + 1 }
+          };
         }),
 
       canUndo: () => get()._history.length > 0,
@@ -181,9 +323,16 @@ export const useFormStore = create<FormState>()(
         theme: s.theme,
         collapsedGroups: s.collapsedGroups,
         requiredOnly: s.requiredOnly,
+        issuesOnly: s.issuesOnly,
+        recentStates: s.recentStates,
+        inspectorWidth: s.inspectorWidth,
+        includeNameInExport: s.includeNameInExport,
         tourSeenAt: s.tourSeenAt,
         whimsy: s.whimsy,
         soundOn: s.soundOn,
+        badgeStats: s.badgeStats,
+        bingoMarked: s.bingoMarked,
+        ticketNumber: s.ticketNumber,
         cameraDeviceId: s.cameraDeviceId
       })
     }

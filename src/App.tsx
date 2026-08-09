@@ -2,15 +2,16 @@ import React from "react";
 import { SearchX } from "lucide-react";
 import { Sidebar } from "./components/Sidebar";
 import { Header } from "./components/Header";
-import { ShortcutsModal } from "./components/ShortcutsModal";
-import { CompareView } from "./components/CompareView";
+// Static on purpose: the tour auto-opens on first load. Behind React.lazy it
+// mounted *after* the page was already interactive, dropping an aria-modal
+// dialog over a usable page — which also hides everything outside it from the
+// accessibility tree. The bundle saving is not worth that.
 import { WelcomeTour } from "./components/WelcomeTour";
 import { FieldInput } from "./components/FieldInput";
 import { FieldGroup } from "./components/FieldGroup";
 import { FieldFilters } from "./components/FieldFilters";
 import { describeActiveFilters } from "./components/filterSummary";
 import { DropZoneOverlay } from "./components/DropZoneOverlay";
-import { ClerkMascot } from "./components/ClerkMascot";
 import { useToast } from "./components/Toast";
 import { useFormStore } from "./hooks/useFormStore";
 import {
@@ -21,6 +22,7 @@ import {
   type FieldGroupId
 } from "./core/schema";
 import { getValidationIssues } from "./core/validation";
+import { getFieldHelp } from "./core/fieldHelp";
 import { applyStateThemeToDocument } from "./core/stateThemes";
 import {
   generateStateDiscriminator,
@@ -31,6 +33,7 @@ import { buildSampleFill } from "./core/sampleFiller";
 import { useSwipe } from "./hooks/useSwipe";
 import { useClickClack } from "./hooks/useClickClack";
 import { useKonami } from "./hooks/useKonami";
+import { usePayload } from "./hooks/usePayload";
 
 const MOBILE_PANELS = ["config", "form", "preview"] as const;
 type MobilePanel = (typeof MOBILE_PANELS)[number];
@@ -46,11 +49,38 @@ const BarcodePreview = React.lazy(() =>
 const BatchProcessor = React.lazy(() =>
   import("./components/BatchProcessor").then((module) => ({ default: module.BatchProcessor }))
 );
+// Modals that only ever appear on an explicit click. Keeping them out of the
+// initial chunk holds the first-paint JS inside its size budget.
+const ShortcutsModal = React.lazy(() =>
+  import("./components/ShortcutsModal").then((module) => ({ default: module.ShortcutsModal }))
+);
+const CompareView = React.lazy(() =>
+  import("./components/CompareView").then((module) => ({ default: module.CompareView }))
+);
+const EmployeeOfTheMonth = React.lazy(() =>
+  import("./components/EmployeeOfTheMonth").then((module) => ({
+    default: module.EmployeeOfTheMonth
+  }))
+);
+const DmvBingo = React.lazy(() =>
+  import("./components/DmvBingo").then((module) => ({ default: module.DmvBingo }))
+);
+// Decorative and gated behind the whimsy preference — never part of first paint,
+// and nothing blocks on them appearing.
+const TicketDispenser = React.lazy(() =>
+  import("./components/TicketDispenser").then((module) => ({ default: module.TicketDispenser }))
+);
+const ClerkMascot = React.lazy(() =>
+  import("./components/ClerkMascot").then((module) => ({ default: module.ClerkMascot }))
+);
 
 function App() {
   const [isScanning, setIsScanning] = React.useState(false);
   const [shortcutsOpen, setShortcutsOpen] = React.useState(false);
   const [compareOpen, setCompareOpen] = React.useState(false);
+  const [batchOpen, setBatchOpen] = React.useState(false);
+  const [badgesOpen, setBadgesOpen] = React.useState(false);
+  const [bingoOpen, setBingoOpen] = React.useState(false);
   const [tourOpen, setTourOpen] = React.useState(false);
   const [mobilePanel, setMobilePanel] = React.useState<MobilePanel>("form");
 
@@ -82,10 +112,17 @@ function App() {
     toggleGroupCollapsed,
     requiredOnly,
     setRequiredOnly,
+    issuesOnly,
+    setIssuesOnly,
     tourSeenAt,
     markTourSeen,
     whimsy,
     soundOn,
+    badgeStats,
+    recordBadgeEvent,
+    bingoMarked,
+    markBingo,
+    resetBingo,
     _changedAt,
     _changedCodes
   } = useFormStore();
@@ -96,24 +133,46 @@ function App() {
   const handleResetFilters = React.useCallback(() => {
     setSearchQuery("");
     setRequiredOnly(false);
-  }, [setRequiredOnly]);
+    setIssuesOnly(false);
+  }, [setRequiredOnly, setIssuesOnly]);
   const playClack = useClickClack(soundOn && whimsy);
   const copyTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const schemaFields = getFieldsForStateAndVersion(state, version);
   const toast = useToast();
+
+  // One source of truth for the generated payload — the preview renders it and
+  // the keyboard shortcuts read it, instead of scraping the rendered DOM.
+  const { payload, error: payloadError, stale: payloadStale } = usePayload();
+  const exportPngRef = React.useRef<(() => void) | null>(null);
+  const handleRegisterExportPng = React.useCallback((fn: (() => void) | null) => {
+    exportPngRef.current = fn;
+  }, []);
+
+  // Single source of validation truth for the mobile tab badges, the issue
+  // filter, and the clerk mascot.
+  const issues = React.useMemo(
+    () => getValidationIssues(schemaFields, { ...fields, DAJ: state }, state, strictMode),
+    [schemaFields, fields, state, strictMode]
+  );
+  const errorCount = issues.filter((i) => i.severity === "error").length;
+  const issueCodes = React.useMemo(() => new Set(issues.map((i) => i.code)), [issues]);
 
   const normalizedQuery = searchQuery.trim().toLowerCase();
   const visibleFields = React.useMemo(
     () =>
       schemaFields.filter((f) => {
         if (requiredOnly && !f.required) return false;
+        if (issuesOnly && !issueCodes.has(f.code)) return false;
         if (!normalizedQuery) return true;
-        return (
-          f.code.toLowerCase().includes(normalizedQuery) ||
-          f.label.toLowerCase().includes(normalizedQuery)
-        );
+        // Search reaches the help text and the group label too — "donor",
+        // "REAL ID", and "truncation" all appear there and nowhere else.
+        const group = AAMVA_FIELD_GROUPS.find((g) => g.id === getFieldGroup(f.code));
+        const haystack = [f.code, f.label, getFieldHelp(f.code) ?? "", group?.label ?? ""]
+          .join(" ")
+          .toLowerCase();
+        return haystack.includes(normalizedQuery);
       }),
-    [schemaFields, requiredOnly, normalizedQuery]
+    [schemaFields, requiredOnly, issuesOnly, issueCodes, normalizedQuery]
   );
 
   const fieldsByGroup = React.useMemo(() => {
@@ -138,15 +197,6 @@ function App() {
 
   const isFieldFilled = (code: string) => (fields[code] || "").trim().length > 0;
 
-  // Single source of validation truth for the mobile tab badges and the clerk
-  // mascot. BarcodePreview keeps its own report for the payload-specific view.
-  const errorCount = React.useMemo(
-    () =>
-      getValidationIssues(schemaFields, { ...fields, DAJ: state }, state, strictMode).filter(
-        (i) => i.severity === "error"
-      ).length,
-    [schemaFields, fields, state, strictMode]
-  );
   const anyFields = React.useMemo(
     () => Object.values(fields).some((v) => (v || "").trim().length > 0),
     [fields]
@@ -154,21 +204,38 @@ function App() {
   const requiredComplete = requiredTotal > 0 && requiredFilled === requiredTotal;
   const previewReady = anyFields && errorCount === 0 && requiredComplete;
 
-  // Apply global theme + state palette to <html> element
+  // Field values are never persisted (see useFormStore) — which is the right
+  // privacy call, but it also means a refresh or an accidental window close
+  // discards a hand-typed form with no warning. Ask first.
+  React.useEffect(() => {
+    if (!anyFields) return;
+    const onBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      // Browsers show their own copy; a non-empty returnValue is the opt-in.
+      e.returnValue = "";
+      return "";
+    };
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => window.removeEventListener("beforeunload", onBeforeUnload);
+  }, [anyFields]);
+
+  // Apply global theme + state palette to <html> element. "system" follows the
+  // OS rather than forcing dark on every first-time visitor.
   React.useEffect(() => {
     const html = document.documentElement;
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
 
-    if (theme === "dark") {
-      html.classList.add("dark");
-    } else {
-      html.classList.remove("dark");
-    }
+    const apply = () => {
+      const wantsDark = theme === "dark" || (theme === "system" && media.matches);
+      html.classList.toggle("dark", wantsDark);
+      if (theme === "dmv") html.setAttribute("data-theme", "dmv");
+      else html.removeAttribute("data-theme");
+    };
 
-    if (theme === "dmv") {
-      html.setAttribute("data-theme", "dmv");
-    } else {
-      html.removeAttribute("data-theme");
-    }
+    apply();
+    if (theme !== "system") return;
+    media.addEventListener?.("change", apply);
+    return () => media.removeEventListener?.("change", apply);
   }, [theme]);
 
   // Apply the jurisdiction-specific palette whenever the selected state
@@ -177,6 +244,16 @@ function App() {
   React.useEffect(() => {
     applyStateThemeToDocument(state);
   }, [state]);
+
+  // Night shift badge — checked once per session.
+  React.useEffect(() => {
+    const hour = new Date().getHours();
+    if (hour < 4 && !badgeStats.nightShift) {
+      recordBadgeEvent({ nightShift: true });
+      markBingo("night-owl");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // The tour is visible either because the user has never seen it OR they
   // explicitly chose to replay it. Closing it both hides it and persists the
@@ -196,6 +273,7 @@ function App() {
   // Konami code → DMV disco. Cosmetic; gated behind the whimsy preference.
   useKonami(() => {
     if (!whimsy) return;
+    markBingo("konami");
     setParty((p) => {
       const next = !p;
       toast.success(next ? "🪩 DMV disco mode engaged!" : "Back to business.");
@@ -227,6 +305,7 @@ function App() {
     for (const group of AAMVA_FIELD_GROUPS) {
       if (!collapsedGroups[group.id]) toggleGroupCollapsed(group.id);
     }
+    markBingo("collapsed-all");
   };
   const handleExpandAll = () => {
     for (const group of AAMVA_FIELD_GROUPS) {
@@ -235,8 +314,10 @@ function App() {
   };
 
   const handleGenerate = (code: string) => {
-    if (code === "DCF") handleChange(code, generateStateDiscriminator(state));
-    else if (code === "DAQ") handleChange(code, generateStateLicenseNumber(state));
+    if (code === "DCF") {
+      handleChange(code, generateStateDiscriminator(state));
+      markBingo("regenerated-dd");
+    } else if (code === "DAQ") handleChange(code, generateStateLicenseNumber(state));
     else if (code === "DDB")
       handleChange(code, generateStateCardRevisionDate(state, fields["DBD"]) || "");
   };
@@ -263,13 +344,15 @@ function App() {
     else toast.success(`Generated ${count} auto field${count === 1 ? "" : "s"}.`);
   };
 
+  // Reads the payload the app already generated rather than hunting for a
+  // textarea that the Raw Payload section unmounts when collapsed.
   const handleCopyPayload = async () => {
-    const el = document.querySelector<HTMLTextAreaElement>(
-      "textarea[aria-label='Raw AAMVA payload string']"
-    );
-    const payload = el?.value;
+    if (payloadStale) {
+      toast.info("Still encoding — try again in a moment.");
+      return;
+    }
     if (!payload) {
-      toast.error("No payload to copy yet.");
+      toast.error(payloadError ?? "No payload to copy yet.");
       return;
     }
     try {
@@ -281,10 +364,14 @@ function App() {
   };
 
   const handleExportPNGShortcut = () => {
-    const btn = document.querySelector<HTMLButtonElement>(
-      "button[aria-label='Export barcode as PNG']"
-    );
-    if (btn && !btn.disabled) btn.click();
+    const run = exportPngRef.current;
+    if (!run) {
+      toast.info(
+        payloadStale ? "Still encoding — try again in a moment." : "No barcode to export."
+      );
+      return;
+    }
+    run();
   };
 
   // Dev-only convenience: fill the form with valid sample values so we can
@@ -317,38 +404,48 @@ function App() {
     toast.info(`Reset ${code}`);
   };
 
-  const handleScrollToField = (code: string) => {
-    // On mobile, the form column may be hidden — switch to it first.
-    setMobilePanel("form");
-    // Expand the field's group so the input becomes reachable.
-    const group = getFieldGroup(code);
-    if (collapsedGroups[group]) toggleGroupCollapsed(group);
-    // If the required-only filter is hiding this field, drop it.
-    const fieldDef = schemaFields.find((f) => f.code === code);
-    if (fieldDef && requiredOnly && !fieldDef.required) setRequiredOnly(false);
-    // Clear the search query if it's filtering this field out.
-    const q = searchQuery.trim().toLowerCase();
-    if (q && !(code.toLowerCase().includes(q) || fieldDef?.label.toLowerCase().includes(q))) {
-      setSearchQuery("");
-    }
-    // Defer to allow the panel to become visible.
-    requestAnimationFrame(() => {
-      const el = document.getElementById(code);
-      if (!el) return;
-      el.scrollIntoView({ behavior: "smooth", block: "center" });
-      try {
-        el.focus({ preventScroll: true });
-      } catch {
-        el.focus();
+  const handleScrollToField = React.useCallback(
+    (code: string) => {
+      // On mobile, the form column may be hidden — switch to it first.
+      setMobilePanel("form");
+      // Expand the field's group so the input becomes reachable.
+      const group = getFieldGroup(code);
+      if (collapsedGroups[group]) toggleGroupCollapsed(group);
+      // If the required-only filter is hiding this field, drop it.
+      const fieldDef = schemaFields.find((f) => f.code === code);
+      if (fieldDef && requiredOnly && !fieldDef.required) setRequiredOnly(false);
+      // Clear the search query if it's filtering this field out.
+      const q = searchQuery.trim().toLowerCase();
+      if (q && !(code.toLowerCase().includes(q) || fieldDef?.label.toLowerCase().includes(q))) {
+        setSearchQuery("");
       }
-      // Flash the field briefly so the user can see where they landed.
-      el.classList.remove("field-flash");
-      // Force reflow so the animation re-runs even if the class was just removed.
-      void el.offsetWidth;
-      el.classList.add("field-flash");
-      window.setTimeout(() => el.classList.remove("field-flash"), 1200);
-    });
-  };
+      // Defer to allow the panel to become visible.
+      requestAnimationFrame(() => {
+        const el = document.getElementById(code);
+        if (!el) return;
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        try {
+          el.focus({ preventScroll: true });
+        } catch {
+          el.focus();
+        }
+        // Flash the field briefly so the user can see where they landed.
+        el.classList.remove("field-flash");
+        // Force reflow so the animation re-runs even if the class was just removed.
+        void el.offsetWidth;
+        el.classList.add("field-flash");
+        window.setTimeout(() => el.classList.remove("field-flash"), 1200);
+      });
+    },
+    [
+      collapsedGroups,
+      toggleGroupCollapsed,
+      schemaFields,
+      requiredOnly,
+      setRequiredOnly,
+      searchQuery
+    ]
+  );
 
   const nextEmptyRequiredCode = React.useMemo(
     () => requiredFields.find((f) => !isFieldFilled(f.code))?.code,
@@ -361,19 +458,36 @@ function App() {
     if (nextEmptyRequiredCode) handleScrollToField(nextEmptyRequiredCode);
   };
 
+  // F8 / Shift+F8 walk the issue list without leaving the keyboard.
+  const issueCursorRef = React.useRef(0);
+  const stepIssue = React.useCallback(
+    (delta: 1 | -1) => {
+      if (issues.length === 0) {
+        toast.info("No validation issues.");
+        return;
+      }
+      issueCursorRef.current = (issueCursorRef.current + delta + issues.length) % issues.length;
+      const issue = issues[issueCursorRef.current];
+      if (issue) handleScrollToField(issue.code);
+    },
+    [issues, handleScrollToField, toast]
+  );
+
   // Keyboard shortcuts (see ShortcutsModal for the user-facing list). Handlers
   // are routed through a ref so the global keydown listener doesn't need to
   // re-bind on every keystroke that touches store state.
   const shortcutHandlersRef = React.useRef({
     handleGenerateAllAuto,
     handleCopyPayload,
-    handleExportPNGShortcut
+    handleExportPNGShortcut,
+    stepIssue
   });
   React.useEffect(() => {
     shortcutHandlersRef.current = {
       handleGenerateAllAuto,
       handleCopyPayload,
-      handleExportPNGShortcut
+      handleExportPNGShortcut,
+      stepIssue
     };
   });
 
@@ -390,6 +504,12 @@ function App() {
       if (e.key === "?" && !isTyping) {
         e.preventDefault();
         setShortcutsOpen(true);
+        return;
+      }
+
+      if (e.key === "F8") {
+        e.preventDefault();
+        shortcutHandlersRef.current.stepIssue(e.shiftKey ? -1 : 1);
         return;
       }
 
@@ -423,6 +543,22 @@ function App() {
     return () => window.removeEventListener("keydown", handleKey);
   }, [undo, redo, canUndo, canRedo]);
 
+  const handleGenerated = React.useCallback(
+    (clean: boolean) => {
+      const isFirst = badgeStats.generated === 0;
+      recordBadgeEvent({
+        generated: badgeStats.generated + 1,
+        cleanGenerated: badgeStats.cleanGenerated + (clean ? 1 : 0),
+        firstTryClean: badgeStats.firstTryClean || (isFirst && clean)
+      });
+    },
+    [badgeStats, recordBadgeEvent]
+  );
+
+  const handleExported = React.useCallback(() => {
+    recordBadgeEvent({ exports: badgeStats.exports + 1 });
+  }, [badgeStats.exports, recordBadgeEvent]);
+
   return (
     <div
       className={`app-shell flex flex-col min-h-screen bg-white dark:bg-[#121212] text-gray-900 dark:text-gray-200 font-sans${
@@ -432,7 +568,13 @@ function App() {
       <Header
         onStartScan={() => setIsScanning(true)}
         onOpenShortcuts={() => setShortcutsOpen(true)}
-        onOpenCompare={() => setCompareOpen(true)}
+        onOpenCompare={() => {
+          markBingo("compared");
+          setCompareOpen(true);
+        }}
+        onOpenBatch={() => setBatchOpen(true)}
+        onOpenBadges={() => setBadgesOpen(true)}
+        onOpenBingo={() => setBingoOpen(true)}
       />
 
       <nav
@@ -492,24 +634,36 @@ function App() {
         <Sidebar mobileHidden={mobilePanel !== "config"} />
 
         <div
-          className={`dmv-main flex-1 flex flex-col overflow-y-auto bg-white dark:bg-[#1E1E1E] m-2 lg:m-4 rounded-xl shadow-google dark:shadow-none border border-gray-200 dark:border-[#333333] min-h-[40vh] ${
+          className={`dmv-main flex-1 flex flex-col overflow-y-auto bg-white dark:bg-[#1E1E1E] m-2 lg:m-4 rounded-xl shadow-google dark:shadow-none border border-gray-200 dark:border-[#333333] min-h-[40vh] min-w-0 ${
             mobilePanel !== "form" ? "hidden lg:flex" : "flex"
           }`}
         >
-          <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
-              Payload Fields
-            </h2>
-            <div className="text-sm text-gray-500 dark:text-gray-400 font-medium">
+          <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
+                Payload Fields
+              </h2>
+              <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">
+                Field values stay in memory only — never written to disk. Export JSON to keep a
+                copy.
+              </p>
+            </div>
+            <div className="text-sm text-gray-500 dark:text-gray-400 font-medium shrink-0">
               AAMVA Version {version} &bull; {state}
             </div>
           </div>
 
           <FieldFilters
             query={searchQuery}
-            onQueryChange={setSearchQuery}
+            onQueryChange={(value) => {
+              setSearchQuery(value);
+              if (value.trim()) markBingo("searched-fields");
+            }}
             requiredOnly={requiredOnly}
             onRequiredOnlyChange={setRequiredOnly}
+            issuesOnly={issuesOnly}
+            onIssuesOnlyChange={setIssuesOnly}
+            issueCount={issues.length}
             matchCount={visibleFields.length}
             totalCount={schemaFields.length}
             requiredFilled={requiredFilled}
@@ -536,7 +690,7 @@ function App() {
                   No fields found
                 </h3>
                 <p className="mb-4 max-w-sm text-xs text-gray-600 dark:text-gray-400">
-                  {describeActiveFilters(searchQuery, requiredOnly)}
+                  {describeActiveFilters(searchQuery, requiredOnly, issuesOnly, issues.length)}
                 </p>
                 <button
                   type="button"
@@ -575,10 +729,12 @@ function App() {
                         state={state}
                         strictMode={strictMode}
                         copied={copiedField === field.code}
+                        whimsy={whimsy}
                         onChange={handleChange}
                         onCopy={handleCopyField}
                         onReset={handleResetField}
                         onGenerate={handleGenerate}
+                        onHelpOpened={() => markBingo("read-the-help")}
                         onDisableStrict={() => {
                           setStrictMode(false);
                           toast.info("Strict mode disabled");
@@ -590,11 +746,6 @@ function App() {
               })
             )}
           </div>
-          <div className="mt-auto">
-            <React.Suspense fallback={null}>
-              <BatchProcessor />
-            </React.Suspense>
-          </div>
         </div>
 
         <React.Suspense fallback={null}>
@@ -602,6 +753,13 @@ function App() {
             mobileHidden={mobilePanel !== "preview"}
             onScrollToField={handleScrollToField}
             whimsy={whimsy}
+            payload={payload}
+            error={payloadError}
+            stale={payloadStale}
+            onRegisterExportPng={handleRegisterExportPng}
+            onExported={handleExported}
+            onGenerated={handleGenerated}
+            onBingo={markBingo}
           />
         </React.Suspense>
       </main>
@@ -612,23 +770,70 @@ function App() {
         </React.Suspense>
       )}
 
-      <ShortcutsModal
-        open={shortcutsOpen}
-        onClose={() => setShortcutsOpen(false)}
-        onReplayTour={() => {
-          setShortcutsOpen(false);
-          setTourOpen(true);
-        }}
-      />
-      <CompareView open={compareOpen} onClose={() => setCompareOpen(false)} />
+      {batchOpen && (
+        <React.Suspense fallback={null}>
+          <BatchProcessor open={batchOpen} onClose={() => setBatchOpen(false)} />
+        </React.Suspense>
+      )}
+
+      {shortcutsOpen && (
+        <React.Suspense fallback={null}>
+          <ShortcutsModal
+            open={shortcutsOpen}
+            onClose={() => setShortcutsOpen(false)}
+            onReplayTour={() => {
+              setShortcutsOpen(false);
+              setTourOpen(true);
+            }}
+          />
+        </React.Suspense>
+      )}
+      {compareOpen && (
+        <React.Suspense fallback={null}>
+          <CompareView open={compareOpen} onClose={() => setCompareOpen(false)} />
+        </React.Suspense>
+      )}
       <WelcomeTour open={showTour} onClose={handleCloseTour} />
+      {badgesOpen && (
+        <React.Suspense fallback={null}>
+          <EmployeeOfTheMonth
+            open={badgesOpen}
+            onClose={() => setBadgesOpen(false)}
+            stats={badgeStats}
+          />
+        </React.Suspense>
+      )}
+      {bingoOpen && (
+        <React.Suspense fallback={null}>
+          <DmvBingo
+            open={bingoOpen}
+            onClose={() => setBingoOpen(false)}
+            marked={bingoMarked}
+            onReset={resetBingo}
+          />
+        </React.Suspense>
+      )}
       <DropZoneOverlay />
-      <ClerkMascot
-        enabled={whimsy}
-        errorCount={errorCount}
-        requiredComplete={requiredComplete}
-        anyFields={anyFields}
-      />
+      {whimsy && (
+        <React.Suspense fallback={null}>
+          <TicketDispenser
+            enabled={whimsy}
+            served={badgeStats.generated}
+            onTakeTicket={() => markBingo("took-a-number")}
+          />
+        </React.Suspense>
+      )}
+      {whimsy && (
+        <React.Suspense fallback={null}>
+          <ClerkMascot
+            enabled={whimsy}
+            errorCount={errorCount}
+            requiredComplete={requiredComplete}
+            anyFields={anyFields}
+            onDismiss={() => markBingo("dismissed-gus")}
+          />
+        </React.Suspense>
+      )}
     </div>
   );
 }
