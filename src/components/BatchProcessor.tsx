@@ -132,6 +132,39 @@ function downloadBlob(blob: Blob, filename: string): void {
   URL.revokeObjectURL(url);
 }
 
+function addBarcodeToPdf(
+  pdf: jsPDF,
+  canvas: HTMLCanvasElement,
+  row: BatchEntry,
+  index: number,
+  pagesAdded: number,
+  contentWidthPt: number,
+  contentHeightPt: number,
+  marginPt: number
+): void {
+  let { widthPt, heightPt } = canvasToPdfDimensions(canvas.width, canvas.height, contentWidthPt);
+
+  // Clamp height so a tall barcode never overflows the page.
+  if (heightPt > contentHeightPt) {
+    const s = contentHeightPt / heightPt;
+    heightPt = contentHeightPt;
+    widthPt *= s;
+  }
+
+  if (pagesAdded > 0) pdf.addPage();
+
+  pdf.setFontSize(10);
+  pdf.setTextColor(60, 60, 60);
+  pdf.text(
+    `Barcode ${index + 1} — ${row.state} v${row.version} (${row.subfileType ?? "DL"})`,
+    marginPt,
+    marginPt - 6
+  );
+
+  // Use canvas directly for jsPDF addImage to avoid toDataURL base64 overhead
+  pdf.addImage(canvas, "PNG", marginPt, marginPt, widthPt, heightPt);
+}
+
 interface BatchProcessorProps {
   open: boolean;
   onClose: () => void;
@@ -229,6 +262,8 @@ export const BatchProcessor: React.FC<BatchProcessorProps> = ({ open, onClose })
       const pdf = new jsPDF({ unit: "pt", format: "a4" });
       let pagesAdded = 0;
 
+      const sharedCanvas = document.createElement("canvas");
+
       setProgress({ done: 0, total: entries.length });
 
       for (let i = 0; i < entries.length; i++) {
@@ -255,37 +290,25 @@ export const BatchProcessor: React.FC<BatchProcessorProps> = ({ open, onClose })
             subfileType: row.subfileType || "DL"
           });
 
-          const canvas = document.createElement("canvas");
-          bwipjs.toCanvas(canvas, {
+          bwipjs.toCanvas(sharedCanvas, {
             ...PDF417_ENCODER_OPTIONS,
             scale: BATCH_SCALE,
             text: payload
           });
 
-          const imgData = canvas.toDataURL("image/png");
-          let { widthPt, heightPt } = canvasToPdfDimensions(
-            canvas.width,
-            canvas.height,
-            CONTENT_WIDTH_PT
-          );
-          // Clamp height so a tall barcode never overflows the page.
-          if (heightPt > CONTENT_HEIGHT_PT) {
-            const s = CONTENT_HEIGHT_PT / heightPt;
-            heightPt = CONTENT_HEIGHT_PT;
-            widthPt *= s;
-          }
+          const imgData = sharedCanvas.toDataURL("image/png");
 
-          if (pagesAdded > 0) pdf.addPage();
+          addBarcodeToPdf(
+            pdf,
+            sharedCanvas,
+            row as BatchEntry,
+            i,
+            pagesAdded,
+            CONTENT_WIDTH_PT,
+            CONTENT_HEIGHT_PT,
+            MARGIN_PT
+          );
           pagesAdded++;
-
-          pdf.setFontSize(10);
-          pdf.setTextColor(60, 60, 60);
-          pdf.text(
-            `Barcode ${i + 1} — ${row.state} v${row.version} (${row.subfileType ?? "DL"})`,
-            MARGIN_PT,
-            MARGIN_PT - 6
-          );
-          pdf.addImage(imgData, "PNG", MARGIN_PT, MARGIN_PT, widthPt, heightPt);
 
           results.push({ ...meta, ok: true, error: "", png: imgData });
         } catch (err) {
