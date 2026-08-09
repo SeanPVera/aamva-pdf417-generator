@@ -134,8 +134,8 @@ export const FieldInput: React.FC<FieldInputProps> = ({
           {helpText}
         </div>
       )}
-      {field.options ? (
-        <div className="relative">
+      <div className="relative flex">
+        {field.options ? (
           <select
             id={field.code}
             value={value}
@@ -143,7 +143,7 @@ export const FieldInput: React.FC<FieldInputProps> = ({
             aria-required={field.required}
             aria-invalid={hasError}
             aria-describedby={showAdvisory ? errorId : undefined}
-            className={finalClass + (value ? "" : " text-transparent")}
+            className={`${finalClass} ${value ? "" : "text-transparent"} flex-1`}
           >
             <option value="" disabled className="text-gray-500 dark:text-gray-400">
               Select...
@@ -158,95 +158,48 @@ export const FieldInput: React.FC<FieldInputProps> = ({
               </option>
             ))}
           </select>
-          <label
-            htmlFor={field.code}
-            className={labelClass.replace(
-              "transform top-4",
-              "transform -translate-y-3 scale-75 top-4"
-            )}
-          >
-            {field.code} — {field.label} {field.required && <span className="text-red-500">*</span>}
-          </label>
-        </div>
-      ) : field.type === "date" ? (
-        <div className="relative flex">
+        ) : (
           <input
             type="text"
             id={field.code}
             value={value}
             placeholder={field.dateFormat || " "}
             onChange={(e) => onChange(field.code, e.target.value)}
-            maxLength={AAMVA_FIELD_LIMITS[field.code] || 8}
+            maxLength={
+              field.type === "date"
+                ? AAMVA_FIELD_LIMITS[field.code] || 8
+                : AAMVA_FIELD_LIMITS[field.code]
+            }
             aria-required={field.required}
             aria-invalid={hasError}
             aria-describedby={showAdvisory ? errorId : undefined}
-            className={`${finalClass} float-label-input`}
+            className={`${finalClass} float-label-input flex-1`}
           />
-          <label
-            htmlFor={field.code}
-            className={labelClass.replace(
-              "transform top-4",
-              "transform -translate-y-3 scale-75 top-4"
-            )}
-          >
-            {field.code} — {field.label} {field.required && <span className="text-red-500">*</span>}
-          </label>
+        )}
+
+        <label
+          htmlFor={field.code}
+          className={labelClass.replace(
+            "transform top-4",
+            "transform -translate-y-3 scale-75 top-4"
+          )}
+        >
+          {field.code} — {field.label} {field.required && <span className="text-red-500">*</span>}
+        </label>
+
+        {!field.options && (
           <div className="absolute right-1.5 top-2 bottom-2 flex gap-1 z-20">
-            {field.code === "DDB" && (
+            {(field.code === "DDB" || field.code === "DCF" || field.code === "DAQ") && (
               <button
                 type="button"
                 onClick={() => onGenerate(field.code)}
                 className="text-xs font-medium bg-gray-200 hover:bg-gray-300 dark:bg-[#444] dark:hover:bg-[#555] rounded px-2 text-gray-700 dark:text-gray-200 transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-                title="Generate Card Revision Date"
-                aria-label="Generate Card Revision Date"
-              >
-                Gen
-              </button>
-            )}
-            {isResettable && value && (
-              <button
-                type="button"
-                onClick={() => onReset(field.code)}
-                aria-label={`Reset ${field.code}`}
-                title={`Reset ${field.code}`}
-                className="flex items-center justify-center w-5 bg-gray-200 hover:bg-red-100 dark:bg-[#444] dark:hover:bg-red-900/40 rounded text-gray-700 hover:text-red-600 dark:text-gray-200 dark:hover:text-red-400 transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-              >
-                <XIcon size={11} />
-              </button>
-            )}
-          </div>
-        </div>
-      ) : (
-        <div className="relative flex">
-          <input
-            type="text"
-            id={field.code}
-            value={value}
-            placeholder={field.dateFormat || " "}
-            onChange={(e) => onChange(field.code, e.target.value)}
-            maxLength={AAMVA_FIELD_LIMITS[field.code]}
-            aria-required={field.required}
-            aria-invalid={hasError}
-            aria-describedby={showAdvisory ? errorId : undefined}
-            className={`${finalClass} float-label-input`}
-          />
-          <label
-            htmlFor={field.code}
-            className={labelClass.replace(
-              "transform top-4",
-              "transform -translate-y-3 scale-75 top-4"
-            )}
-          >
-            {field.code} — {field.label} {field.required && <span className="text-red-500">*</span>}
-          </label>
-          <div className="absolute right-1.5 top-2 bottom-2 flex gap-1 z-20">
-            {(field.code === "DCF" || field.code === "DAQ") && (
-              <button
-                type="button"
-                onClick={() => onGenerate(field.code)}
-                className="text-xs font-medium bg-gray-200 hover:bg-gray-300 dark:bg-[#444] dark:hover:bg-[#555] rounded px-2 text-gray-700 dark:text-gray-200 transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-                title={`Generate ${field.label}`}
-                aria-label={`Generate ${field.label}`}
+                title={
+                  field.code === "DDB" ? "Generate Card Revision Date" : `Generate ${field.label}`
+                }
+                aria-label={
+                  field.code === "DDB" ? "Generate Card Revision Date" : `Generate ${field.label}`
+                }
               >
                 Gen
               </button>
@@ -274,8 +227,8 @@ export const FieldInput: React.FC<FieldInputProps> = ({
               </button>
             )}
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       <div className="absolute -bottom-4 left-0 right-0 flex justify-between items-start pointer-events-none transition-opacity duration-200">
         <div className="flex-1 min-w-0">
