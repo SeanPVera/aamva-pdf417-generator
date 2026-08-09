@@ -9,7 +9,10 @@ export const VersionBrowser: React.FC = () => {
   const [browsedVersion, setBrowsedVersion] = useState(activeVersion);
 
   const versionDef = AAMVA_VERSIONS[browsedVersion];
-  const requiredCount = useMemo(() => versionDef?.fields.filter((f) => f.required).length ?? 0, [versionDef]);
+  const requiredCount = useMemo(
+    () => versionDef?.fields.filter((f) => f.required).length ?? 0,
+    [versionDef]
+  );
 
   return (
     <div className="border border-gray-200 dark:border-dark-border rounded-md overflow-hidden">
