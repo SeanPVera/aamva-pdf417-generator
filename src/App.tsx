@@ -137,7 +137,10 @@ function App() {
   }, [setRequiredOnly, setIssuesOnly]);
   const playClack = useClickClack(soundOn && whimsy);
   const copyTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
-  const schemaFields = getFieldsForStateAndVersion(state, version);
+  const schemaFields = React.useMemo(
+    () => getFieldsForStateAndVersion(state, version),
+    [state, version]
+  );
   const toast = useToast();
 
   // One source of truth for the generated payload — the preview renders it and
