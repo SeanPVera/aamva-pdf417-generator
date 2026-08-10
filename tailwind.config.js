@@ -30,7 +30,19 @@ export default {
         }
       },
       fontFamily: {
-        sans: ['"Google Sans"', '"Inter"', '"Roboto"', 'sans-serif'],
+        // No webfont is loaded (see src/styles/index.css), so these named
+        // families only apply when the OS already has them. `system-ui` and
+        // `-apple-system` are what actually resolve: San Francisco on iOS,
+        // Roboto on Android, Segoe on Windows. Without them iOS falls all the
+        // way through to Helvetica.
+        sans: [
+          '"Google Sans"',
+          '"Inter"',
+          '"Roboto"',
+          'system-ui',
+          '-apple-system',
+          'sans-serif',
+        ],
       },
       boxShadow: {
         'google': '0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15)',

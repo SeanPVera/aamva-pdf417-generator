@@ -274,7 +274,7 @@ export const Header: React.FC<HeaderActionProps> = ({
 
   return (
     <header
-      className="state-themed bg-white dark:bg-dark-surface text-gray-900 dark:text-gray-100 shadow-sm border-b border-gray-200 dark:border-dark-border z-20 sticky top-0 px-3 sm:px-4 py-2.5"
+      className="state-themed header-safe-top bg-white dark:bg-dark-surface text-gray-900 dark:text-gray-100 shadow-sm border-b border-gray-200 dark:border-dark-border z-20 sticky top-0 px-3 sm:px-4 py-2.5"
       data-active-state={state}
       data-state-motif={activeStateTheme.motif}
     >

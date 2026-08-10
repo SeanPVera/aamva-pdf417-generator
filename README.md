@@ -26,6 +26,8 @@ This project is designed for **local, offline-oriented use** and runs as a React
   - [Step 4: Build one-click installers (optional)](#step-4-build-one-click-installers-optional)
 - [How to use the app](#how-to-use-the-app)
 - [iPhone setup guide](#iphone-setup-guide)
+  - [Option A: Hosted PWA (no computer required)](#option-a-hosted-pwa-no-computer-required)
+  - [Option B: Local Wi-Fi dev server](#option-b-local-wi-fi-dev-server)
 - [JSON import format](#json-import-format)
 - [Troubleshooting](#troubleshooting)
 - [Production readiness checklist](#production-readiness-checklist)
@@ -327,7 +329,48 @@ Installer artifacts are written to `dist_electron/`.
 
 ## iPhone setup guide
 
-The app is fully browser-based, so your iPhone just needs to open a URL hosted from your computer. Both devices must be on the **same Wi-Fi network**.
+There are two ways to run this on an iPhone. Pick based on whether you want a
+computer involved at all.
+
+| | [Hosted PWA](#option-a-hosted-pwa-no-computer-required) | [Local Wi-Fi server](#option-b-local-wi-fi-dev-server) |
+| --- | --- | --- |
+| Needs a Mac | No | No |
+| Needs *any* computer running | No | Yes, on the same Wi-Fi |
+| Works away from home | Yes | No |
+| Works offline on the phone | Yes | No |
+| Camera scanner | Yes (HTTPS) | No (iOS blocks it on plain HTTP) |
+| Best for | Actually using the app | Developing it |
+
+### Option A: Hosted PWA (no computer required)
+
+The app is entirely client-side, so it can be published as static files and
+installed to the Home Screen straight from Safari. The build runs on GitHub's
+Linux runners — no Mac, no Xcode, no Apple Developer account, and no machine
+on your network.
+
+1. **Turn on Pages once:** repository **Settings → Pages → Source → GitHub
+   Actions**. The included `.github/workflows/pages.yml` deploys `dist/` on
+   every push to `main`.
+2. **Open the published URL in Safari** on the iPhone
+   (`https://<owner>.github.io/aamva-pdf417-generator/`).
+3. **Share → Add to Home Screen → Add.**
+
+It now launches full-screen with its own icon and keeps working in Airplane
+Mode. Push to `main` to ship an update; the next online launch picks it up.
+
+**📱 Full walkthrough, other free hosts, offline verification, camera notes,
+and why a native `.ipa` needs an Apple Developer account: [docs/IPHONE.md](docs/IPHONE.md).**
+
+---
+
+### Option B: Local Wi-Fi dev server
+
+Useful while developing. Your iPhone opens a URL hosted from your computer, and
+both devices must be on the **same Wi-Fi network**.
+
+> Note: iOS only grants camera access in a secure context, so the barcode
+> scanner does not work over a plain `http://192.168.x.x` address. Use
+> Option A if you need to scan.
 
 ### Step 1: Start the mobile server on your computer
 
@@ -409,7 +452,7 @@ The preview server starts at port `4173`. Use the Network URL it prints (for exa
 | URL loads but then spins | Restart the dev server; check the terminal for errors. |
 | Still unreachable after checking network | Allow Node.js or port 3000 through your computer's firewall. |
 | Corporate/school Wi-Fi blocks local peers | Switch to a personal hotspot or home network. |
-| Need access from outside local Wi-Fi | Build `dist/` and host it over HTTPS, then open that public URL from iPhone. |
+| Need access from outside local Wi-Fi | Use [Option A](#option-a-hosted-pwa-no-computer-required) — the hosted PWA needs no computer at all. |
 
 ## JSON import format
 

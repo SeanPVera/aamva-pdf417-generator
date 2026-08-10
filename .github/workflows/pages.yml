@@ -1,0 +1,62 @@
+name: Deploy PWA to GitHub Pages
+
+# Publishes dist/ to GitHub Pages so the app has a permanent HTTPS URL that an
+# iPhone can install to the Home Screen. The build runs on GitHub's Linux
+# runners, so nothing here depends on owning a Mac (or any local machine).
+#
+# One-time setup: repository Settings → Pages → Source → "GitHub Actions".
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+# Allow the workflow to mint the OIDC token deploy-pages needs. Contents stays
+# read-only: this workflow publishes an artifact, it never writes to the repo.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Never let two deploys race. In-progress runs finish so a half-published
+# site is not left live.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js 22.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      # vite.config.mts uses `base: './'`, so every asset reference is
+      # relative and the bundle works unchanged under the
+      # /<repo-name>/ path a project Pages site is served from.
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
