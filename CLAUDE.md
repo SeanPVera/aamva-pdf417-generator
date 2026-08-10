@@ -37,9 +37,10 @@ This file provides AI assistants (Claude, Copilot, etc.) with the context needed
 ├── public/
 │   ├── manifest.webmanifest      # PWA manifest
 │   ├── sw.js                     # Service worker; precache manifest injected at build
-│   └── icons/                    # PWA icons
+│   └── icons/                    # PWA icons (PNG for iOS/Android, SVG for scalable use)
 ├── scripts/
 │   ├── gen-vectors.mjs           # Regenerates golden conformance vectors
+│   ├── gen-icons.mjs             # Rasterizes the app icon to PNG (zlib only, no image deps)
 │   └── release-notes.mjs         # Extracts a CHANGELOG section for a GitHub Release
 ├── e2e/                          # Playwright specs (a11y, export, form fill, round-trip, themes)
 ├── src/
@@ -78,10 +79,13 @@ This file provides AI assistants (Claude, Copilot, etc.) with the context needed
 │       ├── crossFieldValidation.test.ts  # Date ordering, age-at-issuance checks
 │       ├── property.test.ts      # fast-check property-based invariants
 │       ├── electronUrlPolicy.test.ts     # Electron navigation allow-list
+│       ├── pwaInstall.test.ts    # iOS Home Screen requirements (PNG icons, safe areas, manifest)
+│       ├── serviceWorker.test.ts # sw.js routing, loaded into a fake worker scope
 │       ├── stateThemes.test.ts   # Color palette completeness and CSS variable tests
 │       └── helpers.test.ts       # Utility function tests
 ├── docs/
-│   └── AAMVA_COMPLIANCE_MATRIX.md    # Per-jurisdiction implementation coverage
+│   ├── AAMVA_COMPLIANCE_MATRIX.md    # Per-jurisdiction implementation coverage
+│   └── IPHONE.md                     # Running on iPhone with no Mac/computer (hosted PWA)
 ├── assets/
 │   └── sample.json               # Example import payload for manual testing
 ├── LICENSE                       # MIT license
@@ -89,6 +93,7 @@ This file provides AI assistants (Claude, Copilot, etc.) with the context needed
     └── workflows/
         ├── node.js.yml           # CI: Node 20/22, lint/format/typecheck/build/test/coverage/size/audit
         ├── e2e.yml               # Playwright across chromium/firefox/webkit + mobile emulations
+        ├── pages.yml             # Builds dist/ and publishes the PWA to GitHub Pages
         └── release.yml           # Changesets version PR, then installers + GitHub Release
 ```
 
@@ -327,6 +332,17 @@ GitHub Actions workflow (`.github/workflows/node.js.yml`):
 All steps must pass on both Node versions before merging. Coverage thresholds (lines 85, branches 80, functions 85, statements 85) are configured in `vite.config.mts`. Bundle-size budgets per chunk are defined in `.size-limit.json`.
 
 A separate workflow (`.github/workflows/e2e.yml`) runs Playwright end-to-end tests (`e2e/*.spec.ts`) across chromium, firefox, webkit, and emulated mobile Chrome/Safari.
+
+### Deploying the PWA (`.github/workflows/pages.yml`)
+
+Every push to `main` builds `dist/` on `ubuntu-latest` and publishes it to GitHub Pages, giving the app a permanent HTTPS URL that an iPhone can install to the Home Screen. This is the supported way to run the app on a phone without a Mac or any local machine — see `docs/IPHONE.md`.
+
+Constraints worth preserving:
+
+- `vite.config.mts` sets `base: './'`, and the manifest uses `start_url`/`scope` of `"./"`. Relative paths are what let the same bundle work at a project-page subpath (`/aamva-pdf417-generator/`), from a domain root, and from Electron's `file://`. Do not switch any of them to an absolute `/`.
+- iOS ignores an SVG `apple-touch-icon` and substitutes a screenshot of the page, so the PNG icons in `public/icons/` are load-bearing. Regenerate them with `npm run icons:gen` (`scripts/gen-icons.mjs`, dependency-free) rather than adding an image toolchain.
+- `index.html` needs `viewport-fit=cover` for `env(safe-area-inset-*)` to report real values on notched iPhones; without it every inset silently resolves to 0 and the translucent status bar overlaps the header.
+- `public/sw.js` serves navigations network-first and hashed assets cache-first. An installed iOS web app has no reload button, so a cache-first shell would pin it to a stale build. `src/tests/serviceWorker.test.ts` locks this in.
 
 ### Releasing
 

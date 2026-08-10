@@ -1,5 +1,8 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap");
+/* No @import of remote webfonts. The CSP in index.html is style-src 'self',
+   so a fonts.googleapis.com stylesheet is refused on every platform — the
+   requests only ever cost a blocked round trip per launch, which an
+   offline-first phone app has no reason to pay. The stack in
+   tailwind.config.js falls back to the platform UI font instead. */
 
 @tailwind base;
 @tailwind components;
@@ -271,12 +274,24 @@ div {
   display: none;
 }
 
+/* ─── iOS safe areas ─────────────────────────────────────────────────────────
+   index.html sets viewport-fit=cover, so these insets report real values on
+   notched iPhones (and 0 everywhere else). The status bar is declared
+   black-translucent, which means the page starts at y=0 underneath it — the
+   header pads itself down so its state-colored bar fills that strip instead
+   of hiding controls behind the Dynamic Island. */
 .app-shell {
-  padding-bottom: env(safe-area-inset-bottom, 0);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+}
+
+.header-safe-top {
+  padding-top: calc(0.625rem + env(safe-area-inset-top, 0px));
 }
 
 .pb-safe {
-  padding-bottom: env(safe-area-inset-bottom, 0);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 /* Toast slide-in */
@@ -481,8 +496,8 @@ div {
 /* ─── Whimsy: Gus the clerk mascot ───────────────────────────────────────── */
 .clerk-mascot {
   position: fixed;
-  left: 12px;
-  bottom: calc(12px + env(safe-area-inset-bottom, 0));
+  left: calc(12px + env(safe-area-inset-left, 0px));
+  bottom: calc(12px + env(safe-area-inset-bottom, 0px));
   z-index: 40;
   display: flex;
   align-items: flex-end;

@@ -40,6 +40,7 @@
     "easy:mobile": "npm install && npm run dev:mobile",
     "dev:mobile": "vite --host 0.0.0.0 --port 3000",
     "build": "vite build",
+    "icons:gen": "node scripts/gen-icons.mjs",
     "serve": "vite preview",
     "preview:mobile": "vite preview --host 0.0.0.0 --port 4173",
     "test": "vitest",
