@@ -1,30 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { readdirSync, readFileSync } from "node:fs";
-import { resolve, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
 
 import { generateAAMVAPayload } from "../core/generator";
 import { decodeAAMVAFormat } from "../core/decoder";
 import { getFieldsForStateAndVersion } from "../core/schema";
-
-interface Vector {
-  id: string;
-  state: string;
-  version: string;
-  subfileType: "DL" | "ID";
-  description: string;
-  input: Record<string, string>;
-  expectedBytes: string;
-}
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const CORPUS_DIR = resolve(__dirname, "../core/conformance/vectors");
-
-function loadVectors(): Vector[] {
-  return readdirSync(CORPUS_DIR)
-    .filter((f) => f.endsWith(".json"))
-    .map((f) => JSON.parse(readFileSync(resolve(CORPUS_DIR, f), "utf8")) as Vector);
-}
+import { loadVectors, REAL_WORLD_TIERS } from "./support/conformanceVectors";
 
 describe("AAMVA conformance corpus", () => {
   const vectors = loadVectors();
@@ -34,8 +13,18 @@ describe("AAMVA conformance corpus", () => {
   });
 
   for (const v of vectors) {
-    describe(v.id, () => {
-      it("generator output matches expected bytes", () => {
+    // Name the assertion for what it actually proves. Against a synthetic
+    // vector, "output matches expected bytes" only says the encoder has not
+    // changed — the bytes came from the encoder in the first place. Against a
+    // published or issued vector, the same comparison is the real conformance
+    // claim. Same code, very different evidential weight.
+    const isEvidence = REAL_WORLD_TIERS.includes(v.provenance.tier);
+    const claim = isEvidence
+      ? `matches ${v.provenance.tier} reference bytes (conformance)`
+      : "matches its own recorded baseline (regression only)";
+
+    describe(`${v.id} [${v.provenance.tier}]`, () => {
+      it(claim, () => {
         const fields = getFieldsForStateAndVersion(v.state, v.version);
         const payload = generateAAMVAPayload(
           v.state,

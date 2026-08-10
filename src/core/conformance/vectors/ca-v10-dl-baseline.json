@@ -4,6 +4,13 @@
   "version": "10",
   "subfileType": "DL",
   "description": "Synthetic regression baseline (no PII).",
+  "provenance": {
+    "tier": "synthetic",
+    "source": "scripts/gen-vectors.mjs (this implementation's own output)",
+    "capturedAt": null,
+    "verifiedBy": null,
+    "notes": "Regression baseline only. Not evidence of AAMVA conformance."
+  },
   "input": {
     "DCS": "DOE",
     "DAC": "JANE",

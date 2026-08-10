@@ -89,8 +89,12 @@ Please read this section carefully if you need strict production-grade complianc
   - Data is not stored on a server. Form data is persisted locally in browser storage only, so clearing site data/private mode can remove it.
 - **No cryptographic signature/security layer.**
   - This is payload generation and visual barcode encoding, not identity verification.
-- **Automated tests focus on core units; end-to-end/device testing is still limited.**
+- **Conformance vectors are currently all synthetic.**
+  - Every `expectedBytes` value in `src/core/conformance/vectors/` was produced by this project's own encoder, so the corpus proves the encoder is *stable*, not that it is *correct*. Vectors sourced from AAMVA-published test cards or anonymised real credentials are the missing evidence.
+  - Run `npm run conformance:report` for the current figure — real-world coverage is reported on every CI run rather than left implicit.
+- **Automated tests focus on core units; device testing is still limited.**
   - Run `npm test` for schema/payload/decoder checks, then validate scanner/export flows manually across target browsers/devices.
+  - The rendered symbol *is* verified independently: `src/tests/scanOracle.test.ts` re-reads every generated barcode with ZXing, so encoder-option drift and encode/decode assumptions shared between our own modules are caught. That covers the barcode layer, not jurisdiction field semantics.
 
 ## Plan to address current limitations
 

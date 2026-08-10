@@ -66,6 +66,17 @@ for (const c of cases) {
     version: c.version,
     subfileType: c.subfileType,
     description: "Synthetic regression baseline (no PII).",
+    // Written by this script from our own encoder, so it can only ever say
+    // "the output has not changed" — never "the output is correct". Vectors
+    // that carry real evidence are added by hand at the published/issued
+    // tiers; see src/core/conformance/README.md.
+    provenance: {
+      tier: "synthetic",
+      source: "scripts/gen-vectors.mjs (this implementation's own output)",
+      capturedAt: null,
+      verifiedBy: null,
+      notes: "Regression baseline only. Not evidence of AAMVA conformance."
+    },
     input: rec,
     expectedBytes: payload
   };
