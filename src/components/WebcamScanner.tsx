@@ -1,5 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { BrowserPDF417Reader } from "@zxing/browser";
+import type { IScannerControls } from "@zxing/browser";
+import type { Result } from "@zxing/library";
 import { decodeAAMVA } from "../core/decoder";
 import {
   Camera,
@@ -107,6 +109,17 @@ export function WebcamScanner({ onClose }: WebcamScannerProps) {
     let controls: { stop: () => void } | null = null;
     let cancelled = false;
 
+    const handleDecode = (
+      result: Result | undefined,
+      _error: unknown,
+      scannerControls: IScannerControls
+    ) => {
+      if (result) {
+        scannerControls.stop();
+        applyDecodedPayload(result.getText());
+      }
+    };
+
     const startScanner = async () => {
       try {
         setScanning(true);
@@ -119,12 +132,7 @@ export function WebcamScanner({ onClose }: WebcamScannerProps) {
           controls = await reader.decodeFromVideoDevice(
             selectedDeviceId,
             videoRef.current,
-            (result) => {
-              if (result) {
-                controls?.stop();
-                applyDecodedPayload(result.getText());
-              }
-            }
+            handleDecode
           );
 
           // Remember the working camera and detect torch support.
