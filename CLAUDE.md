@@ -267,6 +267,10 @@ npm run format:check    # Prettier check (used in CI)
 8. **Decoder round-trip** — encode then decode preserves field values
 9. **Cross-field validation** — date ordering (expiry > issue > birth), age at issuance (14+)
 10. **State themes** — palette completeness, hex color format, CSS custom property application
+11. **Scan oracle** (`src/tests/scanOracle.test.ts`) — renders each jurisdiction's payload with bwip-js, rasterises it, and decodes it back with ZXing. This is the only check that does not grade our encoder with our own decoder, so it catches assumptions the two share. Helpers live in `src/tests/support/scanOracle.ts`.
+12. **Conformance provenance** (`src/tests/conformanceProvenance.test.ts`) — every vector must declare a `tier` (`synthetic` / `published` / `issued`) and its source. `MIN_REAL_WORLD_JURISDICTIONS` is a ratchet: raise it when a real-world vector is added so coverage cannot silently regress.
+
+**Important:** a passing `conformance.test.ts` against a `synthetic` vector proves only that the encoder has not changed — those bytes came from the encoder. Do not treat it as evidence of AAMVA correctness, and do not regenerate vectors to make a failing test pass without reviewing the diff against the spec.
 
 ---
 

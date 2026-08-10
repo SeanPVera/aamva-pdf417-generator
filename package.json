@@ -46,6 +46,7 @@
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
+    "conformance:report": "node --experimental-strip-types scripts/conformance-report.mjs",
     "test:e2e:install": "playwright install --with-deps chromium",
     "size": "size-limit",
     "typecheck": "tsc --noEmit",

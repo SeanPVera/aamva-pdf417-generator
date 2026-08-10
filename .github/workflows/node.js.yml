@@ -41,6 +41,14 @@ jobs:
     - name: Test
       run: npm run test:run
 
+    - name: Conformance corpus coverage
+      # Reports how many jurisdictions have a vector sourced from outside this
+      # implementation. Informational — the ratchet that stops it regressing
+      # lives in src/tests/conformanceProvenance.test.ts. Needs Node >= 22 for
+      # native TypeScript stripping.
+      if: matrix.node-version == '22.x'
+      run: npm run conformance:report
+
     - name: Coverage (with thresholds)
       if: matrix.node-version == '22.x'
       run: npm run test:coverage
