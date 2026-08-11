@@ -1,6 +1,7 @@
 import React from "react";
 import { FileUp } from "lucide-react";
 import { useFormStore } from "../hooks/useFormStore";
+import { parseImportedPayload } from "../core/importPayload";
 import { useToast } from "./Toast";
 
 /**
@@ -46,17 +47,15 @@ export const DropZoneOverlay: React.FC = () => {
 
       const reader = new FileReader();
       reader.onload = (evt) => {
-        try {
-          const parsed = JSON.parse(evt.target?.result as string);
-          if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
-            loadJson(parsed as Record<string, string>);
-            toast.success(`Imported ${file.name}`);
-          } else {
-            toast.error("Invalid JSON: expected a single payload object.", { persistent: true });
-          }
-        } catch {
-          toast.error("Failed to parse JSON file. Check the file format.", { persistent: true });
+        // Same validation as the header's file picker — this path had its own
+        // copy of the checks, so it kept accepting files the picker rejected.
+        const result = parseImportedPayload(evt.target?.result as string, file.name);
+        if (!result.ok) {
+          toast.error(result.error, { persistent: true });
+          return;
         }
+        loadJson(result.data);
+        toast.success(`Imported ${file.name}`);
       };
       reader.readAsText(file);
     };

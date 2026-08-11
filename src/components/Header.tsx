@@ -29,12 +29,9 @@ import { QUICK_FILL_PRESETS } from "../core/presets";
 import { getStateTheme } from "../core/stateThemes";
 import { AAMVA_STATES } from "../core/states";
 import { buildExportBasename } from "../core/exportNaming";
-import {
-  AAMVA_VERSION_KEYS,
-  getFieldsForStateAndVersion,
-  isSupportedVersion
-} from "../core/schema";
+import { getFieldsForStateAndVersion } from "../core/schema";
 import { downloadBlob } from "../core/download";
+import { parseImportedPayload } from "../core/importPayload";
 import { detectPlatform, formatShortcut } from "../core/modKey";
 
 interface HeaderProps {
@@ -215,33 +212,20 @@ export const Header: React.FC<HeaderActionProps> = ({
     const snapshot = { ...fields };
     const hadValues = Object.values(fields).some((v) => (v ?? "").trim().length > 0);
     reader.onload = (evt) => {
-      try {
-        const parsed = JSON.parse(evt.target?.result as string);
-        if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
-          const importedVersion = (parsed as Record<string, unknown>).version;
-          // Same guard as the scanner: a file naming a version this build has no
-          // field table for would otherwise load into a completely empty form.
-          if (typeof importedVersion === "string" && !isSupportedVersion(importedVersion)) {
-            toast.error(
-              `${file.name} is AAMVA version ${importedVersion}, which this build does not ` +
-                `support. Supported versions: ${AAMVA_VERSION_KEYS.join(", ")}.`,
-              { persistent: true }
-            );
-            return;
-          }
-          loadJson(parsed as Record<string, string>);
-          toast.success(
-            `Imported ${file.name}`,
-            hadValues
-              ? { action: { label: "Undo", onClick: () => restoreFields(snapshot) } }
-              : undefined
-          );
-        } else {
-          toast.error("Invalid JSON: expected a single payload object.", { persistent: true });
-        }
-      } catch {
-        toast.error("Failed to parse JSON file. Check the file format.", { persistent: true });
+      // Shared with the drag-and-drop overlay so both import paths agree on what
+      // is loadable — including the unsupported-version guard.
+      const result = parseImportedPayload(evt.target?.result as string, file.name);
+      if (!result.ok) {
+        toast.error(result.error, { persistent: true });
+        return;
       }
+      loadJson(result.data);
+      toast.success(
+        `Imported ${file.name}`,
+        hadValues
+          ? { action: { label: "Undo", onClick: () => restoreFields(snapshot) } }
+          : undefined
+      );
     };
     reader.readAsText(file);
     // reset so the same file can be re-imported
