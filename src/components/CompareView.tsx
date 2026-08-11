@@ -129,8 +129,21 @@ export const CompareView: React.FC<CompareViewProps> = ({ open, onClose }) => {
                 <Upload size={14} />
                 Load Payload {side}
               </button>
-              <div className="text-xs text-gray-500 dark:text-gray-400 truncate" title={file?.name}>
-                {file ? file.name : "No file selected"}
+              <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 min-h-[24px]">
+                <span className="truncate pr-2" title={file?.name}>
+                  {file ? file.name : "No file selected"}
+                </span>
+                {file && (
+                  <button
+                    type="button"
+                    onClick={() => setSide(null)}
+                    aria-label={`Clear Payload ${side}`}
+                    title={`Clear Payload ${side}`}
+                    className="p-1 rounded text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-gray-100 dark:hover:bg-dark-surface2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 transition-colors shrink-0"
+                  >
+                    <X size={12} />
+                  </button>
+                )}
               </div>
             </div>
           ))}
