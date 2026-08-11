@@ -59,14 +59,19 @@ export function useSwipe<T extends HTMLElement>({
       else if (dx >= threshold) onSwipeRight?.();
     };
 
+    // Named rather than inline: an inline arrow here could not be removed, so
+    // every effect re-run left another `pointercancel` listener on the element.
+    const handleCancel = () => {
+      startRef.current = null;
+    };
+
     el.addEventListener("pointerdown", handleStart);
     el.addEventListener("pointerup", handleEnd);
-    el.addEventListener("pointercancel", () => {
-      startRef.current = null;
-    });
+    el.addEventListener("pointercancel", handleCancel);
     return () => {
       el.removeEventListener("pointerdown", handleStart);
       el.removeEventListener("pointerup", handleEnd);
+      el.removeEventListener("pointercancel", handleCancel);
     };
   }, [onSwipeLeft, onSwipeRight, threshold, maxVerticalDrift, ignoreTags]);
 

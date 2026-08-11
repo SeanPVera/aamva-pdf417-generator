@@ -29,7 +29,12 @@ import { QUICK_FILL_PRESETS } from "../core/presets";
 import { getStateTheme } from "../core/stateThemes";
 import { AAMVA_STATES } from "../core/states";
 import { buildExportBasename } from "../core/exportNaming";
-import { getFieldsForStateAndVersion } from "../core/schema";
+import {
+  AAMVA_VERSION_KEYS,
+  getFieldsForStateAndVersion,
+  isSupportedVersion
+} from "../core/schema";
+import { downloadBlob } from "../core/download";
 import { detectPlatform, formatShortcut } from "../core/modKey";
 
 interface HeaderProps {
@@ -180,10 +185,7 @@ export const Header: React.FC<HeaderActionProps> = ({
 
     const data = { state, version, ...kept };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download =
+    const filename =
       buildExportBasename({
         state,
         version,
@@ -192,10 +194,9 @@ export const Header: React.FC<HeaderActionProps> = ({
         prefix: "aamva",
         includeName: includeNameInExport
       }) + ".json";
-    a.click();
-    URL.revokeObjectURL(url);
+    downloadBlob(blob, filename);
 
-    toast.success(`Exported ${a.download}`);
+    toast.success(`Exported ${filename}`);
     if (dropped.length > 0) {
       toast.info(
         `${dropped.length} value${dropped.length === 1 ? "" : "s"} from another version ` +
@@ -217,6 +218,17 @@ export const Header: React.FC<HeaderActionProps> = ({
       try {
         const parsed = JSON.parse(evt.target?.result as string);
         if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+          const importedVersion = (parsed as Record<string, unknown>).version;
+          // Same guard as the scanner: a file naming a version this build has no
+          // field table for would otherwise load into a completely empty form.
+          if (typeof importedVersion === "string" && !isSupportedVersion(importedVersion)) {
+            toast.error(
+              `${file.name} is AAMVA version ${importedVersion}, which this build does not ` +
+                `support. Supported versions: ${AAMVA_VERSION_KEYS.join(", ")}.`,
+              { persistent: true }
+            );
+            return;
+          }
           loadJson(parsed as Record<string, string>);
           toast.success(
             `Imported ${file.name}`,

@@ -51,8 +51,13 @@ self.addEventListener("activate", (event) => {
 function handleNavigation(request) {
   return fetch(request)
     .then((response) => {
-      const clone = response.clone();
-      caches.open(CACHE_NAME).then((cache) => cache.put("./index.html", clone));
+      // Only a successful, non-opaque response is worth keeping. Caching
+      // unconditionally meant a 404 or 500 page from the host could be pinned
+      // as the offline shell, and an installed app has no way to bypass it.
+      if (response.ok && response.type !== "opaque") {
+        const clone = response.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put("./index.html", clone));
+      }
       return response;
     })
     .catch(() =>
@@ -79,7 +84,13 @@ function handleAsset(request) {
         }
         return response;
       })
-      .catch(() => caches.match("./index.html"));
+      .catch(() => {
+        // Deliberately no index.html fallback here. Handing the HTML shell back
+        // for a missing script, stylesheet, or image produced a 200 of the wrong
+        // content type — a syntax error for a script tag, a broken image
+        // otherwise — instead of a failure the caller can see.
+        return Response.error();
+      });
   });
 }
 

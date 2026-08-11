@@ -40,12 +40,15 @@ function createWindow() {
     }
   });
 
-  // Deny every renderer-initiated permission request by default. The app
-  // does not need geolocation, notifications, mic, etc. The webcam scanner
-  // explicitly grants 'media' below when the user opens it.
+  // Deny every renderer-initiated permission request by default. The app does
+  // not need geolocation, notifications, clipboard-read, etc.
+  //
+  // 'media' is the one exception, because the webcam scanner needs it. It is
+  // granted whenever the app asks — the renderer is the only thing that can ask
+  // (see the will-navigate guard below, which keeps the window on app files) and
+  // Chromium only surfaces the request when getUserMedia is actually called.
   win.webContents.session.setPermissionRequestHandler((_webContents, permission, callback) => {
-    if (permission === "media") return callback(true);
-    return callback(false);
+    return callback(permission === "media");
   });
 
   if (isDev) {

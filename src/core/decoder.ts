@@ -100,7 +100,11 @@ export function decodePayload(text: string): DecodeResult {
 
   try {
     const obj = JSON.parse(text);
-    if (!obj || typeof obj !== "object") return { error: "Not a valid payload" };
+    // Arrays are objects too. Letting one through handed callers a "field map"
+    // whose keys were array indices, which the form then loaded as fields.
+    if (!obj || typeof obj !== "object" || Array.isArray(obj)) {
+      return { error: "Not a valid payload" };
+    }
     return { data: obj };
   } catch {
     return { error: "Unrecognized payload format" };

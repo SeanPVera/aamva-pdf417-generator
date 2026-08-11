@@ -100,6 +100,7 @@ export interface FormState {
   markBingo: (id: string) => void;
   resetBingo: () => void;
   clearFields: () => void;
+  mergeFields: (patch: Record<string, string>) => void;
   restoreFields: (fields: Record<string, string>) => void;
   loadJson: (data: Record<string, string>) => void;
   undo: () => void;
@@ -238,6 +239,24 @@ export const useFormStore = create<FormState>()(
           _lastEditCode: "",
           _lastEditAt: 0
         })),
+
+      // Applies many field values as ONE undo step. Bulk actions used to call
+      // `setField` in a loop, which pushed an entry per field: a 28-field sample
+      // fill overflowed the 20-entry history, discarded everything the user had
+      // typed before it, and still could not be undone once the stack ran out.
+      mergeFields: (patch) =>
+        set((s) => {
+          const next = { ...s.fields, ...patch };
+          return {
+            fields: next,
+            _history: [...s._history, s.fields].slice(-HISTORY_LIMIT),
+            _future: [],
+            _lastEditCode: "",
+            _lastEditAt: 0,
+            _changedCodes: diffChangedCodes(s.fields, next),
+            _changedAt: Date.now()
+          };
+        }),
 
       // Used by the Undo action on the "cleared"/"preset applied" toasts, which
       // restore a specific snapshot rather than walking the history stack.
