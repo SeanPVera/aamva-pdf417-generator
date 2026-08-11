@@ -26,8 +26,9 @@ const SHORTCUTS: Array<{ category: string; entries: Shortcut[] }> = [
     ]
   },
   {
-    category: "Export",
+    category: "Import & Export",
     entries: [
+      { keys: ["mod", "V"], description: "Paste an AAMVA payload or JSON profile into the form" },
       { keys: ["mod", "shift", "C"], description: "Copy raw payload to clipboard" },
       { keys: ["mod", "E"], description: "Export barcode as PNG" }
     ]
@@ -36,6 +37,7 @@ const SHORTCUTS: Array<{ category: string; entries: Shortcut[] }> = [
     category: "Navigation",
     entries: [
       { keys: ["mod", "K"], description: "Focus the field search box" },
+      { keys: ["Esc"], description: "Clear the search, then the filters" },
       { keys: ["F8"], description: "Jump to the next validation issue" },
       { keys: ["shift", "F8"], description: "Jump to the previous validation issue" },
       { keys: ["?"], description: "Open this shortcuts cheat sheet" },

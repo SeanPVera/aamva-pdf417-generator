@@ -10,6 +10,8 @@ import { WelcomeTour } from "./components/WelcomeTour";
 import { FieldInput } from "./components/FieldInput";
 import { FieldGroup } from "./components/FieldGroup";
 import { FieldFilters } from "./components/FieldFilters";
+import { GroupNav, type GroupNavStat } from "./components/GroupNav";
+import { MobileActionBar } from "./components/MobileActionBar";
 import { describeActiveFilters } from "./components/filterSummary";
 import { DropZoneOverlay } from "./components/DropZoneOverlay";
 import { useToast } from "./components/Toast";
@@ -30,6 +32,7 @@ import {
   generateStateCardRevisionDate
 } from "./core/generator";
 import { buildSampleFill } from "./core/sampleFiller";
+import { parsePastedPayload } from "./core/pasteImport";
 import { useSwipe } from "./hooks/useSwipe";
 import { useClickClack } from "./hooks/useClickClack";
 import { useKonami } from "./hooks/useKonami";
@@ -73,6 +76,11 @@ const TicketDispenser = React.lazy(() =>
 const ClerkMascot = React.lazy(() =>
   import("./components/ClerkMascot").then((module) => ({ default: module.ClerkMascot }))
 );
+// Physics, a canvas loop, and an examiner. Nothing about it is needed to make a
+// barcode, so it is never in the initial chunk.
+const RoadTest = React.lazy(() =>
+  import("./components/RoadTest").then((module) => ({ default: module.RoadTest }))
+);
 
 function App() {
   const [isScanning, setIsScanning] = React.useState(false);
@@ -81,6 +89,7 @@ function App() {
   const [batchOpen, setBatchOpen] = React.useState(false);
   const [badgesOpen, setBadgesOpen] = React.useState(false);
   const [bingoOpen, setBingoOpen] = React.useState(false);
+  const [roadTestOpen, setRoadTestOpen] = React.useState(false);
   const [tourOpen, setTourOpen] = React.useState(false);
   const [mobilePanel, setMobilePanel] = React.useState<MobilePanel>("form");
 
@@ -102,6 +111,9 @@ function App() {
     strictMode,
     fields,
     setField,
+    setDerivedField,
+    loadJson,
+    restoreFields,
     setStrictMode,
     theme,
     undo,
@@ -193,6 +205,32 @@ function App() {
     () => schemaFields.filter((f) => f.required),
     [schemaFields]
   );
+
+  // Per-group state for the navigator strip. Counts come from the full schema
+  // (a filtered-away error is still an error); `total` comes from what is
+  // actually on screen, so a group the filters emptied drops out of the strip.
+  const groupStats = React.useMemo<GroupNavStat[]>(() => {
+    const errorsByGroup = new Map<FieldGroupId, number>();
+    for (const issue of issues) {
+      if (issue.severity !== "error") continue;
+      const id = getFieldGroup(issue.code);
+      errorsByGroup.set(id, (errorsByGroup.get(id) ?? 0) + 1);
+    }
+
+    return AAMVA_FIELD_GROUPS.map((group) => {
+      const inGroup = schemaFields.filter((f) => getFieldGroup(f.code) === group.id);
+      const requiredInGroup = inGroup.filter((f) => f.required);
+      const emptyRequired = requiredInGroup.filter((f) => !(fields[f.code] || "").trim()).length;
+      return {
+        id: group.id,
+        label: group.label,
+        total: fieldsByGroup.get(group.id)?.length ?? 0,
+        emptyRequired,
+        errors: errorsByGroup.get(group.id) ?? 0,
+        complete: requiredInGroup.length > 0 && emptyRequired === 0
+      };
+    });
+  }, [schemaFields, fields, issues, fieldsByGroup]);
   const requiredFilled = requiredFields.filter(
     (f) => (fields[f.code] || "").trim().length > 0
   ).length;
@@ -247,6 +285,73 @@ function App() {
   React.useEffect(() => {
     applyStateThemeToDocument(state);
   }, [state]);
+
+  // DAJ is the jurisdiction code, and generateAAMVAPayload forces it to the
+  // selected state regardless of what the form holds — so leaving it as an
+  // empty required field made the progress meter permanently short and sent
+  // "next empty required" to an input whose value could never matter. Fill it
+  // from the selection and show it read-only instead.
+  const hasJurisdictionField = React.useMemo(
+    () => schemaFields.some((f) => f.code === "DAJ"),
+    [schemaFields]
+  );
+  React.useEffect(() => {
+    if (!hasJurisdictionField) return;
+    if (fields.DAJ !== state) setDerivedField("DAJ", state);
+  }, [hasJurisdictionField, fields.DAJ, state, setDerivedField]);
+
+  // Paste a payload anywhere on the page and it loads. The app could already
+  // take a payload from a file, a drop, and a camera — but not from the
+  // clipboard, which is how a payload actually travels between tools.
+  //
+  // The handler reads `fields` through a ref for the same reason the keyboard
+  // shortcuts do: a window listener that closes over form state would re-bind on
+  // every keystroke.
+  const pasteStateRef = React.useRef({ fields, loadJson, restoreFields, toast });
+  React.useEffect(() => {
+    pasteStateRef.current = { fields, loadJson, restoreFields, toast };
+  });
+
+  React.useEffect(() => {
+    const onPaste = (e: ClipboardEvent) => {
+      const {
+        fields: current,
+        loadJson: load,
+        restoreFields: restore,
+        toast: notify
+      } = pasteStateRef.current;
+      const target = e.target as HTMLElement | null;
+      // Never hijack a paste the user aimed at a field.
+      if (
+        target &&
+        (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable)
+      ) {
+        return;
+      }
+      const text = e.clipboardData?.getData("text") ?? "";
+      if (!text.trim()) return;
+
+      const result = parsePastedPayload(text);
+      if (!result.data) {
+        // Silence on a stray paste; an explanation only once it looked like a
+        // payload and still failed.
+        if (result.kind !== "unknown") notify.error(result.summary);
+        return;
+      }
+
+      e.preventDefault();
+      const snapshot = { ...current };
+      const hadValues = Object.values(current).some((v) => (v ?? "").trim().length > 0);
+      load(result.data);
+      notify.success(
+        result.summary,
+        hadValues ? { action: { label: "Undo", onClick: () => restore(snapshot) } } : undefined
+      );
+    };
+
+    window.addEventListener("paste", onPaste);
+    return () => window.removeEventListener("paste", onPaste);
+  }, []);
 
   // Night shift badge — checked once per session.
   React.useEffect(() => {
@@ -461,6 +566,27 @@ function App() {
     if (nextEmptyRequiredCode) handleScrollToField(nextEmptyRequiredCode);
   };
 
+  const handleJumpToGroup = React.useCallback(
+    (id: FieldGroupId) => {
+      setMobilePanel("form");
+      if (collapsedGroups[id]) toggleGroupCollapsed(id);
+      requestAnimationFrame(() => {
+        document
+          .getElementById(`field-group-${id}-heading`)
+          ?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    },
+    [collapsedGroups, toggleGroupCollapsed]
+  );
+
+  // The bottom bar's single action: the first error if there is one, otherwise
+  // the first field still missing a value.
+  const handleMobileFixNext = React.useCallback(() => {
+    const firstError = issues.find((i) => i.severity === "error");
+    const target = firstError?.code ?? nextEmptyRequiredCode;
+    if (target) handleScrollToField(target);
+  }, [issues, nextEmptyRequiredCode, handleScrollToField]);
+
   // F8 / Shift+F8 walk the issue list without leaving the keyboard.
   const issueCursorRef = React.useRef(0);
   const stepIssue = React.useCallback(
@@ -578,6 +704,7 @@ function App() {
         onOpenBatch={() => setBatchOpen(true)}
         onOpenBadges={() => setBadgesOpen(true)}
         onOpenBingo={() => setBingoOpen(true)}
+        onOpenRoadTest={() => setRoadTestOpen(true)}
       />
 
       <nav
@@ -677,7 +804,9 @@ function App() {
             onFillSample={handleFillSample}
             onCollapseAll={handleCollapseAll}
             onExpandAll={handleExpandAll}
-          />
+          >
+            <GroupNav stats={groupStats} onJump={handleJumpToGroup} />
+          </FieldFilters>
 
           <div className="p-4 lg:p-6">
             {visibleFields.length === 0 ? (
@@ -733,6 +862,11 @@ function App() {
                         strictMode={strictMode}
                         copied={copiedField === field.code}
                         whimsy={whimsy}
+                        allValues={fields}
+                        highlight={searchQuery}
+                        derivedFrom={
+                          field.code === "DAJ" ? "Set from the selected jurisdiction." : undefined
+                        }
                         onChange={handleChange}
                         onCopy={handleCopyField}
                         onReset={handleResetField}
@@ -813,6 +947,27 @@ function App() {
             onClose={() => setBingoOpen(false)}
             marked={bingoMarked}
             onReset={resetBingo}
+          />
+        </React.Suspense>
+      )}
+      <MobileActionBar
+        errorCount={errorCount}
+        emptyRequired={requiredTotal - requiredFilled}
+        stale={payloadStale}
+        ready={previewReady && !!payload}
+        onFixNext={handleMobileFixNext}
+        onExport={handleExportPNGShortcut}
+      />
+
+      {roadTestOpen && (
+        <React.Suspense fallback={null}>
+          <RoadTest
+            open={roadTestOpen}
+            onClose={() => setRoadTestOpen(false)}
+            onPassed={() => {
+              markBingo("road-tested");
+              toast.success("🚗 Road test passed. You may now park anywhere.");
+            }}
           />
         </React.Suspense>
       )}

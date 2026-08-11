@@ -2,6 +2,7 @@ import React from "react";
 import {
   FileImage,
   FileCode2,
+  FileText,
   Printer,
   Check,
   Clipboard,
@@ -16,6 +17,7 @@ interface PreviewActionsProps {
   canExport: boolean;
   handleExportPNG: () => void;
   handleExportSVG: () => void;
+  handleExportPDF: () => void;
   handlePrint: () => void;
   includeNameInExport: boolean;
   setIncludeNameInExport: (v: boolean) => void;
@@ -35,6 +37,7 @@ export const PreviewActions: React.FC<PreviewActionsProps> = ({
   canExport,
   handleExportPNG,
   handleExportSVG,
+  handleExportPDF,
   handlePrint,
   includeNameInExport,
   setIncludeNameInExport,
@@ -70,6 +73,19 @@ export const PreviewActions: React.FC<PreviewActionsProps> = ({
         >
           <FileCode2 size={14} />
           SVG
+        </button>
+        {/* Sized to the credential's real barcode area, which is what a print
+            shop needs — the batch tool could already emit PDFs, the single
+            payload could not. */}
+        <button
+          onClick={handleExportPDF}
+          disabled={!canExport}
+          aria-label="Export barcode as PDF"
+          title="Export a print-ready PDF at the credential's physical size"
+          className="flex-1 flex items-center justify-center gap-1.5 bg-gray-800 hover:bg-gray-900 dark:bg-dark-surface2 dark:hover:bg-[#383838] disabled:opacity-40 disabled:cursor-not-allowed text-white py-1.5 rounded shadow text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-1 focus-visible:ring-offset-white dark:focus-visible:ring-offset-dark-surface"
+        >
+          <FileText size={14} />
+          PDF
         </button>
         <button
           onClick={handlePrint}

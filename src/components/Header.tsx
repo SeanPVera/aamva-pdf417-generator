@@ -20,7 +20,8 @@ import {
   MonitorCog,
   Layers,
   Tag,
-  Award
+  Award,
+  Car
 } from "lucide-react";
 import { useFormStore, Theme } from "../hooks/useFormStore";
 import { InstallPrompt } from "./InstallPrompt";
@@ -74,6 +75,7 @@ interface HeaderActionProps extends HeaderProps {
   onOpenBatch: () => void;
   onOpenBadges: () => void;
   onOpenBingo: () => void;
+  onOpenRoadTest: () => void;
 }
 
 export const Header: React.FC<HeaderActionProps> = ({
@@ -82,7 +84,8 @@ export const Header: React.FC<HeaderActionProps> = ({
   onOpenCompare,
   onOpenBatch,
   onOpenBadges,
-  onOpenBingo
+  onOpenBingo,
+  onOpenRoadTest
 }) => {
   const {
     clearFields,
@@ -579,6 +582,17 @@ export const Header: React.FC<HeaderActionProps> = ({
                 className="w-full flex items-center gap-2 px-3 py-2 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-sm focus-visible:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-dark-surface2"
               >
                 <Tag size={14} /> DMV Bingo
+              </button>
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => {
+                  setFunOpen(false);
+                  onOpenRoadTest();
+                }}
+                className="w-full flex items-center gap-2 px-3 py-2 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-sm focus-visible:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-dark-surface2"
+              >
+                <Car size={14} /> Take the road test
               </button>
               <p className="px-3 py-2 text-[11px] text-gray-400 dark:text-gray-500 border-t border-gray-100 dark:border-dark-border">
                 Cosmetic only — never affects the barcode. Psst: try the Konami code.

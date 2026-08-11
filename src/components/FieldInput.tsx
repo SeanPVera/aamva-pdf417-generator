@@ -1,10 +1,25 @@
 import React from "react";
-import { Copy, Check, X as XIcon, HelpCircle } from "lucide-react";
+import { Copy, Check, X as XIcon, HelpCircle, Wand2 } from "lucide-react";
 import type { AAMVAField } from "../core/schema";
 import { AAMVA_FIELD_LIMITS } from "../core/schema";
 import { evaluateFieldValue } from "../core/validation";
+import { getCanonicalRewrite, getQuickFix } from "../core/quickFix";
+import {
+  describeAamvaDate,
+  getDateChips,
+  normalizeDateInput,
+  yearsBetween,
+  type AamvaDateFormat
+} from "../core/dateHelpers";
 import { getFieldHelp } from "../core/fieldHelp";
 import { HeightSilhouette } from "./HeightSilhouette";
+
+/**
+ * Field types the encoder uppercases on the way out (see generateAAMVAPayload).
+ * Typing into one of these is upper-cased live so the form shows the bytes that
+ * will actually be in the barcode, rather than a friendlier fiction.
+ */
+const UPPERCASED_TYPES = new Set<AAMVAField["type"]>(["string", "char", "zip"]);
 
 /**
  * Pulls the allowed values out of an enumeration message so they can be offered
@@ -28,12 +43,39 @@ interface FieldInputProps {
   strictMode: boolean;
   copied: boolean;
   whimsy?: boolean;
+  /**
+   * Sibling values the date affordances need — an expiry chip is "+8 years from
+   * the issue date", which needs the issue date.
+   */
+  allValues?: Record<string, string>;
+  /** Term to highlight in the label, from the field search box. */
+  highlight?: string;
+  /**
+   * The app fills this field and the encoder overrides anything else, so it is
+   * shown but not editable. The string is the reason, rendered under the input.
+   */
+  derivedFrom?: string;
   onChange: (code: string, value: string) => void;
   onCopy: (code: string, value: string) => void;
   onReset: (code: string) => void;
   onGenerate: (code: string) => void;
   onDisableStrict?: () => void;
   onHelpOpened?: (code: string) => void;
+}
+
+/** Wraps occurrences of `term` in the label so search matches are visible. */
+function Highlighted({ text, term }: { text: string; term: string }) {
+  const needle = term.trim().toLowerCase();
+  if (!needle) return <>{text}</>;
+  const index = text.toLowerCase().indexOf(needle);
+  if (index === -1) return <>{text}</>;
+  return (
+    <>
+      {text.slice(0, index)}
+      <mark className="search-hit">{text.slice(index, index + needle.length)}</mark>
+      {text.slice(index + needle.length)}
+    </>
+  );
 }
 
 export const FieldInput: React.FC<FieldInputProps> = ({
@@ -43,6 +85,9 @@ export const FieldInput: React.FC<FieldInputProps> = ({
   strictMode,
   copied,
   whimsy = false,
+  allValues,
+  highlight = "",
+  derivedFrom,
   onChange,
   onCopy,
   onReset,
@@ -61,6 +106,49 @@ export const FieldInput: React.FC<FieldInputProps> = ({
   const isResettable = field.code === "DCF" || field.code === "DAQ" || field.code === "DDB";
   const allowedValues = hasError ? parseAllowedValues(evalResult.message) : [];
   const maxLen = AAMVA_FIELD_LIMITS[field.code];
+
+  const dateFormat: AamvaDateFormat = field.dateFormat === "YYYYMMDD" ? "YYYYMMDD" : "MMDDYYYY";
+  const isDate = field.type === "date";
+
+  // Typing into a field the encoder uppercases anyway is upper-cased live.
+  // Casing never changes the string's length, so the caret stays put.
+  const handleChange = (raw: string) => {
+    onChange(field.code, UPPERCASED_TYPES.has(field.type) ? raw.toUpperCase() : raw);
+  };
+
+  // Dates are normalised when the user leaves the field rather than as they
+  // type — rewriting "8/1" to a full date mid-keystroke fights the typist.
+  const handleDateBlur = () => {
+    if (!isDate || !value.trim()) return;
+    const normalized = normalizeDateInput(value, dateFormat);
+    if (normalized && normalized !== value) onChange(field.code, normalized);
+  };
+
+  const dateReadout = React.useMemo(() => {
+    if (!isDate) return "";
+    const described = describeAamvaDate(value, dateFormat);
+    if (!described) return "";
+    // The one derived number worth showing: how old the holder is on this date.
+    if (field.code === "DBB") {
+      const age = yearsBetween(value, allValues?.DBD || "", dateFormat);
+      return age !== null && age >= 0 ? `${described} · age ${age} at issue` : described;
+    }
+    return described;
+  }, [isDate, value, dateFormat, field.code, allValues?.DBD]);
+
+  const dateChips = React.useMemo(
+    () => (isDate && !value.trim() ? getDateChips(field.code, allValues ?? {}, dateFormat) : []),
+    [isDate, value, field.code, allValues, dateFormat]
+  );
+
+  // A repair for a value that fails, or the encoder-canonical form of one that
+  // passes. Both are a single click; neither ever invents a value.
+  const quickFix = React.useMemo(
+    () =>
+      getQuickFix(field, value, state, strictMode) ??
+      getCanonicalRewrite(field, value, state, strictMode),
+    [field, value, state, strictMode]
+  );
 
   // The counter is deliberately NOT a live region: it changes on every
   // keystroke, so announcing it drowns out the field's own feedback. Announce
@@ -165,7 +253,9 @@ export const FieldInput: React.FC<FieldInputProps> = ({
               "transform -translate-y-3 scale-75 top-4"
             )}
           >
-            {field.code} — {field.label} {field.required && <span className="text-red-500">*</span>}
+            <Highlighted text={field.code} term={highlight} /> —{" "}
+            <Highlighted text={field.label} term={highlight} />{" "}
+            {field.required && <span className="text-red-500">*</span>}
           </label>
         </div>
       ) : field.type === "date" ? (
@@ -175,8 +265,11 @@ export const FieldInput: React.FC<FieldInputProps> = ({
             id={field.code}
             value={value}
             placeholder={field.dateFormat || " "}
-            onChange={(e) => onChange(field.code, e.target.value)}
-            maxLength={AAMVA_FIELD_LIMITS[field.code] || 8}
+            onChange={(e) => handleChange(e.target.value)}
+            onBlur={handleDateBlur}
+            // Roomy enough to type the separators people actually use
+            // ("08/11/2026"); the blur handler folds it back to eight digits.
+            maxLength={10}
             aria-required={field.required}
             aria-invalid={hasError}
             aria-describedby={showAdvisory ? errorId : undefined}
@@ -189,7 +282,9 @@ export const FieldInput: React.FC<FieldInputProps> = ({
               "transform -translate-y-3 scale-75 top-4"
             )}
           >
-            {field.code} — {field.label} {field.required && <span className="text-red-500">*</span>}
+            <Highlighted text={field.code} term={highlight} /> —{" "}
+            <Highlighted text={field.label} term={highlight} />{" "}
+            {field.required && <span className="text-red-500">*</span>}
           </label>
           <div className="absolute right-1.5 top-2 bottom-2 flex gap-1 z-20">
             {field.code === "DDB" && (
@@ -223,12 +318,14 @@ export const FieldInput: React.FC<FieldInputProps> = ({
             id={field.code}
             value={value}
             placeholder={field.dateFormat || " "}
-            onChange={(e) => onChange(field.code, e.target.value)}
+            onChange={(e) => handleChange(e.target.value)}
             maxLength={AAMVA_FIELD_LIMITS[field.code]}
+            readOnly={!!derivedFrom}
             aria-required={field.required}
             aria-invalid={hasError}
             aria-describedby={showAdvisory ? errorId : undefined}
-            className={`${finalClass} float-label-input`}
+            title={derivedFrom}
+            className={`${finalClass} float-label-input${derivedFrom ? " cursor-not-allowed opacity-80" : ""}`}
           />
           <label
             htmlFor={field.code}
@@ -237,7 +334,9 @@ export const FieldInput: React.FC<FieldInputProps> = ({
               "transform -translate-y-3 scale-75 top-4"
             )}
           >
-            {field.code} — {field.label} {field.required && <span className="text-red-500">*</span>}
+            <Highlighted text={field.code} term={highlight} /> —{" "}
+            <Highlighted text={field.label} term={highlight} />{" "}
+            {field.required && <span className="text-red-500">*</span>}
           </label>
           <div className="absolute right-1.5 top-2 bottom-2 flex gap-1 z-20">
             {(field.code === "DCF" || field.code === "DAQ") && (
@@ -312,6 +411,53 @@ export const FieldInput: React.FC<FieldInputProps> = ({
                 </>
               )}
             </span>
+          )}
+          {/* One deterministic repair, applied in a click. Never shown unless
+              the rewritten value is one the validator accepts. */}
+          {quickFix && (
+            <button
+              type="button"
+              onClick={() => onChange(field.code, quickFix.value)}
+              title={quickFix.description}
+              aria-label={`${quickFix.description} for ${field.code}`}
+              className={`mt-0.5 inline-flex items-center gap-1 px-1.5 py-0.5 rounded border text-[10px] font-semibold pointer-events-auto transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 ${
+                showAdvisory
+                  ? "border-brand-300 dark:border-brand-700 bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300 hover:bg-brand-100 dark:hover:bg-brand-900/60"
+                  : "border-gray-200 dark:border-[#444] bg-gray-50 dark:bg-dark-surface2 text-gray-500 dark:text-gray-400 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 hover:text-gray-800 dark:hover:text-gray-100"
+              }`}
+            >
+              <Wand2 size={10} aria-hidden />
+              {quickFix.label}
+              <span className="font-mono">{quickFix.value}</span>
+            </button>
+          )}
+          {/* What the eight digits actually mean, so a transposed year is
+              visible before it reaches the barcode. */}
+          {dateReadout && !showAdvisory && (
+            <span className="mt-0.5 block text-[11px] text-gray-500 dark:text-gray-400 truncate">
+              {dateReadout}
+            </span>
+          )}
+          {derivedFrom && (
+            <span className="mt-0.5 block text-[11px] text-gray-500 dark:text-gray-400 truncate">
+              {derivedFrom}
+            </span>
+          )}
+          {dateChips.length > 0 && (
+            <div className="mt-0.5 flex flex-wrap gap-1 pointer-events-auto">
+              {dateChips.map((chip) => (
+                <button
+                  key={chip.label}
+                  type="button"
+                  onClick={() => onChange(field.code, chip.value)}
+                  title={chip.title}
+                  aria-label={`Set ${field.code}: ${chip.title}`}
+                  className="px-1.5 py-0.5 rounded border border-gray-200 dark:border-[#444] bg-gray-50 dark:bg-dark-surface2 text-[10px] font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#383838] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                >
+                  {chip.label}
+                </button>
+              ))}
+            </div>
           )}
           {/* Enumerated values become one-click chips — reading the list and
               fixing the field are the same gesture. */}

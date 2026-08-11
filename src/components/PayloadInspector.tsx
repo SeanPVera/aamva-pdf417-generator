@@ -7,9 +7,11 @@ import {
   AlertTriangle,
   Copy,
   Check,
-  ArrowDownToLine
+  ArrowDownToLine,
+  Wand2
 } from "lucide-react";
 import type { ValidationIssue } from "../core/validation";
+import type { QuickFix } from "../core/quickFix";
 
 export function CollapsibleSection({
   title,
@@ -68,6 +70,10 @@ interface PayloadInspectorProps {
   decodedEntries: Array<[string, string]>;
   decodeError?: string;
   issues: ValidationIssue[];
+  /** Deterministic repairs available for the current values, by field code. */
+  fixes?: QuickFix[];
+  onApplyFix?: (fix: QuickFix) => void;
+  onApplyAllFixes?: () => void;
   onScrollToField: (code: string) => void;
   onCopyPayload: () => void;
   copied: boolean;
@@ -83,10 +89,14 @@ export const PayloadInspector: React.FC<PayloadInspectorProps> = ({
   decodedEntries,
   decodeError,
   issues,
+  fixes = [],
+  onApplyFix,
+  onApplyAllFixes,
   onScrollToField,
   onCopyPayload,
   copied
 }) => {
+  const fixByCode = React.useMemo(() => new Map(fixes.map((fix) => [fix.code, fix])), [fixes]);
   const errorCount = issues.filter((i) => i.severity === "error").length;
   const warningCount = issues.filter((i) => i.severity === "warning").length;
   const issueCount = issues.length;
@@ -156,20 +166,37 @@ export const PayloadInspector: React.FC<PayloadInspectorProps> = ({
           </div>
         ) : (
           <>
-            {errorCount > 0 && (
-              <div className="mb-2 flex justify-end">
-                <button
-                  type="button"
-                  onClick={() => {
-                    const firstError = issues.find((i) => i.severity === "error");
-                    if (firstError) onScrollToField(firstError.code);
-                  }}
-                  className="flex items-center gap-1 text-xs px-2 py-1 rounded bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-900/50 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
-                  aria-label="Scroll to first error"
-                >
-                  <ArrowDownToLine size={12} />
-                  Scroll to first error
-                </button>
+            {(errorCount > 0 || fixes.length > 0) && (
+              <div className="mb-2 flex flex-wrap justify-end gap-1.5">
+                {/* Every listed fix is a rewrite of a value the user already
+                    typed, and each was checked against the validator before
+                    being offered — so applying them in bulk is safe. */}
+                {fixes.length > 0 && onApplyAllFixes && (
+                  <button
+                    type="button"
+                    onClick={onApplyAllFixes}
+                    className="flex items-center gap-1 text-xs px-2 py-1 rounded bg-brand-50 dark:bg-brand-900/30 border border-brand-200 dark:border-brand-800 text-brand-700 dark:text-brand-300 hover:bg-brand-100 dark:hover:bg-brand-900/50 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                    aria-label={`Apply ${fixes.length} quick fixes`}
+                    title={fixes.map((f) => `${f.code} → ${f.value}`).join("\n")}
+                  >
+                    <Wand2 size={12} />
+                    Fix {fixes.length}
+                  </button>
+                )}
+                {errorCount > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const firstError = issues.find((i) => i.severity === "error");
+                      if (firstError) onScrollToField(firstError.code);
+                    }}
+                    className="flex items-center gap-1 text-xs px-2 py-1 rounded bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-900/50 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+                    aria-label="Scroll to first error"
+                  >
+                    <ArrowDownToLine size={12} />
+                    Scroll to first error
+                  </button>
+                )}
               </div>
             )}
             <ul className="space-y-1.5 pt-1" role="list" aria-label="Validation issues">
@@ -182,11 +209,15 @@ export const PayloadInspector: React.FC<PayloadInspectorProps> = ({
                 const messageClass = isWarn
                   ? "text-amber-700 dark:text-amber-300"
                   : "text-red-600 dark:text-red-400";
+                const fix = fixByCode.get(issue.code);
                 return (
-                  <li key={`${issue.code}:${issue.severity}:${idx}`}>
+                  <li
+                    key={`${issue.code}:${issue.severity}:${idx}`}
+                    className="flex items-start gap-1"
+                  >
                     <button
                       type="button"
-                      className="w-full flex items-start gap-2 text-xs text-left cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800/50 p-1 rounded transition-colors group/issue focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                      className="flex-1 flex items-start gap-2 text-xs text-left cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800/50 p-1 rounded transition-colors group/issue focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                       data-severity={issue.severity}
                       onClick={() => onScrollToField(issue.code)}
                       title={`Jump to ${issue.label} (${issue.code})`}
@@ -200,6 +231,18 @@ export const PayloadInspector: React.FC<PayloadInspectorProps> = ({
                         <span className={messageClass}>{issue.message}</span>
                       </span>
                     </button>
+                    {fix && onApplyFix && (
+                      <button
+                        type="button"
+                        onClick={() => onApplyFix(fix)}
+                        title={fix.description}
+                        aria-label={`${fix.description} for ${fix.code}`}
+                        className="mt-1 shrink-0 inline-flex items-center gap-1 rounded border border-brand-200 dark:border-brand-800 bg-brand-50 dark:bg-brand-900/30 px-1.5 py-0.5 text-[10px] font-semibold text-brand-700 dark:text-brand-300 hover:bg-brand-100 dark:hover:bg-brand-900/60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                      >
+                        <Wand2 size={10} aria-hidden />
+                        Fix
+                      </button>
+                    )}
                   </li>
                 );
               })}

@@ -5,6 +5,7 @@ import { useFormStore } from "../hooks/useFormStore";
 import { getFieldsForStateAndVersion } from "../core/schema";
 import { decodeAAMVA } from "../core/decoder";
 import { getValidationIssues } from "../core/validation";
+import { getQuickFixes, type QuickFix } from "../core/quickFix";
 import {
   PDF417_ENCODER_OPTIONS,
   PREVIEW_SCALE,
@@ -53,6 +54,7 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { state, version, fields, strictMode, subfileType, includeNameInExport } = useFormStore();
+  const setField = useFormStore((s) => s.setField);
   const setIncludeNameInExport = useFormStore((s) => s.setIncludeNameInExport);
   const inspectorWidth = useFormStore((s) => s.inspectorWidth);
   const setInspectorWidth = useFormStore((s) => s.setInspectorWidth);
@@ -214,6 +216,56 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
     }
   };
 
+  // A PDF at the credential's real physical size — what you hand to a print
+  // shop. jsPDF is ~150 kB, so it is only fetched when the button is pressed;
+  // PNG and SVG exports never pay for it.
+  const handleExportPDF = React.useCallback(async () => {
+    const canvas = canvasRef.current;
+    if (!canvas || !payloadStr || error || stale) return;
+    try {
+      const { jsPDF } = await import("jspdf");
+      const { widthInches, heightInches } = getBarcodeDimensions(state);
+      const margin = 36; // half an inch, in points
+      const width = widthInches * 72;
+      const height = heightInches * 72;
+
+      const printCanvas = document.createElement("canvas");
+      // Re-encode rather than upscaling the preview: a fractional resample
+      // makes neighbouring modules different widths and stops the print
+      // decoding (same reasoning as the PNG path above).
+      bwipjs.toCanvas(printCanvas, {
+        ...BWIP_OPTIONS,
+        scale: Math.max(1, Math.round((widthInches * EXPORT_DPI) / (canvas.width / PREVIEW_SCALE))),
+        text: payloadStr
+      });
+
+      const pdf = new jsPDF({ unit: "pt", format: "letter" });
+      pdf.setFontSize(9);
+      pdf.text(`${state} · AAMVA v${version} · ${subfileType}`, margin, margin);
+      pdf.addImage(
+        printCanvas.toDataURL("image/png"),
+        "PNG",
+        margin,
+        margin + 12,
+        width,
+        height,
+        undefined,
+        "NONE"
+      );
+      pdf.setFontSize(7);
+      pdf.text(
+        `${widthInches.toFixed(2)}in x ${heightInches.toFixed(2)}in at ${EXPORT_DPI} DPI — print at 100% scale`,
+        margin,
+        margin + 26 + height
+      );
+      pdf.save(exportBasename("barcode") + ".pdf");
+      setLaminateKey((k) => k + 1);
+      onExported?.();
+    } catch (err) {
+      console.error("Failed to export PDF:", err);
+    }
+  }, [payloadStr, error, stale, state, version, subfileType, exportBasename, onExported]);
+
   const handlePrint = () => {
     if (!canvasRef.current || error || stale) return;
     document.documentElement.classList.add("printing-barcode");
@@ -289,6 +341,19 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
   const issueCount = issues.length;
 
   const emptyRequired = schemaFields.filter((f) => f.required && !(fields[f.code] || "").trim());
+
+  // Deterministic repairs for whatever the validator is complaining about, plus
+  // the tidy-ups the encoder would silently apply anyway. Each was already
+  // checked against the validator inside getQuickFixes, so "Fix all" cannot
+  // leave the form worse than it found it.
+  const fixes = React.useMemo(
+    () => getQuickFixes(schemaFields, fields, state, strictMode),
+    [schemaFields, fields, state, strictMode]
+  );
+  const applyFix = React.useCallback((fix: QuickFix) => setField(fix.code, fix.value), [setField]);
+  const applyAllFixes = React.useCallback(() => {
+    for (const fix of fixes) setField(fix.code, fix.value);
+  }, [fixes, setField]);
   const dims = getBarcodeDimensions(state);
   const critter = getStateCritter(state);
 
@@ -369,6 +434,9 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
       decodedEntries={decodedEntries}
       decodeError={decoded?.error}
       issues={issues}
+      fixes={fixes}
+      onApplyFix={applyFix}
+      onApplyAllFixes={applyAllFixes}
       onScrollToField={(code) => {
         setExpanded(false);
         scrollToField(code);
@@ -456,6 +524,7 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
           canExport={canExport}
           handleExportPNG={handleExportPNG}
           handleExportSVG={handleExportSVG}
+          handleExportPDF={handleExportPDF}
           handlePrint={handlePrint}
           includeNameInExport={includeNameInExport}
           setIncludeNameInExport={setIncludeNameInExport}
