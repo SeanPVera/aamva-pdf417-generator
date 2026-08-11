@@ -270,6 +270,43 @@ export const AAMVA_STATE_EXCLUDED_FIELDS: Record<string, string[]> = {
   DC: ["DAX", "DCL"]
 };
 
+// The 2009 standard's DL subfile data-element set. The 2010, 2011, and 2012
+// revisions (versions 05, 06, 07) carry the same elements — those releases
+// revised card design and security requirements rather than the DL subfile —
+// so they share this array instead of duplicating it. Sharing the field object
+// references also keeps the `_inlineOptionSets` WeakMap warm across versions.
+const V04_FIELDS: AAMVAField[] = [
+  { code: "DCA", label: "Vehicle Class", type: "string", required: true },
+  { code: "DCB", label: "Restriction Codes", type: "string", required: true },
+  { code: "DCD", label: "Endorsement Codes", type: "string", required: true },
+  { code: "DBA", label: "Expiration Date", type: "date", required: true },
+  { code: "DCS", label: "Customer Family Name", type: "string", required: true },
+  { code: "DAC", label: "Customer First Name", type: "string", required: true },
+  { code: "DAD", label: "Customer Middle Name", type: "string" },
+  { code: "DBD", label: "Document Issue Date", type: "date", required: true },
+  { code: "DBB", label: "Date of Birth", type: "date", required: true },
+  { code: "DBC", label: "Sex", type: "char", required: true },
+  { code: "DAY", label: "Eye Color", type: "string", required: true },
+  { code: "DAU", label: "Height", type: "string", required: true },
+  { code: "DAG", label: "Address Street", type: "string", required: true },
+  { code: "DAH", label: "Address Line 2", type: "string" },
+  { code: "DAI", label: "City", type: "string", required: true },
+  { code: "DAJ", label: "Jurisdiction Code", type: "string", required: true },
+  { code: "DAK", label: "Postal Code", type: "zip", required: true },
+  { code: "DAQ", label: "Customer ID Number", type: "string", required: true },
+  { code: "DCF", label: "Document Discriminator", type: "string", required: true },
+  { code: "DCG", label: "Country Identification", type: "string", required: true },
+  { code: "DDE", label: "Family Name Truncation", type: "string", required: true },
+  { code: "DDF", label: "First Name Truncation", type: "string", required: true },
+  { code: "DDG", label: "Middle Name Truncation", type: "string", required: true },
+  { code: "DCU", label: "Name Suffix", type: "string" },
+  { code: "DAW", label: "Weight (pounds)", type: "string" },
+  { code: "DAZ", label: "Hair Color", type: "string" },
+  { code: "DCL", label: "Race/Ethnicity", type: "string" },
+  { code: "DDA", label: "Compliance Type", type: "string" },
+  { code: "DDB", label: "Card Revision Date", type: "date" }
+];
+
 export const AAMVA_VERSIONS: Record<string, AAMVAVersionDef> = {
   "01": {
     name: "AAMVA DL/ID-2000 (Version 01)",
@@ -368,37 +405,19 @@ export const AAMVA_VERSIONS: Record<string, AAMVAVersionDef> = {
   },
   "04": {
     name: "AAMVA DL/ID-2009 (Version 04)",
-    fields: [
-      { code: "DCA", label: "Vehicle Class", type: "string", required: true },
-      { code: "DCB", label: "Restriction Codes", type: "string", required: true },
-      { code: "DCD", label: "Endorsement Codes", type: "string", required: true },
-      { code: "DBA", label: "Expiration Date", type: "date", required: true },
-      { code: "DCS", label: "Customer Family Name", type: "string", required: true },
-      { code: "DAC", label: "Customer First Name", type: "string", required: true },
-      { code: "DAD", label: "Customer Middle Name", type: "string" },
-      { code: "DBD", label: "Document Issue Date", type: "date", required: true },
-      { code: "DBB", label: "Date of Birth", type: "date", required: true },
-      { code: "DBC", label: "Sex", type: "char", required: true },
-      { code: "DAY", label: "Eye Color", type: "string", required: true },
-      { code: "DAU", label: "Height", type: "string", required: true },
-      { code: "DAG", label: "Address Street", type: "string", required: true },
-      { code: "DAH", label: "Address Line 2", type: "string" },
-      { code: "DAI", label: "City", type: "string", required: true },
-      { code: "DAJ", label: "Jurisdiction Code", type: "string", required: true },
-      { code: "DAK", label: "Postal Code", type: "zip", required: true },
-      { code: "DAQ", label: "Customer ID Number", type: "string", required: true },
-      { code: "DCF", label: "Document Discriminator", type: "string", required: true },
-      { code: "DCG", label: "Country Identification", type: "string", required: true },
-      { code: "DDE", label: "Family Name Truncation", type: "string", required: true },
-      { code: "DDF", label: "First Name Truncation", type: "string", required: true },
-      { code: "DDG", label: "Middle Name Truncation", type: "string", required: true },
-      { code: "DCU", label: "Name Suffix", type: "string" },
-      { code: "DAW", label: "Weight (pounds)", type: "string" },
-      { code: "DAZ", label: "Hair Color", type: "string" },
-      { code: "DCL", label: "Race/Ethnicity", type: "string" },
-      { code: "DDA", label: "Compliance Type", type: "string" },
-      { code: "DDB", label: "Card Revision Date", type: "date" }
-    ]
+    fields: V04_FIELDS
+  },
+  "05": {
+    name: "AAMVA DL/ID-2010 (Version 05)",
+    fields: V04_FIELDS
+  },
+  "06": {
+    name: "AAMVA DL/ID-2011 (Version 06)",
+    fields: V04_FIELDS
+  },
+  "07": {
+    name: "AAMVA DL/ID-2012 (Version 07)",
+    fields: V04_FIELDS
   },
   "08": {
     name: "AAMVA DL/ID-2013 (Version 08)",
@@ -510,6 +529,21 @@ export const AAMVA_VERSIONS: Record<string, AAMVAVersionDef> = {
   }
 };
 
+/**
+ * Version tokens in ascending order.
+ *
+ * `Object.keys(AAMVA_VERSIONS)` cannot be used for display: "10" is a canonical
+ * integer-like key, so JavaScript hoists it ahead of the zero-padded string keys
+ * "01".."09" and every dropdown built from it listed version 10 first. The keys
+ * are all two-digit and zero-padded, so a plain lexicographic sort is correct.
+ */
+export const AAMVA_VERSION_KEYS: readonly string[] = Object.keys(AAMVA_VERSIONS).sort();
+
+/** True when `v` is a version this app can build a form and a payload for. */
+export function isSupportedVersion(v: string): boolean {
+  return Object.prototype.hasOwnProperty.call(AAMVA_VERSIONS, v);
+}
+
 export function getFieldsForVersion(v: string): AAMVAField[] {
   return AAMVA_VERSIONS[v]?.fields || [];
 }
@@ -546,10 +580,12 @@ export function getFieldsForStateAndVersion(stateCode: string, v: string): AAMVA
   return result;
 }
 
-export function getMandatoryFields(_stateCode: string, version: string): AAMVAField[] {
-  const versionDef = AAMVA_VERSIONS[version];
-  if (!versionDef) return [];
-  return versionDef.fields.filter((f) => f.required);
+// Derived from the same list the form renders, so the set of fields the
+// generator demands can never drift from the set the user was shown. Reading
+// the version table directly (and ignoring `stateCode`, as this used to) only
+// happened to agree because the exclusion filter above keeps required fields.
+export function getMandatoryFields(stateCode: string, version: string): AAMVAField[] {
+  return getFieldsForStateAndVersion(stateCode, version).filter((f) => f.required);
 }
 
 export function describeVersion(v: string): string {

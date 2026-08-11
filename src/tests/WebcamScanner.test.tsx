@@ -30,7 +30,10 @@ vi.mock("lucide-react", () => {
 vi.mock("../core/decoder", () => ({
   decodeAAMVA: vi.fn((text) => {
     if (text === "valid_payload") {
-      return { ok: true, json: { state: "CA", version: 1 } };
+      return { ok: true, json: { state: "CA", version: "10" } };
+    }
+    if (text === "unsupported_version_payload") {
+      return { ok: true, json: { state: "CA", version: "99" } };
     }
     return { ok: false, error: "invalid" };
   })
@@ -139,9 +142,71 @@ describe("WebcamScanner", () => {
     });
 
     // After successful decode with "valid_payload"
-    expect(mockLoadJson).toHaveBeenCalledWith({ state: "CA", version: 1 });
-    expect(mockSetStateVersion).toHaveBeenCalledWith("CA", 1);
+    expect(mockLoadJson).toHaveBeenCalledWith({ state: "CA", version: "10" });
+    expect(mockSetStateVersion).toHaveBeenCalledWith("CA", "10");
     expect(mockOnClose).toHaveBeenCalledTimes(1);
+  });
+
+  it("refuses a barcode whose AAMVA version this build cannot render", async () => {
+    // A payload can name any two-digit version. Loading one with no field table
+    // reported success and then left the user staring at a blank form.
+    (BrowserPDF417Reader as any).listVideoInputDevices = vi.fn().mockResolvedValue([]);
+    (BrowserPDF417Reader as any).mockImplementationOnce(function () {
+      return {
+        decodeFromImageUrl: vi.fn().mockResolvedValue({
+          getText: () => "unsupported_version_payload"
+        }),
+        decodeFromVideoDevice: vi.fn()
+      };
+    });
+
+    await act(async () => {
+      renderWithToast(<WebcamScanner onClose={mockOnClose} />);
+    });
+
+    await act(async () => {
+      fireEvent.change(screen.getByLabelText("Select image for barcode scanning"), {
+        target: { files: [new File(["x"], "barcode.jpg", { type: "image/jpeg" })] }
+      });
+    });
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(/AAMVA version 99, which this build does not support/)
+      ).toBeInTheDocument();
+    });
+    expect(mockLoadJson).not.toHaveBeenCalled();
+    expect(mockSetStateVersion).not.toHaveBeenCalled();
+    expect(mockOnClose).not.toHaveBeenCalled();
+  });
+
+  it("stops the camera when the scanner closes before startup finishes", async () => {
+    // decodeFromVideoDevice can resolve after the modal is gone. The cleanup has
+    // already run by then, so the controls have to be stopped on arrival or the
+    // track — and the camera indicator — stays live for the rest of the session.
+    const stop = vi.fn();
+    let resolveStart!: (value: unknown) => void;
+    const pending = new Promise((resolve) => (resolveStart = resolve));
+
+    (BrowserPDF417Reader as any).listVideoInputDevices = vi
+      .fn()
+      .mockResolvedValue([{ deviceId: "cam1", label: "Cam 1" }]);
+    (BrowserPDF417Reader as any).mockImplementation(function () {
+      return { decodeFromVideoDevice: vi.fn(() => pending), decodeFromImageUrl: vi.fn() };
+    });
+
+    let unmount!: () => void;
+    await act(async () => {
+      ({ unmount } = renderWithToast(<WebcamScanner onClose={mockOnClose} />));
+    });
+
+    act(() => unmount());
+    await act(async () => {
+      resolveStart({ stop });
+      await pending;
+    });
+
+    expect(stop).toHaveBeenCalledTimes(1);
   });
 
   it("displays an error when image scanning fails", async () => {

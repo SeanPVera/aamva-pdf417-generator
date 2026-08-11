@@ -4,6 +4,7 @@ import { useFormStore } from "../hooks/useFormStore";
 import { AAMVA_STATES } from "../core/states";
 import {
   AAMVA_VERSIONS,
+  AAMVA_VERSION_KEYS,
   AAMVA_STATE_EXCLUDED_FIELDS,
   getFieldsForVersion,
   getFieldsForStateAndVersion
@@ -17,6 +18,11 @@ const VersionBrowser = React.lazy(() =>
 interface SidebarProps {
   mobileHidden?: boolean;
 }
+
+// The territories actually present in AAMVA_STATES. The previous inline list
+// also carried "MP", which is not a jurisdiction this app defines, so that
+// branch could never be taken.
+const US_TERRITORY_CODES = new Set(["AS", "GU", "VI", "PR"].filter((code) => code in AAMVA_STATES));
 
 export const Sidebar: React.FC<SidebarProps> = ({ mobileHidden = false }) => {
   const {
@@ -37,7 +43,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileHidden = false }) => {
   const handleStateChange = (newState: string) => {
     const defaultVersion = AAMVA_STATES[newState]?.aamvaVersion || "10";
     setStateVersion(newState, defaultVersion);
-    if (["AS", "GU", "VI", "PR", "MP"].includes(newState)) markBingo("territory");
+    if (US_TERRITORY_CODES.has(newState)) markBingo("territory");
     const anyFilled = Object.values(fieldValues).some((v) => (v || "").trim().length > 0);
     if (anyFilled && newState !== state) markBingo("changed-state");
   };
@@ -145,7 +151,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileHidden = false }) => {
             className="w-full border-gray-300 dark:border-[#555] dark:bg-dark-surface2 dark:text-gray-100 rounded-lg shadow-sm focus:ring-brand-500 focus:border-brand-500 text-sm p-2.5 border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
             aria-label="Select AAMVA version"
           >
-            {Object.keys(AAMVA_VERSIONS).map((v) => {
+            {AAMVA_VERSION_KEYS.map((v) => {
               const versionDef = AAMVA_VERSIONS[v];
               if (!versionDef) return null;
               return (

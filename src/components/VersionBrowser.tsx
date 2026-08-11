@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { ChevronDown, ChevronRight, BookOpen } from "lucide-react";
-import { AAMVA_VERSIONS } from "../core/schema";
+import { AAMVA_VERSIONS, AAMVA_VERSION_KEYS } from "../core/schema";
 import { useFormStore } from "../hooks/useFormStore";
 
 export const VersionBrowser: React.FC = () => {
@@ -46,7 +46,7 @@ export const VersionBrowser: React.FC = () => {
               onChange={(e) => setBrowsedVersion(e.target.value)}
               className="w-full text-xs border border-gray-300 dark:border-gray-600 rounded p-1.5 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100"
             >
-              {Object.keys(AAMVA_VERSIONS).map((v) => {
+              {AAMVA_VERSION_KEYS.map((v) => {
                 const versionDef = AAMVA_VERSIONS[v];
                 if (!versionDef) return null;
                 return (
