@@ -22,9 +22,12 @@ test.describe("export buttons", () => {
       { timeout: 10_000 }
     );
 
+    // Scoped to the preview panel: at mobile widths the sticky status bar also
+    // offers a PNG export, so an unscoped name matches two real controls.
+    const preview = page.getByRole("complementary", { name: /barcode preview/i });
     const [download] = await Promise.all([
       page.waitForEvent("download"),
-      page.getByRole("button", { name: /export barcode as png/i }).click()
+      preview.getByRole("button", { name: /export barcode as png/i }).click()
     ]);
     const name = download.suggestedFilename();
     expect(name).toMatch(/^barcode_CA_DL_V10(_[A-Z0-9]+)?\.png$/i);

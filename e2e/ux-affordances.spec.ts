@@ -50,16 +50,16 @@ test.describe("form affordances", () => {
     await ensurePanel(page, "form");
     await expect(page.locator("#DCS")).toHaveValue("");
 
-    await page.evaluate(() => {
-      const data = new DataTransfer();
-      data.setData(
-        "text",
-        JSON.stringify({ state: "CA", version: "10", DCS: "DOE", DAC: "JANE" })
-      );
-      document.body.dispatchEvent(
-        new ClipboardEvent("paste", { clipboardData: data, bubbles: true })
-      );
-    });
+    // Firefox ignores `clipboardData` passed to the ClipboardEvent constructor,
+    // so the property is defined on a plain Event instead — which is also
+    // exactly the contract the handler reads (`e.clipboardData.getData`).
+    await page.evaluate((payload) => {
+      const event = new Event("paste", { bubbles: true, cancelable: true });
+      Object.defineProperty(event, "clipboardData", {
+        value: { getData: () => payload }
+      });
+      document.body.dispatchEvent(event);
+    }, JSON.stringify({ state: "CA", version: "10", DCS: "DOE", DAC: "JANE" }));
 
     await expect(page.locator("#DCS")).toHaveValue("DOE", { timeout: 5000 });
     await expect(page.locator("#DAC")).toHaveValue("JANE");
@@ -84,6 +84,16 @@ test.describe("form affordances", () => {
     // An empty form is blocked on required fields, so the bar offers the jump
     // rather than an export.
     await expect(bar.getByRole("button", { name: /next field|fix next/i })).toBeVisible();
+
+    // Once the form is complete the bar offers the export instead, under a name
+    // of its own — two controls answering to one accessible name is ambiguous
+    // for anyone navigating by name.
+    await fillCaliforniaForm(page);
+    await ensurePanel(page, "form");
+    await expect(bar.getByRole("button", { name: "Quick export barcode as PNG" })).toBeVisible({
+      timeout: 10_000
+    });
+    await expect(page.getByRole("button", { name: "Export barcode as PNG" })).toHaveCount(1);
   });
 
   test("PDF export triggers a download", async ({ page }) => {
