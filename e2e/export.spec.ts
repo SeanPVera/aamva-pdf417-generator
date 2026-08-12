@@ -24,7 +24,7 @@ test.describe("export buttons", () => {
 
     const [download] = await Promise.all([
       page.waitForEvent("download"),
-      page.getByRole("button", { name: /export barcode as png/i }).click()
+      page.getByRole("button", { name: /export barcode as png/i }).first().click()
     ]);
     const name = download.suggestedFilename();
     expect(name).toMatch(/^barcode_CA_DL_V10(_[A-Z0-9]+)?\.png$/i);
