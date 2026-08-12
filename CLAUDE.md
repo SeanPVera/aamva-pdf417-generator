@@ -56,6 +56,7 @@ This file provides AI assistants (Claude, Copilot, etc.) with the context needed
 │   │   ├── dateHelpers.ts        # Flexible date parsing/formatting + relative date chips
 │   │   ├── quickFix.ts           # Deterministic repairs for values the validator rejects
 │   │   ├── pasteImport.ts        # Classifies clipboard text into a loadable field map
+│   │   ├── derivedFields.ts      # App-owned field codes (DAJ) and user-dirty-state checks
 │   │   ├── roadTest.ts           # Parallel-parking physics and examiner scoring (decorative)
 │   │   ├── jurisdictionRules.ts  # Per-jurisdiction rule packs
 │   │   ├── barcodeDimensions.ts  # PDF417 row/column sizing for the encoder
@@ -181,6 +182,15 @@ invent digits the user did not type.
 **Invariant:** a fix is only returned once `evaluateFieldValue` accepts the
 rewritten value, and never for an empty field. A quick fix rewrites what the
 user typed; it must never invent data.
+
+### `src/core/derivedFields.ts` — App-owned values
+
+`DAJ` is filled from the jurisdiction picker (`setDerivedField`), so it holds a
+value on a form nobody has touched. Every "has the user entered anything" check
+— the unsaved-work prompt, the mobile bar's empty state, whether an import needs
+an Undo, how many fields `Clear PII` reports — must go through `hasUserData` /
+`userEnteredCodes` rather than reading `fields` directly, or a blank form reads
+as populated.
 
 ### `src/core/validation.ts` — Validation
 

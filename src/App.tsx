@@ -32,7 +32,7 @@ import {
   generateStateCardRevisionDate
 } from "./core/generator";
 import { buildSampleFill } from "./core/sampleFiller";
-import { parsePastedPayload } from "./core/pasteImport";
+import { hasUserData } from "./core/derivedFields";
 import { useSwipe } from "./hooks/useSwipe";
 import { useClickClack } from "./hooks/useClickClack";
 import { useKonami } from "./hooks/useKonami";
@@ -119,6 +119,8 @@ function App() {
     loadJson,
     mergeFields,
     restoreFields,
+    subfileType,
+    setSubfileType,
     setStrictMode,
     theme,
     undo,
@@ -243,10 +245,7 @@ function App() {
 
   const isFieldFilled = (code: string) => (fields[code] || "").trim().length > 0;
 
-  const anyFields = React.useMemo(
-    () => Object.values(fields).some((v) => (v || "").trim().length > 0),
-    [fields]
-  );
+  const anyFields = React.useMemo(() => hasUserData(fields), [fields]);
   const requiredComplete = requiredTotal > 0 && requiredFilled === requiredTotal;
   const previewReady = anyFields && errorCount === 0 && requiredComplete;
 
@@ -309,22 +308,35 @@ function App() {
   // take a payload from a file, a drop, and a camera — but not from the
   // clipboard, which is how a payload actually travels between tools.
   //
-  // The handler reads `fields` through a ref for the same reason the keyboard
+  // The handler reads state through a ref for the same reason the keyboard
   // shortcuts do: a window listener that closes over form state would re-bind on
   // every keystroke.
-  const pasteStateRef = React.useRef({ fields, loadJson, restoreFields, toast });
+  const pasteStateRef = React.useRef({
+    fields,
+    state,
+    version,
+    subfileType,
+    loadJson,
+    restoreFields,
+    setSubfileType,
+    toast
+  });
   React.useEffect(() => {
-    pasteStateRef.current = { fields, loadJson, restoreFields, toast };
+    pasteStateRef.current = {
+      fields,
+      state,
+      version,
+      subfileType,
+      loadJson,
+      restoreFields,
+      setSubfileType,
+      toast
+    };
   });
 
   React.useEffect(() => {
-    const onPaste = (e: ClipboardEvent) => {
-      const {
-        fields: current,
-        loadJson: load,
-        restoreFields: restore,
-        toast: notify
-      } = pasteStateRef.current;
+    const onPaste = async (e: ClipboardEvent) => {
+      const before = pasteStateRef.current;
       const target = e.target as HTMLElement | null;
       // Never hijack a paste the user aimed at a field.
       if (
@@ -333,24 +345,58 @@ function App() {
       ) {
         return;
       }
+      // Read the clipboard synchronously — the event's data is not available
+      // once the handler has yielded.
       const text = e.clipboardData?.getData("text") ?? "";
       if (!text.trim()) return;
 
+      // Fetched on the first paste rather than at startup: a payload reader is
+      // not part of first paint, and a paste landing on the page body has no
+      // default action to race.
+      const { parsePastedPayload } = await import("./core/pasteImport");
       const result = parsePastedPayload(text);
       if (!result.data) {
         // Silence on a stray paste; an explanation only once it looked like a
         // payload and still failed.
-        if (result.kind !== "unknown") notify.error(result.summary);
+        if (result.kind !== "unknown") before.toast.error(result.summary);
         return;
       }
 
-      e.preventDefault();
-      const snapshot = { ...current };
-      const hadValues = Object.values(current).some((v) => (v ?? "").trim().length > 0);
-      load(result.data);
-      notify.success(
+      // Undo has to put back the configuration as well as the values: a payload
+      // from another jurisdiction or version changes the schema the restored
+      // fields would be read under, and the subfile marker decides whether the
+      // credential re-encodes as a DL or an ID.
+      const snapshot = {
+        fields: { ...before.fields },
+        state: before.state,
+        version: before.version,
+        subfileType: before.subfileType
+      };
+      const hadValues = hasUserData(before.fields);
+
+      before.loadJson(result.data);
+      if (result.subfileType && result.subfileType !== before.subfileType) {
+        before.setSubfileType(result.subfileType);
+      }
+
+      before.toast.success(
         result.summary,
-        hadValues ? { action: { label: "Undo", onClick: () => restore(snapshot) } } : undefined
+        hadValues
+          ? {
+              action: {
+                label: "Undo",
+                onClick: () => {
+                  const { loadJson: load, setSubfileType: setSubfile } = pasteStateRef.current;
+                  load({
+                    state: snapshot.state,
+                    version: snapshot.version,
+                    ...snapshot.fields
+                  });
+                  setSubfile(snapshot.subfileType);
+                }
+              }
+            }
+          : undefined
       );
     };
 

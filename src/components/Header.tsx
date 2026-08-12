@@ -30,6 +30,7 @@ import { QUICK_FILL_PRESETS } from "../core/presets";
 import { getStateTheme } from "../core/stateThemes";
 import { AAMVA_STATES } from "../core/states";
 import { buildExportBasename } from "../core/exportNaming";
+import { hasUserData, userEnteredCodes } from "../core/derivedFields";
 import { getFieldsForStateAndVersion } from "../core/schema";
 import { downloadBlob } from "../core/download";
 import { parseImportedPayload } from "../core/importPayload";
@@ -213,7 +214,7 @@ export const Header: React.FC<HeaderActionProps> = ({
     if (!file) return;
     const reader = new FileReader();
     const snapshot = { ...fields };
-    const hadValues = Object.values(fields).some((v) => (v ?? "").trim().length > 0);
+    const hadValues = hasUserData(fields);
     reader.onload = (evt) => {
       // Shared with the drag-and-drop overlay so both import paths agree on what
       // is loadable — including the unsupported-version guard.
@@ -242,7 +243,9 @@ export const Header: React.FC<HeaderActionProps> = ({
   // map, so the recovery is exact.
   const handleClearData = () => {
     const snapshot = { ...fields };
-    const filledCount = Object.values(fields).filter((v) => (v ?? "").trim().length > 0).length;
+    // DAJ is filled by the app, not the user — counting it would report
+    // "Cleared 1 field" on a form nobody has typed into.
+    const filledCount = userEnteredCodes(fields).length;
     // PII lives only in memory — it is never persisted (see useFormStore), so
     // clearing the in-memory fields is the complete and honest cleanup.
     clearFields();
@@ -261,7 +264,7 @@ export const Header: React.FC<HeaderActionProps> = ({
     const preset = QUICK_FILL_PRESETS.find((p) => p.id === presetId);
     if (!preset) return;
     const snapshot = { ...fields };
-    const hadValues = Object.values(fields).some((v) => (v ?? "").trim().length > 0);
+    const hadValues = hasUserData(fields);
     loadJson({ state: preset.state, version: preset.version, ...preset.fields });
     setPresetsOpen(false);
     markBingo("used-preset");

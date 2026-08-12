@@ -142,8 +142,11 @@ export const FieldInput: React.FC<FieldInputProps> = ({
   }, [isDate, value, dateFormat, field.code, allValues?.DBD]);
 
   const dateChips = React.useMemo(
-    () => (isDate && !value.trim() ? getDateChips(field.code, allValues ?? {}, dateFormat) : []),
-    [isDate, value, field.code, allValues, dateFormat]
+    () =>
+      isDate && !value.trim()
+        ? getDateChips(field.code, allValues ?? {}, { format: dateFormat, stateCode: state })
+        : [],
+    [isDate, value, field.code, allValues, dateFormat, state]
   );
 
   // A repair for a value that fails, or the encoder-canonical form of one that

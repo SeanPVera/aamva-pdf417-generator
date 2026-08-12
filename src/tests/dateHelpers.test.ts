@@ -121,7 +121,7 @@ describe("getDateChips", () => {
   const LOCAL_NOW = new Date(2026, 7, 11);
 
   it("offers today for the issue date", () => {
-    const chips = getDateChips("DBD", {}, "MMDDYYYY", LOCAL_NOW);
+    const chips = getDateChips("DBD", {}, { now: LOCAL_NOW });
     expect(chips).toHaveLength(1);
     expect(chips[0]!.value).toBe("08112026");
     expect(chips[0]!.title).toContain("Aug 11, 2026");
@@ -130,39 +130,67 @@ describe("getDateChips", () => {
   // The whole point of the expiry chips: "+8 years" means from the issue date,
   // not from whenever the form happens to be open.
   it("anchors the expiry chips to the issue date when there is one", () => {
-    const chips = getDateChips("DBA", { DBD: "01012024" }, "MMDDYYYY", LOCAL_NOW);
+    const chips = getDateChips("DBA", { DBD: "01012024" }, { now: LOCAL_NOW });
     expect(chips.map((c) => c.value)).toEqual(["01012028", "01012032"]);
     expect(chips[0]!.title).toContain("from the issue date");
   });
 
   it("falls back to today when the issue date is missing or unparseable", () => {
-    expect(getDateChips("DBA", {}, "MMDDYYYY", LOCAL_NOW).map((c) => c.value)).toEqual([
+    expect(getDateChips("DBA", {}, { now: LOCAL_NOW }).map((c) => c.value)).toEqual([
       "08112030",
       "08112034"
     ]);
-    expect(getDateChips("DBA", { DBD: "8/1/24" }, "MMDDYYYY", LOCAL_NOW)[0]!.title).toContain(
+    expect(getDateChips("DBA", { DBD: "8/1/24" }, { now: LOCAL_NOW })[0]!.title).toContain(
       "from today"
     );
   });
 
+  // CA caps validity at five years, so offering "+8 yrs" hands the user a value
+  // its own validator immediately warns about — and never offers the term the
+  // state actually issues.
+  it("bounds the expiry chips by the jurisdiction's validity window", () => {
+    const chips = getDateChips("DBA", { DBD: "01012024" }, { now: LOCAL_NOW, stateCode: "CA" });
+    const years = chips.map((c) => c.label);
+    expect(years).toContain("+5 yrs");
+    expect(years).not.toContain("+8 yrs");
+    expect(chips.every((c) => c.value <= "01012029")).toBe(true);
+  });
+
+  it("keeps the default terms where the jurisdiction does not narrow them", () => {
+    const chips = getDateChips("DBA", { DBD: "01012024" }, { now: LOCAL_NOW, stateCode: "TX" });
+    expect(chips.map((c) => c.label)).toEqual(["+4 yrs", "+8 yrs"]);
+  });
+
   it("offers plausible adult birth dates", () => {
-    const chips = getDateChips("DBB", {}, "MMDDYYYY", LOCAL_NOW);
+    const chips = getDateChips("DBB", {}, { now: LOCAL_NOW });
     expect(chips.map((c) => c.value)).toEqual(["08112008", "08112005", "08111986"]);
   });
 
+  // Ages are measured at issuance. Counting back from today on a card issued in
+  // 2020 would make the "18 yrs ago" holder 12 when it was issued, which trips
+  // the minimum-age rule the chip exists to keep the user clear of.
+  it("anchors the birth-date chips to the issue date", () => {
+    const chips = getDateChips("DBB", { DBD: "01012020" }, { now: LOCAL_NOW });
+    expect(chips.map((c) => c.value)).toEqual(["01012002", "01011999", "01011980"]);
+    expect(chips[0]!.title).toContain("at issue");
+    expect(yearsBetween(chips[0]!.value, "01012020")).toBe(18);
+  });
+
   it("offers to match the issue date for the card revision date", () => {
-    expect(getDateChips("DDB", { DBD: "01012024" }, "MMDDYYYY", LOCAL_NOW)).toEqual([
+    expect(getDateChips("DDB", { DBD: "01012024" }, { now: LOCAL_NOW })).toEqual([
       { label: "Match issue", value: "01012024", title: "Same as the issue date — Jan 1, 2024" }
     ]);
-    expect(getDateChips("DDB", {}, "MMDDYYYY", LOCAL_NOW)).toEqual([]);
+    expect(getDateChips("DDB", {}, { now: LOCAL_NOW })).toEqual([]);
   });
 
   it("emits the field's wire format", () => {
-    expect(getDateChips("DBD", {}, "YYYYMMDD", LOCAL_NOW)[0]!.value).toBe("20260811");
+    expect(getDateChips("DBD", {}, { format: "YYYYMMDD", now: LOCAL_NOW })[0]!.value).toBe(
+      "20260811"
+    );
   });
 
   it("has nothing to offer for non-date fields", () => {
-    expect(getDateChips("DCS", {}, "MMDDYYYY", LOCAL_NOW)).toEqual([]);
+    expect(getDateChips("DCS", {}, { now: LOCAL_NOW })).toEqual([]);
   });
 });
 

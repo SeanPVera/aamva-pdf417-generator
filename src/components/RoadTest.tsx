@@ -73,7 +73,7 @@ export const RoadTest: React.FC<RoadTestProps> = ({ open, onClose, onPassed }) =
     signalled: false,
     lastDirection: 0,
     stoppedFor: 0,
-    contactCooldown: 0
+    inContact: false
   });
 
   const resetRun = React.useCallback(() => {
@@ -86,7 +86,7 @@ export const RoadTest: React.FC<RoadTestProps> = ({ open, onClose, onPassed }) =
       signalled: false,
       lastDirection: 0,
       stoppedFor: 0,
-      contactCooldown: 0
+      inContact: false
     };
     keysRef.current.clear();
     touchRef.current = { throttle: 0, steer: 0, brake: false };
@@ -111,18 +111,21 @@ export const RoadTest: React.FC<RoadTestProps> = ({ open, onClose, onPassed }) =
     if (graded.passed) onPassed?.(graded);
   }, [onPassed]);
 
-  // Keyboard. Arrow keys and WASD drive; space is the brake; S signals, which
-  // nobody will discover, which is the joke.
+  // Keyboard. Arrow keys and WASD drive — S is reverse, which parallel parking
+  // is mostly made of. Space is the brake. L works the turn signal, which the
+  // examiner is noting whether you use.
   React.useEffect(() => {
     if (!open || phase !== "driving") return;
     const down = (e: KeyboardEvent) => {
       const key = e.key.toLowerCase();
       if (
-        ["arrowup", "arrowdown", "arrowleft", "arrowright", " ", "w", "a", "s", "d"].includes(key)
+        ["arrowup", "arrowdown", "arrowleft", "arrowright", " ", "w", "a", "s", "d", "l"].includes(
+          key
+        )
       ) {
         e.preventDefault();
       }
-      if (key === "s") factsRef.current.signalled = true;
+      if (key === "l") factsRef.current.signalled = true;
       keysRef.current.add(key);
     };
     const up = (e: KeyboardEvent) => keysRef.current.delete(e.key.toLowerCase());
@@ -149,7 +152,7 @@ export const RoadTest: React.FC<RoadTestProps> = ({ open, onClose, onPassed }) =
       const keys = keysRef.current;
       const touch = touchRef.current;
       const held = (...names: string[]) => names.some((n) => keys.has(n));
-      const throttle = held("arrowup", "w") ? 1 : held("arrowdown") ? -1 : touch.throttle;
+      const throttle = held("arrowup", "w") ? 1 : held("arrowdown", "s") ? -1 : touch.throttle;
       const steer = held("arrowleft", "a") ? -1 : held("arrowright", "d") ? 1 : touch.steer;
       return {
         throttle: throttle as Controls["throttle"],
@@ -162,14 +165,16 @@ export const RoadTest: React.FC<RoadTestProps> = ({ open, onClose, onPassed }) =
       const dt = Math.min(0.05, (now - last) / 1000);
       last = now;
 
-      if (phase === "driving") {
+      {
         const facts = factsRef.current;
         const controls = readControls();
         const previous = vehicleRef.current;
         const next = stepVehicle(previous, controls, dt);
 
         // Contact with a parked car stops the vehicle where it touched, rather
-        // than letting it drive through. One deduction per contact event.
+        // than letting it drive through. Scored on the rising edge only: a
+        // driver leaning on the throttle against a bumper is one contact, not
+        // one every time a timer lapses.
         const nextCorners = vehicleCorners(next);
         let blocked = false;
         for (const parked of COURSE.parked) {
@@ -179,15 +184,15 @@ export const RoadTest: React.FC<RoadTestProps> = ({ open, onClose, onPassed }) =
           }
         }
         if (blocked) {
-          if (facts.contactCooldown <= 0) {
+          if (!facts.inContact) {
             facts.bumps += 1;
-            facts.contactCooldown = 0.75;
+            facts.inContact = true;
           }
           vehicleRef.current = { ...previous, speed: 0 };
         } else {
+          facts.inContact = false;
           vehicleRef.current = next;
         }
-        facts.contactCooldown = Math.max(0, facts.contactCooldown - dt);
 
         // Cones are scored once each, then stay flattened.
         COURSE.cones.forEach((cone, index) => {
@@ -220,6 +225,14 @@ export const RoadTest: React.FC<RoadTestProps> = ({ open, onClose, onPassed }) =
       draw(ctx, canvas, vehicleRef.current, factsRef.current.cones);
       raf = requestAnimationFrame(frame);
     };
+
+    // The briefing and the score sheet are static. Painting them at 60 Hz
+    // forever burns a core for nothing, which on a phone is a battery bill for
+    // a picture that is not changing.
+    if (phase !== "driving") {
+      draw(ctx, canvas, vehicleRef.current, factsRef.current.cones);
+      return;
+    }
 
     raf = requestAnimationFrame(frame);
     return () => cancelAnimationFrame(raf);
@@ -319,7 +332,7 @@ export const RoadTest: React.FC<RoadTestProps> = ({ open, onClose, onPassed }) =
                   seconds and {FREE_GEAR_CHANGES} direction changes.
                 </p>
                 <p className="text-[11px] text-white/60">
-                  Arrow keys or WASD to drive · Space to brake · S to signal
+                  Arrow keys or WASD to drive (S reverses) · Space to brake · L to signal
                 </p>
                 <button
                   type="button"

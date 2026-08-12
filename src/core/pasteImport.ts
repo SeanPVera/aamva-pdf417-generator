@@ -7,10 +7,13 @@
 // and returns a field map, or an honest reason why it can't.
 
 import { decodePayload } from "./decoder";
+import { parseImportedPayload } from "./importPayload";
 import { AAMVA_STATES } from "./states";
-import { AAMVA_VERSIONS } from "./schema";
+import { AAMVA_VERSIONS, isSupportedVersion, AAMVA_VERSION_KEYS } from "./schema";
 
 export type PasteKind = "aamva" | "json" | "unknown";
+
+export type SubfileType = "DL" | "ID";
 
 export interface PasteImportResult {
   kind: PasteKind;
@@ -18,14 +21,37 @@ export interface PasteImportResult {
   data: Record<string, string> | null;
   /** How many AAMVA field codes the paste carried. */
   fieldCount: number;
+  /**
+   * DL or ID, read from the payload's subfile directory. The store keeps this
+   * outside the field map, so the caller has to apply it separately — without
+   * it, pasting an ID payload into a form set to DL silently re-encodes the
+   * credential as a driver's licence.
+   */
+  subfileType: SubfileType | null;
   /** One-line summary for the toast — the reason on failure. */
   summary: string;
 }
 
-const FIELD_CODE = /^[A-Z]{2}[A-Z0-9]$/;
+/**
+ * Every field code any AAMVA version defines. Shape alone is not enough: `FOO`
+ * matches the three-character pattern, so a shape-only check would load it into
+ * the form as a value no schema renders and no payload carries — the opposite
+ * of the documented promise that unknown keys are dropped.
+ */
+const KNOWN_FIELD_CODES: ReadonlySet<string> = new Set(
+  Object.values(AAMVA_VERSIONS).flatMap((version) => version.fields.map((field) => field.code))
+);
 
 /** Longest paste worth parsing. A real payload is well under a kilobyte. */
 const MAX_PASTE_LENGTH = 20_000;
+
+/** Byte offsets of the first subfile directory entry's type marker. */
+const DIRECTORY_TYPE_START = 21;
+const DIRECTORY_TYPE_END = 23;
+
+function fail(kind: PasteKind, summary: string): PasteImportResult {
+  return { kind, data: null, fieldCount: 0, subfileType: null, summary };
+}
 
 /**
  * What the text looks like, without committing to parsing it. An AAMVA payload
@@ -41,7 +67,13 @@ export function classifyPaste(text: string): PasteKind {
   return "unknown";
 }
 
-/** Keeps only recognised AAMVA codes plus the two control keys `loadJson` reads. */
+/** The DL/ID marker in the payload's subfile directory, if it is legible. */
+export function readSubfileType(payload: string): SubfileType | null {
+  const marker = payload.substring(DIRECTORY_TYPE_START, DIRECTORY_TYPE_END);
+  return marker === "DL" || marker === "ID" ? marker : null;
+}
+
+/** Keeps only known AAMVA codes plus the two control keys `loadJson` reads. */
 function collectFields(source: Record<string, unknown>): {
   data: Record<string, string>;
   fieldCount: number;
@@ -59,11 +91,13 @@ function collectFields(source: Record<string, unknown>): {
       continue;
     }
     if (key === "version") {
-      const padded = value.padStart(2, "0");
-      if (AAMVA_VERSIONS[padded]) data.version = padded;
+      // Exact keys only. The JSON branch is gated by `parseImportedPayload`,
+      // which refuses an unsupported version outright; quietly padding "9" to
+      // "09" here would make paste accept a shape the file picker rejects.
+      if (AAMVA_VERSIONS[value]) data.version = value;
       continue;
     }
-    if (!FIELD_CODE.test(key)) continue;
+    if (!KNOWN_FIELD_CODES.has(key)) continue;
     data[key] = value;
     fieldCount++;
   }
@@ -81,57 +115,64 @@ function collectFields(source: Record<string, unknown>): {
 export function parsePastedPayload(text: string): PasteImportResult {
   const trimmed = text.trim();
 
-  if (!trimmed) {
-    return { kind: "unknown", data: null, fieldCount: 0, summary: "Clipboard was empty." };
-  }
+  if (!trimmed) return fail("unknown", "Clipboard was empty.");
   if (trimmed.length > MAX_PASTE_LENGTH) {
-    return {
-      kind: "unknown",
-      data: null,
-      fieldCount: 0,
-      summary: "That paste is too large to be an AAMVA payload."
-    };
+    return fail("unknown", "That paste is too large to be an AAMVA payload.");
   }
 
   const kind = classifyPaste(trimmed);
   if (kind === "unknown") {
+    return fail("unknown", "Clipboard doesn't look like an AAMVA payload or a JSON profile.");
+  }
+
+  if (kind === "json") {
+    // The same guard the file picker and the drop overlay use, so a profile
+    // naming a version this build has no field table for is refused here too
+    // rather than silently loading into whatever schema is on screen.
+    const parsed = parseImportedPayload(trimmed, "That paste");
+    if (!parsed.ok) return fail(kind, parsed.error);
+    const { data, fieldCount } = collectFields(parsed.data);
+    if (fieldCount === 0) return fail(kind, "No AAMVA fields found in that paste.");
     return {
       kind,
-      data: null,
-      fieldCount: 0,
-      summary: "Clipboard doesn't look like an AAMVA payload or a JSON profile."
+      data,
+      fieldCount,
+      subfileType: null,
+      summary: describe(fieldCount, data.state)
     };
   }
 
-  // decodePayload handles both branches: `@`-prefixed goes through the AAMVA
-  // reader, anything else through JSON.parse. Only *leading* whitespace is
-  // stripped for the AAMVA branch — the payload's final byte is its segment
-  // terminator, and trimming it makes the directory length overrun the string.
-  const decoded = decodePayload(kind === "aamva" ? text.replace(/^\s+/, "") : trimmed);
+  // Only *leading* whitespace is stripped for the AAMVA branch — the payload's
+  // final byte is its segment terminator, and trimming it makes the directory
+  // length overrun the string.
+  const payload = text.replace(/^\s+/, "");
+  const decoded = decodePayload(payload);
   if (decoded.error || !decoded.data) {
-    return {
+    return fail(kind, decoded.error ?? "Could not read the pasted payload.");
+  }
+
+  const declaredVersion = decoded.data.version;
+  if (typeof declaredVersion === "string" && !isSupportedVersion(declaredVersion)) {
+    return fail(
       kind,
-      data: null,
-      fieldCount: 0,
-      summary: decoded.error ?? "Could not read the pasted payload."
-    };
+      `That paste is AAMVA version ${declaredVersion}, which this build does not support. ` +
+        `Supported versions: ${AAMVA_VERSION_KEYS.join(", ")}.`
+    );
   }
 
   const { data, fieldCount } = collectFields(decoded.data);
-  if (fieldCount === 0) {
-    return {
-      kind,
-      data: null,
-      fieldCount: 0,
-      summary: "No AAMVA fields found in that paste."
-    };
-  }
+  if (fieldCount === 0) return fail(kind, "No AAMVA fields found in that paste.");
 
-  const where = data.state ? ` for ${data.state}` : "";
   return {
     kind,
     data,
     fieldCount,
-    summary: `Pasted ${fieldCount} field${fieldCount === 1 ? "" : "s"}${where}`
+    subfileType: readSubfileType(payload),
+    summary: describe(fieldCount, data.state)
   };
+}
+
+function describe(fieldCount: number, state?: string): string {
+  const where = state ? ` for ${state}` : "";
+  return `Pasted ${fieldCount} field${fieldCount === 1 ? "" : "s"}${where}`;
 }

@@ -56,6 +56,7 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { state, version, fields, strictMode, subfileType, includeNameInExport } = useFormStore();
   const setField = useFormStore((s) => s.setField);
+  const mergeFields = useFormStore((s) => s.mergeFields);
   const setIncludeNameInExport = useFormStore((s) => s.setIncludeNameInExport);
   const inspectorWidth = useFormStore((s) => s.inspectorWidth);
   const setInspectorWidth = useFormStore((s) => s.setInspectorWidth);
@@ -217,18 +218,29 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
       const { jsPDF } = await import("jspdf");
       const { widthInches, heightInches } = getBarcodeDimensions(state);
       const margin = 36; // half an inch, in points
-      const width = widthInches * 72;
       const height = heightInches * 72;
+
+      // Same layout maths as the PNG path, and for the same reason: sizing the
+      // image to the credential rectangle on both axes independently rescales
+      // the module grid by a different factor horizontally and vertically,
+      // which collapses the row-height : X-dimension ratio below the 3:1
+      // minimum PDF417 needs and stops the print decoding. `computeExportLayout`
+      // picks one integer scale for both axes and centres what is left over.
+      const layout = computeExportLayout(
+        canvas.width / PREVIEW_SCALE,
+        canvas.height / PREVIEW_SCALE,
+        Math.round(widthInches * EXPORT_DPI),
+        Math.round(heightInches * EXPORT_DPI)
+      );
 
       const printCanvas = document.createElement("canvas");
       // Re-encode rather than upscaling the preview: a fractional resample
-      // makes neighbouring modules different widths and stops the print
-      // decoding (same reasoning as the PNG path above).
-      bwipjs.toCanvas(printCanvas, {
-        ...BWIP_OPTIONS,
-        scale: Math.max(1, Math.round((widthInches * EXPORT_DPI) / (canvas.width / PREVIEW_SCALE))),
-        text: payloadStr
-      });
+      // makes neighbouring modules different widths (same reasoning as above).
+      bwipjs.toCanvas(printCanvas, { ...BWIP_OPTIONS, scale: layout.scale, text: payloadStr });
+
+      // Pixels at EXPORT_DPI → PDF points, so the symbol lands at its true
+      // physical size inside the credential's barcode area.
+      const pxToPt = 72 / EXPORT_DPI;
 
       const pdf = new jsPDF({ unit: "pt", format: "letter" });
       pdf.setFontSize(9);
@@ -236,10 +248,10 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
       pdf.addImage(
         printCanvas.toDataURL("image/png"),
         "PNG",
-        margin,
-        margin + 12,
-        width,
-        height,
+        margin + layout.offsetX * pxToPt,
+        margin + 12 + layout.offsetY * pxToPt,
+        layout.drawWidth * pxToPt,
+        layout.drawHeight * pxToPt,
         undefined,
         "NONE"
       );
@@ -342,9 +354,13 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
     [schemaFields, fields, state, strictMode]
   );
   const applyFix = React.useCallback((fix: QuickFix) => setField(fix.code, fix.value), [setField]);
+  // One button press, one undo step. Looping `setField` pushed a history entry
+  // per fix (the codes differ, so nothing coalesces), which left Ctrl+Z undoing
+  // the bulk action one field at a time through partially-fixed intermediates.
   const applyAllFixes = React.useCallback(() => {
-    for (const fix of fixes) setField(fix.code, fix.value);
-  }, [fixes, setField]);
+    if (fixes.length === 0) return;
+    mergeFields(Object.fromEntries(fixes.map((fix) => [fix.code, fix.value])));
+  }, [fixes, mergeFields]);
   const dims = getBarcodeDimensions(state);
   const critter = getStateCritter(state);
 

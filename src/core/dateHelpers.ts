@@ -6,6 +6,8 @@
 // human actually produces (08/11/2026, 2026-08-11, 8.11.26) without ever
 // guessing at a value the user did not supply.
 
+import { getEffectiveDateRules } from "./jurisdictionRules";
+
 export type AamvaDateFormat = "MMDDYYYY" | "YYYYMMDD";
 
 /**
@@ -181,49 +183,93 @@ export interface DateChip {
   title: string;
 }
 
+export interface DateChipOptions {
+  format?: AamvaDateFormat;
+  now?: Date;
+  /**
+   * Jurisdiction whose date rules bound the offers. Without it the expiry chips
+   * are just "+4/+8 years", which in a state that caps validity at five will
+   * hand the user a value its own validator immediately warns about.
+   */
+  stateCode?: string;
+}
+
+/** Validity terms offered by default, before the jurisdiction's rules apply. */
+const DEFAULT_VALIDITY_YEARS = [4, 8];
+
+/** Ages worth one click on a date of birth. */
+const ADULT_AGES = [18, 21, 40];
+
+/** Most offers to show on one field — beyond this the row stops being a shortcut. */
+const MAX_CHIPS = 3;
+
 /**
  * The handful of dates that are worth one click rather than mental arithmetic:
- * today's date for an issue date, the state's validity window off the issue
- * date for an expiry, and a plausible adult birth date.
+ * today's date for an issue date, terms the jurisdiction actually issues for an
+ * expiry, and birth dates that put the holder at a plausible age *at issuance*.
  *
- * Anchored to sibling field values where that is what the user means — an
- * expiry is "eight years after the issue date", not "eight years from now".
+ * Everything is anchored to sibling field values where that is what the user
+ * means — an expiry is "eight years after the issue date", not "eight years
+ * from now", and "21 years ago" on a 2020 card would make the holder 15 when it
+ * was issued, which is exactly the warning the chip is supposed to help avoid.
  */
 export function getDateChips(
   code: string,
   fields: Record<string, string>,
-  format: AamvaDateFormat = "MMDDYYYY",
-  now: Date = new Date()
+  options: DateChipOptions = {}
 ): DateChip[] {
+  const format = options.format ?? "MMDDYYYY";
+  const now = options.now ?? new Date();
   const today = todayAamva(format, now);
+
   const chip = (label: string, value: string | null, context: string): DateChip[] =>
     value ? [{ label, value, title: `${context} — ${describeAamvaDate(value, format)}` }] : [];
+
+  // The issue date anchors everything else, when it is legible.
+  const issueDate = parseAamvaDateParts(fields.DBD ?? "", format) ? fields.DBD! : null;
 
   switch (code) {
     case "DBD":
       return chip("Today", today, "Issued today");
+
     case "DBA": {
-      // Anchor to the issue date when there is one; otherwise today is the
-      // only honest reference point.
-      const anchor = parseAamvaDateParts(fields.DBD ?? "", format) ? fields.DBD! : today;
-      const anchoredTo = anchor === today ? "from today" : "from the issue date";
-      return [
-        ...chip("+4 yrs", shiftYears(anchor, 4, format), `Four years ${anchoredTo}`),
-        ...chip("+8 yrs", shiftYears(anchor, 8, format), `Eight years ${anchoredTo}`)
-      ];
+      const anchor = issueDate ?? today;
+      const anchoredTo = issueDate ? "from the issue date" : "from today";
+      const rules = getEffectiveDateRules(options.stateCode ?? "");
+      const max = rules.maxValidityYears;
+      const min = rules.minValidityYears;
+
+      // Offer the jurisdiction's own limit alongside the defaults, then drop
+      // anything outside its window. A state that issues for exactly five years
+      // should offer five, not four and eight.
+      const terms = [...DEFAULT_VALIDITY_YEARS, ...(max === undefined ? [] : [max])]
+        .filter(
+          (years) => (max === undefined || years <= max) && (min === undefined || years >= min)
+        )
+        .filter((years, index, all) => all.indexOf(years) === index)
+        .sort((a, b) => a - b)
+        .slice(0, MAX_CHIPS);
+
+      return terms.flatMap((years) =>
+        chip(`+${years} yrs`, shiftYears(anchor, years, format), `${years} years ${anchoredTo}`)
+      );
     }
-    case "DBB":
-      return [
-        ...chip("18 yrs ago", shiftYears(today, -18, format), "Turns 18 today"),
-        ...chip("21 yrs ago", shiftYears(today, -21, format), "Turns 21 today"),
-        ...chip("40 yrs ago", shiftYears(today, -40, format), "Turns 40 today")
-      ];
+
+    case "DBB": {
+      // Ages are measured at issuance, which is what the cross-field check and
+      // every jurisdiction's minimum-age rule actually look at.
+      const anchor = issueDate ?? today;
+      const at = issueDate ? "at issue" : "today";
+      return ADULT_AGES.flatMap((age) =>
+        chip(`${age} yrs ago`, shiftYears(anchor, -age, format), `Turns ${age} ${at}`)
+      );
+    }
+
     case "DDB":
       // A card revision never postdates the issue date; matching it is always
       // valid, which is more than the random generator can promise.
-      return parseAamvaDateParts(fields.DBD ?? "", format)
-        ? chip("Match issue", fields.DBD!, "Same as the issue date")
-        : [];
+      return issueDate ? chip("Match issue", issueDate, "Same as the issue date") : [];
+
     default:
       return [];
   }

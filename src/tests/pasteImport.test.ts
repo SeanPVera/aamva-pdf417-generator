@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { classifyPaste, parsePastedPayload } from "../core/pasteImport";
+import { classifyPaste, parsePastedPayload, readSubfileType } from "../core/pasteImport";
 import { generateAAMVAPayload } from "../core/generator";
 import { getFieldsForStateAndVersion } from "../core/schema";
 
@@ -28,13 +28,13 @@ const CA_FIELDS = {
   DDB: "01012024"
 };
 
-function caPayload(): string {
+function caPayload(subfileType: "DL" | "ID" = "DL"): string {
   return generateAAMVAPayload(
     "CA",
     "10",
     getFieldsForStateAndVersion("CA", "10"),
     { ...CA_FIELDS },
-    { subfileType: "DL" }
+    { subfileType }
   );
 }
 
@@ -91,15 +91,31 @@ describe("parsePastedPayload", () => {
     expect(result.fieldCount).toBe(1);
   });
 
-  it("ignores an unknown jurisdiction or version rather than loading it", () => {
-    const result = parsePastedPayload(JSON.stringify({ state: "ZZ", version: "99", DCS: "DOE" }));
+  // The same guard the file picker and the drop overlay use: a profile naming a
+  // version with no field table would switch the store to an empty schema.
+  it("refuses a version this build cannot render", () => {
+    const result = parsePastedPayload(JSON.stringify({ state: "CA", version: "99", DCS: "DOE" }));
+    expect(result.data).toBeNull();
+    expect(result.summary).toMatch(/version 99, which this build does not support/i);
+  });
+
+  it("ignores an unknown jurisdiction rather than loading it", () => {
+    const result = parsePastedPayload(JSON.stringify({ state: "ZZ", DCS: "DOE" }));
     expect(result.data).toEqual({ DCS: "DOE" });
   });
 
-  it("normalizes a single-digit version and a lower-case state", () => {
-    const result = parsePastedPayload(JSON.stringify({ state: "ca", version: "9", DCS: "DOE" }));
+  it("accepts a lower-case state", () => {
+    const result = parsePastedPayload(JSON.stringify({ state: "ca", version: "09", DCS: "DOE" }));
     expect(result.data!.state).toBe("CA");
     expect(result.data!.version).toBe("09");
+  });
+
+  // Shape alone is not enough: FOO matches the three-character pattern, and
+  // loading it would put a value in the form no schema renders.
+  it("drops keys shaped like field codes that no version defines", () => {
+    const result = parsePastedPayload(JSON.stringify({ DCS: "DOE", FOO: "bar", ZZ9: "x" }));
+    expect(result.data).toEqual({ DCS: "DOE" });
+    expect(result.fieldCount).toBe(1);
   });
 
   it("explains itself when the paste carries no fields", () => {
@@ -130,5 +146,33 @@ describe("parsePastedPayload", () => {
 
   it("handles an empty clipboard", () => {
     expect(parsePastedPayload("").summary).toMatch(/empty/i);
+  });
+
+  // The store keeps subfileType outside the field map, so a paste that does not
+  // carry it forward silently re-encodes an ID as a driver's licence.
+  describe("subfile type", () => {
+    it("carries DL through from the payload directory", () => {
+      expect(parsePastedPayload(caPayload("DL")).subfileType).toBe("DL");
+    });
+
+    it("carries ID through from the payload directory", () => {
+      expect(parsePastedPayload(caPayload("ID")).subfileType).toBe("ID");
+    });
+
+    it("is null for a JSON profile, which does not record one", () => {
+      const result = parsePastedPayload(JSON.stringify({ state: "CA", DCS: "DOE" }));
+      expect(result.subfileType).toBeNull();
+    });
+  });
+
+  describe("readSubfileType", () => {
+    it("reads the marker at the directory offset", () => {
+      expect(readSubfileType(caPayload("ID"))).toBe("ID");
+    });
+
+    it("returns null when there is no legible marker", () => {
+      expect(readSubfileType("nowhere near a payload")).toBeNull();
+      expect(readSubfileType("")).toBeNull();
+    });
   });
 });
