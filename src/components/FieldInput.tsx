@@ -96,8 +96,13 @@ export const FieldInput: React.FC<FieldInputProps> = ({
   onHelpOpened
 }) => {
   const evalResult = evaluateFieldValue(field, value, state, strictMode);
+  // A pristine empty form should not open covered in red, so an empty required
+  // field only reports once the user has been in it. Without the touched gate
+  // the "Required field is empty." result was unreachable in the UI even though
+  // the validation panel counted it as a blocking error.
+  const [touched, setTouched] = React.useState(false);
   const isWarning = !!value && evalResult.severity === "warning";
-  const hasError = !!value && !evalResult.ok && !isWarning;
+  const hasError = (!!value || touched) && !evalResult.ok && !isWarning;
   const showAdvisory = hasError || isWarning;
   const errorId = `error-${field.code}`;
   const helpId = `help-${field.code}`;
@@ -228,6 +233,7 @@ export const FieldInput: React.FC<FieldInputProps> = ({
             id={field.code}
             value={value}
             onChange={(e) => onChange(field.code, e.target.value)}
+            onBlur={() => setTouched(true)}
             aria-required={field.required}
             aria-invalid={hasError}
             aria-describedby={showAdvisory ? errorId : undefined}
@@ -266,7 +272,10 @@ export const FieldInput: React.FC<FieldInputProps> = ({
             value={value}
             placeholder={field.dateFormat || " "}
             onChange={(e) => handleChange(e.target.value)}
-            onBlur={handleDateBlur}
+            onBlur={() => {
+              setTouched(true);
+              handleDateBlur();
+            }}
             // Roomy enough to type the separators people actually use
             // ("08/11/2026"); the blur handler folds it back to eight digits.
             maxLength={10}
@@ -319,6 +328,7 @@ export const FieldInput: React.FC<FieldInputProps> = ({
             value={value}
             placeholder={field.dateFormat || " "}
             onChange={(e) => handleChange(e.target.value)}
+            onBlur={() => setTouched(true)}
             maxLength={AAMVA_FIELD_LIMITS[field.code]}
             readOnly={!!derivedFrom}
             aria-required={field.required}

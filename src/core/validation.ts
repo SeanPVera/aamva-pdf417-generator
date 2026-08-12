@@ -206,12 +206,14 @@ export const AAMVA_STATE_RULES: Record<string, StateRules> = (() => {
   return rules;
 })();
 
-export function validateFieldValue(
-  field: AAMVAField,
-  value: string,
-  stateCode?: string,
-  _strictMode: boolean = false
-): boolean {
+/**
+ * Structural validation: enumerations, length limits, jurisdiction validators,
+ * and type-specific format checks. Deliberately has no strict-mode parameter —
+ * none of these checks are ever advisory, and the one it used to take was
+ * accepted, forwarded by two callers, and then completely ignored. Severity and
+ * strict-mode promotion live in `evaluateFieldValue`.
+ */
+export function validateFieldValue(field: AAMVAField, value: string, stateCode?: string): boolean {
   if (field.required && !value) return false;
   if (!value) return true;
 
@@ -513,6 +515,11 @@ export interface FieldEvaluation {
   message?: string;
 }
 
+/**
+ * `strictMode` promotes jurisdiction rule-pack advisories from warnings to
+ * blocking errors, which is what "strict mode treats warnings as errors" has
+ * always claimed to mean. Every other check here is unconditional.
+ */
 export function evaluateFieldValue(
   field: AAMVAField,
   value: string,
@@ -553,7 +560,7 @@ export function evaluateFieldValue(
     }
   }
 
-  if (!validateFieldValue(field, value, stateCode, strictMode)) {
+  if (!validateFieldValue(field, value, stateCode)) {
     let msg = "Invalid format or value.";
     if (field.type === "date") {
       msg = `Invalid date format (expected ${field.dateFormat || "MMDDYYYY"}).`;
@@ -567,15 +574,27 @@ export function evaluateFieldValue(
 
   // Layer rule-pack constraints (regex patterns) on top of the structural
   // checks. These can be either errors or warnings depending on the pack.
+  //
+  // Every violation is examined and the most severe one wins. Returning on the
+  // first failure meant a warning-severity constraint listed ahead of an
+  // error-severity one masked the error entirely and reported `ok: true`.
   if (stateCode) {
     const pack = JURISDICTION_RULE_PACKS[stateCode];
     if (pack?.constraints) {
+      let worst: FieldEvaluation | null = null;
       for (const c of pack.constraints) {
         if (c.field !== field.code) continue;
         if (c.pattern && !c.pattern.test(value)) {
-          return { ok: c.severity === "warning", severity: c.severity, message: c.message };
+          if (c.severity === "error") {
+            return { ok: false, severity: "error", message: c.message };
+          }
+          // Strict mode promotes the advisory into a blocker.
+          worst ??= strictMode
+            ? { ok: false, severity: "error", message: c.message }
+            : { ok: true, severity: c.severity, message: c.message };
         }
       }
+      if (worst) return worst;
     }
   }
 

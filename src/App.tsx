@@ -101,9 +101,13 @@ function App() {
     });
   }, []);
 
+  // Stable identities: `useSwipe` re-runs its effect whenever a handler changes,
+  // and inline arrows here made that every render.
+  const handleSwipeLeft = React.useCallback(() => cycleMobilePanel(1), [cycleMobilePanel]);
+  const handleSwipeRight = React.useCallback(() => cycleMobilePanel(-1), [cycleMobilePanel]);
   const swipeRef = useSwipe<HTMLElement>({
-    onSwipeLeft: () => cycleMobilePanel(1),
-    onSwipeRight: () => cycleMobilePanel(-1)
+    onSwipeLeft: handleSwipeLeft,
+    onSwipeRight: handleSwipeRight
   });
   const {
     state,
@@ -113,6 +117,7 @@ function App() {
     setField,
     setDerivedField,
     loadJson,
+    mergeFields,
     restoreFields,
     setStrictMode,
     theme,
@@ -430,26 +435,23 @@ function App() {
       handleChange(code, generateStateCardRevisionDate(state, fields["DBD"]) || "");
   };
 
+  // One click, one undo step — see `mergeFields` in useFormStore.
   const handleGenerateAllAuto = () => {
-    let count = 0;
     const presentCodes = new Set(schemaFields.map((f) => f.code));
-    if (presentCodes.has("DCF")) {
-      setField("DCF", generateStateDiscriminator(state));
-      count++;
-    }
-    if (presentCodes.has("DAQ")) {
-      setField("DAQ", generateStateLicenseNumber(state));
-      count++;
-    }
+    const patch: Record<string, string> = {};
+    if (presentCodes.has("DCF")) patch.DCF = generateStateDiscriminator(state);
+    if (presentCodes.has("DAQ")) patch.DAQ = generateStateLicenseNumber(state);
     if (presentCodes.has("DDB")) {
       const ddb = generateStateCardRevisionDate(state, fields["DBD"]);
-      if (ddb) {
-        setField("DDB", ddb);
-        count++;
-      }
+      if (ddb) patch.DDB = ddb;
     }
-    if (count === 0) toast.info("No auto-generated fields available for this version.");
-    else toast.success(`Generated ${count} auto field${count === 1 ? "" : "s"}.`);
+    const count = Object.keys(patch).length;
+    if (count === 0) {
+      toast.info("No auto-generated fields available for this version.");
+      return;
+    }
+    mergeFields(patch);
+    toast.success(`Generated ${count} auto field${count === 1 ? "" : "s"}.`);
   };
 
   // Reads the payload the app already generated rather than hunting for a
@@ -485,13 +487,12 @@ function App() {
   // Dev-only convenience: fill the form with valid sample values so we can
   // verify changes against a generated barcode without typing every field.
   const handleFillSample = () => {
+    const snapshot = { ...fields };
     const sample = buildSampleFill(schemaFields, state);
-    let count = 0;
-    for (const [code, value] of Object.entries(sample)) {
-      setField(code, value);
-      count++;
-    }
-    toast.success(`Filled ${count} sample fields`);
+    mergeFields(sample);
+    toast.success(`Filled ${Object.keys(sample).length} sample fields`, {
+      action: { label: "Undo", onClick: () => restoreFields(snapshot) }
+    });
   };
 
   const handleCopyField = async (code: string, value: string) => {

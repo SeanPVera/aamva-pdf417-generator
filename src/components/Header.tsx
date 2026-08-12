@@ -31,6 +31,8 @@ import { getStateTheme } from "../core/stateThemes";
 import { AAMVA_STATES } from "../core/states";
 import { buildExportBasename } from "../core/exportNaming";
 import { getFieldsForStateAndVersion } from "../core/schema";
+import { downloadBlob } from "../core/download";
+import { parseImportedPayload } from "../core/importPayload";
 import { detectPlatform, formatShortcut } from "../core/modKey";
 
 interface HeaderProps {
@@ -183,10 +185,7 @@ export const Header: React.FC<HeaderActionProps> = ({
 
     const data = { state, version, ...kept };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download =
+    const filename =
       buildExportBasename({
         state,
         version,
@@ -195,10 +194,9 @@ export const Header: React.FC<HeaderActionProps> = ({
         prefix: "aamva",
         includeName: includeNameInExport
       }) + ".json";
-    a.click();
-    URL.revokeObjectURL(url);
+    downloadBlob(blob, filename);
 
-    toast.success(`Exported ${a.download}`);
+    toast.success(`Exported ${filename}`);
     if (dropped.length > 0) {
       toast.info(
         `${dropped.length} value${dropped.length === 1 ? "" : "s"} from another version ` +
@@ -217,22 +215,20 @@ export const Header: React.FC<HeaderActionProps> = ({
     const snapshot = { ...fields };
     const hadValues = Object.values(fields).some((v) => (v ?? "").trim().length > 0);
     reader.onload = (evt) => {
-      try {
-        const parsed = JSON.parse(evt.target?.result as string);
-        if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
-          loadJson(parsed as Record<string, string>);
-          toast.success(
-            `Imported ${file.name}`,
-            hadValues
-              ? { action: { label: "Undo", onClick: () => restoreFields(snapshot) } }
-              : undefined
-          );
-        } else {
-          toast.error("Invalid JSON: expected a single payload object.", { persistent: true });
-        }
-      } catch {
-        toast.error("Failed to parse JSON file. Check the file format.", { persistent: true });
+      // Shared with the drag-and-drop overlay so both import paths agree on what
+      // is loadable — including the unsupported-version guard.
+      const result = parseImportedPayload(evt.target?.result as string, file.name);
+      if (!result.ok) {
+        toast.error(result.error, { persistent: true });
+        return;
       }
+      loadJson(result.data);
+      toast.success(
+        `Imported ${file.name}`,
+        hadValues
+          ? { action: { label: "Undo", onClick: () => restoreFields(snapshot) } }
+          : undefined
+      );
     };
     reader.readAsText(file);
     // reset so the same file can be re-imported

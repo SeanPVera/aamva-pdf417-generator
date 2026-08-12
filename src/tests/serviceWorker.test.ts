@@ -73,6 +73,9 @@ function loadServiceWorker() {
     URL,
     Promise,
     console,
+    // The worker answers an unreachable asset with Response.error() rather than
+    // the HTML shell; the real global is not available inside the vm context.
+    Response: { error: () => makeResponse("", { ok: false, type: "error" }) },
     caches: cacheStorage,
     fetch: (req: unknown) => {
       const url = keyOf(req);
@@ -231,6 +234,32 @@ describe("service worker fetch routing", () => {
     await Promise.resolve();
 
     expect(sw.caches.get(CACHE)).toBeUndefined();
+  });
+
+  it("does not pin a failed navigation response as the offline shell", async () => {
+    // The navigation response was cached unconditionally, so a 404 or a 500
+    // page from the host replaced the shell — and an installed iOS web app has
+    // no reload button to escape it with.
+    sw.seed(CACHE, "./index.html", "good-shell");
+    sw.setFetch(() => Promise.resolve(makeResponse("<h1>500</h1>", { ok: false })));
+
+    const response = await sw.dispatchFetch(makeRequest("./", { mode: "navigate" }));
+    await Promise.resolve();
+
+    expect(response?.body).toBe("<h1>500</h1>");
+    expect(sw.caches.get(CACHE)!.get(`${ORIGIN}/app/index.html`)?.body).toBe("good-shell");
+  });
+
+  it("does not answer an unreachable asset with the HTML shell", async () => {
+    // Handing index.html back for a missing script or image produced a 200 of
+    // entirely the wrong content type instead of a visible failure.
+    sw.seed(CACHE, "./index.html", "shell");
+    sw.setFetch(() => Promise.reject(new Error("offline")));
+
+    const response = await sw.dispatchFetch(makeRequest("./assets/missing.js"));
+
+    expect(response?.body).not.toBe("shell");
+    expect(response?.ok).toBe(false);
   });
 
   it("declines cross-origin and non-GET requests", async () => {

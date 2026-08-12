@@ -3,6 +3,7 @@ import { BrowserPDF417Reader } from "@zxing/browser";
 import type { IScannerControls } from "@zxing/browser";
 import type { Result } from "@zxing/library";
 import { decodeAAMVA } from "../core/decoder";
+import { AAMVA_VERSION_KEYS, isSupportedVersion } from "../core/schema";
 import {
   Camera,
   X,
@@ -73,6 +74,16 @@ export function WebcamScanner({ onClose }: WebcamScannerProps) {
       const decoded = decodeAAMVA(text);
       if (decoded.ok && decoded.json) {
         const { state, version } = decoded.json;
+        // A payload can name any two-digit version. Loading one this build has
+        // no field table for reported success and then left the form completely
+        // empty, with the failure only visible as a generator error.
+        if (version && !isSupportedVersion(version)) {
+          setError(
+            `This barcode is AAMVA version ${version}, which this build does not support. ` +
+              `Supported versions: ${AAMVA_VERSION_KEYS.join(", ")}.`
+          );
+          return;
+        }
         if (state && version) setStateVersion(state, version);
         loadJson(decoded.json);
         toast.success(`Scanned ${state || "ID"}${version ? ` v${version}` : ""}`);
@@ -129,11 +140,21 @@ export function WebcamScanner({ onClose }: WebcamScannerProps) {
         reader = new BrowserPDF417Reader();
 
         if (videoRef.current && !cancelled) {
-          controls = await reader.decodeFromVideoDevice(
+          const started = await reader.decodeFromVideoDevice(
             selectedDeviceId,
             videoRef.current,
             handleDecode
           );
+
+          // The camera can finish starting *after* the modal was closed. The
+          // cleanup below already ran by then and saw `controls` still null, so
+          // without this the track — and the OS camera indicator — stayed live
+          // for the rest of the session.
+          if (cancelled) {
+            started?.stop();
+            return;
+          }
+          controls = started;
 
           // Remember the working camera and detect torch support.
           if (selectedDeviceId) setCameraDeviceId(selectedDeviceId);

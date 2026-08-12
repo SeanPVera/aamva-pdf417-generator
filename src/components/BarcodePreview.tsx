@@ -13,6 +13,7 @@ import {
   getBarcodeDimensions
 } from "../core/barcodeDimensions";
 import { buildExportBasename } from "../core/exportNaming";
+import { downloadBlob, downloadUrl } from "../core/download";
 import { getStateCritter } from "../core/stateCritters";
 import { PayloadInspector } from "./PayloadInspector";
 import { InspectorModal } from "./InspectorModal";
@@ -162,11 +163,7 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
       );
     }
 
-    const url = target.toDataURL("image/png");
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = exportBasename("barcode") + ".png";
-    a.click();
+    downloadUrl(target.toDataURL("image/png"), exportBasename("barcode") + ".png");
     setLaminateKey((k) => k + 1);
     onExported?.();
     onBingo?.("exported-png");
@@ -189,13 +186,10 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
         ...BWIP_OPTIONS,
         text: payloadStr
       });
-      const blob = new Blob([svgStr], { type: "image/svg+xml" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = exportBasename("barcode") + ".svg";
-      a.click();
-      URL.revokeObjectURL(url);
+      downloadBlob(
+        new Blob([svgStr], { type: "image/svg+xml" }),
+        exportBasename("barcode") + ".svg"
+      );
       setLaminateKey((k) => k + 1);
       onExported?.();
     } catch {
@@ -205,13 +199,10 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
       const h = canvasRef.current.height;
       const pngData = canvasRef.current.toDataURL("image/png");
       const fallbackSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><image href="${pngData}" width="${w}" height="${h}"/></svg>`;
-      const blob = new Blob([fallbackSvg], { type: "image/svg+xml" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = exportBasename("barcode") + ".svg";
-      a.click();
-      URL.revokeObjectURL(url);
+      downloadBlob(
+        new Blob([fallbackSvg], { type: "image/svg+xml" }),
+        exportBasename("barcode") + ".svg"
+      );
       onExported?.();
     }
   };

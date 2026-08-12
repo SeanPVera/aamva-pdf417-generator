@@ -20,6 +20,7 @@ import bwipjs from "bwip-js";
 import { PDF417_ENCODER_OPTIONS } from "../core/barcodeDimensions";
 import { parseBatchTable, toCsv } from "../core/csv";
 import { createZip, dataUrlToBytes } from "../core/zip";
+import { downloadBlob } from "../core/download";
 import { useModalShell } from "../hooks/useModalShell";
 import { useHoldMusic } from "../hooks/useHoldMusic";
 import { useFormStore } from "../hooks/useFormStore";
@@ -121,15 +122,6 @@ function canvasToPdfDimensions(
 
   const scale = maxWidthPt / naturalWidthPt;
   return { widthPt: maxWidthPt, heightPt: naturalHeightPt * scale };
-}
-
-function downloadBlob(blob: Blob, filename: string): void {
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  a.click();
-  URL.revokeObjectURL(url);
 }
 
 interface BatchProcessorProps {
