@@ -82,6 +82,7 @@ export interface FormState {
   _changedCodes: string[];
   _changedAt: number;
   setField: (code: string, value: string) => void;
+  setDerivedField: (code: string, value: string) => void;
   setStateVersion: (state: string, version: string) => void;
   setStrictMode: (mode: boolean) => void;
   setSubfileType: (type: "DL" | "ID") => void;
@@ -170,6 +171,14 @@ export const useFormStore = create<FormState>()(
             _lastEditAt: now
           };
         }),
+
+      // For values the app owns rather than the user — today only DAJ, which
+      // generateAAMVAPayload forces to the selected jurisdiction no matter what
+      // the form holds. Deliberately does NOT touch undo history: a derived
+      // value is not an edit, and burning a history slot on it would push the
+      // user's own last change out of reach.
+      setDerivedField: (code, value) =>
+        set((s) => (s.fields[code] === value ? s : { fields: { ...s.fields, [code]: value } })),
 
       setStateVersion: (stateCode, version) =>
         set((s) => {

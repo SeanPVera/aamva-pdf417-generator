@@ -39,6 +39,26 @@ export {
   describeFields
 } from "./decoder";
 
+// Date entry (flexible parsing of what users type, into the AAMVA wire form)
+export type { AamvaDateFormat, DateChip } from "./dateHelpers";
+export {
+  normalizeDateInput,
+  parseAamvaDateParts,
+  describeAamvaDate,
+  yearsBetween,
+  todayAamva,
+  shiftYears,
+  getDateChips
+} from "./dateHelpers";
+
+// Deterministic repairs for values the validator rejects
+export type { QuickFix } from "./quickFix";
+export { getQuickFix, getCanonicalRewrite, getQuickFixes } from "./quickFix";
+
+// Clipboard import (raw payload or JSON profile)
+export type { PasteKind, PasteImportResult } from "./pasteImport";
+export { classifyPaste, parsePastedPayload } from "./pasteImport";
+
 // Field & cross-field validation
 export {
   AAMVA_STATE_RULES,

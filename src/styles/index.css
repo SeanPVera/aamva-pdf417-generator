@@ -294,6 +294,36 @@ div {
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
+/* Mobile status/action strip. Pinned above the home indicator so the export
+   button never sits under it, and only ever rendered below the lg breakpoint. */
+.mobile-action-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 30;
+  background: rgb(255 255 255 / 0.95);
+  backdrop-filter: blur(6px);
+  border-top: 1px solid #e5e7eb;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.dark .mobile-action-bar {
+  background: rgb(30 30 30 / 0.95);
+  border-top-color: #333333;
+}
+
+/* Search term hit inside a field label. Deliberately not the browser default
+   yellow, which is unreadable on the dark surface. */
+.search-hit {
+  background: rgb(37 99 235 / 0.18);
+  color: inherit;
+  border-radius: 2px;
+  padding: 0 1px;
+}
+
+.dark .search-hit {
+  background: rgb(96 165 250 / 0.28);
+}
+
 /* Toast slide-in */
 @keyframes toast-in {
   from {

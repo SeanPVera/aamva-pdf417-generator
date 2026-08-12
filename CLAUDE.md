@@ -53,6 +53,11 @@ This file provides AI assistants (Claude, Copilot, etc.) with the context needed
 │   │   ├── generator.ts          # AAMVA payload generator with state-specific rules
 │   │   ├── decoder.ts            # Payload decoder and structural validator
 │   │   ├── validation.ts         # Field validation, cross-field checks, state-specific rules
+│   │   ├── dateHelpers.ts        # Flexible date parsing/formatting + relative date chips
+│   │   ├── quickFix.ts           # Deterministic repairs for values the validator rejects
+│   │   ├── pasteImport.ts        # Classifies clipboard text into a loadable field map
+│   │   ├── derivedFields.ts      # App-owned field codes (DAJ) and user-dirty-state checks
+│   │   ├── roadTest.ts           # Parallel-parking physics and examiner scoring (decorative)
 │   │   ├── jurisdictionRules.ts  # Per-jurisdiction rule packs
 │   │   ├── barcodeDimensions.ts  # PDF417 row/column sizing for the encoder
 │   │   ├── exportNaming.ts       # Filename construction for PNG/SVG/PDF/JSON exports
@@ -66,10 +71,13 @@ This file provides AI assistants (Claude, Copilot, etc.) with the context needed
 │   ├── components/
 │   │   ├── Header.tsx            # Top bar: undo/redo, theme, import/export JSON, clear, scanner
 │   │   ├── Sidebar.tsx           # State/version selector, strict mode toggle, subfile type
-│   │   ├── BarcodePreview.tsx    # PDF417 canvas via bwip-js, payload display, PDF export
+│   │   ├── BarcodePreview.tsx    # PDF417 canvas via bwip-js, payload display, PNG/SVG/PDF export
 │   │   ├── BatchProcessor.tsx    # Bulk field operations UI
 │   │   ├── WebcamScanner.tsx     # ZXing-based barcode scanner modal
 │   │   ├── VersionBrowser.tsx    # Modal for exploring AAMVA versions 01–10
+│   │   ├── GroupNav.tsx          # Per-group error/empty counts with jump-to-group
+│   │   ├── MobileActionBar.tsx   # Sticky mobile status + export strip
+│   │   ├── RoadTest.tsx          # The parallel-parking exam (lazy, decorative)
 │   │   └── ErrorBoundary.tsx     # React error boundary
 │   ├── stubs/
 │   │   └── jspdfOptionalRenderer.ts  # Stubs jsPDF's unused html2canvas/dompurify/canvg
@@ -148,6 +156,42 @@ Named exports:
 | `decodeAAMVA(text)` | High-level decoder returning `{ ok, json, mapped }` |
 | `describeFields(obj)` | Human-readable field descriptions |
 
+### `src/core/dateHelpers.ts` — Date entry
+
+| Export | Contents |
+|---|---|
+| `normalizeDateInput(raw, format, now?)` | `8/11/2026`, `2026-08-11`, `08112026` → the wire form; `null` when it cannot resolve without guessing |
+| `parseAamvaDateParts(value, format)` | Canonical string → `{ year, month, day }`, calendar-checked |
+| `describeAamvaDate(value, format)` | `"Aug 11, 2026"` |
+| `yearsBetween(from, to, format)` | Whole years, used for age-at-issue |
+| `todayAamva(format, now?)` / `shiftYears(value, years, format)` | Chip values (Feb 29 clamps rather than rolling) |
+| `getDateChips(code, fields, format, now?)` | One-click offers per date field, anchored to sibling values |
+
+Two-digit years are only accepted from *separated* input and resolve against a
+pivot of `current year + 10`. A bare digit run is never padded — that would
+invent digits the user did not type.
+
+### `src/core/quickFix.ts` — Deterministic repairs
+
+| Export | Contents |
+|---|---|
+| `getQuickFix(field, value, state, strict)` | Best repair for a value that **fails** validation |
+| `getCanonicalRewrite(field, value, state, strict)` | For a value that passes but is not what the encoder writes (casing, ZIP dash, height notation) |
+| `getQuickFixes(fields, values, state, strict)` | Both kinds across a schema — what "Fix all" applies |
+
+**Invariant:** a fix is only returned once `evaluateFieldValue` accepts the
+rewritten value, and never for an empty field. A quick fix rewrites what the
+user typed; it must never invent data.
+
+### `src/core/derivedFields.ts` — App-owned values
+
+`DAJ` is filled from the jurisdiction picker (`setDerivedField`), so it holds a
+value on a form nobody has touched. Every "has the user entered anything" check
+— the unsaved-work prompt, the mobile bar's empty state, whether an import needs
+an Undo, how many fields `Clear PII` reports — must go through `hasUserData` /
+`userEnteredCodes` rather than reading `fields` directly, or a blank form reads
+as populated.
+
 ### `src/core/validation.ts` — Validation
 
 | Export | Contents |
@@ -176,6 +220,7 @@ Key actions:
 | Action | Description |
 |---|---|
 | `setField(code, value)` | Update a field value and push to undo history |
+| `setDerivedField(code, value)` | Update an app-owned value (today only `DAJ`) **without** touching undo history — a derived value is not an edit |
 | `setStateVersion(state, version)` | Switch jurisdiction/version, rebuild field list |
 | `setStrictMode(mode)` | Toggle strict validation |
 | `setSubfileType(type)` | Toggle DL vs ID subfile type |
@@ -277,6 +322,10 @@ npm run format:check    # Prettier check (used in CI)
 10. **State themes** — palette completeness, hex color format, CSS custom property application
 11. **Scan oracle** (`src/tests/scanOracle.test.ts`) — renders each jurisdiction's payload with bwip-js, rasterises it, and decodes it back with ZXing. This is the only check that does not grade our encoder with our own decoder, so it catches assumptions the two share. Helpers live in `src/tests/support/scanOracle.ts`.
 12. **Conformance provenance** (`src/tests/conformanceProvenance.test.ts`) — every vector must declare a `tier` (`synthetic` / `published` / `issued`) and its source. `MIN_REAL_WORLD_JURISDICTIONS` is a ratchet: raise it when a real-world vector is added so coverage cannot silently regress.
+13. **Date entry** (`src/tests/dateHelpers.test.ts`) — flexible parsing, the two-digit-year pivot, refusal to pad short digit runs, and the relative chips. Uses a fixed `now` so the pivot is a property of the code, not of the run date.
+14. **Quick fixes** (`src/tests/quickFix.test.ts`) — every returned fix is re-checked against `evaluateFieldValue`; empty fields never get one.
+15. **Paste import** (`src/tests/pasteImport.test.ts`) — round-trips a generated payload, and asserts that non-AAMVA keys are dropped rather than loaded.
+16. **Road test** (`src/tests/roadTest.test.ts`) — vehicle physics, SAT collision, park inspection, and the examiner's score sheet. Pure functions only; the canvas is not involved.
 
 **Important:** a passing `conformance.test.ts` against a `synthetic` vector proves only that the encoder has not changed — those bytes came from the encoder. Do not treat it as evidence of AAMVA correctness, and do not regenerate vectors to make a failing test pass without reviewing the diff against the spec.
 

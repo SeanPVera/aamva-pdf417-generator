@@ -29,6 +29,8 @@ interface FieldFiltersProps {
   onFillSample?: () => void;
   onCollapseAll?: () => void;
   onExpandAll?: () => void;
+  /** Rendered under the counters — the group navigator strip. */
+  children?: React.ReactNode;
 }
 
 export const FieldFilters: React.FC<FieldFiltersProps> = ({
@@ -48,7 +50,8 @@ export const FieldFilters: React.FC<FieldFiltersProps> = ({
   onGenerateAutoFields,
   onFillSample,
   onCollapseAll,
-  onExpandAll
+  onExpandAll,
+  children
 }) => {
   const inputRef = React.useRef<HTMLInputElement | null>(null);
 
@@ -65,6 +68,21 @@ export const FieldFilters: React.FC<FieldFiltersProps> = ({
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
   }, []);
+
+  // Escape inside the search box clears the whole filter set, not just the
+  // query — the way out of "no fields found" should be one key, and Safari
+  // does not fire the native search-input clear event.
+  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key !== "Escape") return;
+    e.preventDefault();
+    if (query) onQueryChange("");
+    else if (requiredOnly || issuesOnly) {
+      onRequiredOnlyChange(false);
+      onIssuesOnlyChange(false);
+    } else {
+      inputRef.current?.blur();
+    }
+  };
 
   const requiredPct =
     requiredTotal === 0 ? 100 : Math.round((requiredFilled / requiredTotal) * 100);
@@ -86,8 +104,10 @@ export const FieldFilters: React.FC<FieldFiltersProps> = ({
             type="search"
             value={query}
             onChange={(e) => onQueryChange(e.target.value)}
+            onKeyDown={handleSearchKeyDown}
             placeholder={`Search code, label, or help text (${formatShortcut(["mod", "K"])})`}
             aria-label="Search fields"
+            aria-describedby="field-search-hint"
             className="w-full pl-8 pr-8 py-1.5 text-sm rounded-md bg-gray-100 dark:bg-[#2C2C2C] border border-gray-200 dark:border-[#444] text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           />
           {query && (
@@ -227,7 +247,13 @@ export const FieldFilters: React.FC<FieldFiltersProps> = ({
         <span aria-live="polite" className="text-gray-500 dark:text-gray-400">
           {filtered ? `${matchCount} of ${totalCount} fields shown` : `${totalCount} fields`}
         </span>
+        {filtered && (
+          <span id="field-search-hint" className="text-gray-400 dark:text-gray-500">
+            Esc clears
+          </span>
+        )}
       </div>
+      {children}
     </div>
   );
 };

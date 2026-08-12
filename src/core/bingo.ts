@@ -18,7 +18,10 @@ export const BINGO_SQUARES: BingoSquare[] = [
   { id: "took-a-number", text: "Took a number" },
   { id: "strict-five", text: "Strict mode rejected you 5 times" },
   { id: "changed-state", text: "Changed state after filling the form" },
-  { id: "lowercase-name", text: "Typed a name in lowercase" },
+  // Was "Typed a name in lowercase", which the form now makes impossible —
+  // string fields are upper-cased as you type, so the square could never be
+  // marked. Replaced with one that has a real call site.
+  { id: "road-tested", text: "Passed the parallel parking exam" },
   { id: "regenerated-dd", text: "Regenerated the document discriminator" },
   { id: "read-the-help", text: "Actually read a help popover" },
   { id: "undo-five", text: "Undid five times in a row" },

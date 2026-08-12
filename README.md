@@ -64,13 +64,25 @@ At a high level, the app:
   - Payload inspector panel
   - Validation report panel (pass/fail + issue count)
   - Version browser panel
-- **Import JSON** to prefill field data.
+- **Import JSON** to prefill field data, or **paste** a raw AAMVA payload or JSON profile
+  anywhere on the page (⌘/Ctrl+V) — the same import path as the file picker, drag-drop, and
+  webcam scan, with a one-click Undo.
+- **Forgiving field entry**:
+  - Dates accept `8/11/2026`, `2026-08-11`, or `08112026` and fold to the wire format on blur,
+    with a plain-language readout (`Aug 11, 2026 · age 36 at issue`) and one-click offsets.
+  - String fields are upper-cased as you type, matching what the encoder actually writes.
+  - **Quick fixes** rewrite values the validator rejects — `brown` → `BRO`, `5'9"` → `069 IN`,
+    `90001-1234` → `900011234` — individually or all at once. A fix is only ever offered once
+    the rewritten value has been checked against the validator.
+- **Group navigator** strip with per-group error and empty-required counts, one click to jump.
 - **Export** barcode output as:
   - PNG
   - SVG
-  - PDF
+  - PDF (print-ready, at the credential's physical size)
 - **Theming** options in UI (Light / Dark / DMV Blue).
 - **Undo/redo controls** for form state changes.
+- **Mobile status bar** that reports whether the barcode is ready — and exports it — without
+  leaving the form panel.
 
 ---
 
@@ -328,6 +340,21 @@ Installer artifacts are written to `dist_electron/`.
 - Click **Import JSON** and select a `.json` file.
 - The UI attempts to map keys to known AAMVA field codes.
 - Unknown fields can be rejected depending on policy.
+
+### Pasting a payload
+
+- Copy a raw AAMVA payload string (or a JSON profile in the shape **Export JSON** writes) and
+  press ⌘/Ctrl+V anywhere outside a text field.
+- The payload is decoded, the jurisdiction and version come from its IIN, and keys that are not
+  AAMVA field codes are dropped rather than loaded.
+- Pasting over a filled form offers **Undo** on the confirmation toast.
+
+### Taking the road test
+
+Under **Playful extras → Take the road test** there is a full parallel-parking examination:
+a canvas course, a kinematic-bicycle-model vehicle, four cones, and an examiner who itemises
+your deductions on a score sheet. It is decorative. It has no effect on the barcode, the
+payload, or your standing with any jurisdiction.
 
 ---
 
