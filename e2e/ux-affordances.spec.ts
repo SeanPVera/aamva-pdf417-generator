@@ -56,9 +56,13 @@ test.describe("form affordances", () => {
         "text",
         JSON.stringify({ state: "CA", version: "10", DCS: "DOE", DAC: "JANE" })
       );
-      document.body.dispatchEvent(
-        new ClipboardEvent("paste", { clipboardData: data, bubbles: true })
-      );
+      const event = new ClipboardEvent("paste", { bubbles: true });
+      Object.defineProperty(event, "clipboardData", {
+        value: data,
+        writable: false,
+        configurable: true
+      });
+      document.body.dispatchEvent(event);
     });
 
     await expect(page.locator("#DCS")).toHaveValue("DOE", { timeout: 5000 });
