@@ -121,14 +121,27 @@ export const CompareView: React.FC<CompareViewProps> = ({ open, onClose }) => {
                 className="hidden"
                 aria-label={`Load JSON payload ${side}`}
               />
-              <button
-                type="button"
-                onClick={() => ref.current?.click()}
-                className="flex items-center justify-center gap-2 px-3 py-2 rounded border border-gray-300 dark:border-dark-border bg-gray-50 dark:bg-dark-surface2 hover:bg-gray-100 dark:hover:bg-[#383838] text-sm text-gray-700 dark:text-gray-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-              >
-                <Upload size={14} />
-                Load Payload {side}
-              </button>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => ref.current?.click()}
+                  className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded border border-gray-300 dark:border-dark-border bg-gray-50 dark:bg-dark-surface2 hover:bg-gray-100 dark:hover:bg-[#383838] text-sm text-gray-700 dark:text-gray-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                >
+                  <Upload size={14} />
+                  Load Payload {side}
+                </button>
+                {file && (
+                  <button
+                    type="button"
+                    onClick={() => setSide(null)}
+                    aria-label={`Clear loaded Payload ${side}`}
+                    title={`Clear loaded Payload ${side}`}
+                    className="px-2.5 rounded border border-gray-300 dark:border-dark-border bg-gray-50 dark:bg-dark-surface2 hover:bg-red-50 dark:hover:bg-red-950/20 text-gray-500 hover:text-red-600 dark:hover:text-red-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 transition-colors"
+                  >
+                    <X size={14} />
+                  </button>
+                )}
+              </div>
               <div className="text-xs text-gray-500 dark:text-gray-400 truncate" title={file?.name}>
                 {file ? file.name : "No file selected"}
               </div>
