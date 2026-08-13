@@ -51,8 +51,7 @@ export interface Raster {
 }
 
 export type ScanResult =
-  | { ok: true; text: string }
-  | { ok: false; reason: "undecodable"; error: string };
+  { ok: true; text: string } | { ok: false; reason: "undecodable"; error: string };
 
 const DEFAULT_RASTER: Required<RasterOptions> = {
   moduleWidth: 2,

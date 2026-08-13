@@ -108,10 +108,22 @@ export const CompareView: React.FC<CompareViewProps> = ({ open, onClose }) => {
         <div className="grid grid-cols-2 gap-3 p-4 border-b border-gray-200 dark:border-dark-border">
           {(
             [
-              { side: "A", file: left, ref: leftInputRef, setSide: setLeft },
-              { side: "B", file: right, ref: rightInputRef, setSide: setRight }
+              {
+                side: "A",
+                file: left,
+                ref: leftInputRef,
+                setSide: setLeft,
+                clear: () => setLeft(null)
+              },
+              {
+                side: "B",
+                file: right,
+                ref: rightInputRef,
+                setSide: setRight,
+                clear: () => setRight(null)
+              }
             ] as const
-          ).map(({ side, file, ref, setSide }) => (
+          ).map(({ side, file, ref, setSide, clear }) => (
             <div key={side} className="flex flex-col gap-2">
               <input
                 ref={ref}
@@ -129,8 +141,23 @@ export const CompareView: React.FC<CompareViewProps> = ({ open, onClose }) => {
                 <Upload size={14} />
                 Load Payload {side}
               </button>
-              <div className="text-xs text-gray-500 dark:text-gray-400 truncate" title={file?.name}>
-                {file ? file.name : "No file selected"}
+              <div className="flex items-center justify-between gap-2 min-w-0">
+                <div
+                  className="text-xs text-gray-500 dark:text-gray-400 truncate"
+                  title={file?.name}
+                >
+                  {file ? file.name : "No file selected"}
+                </div>
+                {file && (
+                  <button
+                    type="button"
+                    onClick={clear}
+                    aria-label={`Clear Payload ${side}`}
+                    className="p-1 rounded hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 shrink-0"
+                  >
+                    <X size={13} />
+                  </button>
+                )}
               </div>
             </div>
           ))}
