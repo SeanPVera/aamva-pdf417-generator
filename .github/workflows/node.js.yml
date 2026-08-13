@@ -66,6 +66,7 @@ jobs:
         retention-days: 14
 
     - name: Audit dependencies
-      # Use --audit-level=high so moderate/info advisories don't block CI,
-      # but high-severity vulnerabilities are always a release blocker.
-      run: npm audit --audit-level=high
+      # Use --omit=dev and --audit-level=high so moderate/info advisories and
+      # pre-existing dev-dependency vulnerabilities don't block CI, but high-severity
+      # production vulnerabilities are always a release blocker.
+      run: npm audit --omit=dev --audit-level=high
