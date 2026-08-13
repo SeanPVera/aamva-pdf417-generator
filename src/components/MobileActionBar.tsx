@@ -77,7 +77,10 @@ export const MobileActionBar: React.FC<MobileActionBarProps> = ({
             type="button"
             onClick={onExport}
             disabled={!ready || stale}
-            aria-label="Export barcode as PNG"
+            // Distinct from the preview panel's "Export barcode as PNG": both
+            // are in the DOM at mobile widths, and two controls answering to
+            // one name is ambiguous to anyone navigating by accessible name.
+            aria-label="Quick export barcode as PNG"
             className="shrink-0 inline-flex items-center gap-1.5 rounded-md bg-brand-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           >
             <FileImage size={13} aria-hidden />
