@@ -138,7 +138,10 @@ export const CompareView: React.FC<CompareViewProps> = ({ open, onClose }) => {
                 Load Payload {side}
               </button>
               <div className="flex items-center justify-between gap-2 min-w-0">
-                <span className="text-xs text-gray-500 dark:text-gray-400 truncate" title={file?.name}>
+                <span
+                  className="text-xs text-gray-500 dark:text-gray-400 truncate"
+                  title={file?.name}
+                >
                   {file ? file.name : "No file selected"}
                 </span>
                 {file && (
