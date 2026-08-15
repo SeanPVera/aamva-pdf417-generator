@@ -108,7 +108,7 @@ export const FieldInput: React.FC<FieldInputProps> = ({
   const helpId = `help-${field.code}`;
   const helpText = getFieldHelp(field.code);
   const [helpOpen, setHelpOpen] = React.useState(false);
-  const isResettable = field.code === "DCF" || field.code === "DAQ" || field.code === "DDB";
+  const isResettable = !derivedFrom && value.length > 0;
   const allowedValues = hasError ? parseAllowedValues(evalResult.message) : [];
   const maxLen = AAMVA_FIELD_LIMITS[field.code];
 
@@ -496,6 +496,7 @@ export const FieldInput: React.FC<FieldInputProps> = ({
             <span
               className="text-xs font-medium text-gray-400 opacity-0 group-focus-within:opacity-100 transition-opacity whitespace-nowrap"
               aria-hidden
+              title={`Character count: ${value.length} of ${maxLen} maximum`}
             >
               {value.length}/{maxLen}
             </span>
