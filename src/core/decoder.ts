@@ -8,7 +8,9 @@ const _IIN_TO_STATE = new Map<string, string>(
 );
 
 // Hoisted regex for AAMVA data element identifier validation (e.g. "DCS", "DAQ").
-const RE_FIELD_CODE = /^[A-Z]{2}[A-Z0-9]$/;
+// Exported so the byte-ledger in `inspect.ts` splits elements from non-elements
+// by exactly the rule the decoder uses, rather than a second copy of it.
+export const RE_FIELD_CODE = /^[A-Z]{2}[A-Z0-9]$/;
 
 // Hoisted regex patterns used in structural validation.
 const RE_6_DIGITS = /^\d{6}$/;
@@ -41,7 +43,7 @@ export interface SubfileEntry {
   repaired: boolean;
 }
 
-interface DirectoryRead {
+export interface DirectoryRead {
   entries: SubfileEntry[];
   error?: string;
 }
@@ -61,8 +63,18 @@ interface DirectoryRead {
  *
  * `strict` disables the nudge: the generator self-checks with it, and its own
  * output has no excuse for being off by anything.
+ *
+ * `maxLengthOverrun` is how far a declared length may exceed the bytes present
+ * before the read gives up. The default is the same few bytes of drift the
+ * offsets get. The byte-ledger in `inspect.ts` raises it, because a length that
+ * overruns badly is the anomaly it exists to measure — refusing to read the one
+ * payload class it was written for would make it useless.
  */
-function readDirectory(payload: string, strict: boolean): DirectoryRead {
+export function readDirectory(
+  payload: string,
+  strict: boolean,
+  maxLengthOverrun: number = SUBFILE_OFFSET_TOLERANCE
+): DirectoryRead {
   const numEntries = parseInt(payload.substring(19, 21), 10);
   const directoryEnd = HEADER_LENGTH + numEntries * DIRECTORY_ENTRY_LENGTH;
   const entries: SubfileEntry[] = [];
@@ -107,7 +119,7 @@ function readDirectory(payload: string, strict: boolean): DirectoryRead {
       // that overstates a length by one is the case this exists for. A length
       // that overruns by more than that is not drift, it is a corrupt or
       // truncated payload, and calling it readable would hide the damage.
-      if (strict || end - payload.length > SUBFILE_OFFSET_TOLERANCE) {
+      if (strict || end - payload.length > maxLengthOverrun) {
         return { entries, error: "Subfile length exceeds payload size" };
       }
       end = payload.length;

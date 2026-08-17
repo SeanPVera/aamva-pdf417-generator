@@ -52,6 +52,7 @@ This file provides AI assistants (Claude, Copilot, etc.) with the context needed
 │   │   ├── states.ts             # 54 jurisdictions (50 states + DC + 4 territories)
 │   │   ├── generator.ts          # AAMVA payload generator with state-specific rules
 │   │   ├── decoder.ts            # Payload decoder and structural validator
+│   │   ├── inspect.ts            # Byte ledger: where every byte of a payload went
 │   │   ├── validation.ts         # Field validation, cross-field checks, state-specific rules
 │   │   ├── dateHelpers.ts        # Flexible date parsing/formatting + relative date chips
 │   │   ├── quickFix.ts           # Deterministic repairs for values the validator rejects
@@ -155,6 +156,29 @@ Named exports:
 | `decodeAAMVAFormat(text)` | Parses AAMVA binary format string to JSON |
 | `decodeAAMVA(text)` | High-level decoder returning `{ ok, json, mapped, subfiles }` |
 | `describeFields(obj)` | Human-readable field descriptions |
+
+### `src/core/inspect.ts` — Byte ledger
+
+| Export | Contents |
+|---|---|
+| `inspectPayload(text)` | Per-subfile accounting: declared vs. accounted vs. unaccounted bytes, padding, unknown codes |
+| `formatInspection(inspection)` | The ledger as plain text |
+| `summarizeAnomalies(inspection)` | One-line verdict, or `null` when the payload balances |
+
+Decoding answers *what does this card say*; inspection answers *where did every
+byte go*. Keep them separate — the second is diagnostic detail that has no
+business in the path every scan takes.
+
+This exists because a decoded New York credential declared a 323-byte `DL`
+subfile whose visible elements accounted for 224, and a list of name/value pairs
+cannot distinguish the two explanations: fixed-width padding the reader stripped,
+or elements its table had no name for. The ledger shows both — `padding` per
+element and `unknownCodes` for the rest.
+
+`inspectPayload` reads the directory with the length-overrun cap lifted
+(`readDirectory(text, false, Number.MAX_SAFE_INTEGER)`). A subfile declaring far
+more than it holds is the anomaly it measures, so refusing to read one would
+defeat the purpose. Do not make the decoder that permissive.
 
 ### `src/core/dateHelpers.ts` — Date entry
 
