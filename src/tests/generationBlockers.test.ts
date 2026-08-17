@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import { describe, test } from "vitest";
 import bwipjs from "bwip-js";
-import { QUICK_FILL_PRESETS } from "../core/presets";
+import { QUICK_FILL_PRESETS } from "../core/presetData";
+import { loadQuickFillPresets } from "../core/presets";
 import { generateAAMVAPayload } from "../core/generator";
 import { getFieldsForStateAndVersion } from "../core/schema";
 import { AAMVA_STATES } from "../core/states";
@@ -36,6 +37,22 @@ function renderSize(text: string, overrides: Record<string, unknown> = {}) {
   assert.ok(m, "bwip-js should emit a viewBox we can measure");
   return { width: Number(m[1]), height: Number(m[2]) };
 }
+
+describe("quick-fill preset loading", () => {
+  test("the loader returns the same records the data module holds", async () => {
+    const loaded = await loadQuickFillPresets();
+    expect(loaded).toEqual(QUICK_FILL_PRESETS);
+  });
+
+  test("the loader memoises, so reopening the menu costs nothing", async () => {
+    expect(await loadQuickFillPresets()).toBe(await loadQuickFillPresets());
+  });
+
+  test("preset ids are unique", () => {
+    const ids = QUICK_FILL_PRESETS.map((p) => p.id);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+});
 
 describe("quick-fill presets", () => {
   // Every preset was missing DDE/DDF/DDG — mandatory from AAMVA v04 on — so

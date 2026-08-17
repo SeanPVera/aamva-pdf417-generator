@@ -1,8 +1,8 @@
 [
   {
-    "name": "Initial JS (gzipped) — first-paint UI, form affordances, paste import",
+    "name": "Initial JS (gzipped) \u2014 first-paint UI, form affordances, paste import (quick-fill sample records load on demand)",
     "path": "dist/assets/index-*.js",
-    "limit": "45 KB",
+    "limit": "46 KB",
     "gzip": true
   },
   {
