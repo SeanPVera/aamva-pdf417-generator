@@ -2,6 +2,7 @@ import { describe, expect, test } from "vitest";
 
 import { formatInspection, inspectPayload, summarizeAnomalies } from "../core/inspect";
 import { generateAAMVAPayload } from "../core/generator";
+import { useFormStore } from "../hooks/useFormStore";
 import { getFieldsForStateAndVersion } from "../core/schema";
 
 const CT_RECORD: Record<string, string> = {
@@ -178,5 +179,41 @@ describe("payload inspection", () => {
     expect(text).toContain("2 directory entries");
     expect(text).toMatch(/DL {2}offset 41 {2}declared \d+B/);
     expect(text).toContain("balanced");
+  });
+});
+
+describe("source payload retention", () => {
+  test("a scan's raw bytes are held so the ledger can inspect the card", () => {
+    const card = generateCT(CT_RECORD);
+    useFormStore.getState().loadJson({ state: "CT", version: "09", DCS: "SPECIMEN" }, card);
+
+    expect(useFormStore.getState().sourcePayload).toBe(card);
+  });
+
+  test("a preset or JSON import leaves no source attached", () => {
+    const card = generateCT(CT_RECORD);
+    useFormStore.getState().loadJson({ state: "CT", version: "09" }, card);
+    // No second argument: there is no card behind these values, and a stale
+    // payload would have the ledger describe the wrong one.
+    useFormStore.getState().loadJson({ state: "CA", version: "10", DCS: "DOE" });
+
+    expect(useFormStore.getState().sourcePayload).toBeNull();
+  });
+
+  test("clearing the form drops it — it is card data", () => {
+    useFormStore.getState().loadJson({ state: "CT", version: "09" }, generateCT(CT_RECORD));
+    useFormStore.getState().clearFields();
+
+    expect(useFormStore.getState().sourcePayload).toBeNull();
+  });
+
+  test("it is never written to storage", () => {
+    // `partialize` is an allow-list of UI preferences. Card bytes are PII and
+    // this project does not put PII on disk.
+    useFormStore.getState().loadJson({ state: "CT", version: "09" }, generateCT(CT_RECORD));
+
+    const persisted = window.localStorage.getItem("aamva_form_prefs_v2");
+    expect(persisted ?? "").not.toContain("sourcePayload");
+    expect(persisted ?? "").not.toContain("SPECIMEN");
   });
 });

@@ -67,6 +67,8 @@ export function CollapsibleSection({
 
 interface PayloadInspectorProps {
   payloadStr: string;
+  /** The AAMVA bytes a scan or paste carried, when the form came from one. */
+  sourcePayload?: string | null;
   stale: boolean;
   decodedEntries: Array<[string, string]>;
   decodeError?: string;
@@ -86,6 +88,7 @@ interface PayloadInspectorProps {
  */
 export const PayloadInspector: React.FC<PayloadInspectorProps> = ({
   payloadStr,
+  sourcePayload,
   stale,
   decodedEntries,
   decodeError,
@@ -295,7 +298,7 @@ export const PayloadInspector: React.FC<PayloadInspectorProps> = ({
         )}
       </CollapsibleSection>
 
-      <WireLedger payloadStr={payloadStr} />
+      <WireLedger payloadStr={payloadStr} sourcePayload={sourcePayload} />
     </>
   );
 };
@@ -310,8 +313,16 @@ export const PayloadInspector: React.FC<PayloadInspectorProps> = ({
  * list of name/value pairs whether the missing bytes were fixed-width padding
  * or elements the reader had no name for. Both show up here.
  */
-const WireLedger: React.FC<{ payloadStr: string }> = ({ payloadStr }) => {
-  const result = React.useMemo(() => inspectPayload(payloadStr), [payloadStr]);
+const WireLedger: React.FC<{ payloadStr: string; sourcePayload?: string | null }> = ({
+  payloadStr,
+  sourcePayload
+}) => {
+  // Default to the scanned card when there is one. Inspecting our own
+  // re-encoding is the one thing the ledger cannot learn anything from: it
+  // balances by construction, because this encoder wrote it.
+  const [showSource, setShowSource] = useState(true);
+  const inspecting = sourcePayload && showSource ? sourcePayload : payloadStr;
+  const result = React.useMemo(() => inspectPayload(inspecting), [inspecting]);
   const inspection = result.inspection;
   const anomalies = inspection ? summarizeAnomalies(inspection) : null;
 
@@ -321,6 +332,35 @@ const WireLedger: React.FC<{ payloadStr: string }> = ({ payloadStr }) => {
       badge={inspection ? (anomalies ? "Check" : "Balanced") : undefined}
       badgeColor={anomalies ? "amber" : "green"}
     >
+      {sourcePayload ? (
+        <div
+          className="flex items-center gap-1 mb-2 text-xs"
+          role="group"
+          aria-label="Which payload to inspect"
+        >
+          {(
+            [
+              ["Scanned card", true],
+              ["This app's output", false]
+            ] as const
+          ).map(([label, wantsSource]) => (
+            <button
+              key={label}
+              type="button"
+              onClick={() => setShowSource(wantsSource)}
+              aria-pressed={showSource === wantsSource}
+              className={`px-2 py-0.5 rounded border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 ${
+                showSource === wantsSource
+                  ? "border-brand-500 bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300 font-medium"
+                  : "border-gray-200 dark:border-dark-border text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-dark-surface2"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      ) : null}
+
       {!inspection ? (
         <p className="text-xs text-gray-400 py-1">{result.error ?? "No payload to inspect yet."}</p>
       ) : (
@@ -417,6 +457,9 @@ const WireLedger: React.FC<{ payloadStr: string }> = ({ payloadStr }) => {
           ) : (
             <p className="text-xs text-green-700 dark:text-green-400">
               Every declared byte is accounted for.
+              {!sourcePayload || !showSource
+                ? " (This is this app's own output, so it balances by construction — scan or paste a card to inspect one.)"
+                : ""}
             </p>
           )}
         </div>

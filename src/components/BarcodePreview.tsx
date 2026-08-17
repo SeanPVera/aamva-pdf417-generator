@@ -59,6 +59,7 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
   const mergeFields = useFormStore((s) => s.mergeFields);
   const setIncludeNameInExport = useFormStore((s) => s.setIncludeNameInExport);
   const inspectorWidth = useFormStore((s) => s.inspectorWidth);
+  const sourcePayload = useFormStore((s) => s.sourcePayload);
   const setInspectorWidth = useFormStore((s) => s.setInspectorWidth);
   const [zoom, setZoom] = useState(1);
   const [confettiKey, setConfettiKey] = useState(0);
@@ -439,6 +440,7 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
       payloadStr={payloadStr}
       stale={stale}
       decodedEntries={decodedEntries}
+      sourcePayload={sourcePayload}
       decodeError={decoded?.error}
       issues={issues}
       fixes={fixes}

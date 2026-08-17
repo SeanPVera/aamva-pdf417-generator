@@ -10,6 +10,8 @@ The decoded table says what a card contains. It cannot say what a card's bytes a
 
 Surfaced as a **Wire Ledger** panel in the payload inspector, next to the decoded output. It badges Balanced or Check without being opened.
 
+Crucially it inspects the **source card**, not this app's re-encoding of it. A scan or a paste now keeps the AAMVA bytes it carried (`sourcePayload` on the form store), because regenerating from the form discards precisely the padding and unrecognised elements the ledger exists to surface — pointed at our own output it would balance by construction and could never say anything about a credential. A toggle switches between the two so they can be compared. The bytes are never persisted (`partialize` is an allow-list) and are cleared with the form.
+
 Inspection deliberately does not share a code path with decoding: decoding answers what the card says, inspection answers what is in the bytes, and putting diagnostic detail in the path every scan takes would be the wrong trade. `readDirectory` gains an overrun cap so the inspector can read a subfile that declares far more than it holds — the exact anomaly it measures — while the decoder keeps absorbing only a few bytes of drift.
 
 No first-paint cost: the panel rides in the already-lazy preview chunk, and the initial bundle moves 45.06 → 45.08 kB.

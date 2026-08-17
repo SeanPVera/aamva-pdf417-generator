@@ -33,10 +33,11 @@ const RECORD: Record<string, string> = {
   DDB: "02102017"
 };
 
-function renderInspector(payloadStr: string) {
+function renderInspector(payloadStr: string, sourcePayload?: string) {
   return render(
     <PayloadInspector
       payloadStr={payloadStr}
+      sourcePayload={sourcePayload}
       stale={false}
       decodedEntries={[]}
       issues={[]}
@@ -107,6 +108,52 @@ describe("Wire Ledger panel", () => {
 
     expect(screen.getByText(/Space-filled on the wire/i)).toBeInTheDocument();
     expect(screen.getByText(/DAK — "10001" \+ 6 spaces/)).toBeInTheDocument();
+  });
+
+  test("inspects the scanned card, not our re-encoding of it", async () => {
+    // The bug this exists to prevent: pointing the ledger at our own output,
+    // which balances by construction and can never reveal anything about a card.
+    // The source here declares 99 bytes its elements do not explain; our
+    // re-encoding of the same values would not.
+    const ours = ctPayload(RECORD);
+    const card =
+      ours.substring(0, 27) +
+      String(parseInt(ours.substring(27, 31), 10) + 99).padStart(4, "0") +
+      ours.substring(31);
+
+    renderInspector(ours, card);
+    await userEvent.click(screen.getByRole("button", { name: /Wire Ledger/i }));
+
+    expect(screen.getByText(/99 bytes declared but unaccounted for/i)).toBeInTheDocument();
+  });
+
+  test("can switch to our own output to compare the two", async () => {
+    const ours = ctPayload(RECORD);
+    const card =
+      ours.substring(0, 27) +
+      String(parseInt(ours.substring(27, 31), 10) + 99).padStart(4, "0") +
+      ours.substring(31);
+
+    renderInspector(ours, card);
+    await userEvent.click(screen.getByRole("button", { name: /Wire Ledger/i }));
+
+    const scanned = screen.getByRole("button", { name: "Scanned card" });
+    const generated = screen.getByRole("button", { name: "This app's output" });
+    expect(scanned).toHaveAttribute("aria-pressed", "true");
+
+    await userEvent.click(generated);
+    expect(generated).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByText(/Every declared byte is accounted for/i)).toBeInTheDocument();
+    expect(screen.queryByText(/99 bytes declared/i)).not.toBeInTheDocument();
+  });
+
+  test("offers no source toggle when nothing was scanned or pasted", async () => {
+    renderInspector(ctPayload(RECORD));
+    await userEvent.click(screen.getByRole("button", { name: /Wire Ledger/i }));
+
+    expect(screen.queryByRole("button", { name: "Scanned card" })).not.toBeInTheDocument();
+    // And it says why a balanced result is not evidence of anything.
+    expect(screen.getByText(/balances by construction/i)).toBeInTheDocument();
   });
 
   test("says so plainly when there is no payload to inspect", async () => {

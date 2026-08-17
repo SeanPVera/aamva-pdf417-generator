@@ -85,7 +85,10 @@ export function WebcamScanner({ onClose }: WebcamScannerProps) {
           return;
         }
         if (state && version) setStateVersion(state, version);
-        loadJson(decoded.json);
+        // The raw bytes ride along so the byte ledger can inspect the card
+        // itself. Re-encoding from the form discards the padding and the
+        // unrecognised elements that are the whole reason to look.
+        loadJson(decoded.json, text);
         toast.success(`Scanned ${state || "ID"}${version ? ` v${version}` : ""}`);
         onClose();
         return;
