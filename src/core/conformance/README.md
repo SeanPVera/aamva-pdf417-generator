@@ -23,6 +23,21 @@ Only `published` and `issued` count as evidence about the outside world. The
 schema and the rules below are enforced by
 `src/tests/conformanceProvenance.test.ts`.
 
+One jurisdiction currently carries real-world evidence: Connecticut
+(`ct-v09-dl-issued.json`), decoded from an issued credential. It is the vector
+that established that a payload can hold more than one subfile, that DAK is not
+always space-filled, and that element order varies by issuer — three things
+every other vector in this directory agreed on only because the same encoder
+wrote them all.
+
+A New York card was also decoded, and its findings are in NY's rule pack
+(jurisdiction version `04`, the `ZN` subfile, `DDD`, an alphanumeric `DCF`, a
+feet-inches height). It has **no vector**: its header declares a 323-byte DL
+subfile where the elements visible in the decode account for 224, and a vector
+whose expected bytes cannot be reconciled with the source would be a guess
+wearing an evidence label. Findings that stand on their own were taken; the byte
+layout was not.
+
 Current coverage — run any time, and printed in CI:
 
 ```bash
@@ -98,6 +113,21 @@ credentials. **Never check in real PII.** When adding one:
 A failing real-world vector indicates the implementation diverges from what at
 least one DMV actually issues — which is the highest-priority class of bug for
 this project.
+
+### When the source card disagrees with itself
+
+Issued cards are not guaranteed to be internally consistent, and the CT vector
+is the worked example: its header declares the DL subfile one byte longer than
+the bytes it holds, which pushes the declared offset of the following `ZC`
+subfile one past where `ZC` actually starts. The subfiles and the total length
+are both right — only the boundary between them is wrong.
+
+Record deviations like this in `provenance.notes` and keep the vector's
+`expectedBytes` self-consistent. Reproducing an issuer's arithmetic error would
+make our own directory unreadable to anything that checks it, and would pin a
+bug in place under the name of conformance. The decoder absorbs a few bytes of
+this drift when reading (see `readDirectory` in `core/decoder.ts`); the encoder
+never emits it.
 
 ## Why this matters
 

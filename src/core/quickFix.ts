@@ -110,6 +110,21 @@ function matchAllowedValue(field: AAMVAField, value: string): string | null {
   return null;
 }
 
+/**
+ * A bare three-digit height that reads as feet-and-inches rather than inches.
+ *
+ * New York encodes height this way — a decoded NY card carries `603` for 6'3"
+ * — and the shape is unambiguous where it applies: `603` as inches would be
+ * fifty feet, and nobody 4'0" to 7'11" has an inch count in that range. The
+ * check exists so the "reformat" rewrite leaves those values alone; reading
+ * `603` as inches and rewriting it `603 IN` changed a real cardholder's height
+ * by a factor of eight.
+ */
+function isFeetInchesNotation(raw: string): boolean {
+  const m = /^([4-7])(\d{2})$/.exec(raw);
+  return m !== null && parseInt(m[2]!, 10) <= 11;
+}
+
 /** `5'9"`, `5-9`, `5 ft 9 in`, `69`, `69in` → `069 IN`; `175cm` → `175 CM`. */
 function normalizeHeight(value: string): string | null {
   const raw = sanitize(value).toUpperCase();
@@ -117,6 +132,11 @@ function normalizeHeight(value: string): string | null {
 
   const cm = /^(\d{2,3})\s*(?:CM|CENTIMET(?:ER|RE)S?)$/.exec(raw);
   if (cm) return `${cm[1]!.padStart(3, "0")} CM`;
+
+  // Checked before the separator-based patterns so a bare `510` is not read as
+  // "5 feet 10" by the whitespace branch either — it is already on the wire in
+  // the form its jurisdiction writes, and there is nothing to reformat.
+  if (isFeetInchesNotation(raw)) return null;
 
   const feetInches = /^(\d)\s*(?:'|FT|FEET|-|\s)\s*(\d{1,2})\s*(?:"|''|IN|INCHES)?$/.exec(raw);
   if (feetInches) {

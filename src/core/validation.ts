@@ -27,6 +27,16 @@ const _GLOBAL_OPTION_SETS = new Map<string, Set<string>>(
 // Keyed by the field object reference (stable module-level constants in AAMVA_VERSIONS).
 const _inlineOptionSets = new WeakMap<AAMVAField, Set<string>>();
 
+/**
+ * Length cap for a field. Standard AAMVA codes carry theirs in
+ * `AAMVA_FIELD_LIMITS`; jurisdiction-defined subfile elements carry their own,
+ * because their codes only mean anything inside one jurisdiction and putting
+ * them in the shared table would imply the standard defines them.
+ */
+function getMaxLength(field: AAMVAField): number | undefined {
+  return AAMVA_FIELD_LIMITS[field.code] ?? field.maxLength;
+}
+
 function getAllowedSet(field: AAMVAField): Set<string> | undefined {
   if (field.options && field.options.length > 0) {
     let s = _inlineOptionSets.get(field);
@@ -78,6 +88,13 @@ const an = (n: number) => {
   for (let i = 0; i < n; i++) s += cs[secureGetRandomInt(cs.length)];
   return s;
 };
+/** Like `an`, but over the full alphabet — for issuers observed using I/O/0/1. */
+const alnum = (n: number) => {
+  const cs = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let s = "";
+  for (let i = 0; i < n; i++) s += cs[secureGetRandomInt(cs.length)];
+  return s;
+};
 
 const VERSION_ERA_RANGES: Record<string, [number, number]> = {
   "10": [2019, 2024],
@@ -90,6 +107,34 @@ const VERSION_ERA_RANGES: Record<string, [number, number]> = {
 };
 
 const ONE_YEAR_MS = 365 * 24 * 60 * 60 * 1000;
+
+/**
+ * Connecticut's document discriminator, in the shape a real CT card carries:
+ * 18 characters opening with the issue date as YYMMDD, then a timestamp-like
+ * run of digits, a two-digit sequence, and a four-character alphanumeric tail
+ * (observed as letter-digit-digit-letter).
+ *
+ * The issue date is threaded through so the DCF agrees with DBD on the same
+ * card. Without one there is nothing to derive it from, so a plausible recent
+ * date is used rather than inventing a correspondence that does not hold.
+ */
+function ctDiscriminator(issueDateStr?: string): string {
+  let yymmdd: string;
+  if (issueDateStr && RE_8_DIGITS.test(issueDateStr)) {
+    // Issue dates are MMDDYYYY on the wire for every version that reaches CT.
+    yymmdd = issueDateStr.substring(6, 8) + issueDateStr.substring(0, 4);
+  } else {
+    yymmdd = d(2) + String(1 + secureGetRandomInt(12)).padStart(2, "0") + "15";
+  }
+  return (
+    yymmdd +
+    d(6) +
+    d(2) +
+    String.fromCharCode(65 + secureGetRandomInt(26)) +
+    d(2) +
+    String.fromCharCode(65 + secureGetRandomInt(26))
+  );
+}
 
 function randomDateInRange(startYear: number, endYear: number, beforeDateStr?: string) {
   let capMs: number | null = null;
@@ -132,7 +177,7 @@ export const AAMVA_STATE_RULES: Record<string, StateRules> = (() => {
       generators: { DAQ: () => l(1) + d(7), DCF: () => l(2) + d(4) + "/" + d(4) + "/" + d(4) }
     },
     CO: { generators: { DAQ: () => d(9), DCF: () => l(2) + d(8) } },
-    CT: { generators: { DAQ: () => d(9), DCF: () => d(9) } },
+    CT: { generators: { DAQ: () => d(9), DCF: (issueDateStr) => ctDiscriminator(issueDateStr) } },
     DE: { generators: { DAQ: () => d(7), DCF: () => d(8) } },
     FL: {
       validators: { DAQ: (val) => /^[A-Z][0-9]{12}$/.test(val) },
@@ -162,7 +207,11 @@ export const AAMVA_STATE_RULES: Record<string, StateRules> = (() => {
     NM: { generators: { DAQ: () => d(9), DCF: () => d(9) } },
     NY: {
       validators: { DAQ: (val) => /^[0-9]{9}$/.test(val) },
-      generators: { DAQ: () => d(9), DCF: () => d(10) }
+      // A decoded NY card carries a 10-character mixed letter/digit
+      // discriminator ("KMEMI7FG20"), not the 10 digits this used to mint.
+      // `an` excludes look-alike characters; NY uses the full alphabet, so this
+      // draws from it directly.
+      generators: { DAQ: () => d(9), DCF: () => alnum(10) }
     },
     NC: { generators: { DAQ: () => d(12), DCF: () => l(2) + d(8) } },
     ND: { generators: { DAQ: () => l(3) + d(6), DCF: () => d(9) } },
@@ -220,7 +269,7 @@ export function validateFieldValue(field: AAMVAField, value: string, stateCode?:
   const allowedValues = getAllowedSet(field);
   if (allowedValues && !allowedValues.has(value)) return false;
 
-  const maxLen = AAMVA_FIELD_LIMITS[field.code];
+  const maxLen = getMaxLength(field);
   if (maxLen && value.length > maxLen) return false;
 
   if (stateCode && AAMVA_STATE_RULES[stateCode]?.validators) {
@@ -540,7 +589,7 @@ export function evaluateFieldValue(
     };
   }
 
-  const maxLen = AAMVA_FIELD_LIMITS[field.code];
+  const maxLen = getMaxLength(field);
   if (maxLen && value.length > maxLen) {
     return {
       ok: false,

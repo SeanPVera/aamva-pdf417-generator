@@ -15,12 +15,12 @@ import {
  * vector. This is a ratchet, not a target: raise it when real-world vectors are
  * added so the corpus can never quietly lose evidence it once had.
  *
- * It sits at 0 because the corpus is currently all synthetic — every vector was
- * written by our own encoder. That is an honest statement of where the project
- * is, and the number is here so it stays visible instead of being implied by an
- * empty directory.
+ * It is 1: Connecticut, from a decoded issued credential. The other 53
+ * jurisdictions are still baselines our own encoder wrote, which prove only
+ * that the encoder has not changed. Keeping the number here rather than
+ * inferring it from the directory is what makes that gap visible.
  */
-const MIN_REAL_WORLD_JURISDICTIONS = 0;
+const MIN_REAL_WORLD_JURISDICTIONS = 1;
 
 describe("conformance vector provenance", () => {
   const vectors = loadVectors();

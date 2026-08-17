@@ -1,6 +1,7 @@
 import { AAMVA_STATES, isJurisdictionSupported } from "./states";
 import { AAMVA_VERSIONS, getMandatoryFields, AAMVAField } from "./schema";
 import { AAMVA_STATE_RULES, evaluateFieldValue, validateCrossFieldConsistency } from "./validation";
+import { getJurisdictionEncoding, shouldPadPostalCode } from "./jurisdictionRules";
 import { validateAAMVAPayloadStructure } from "./decoder";
 import { secureGetRandomInt } from "./crypto";
 
@@ -24,6 +25,36 @@ export interface GenerateOptions {
  */
 const AUTO_GENERATED_CODES = new Set(["DCF", "DDB"]);
 
+const _textEncoder = typeof TextEncoder !== "undefined" ? new TextEncoder() : null;
+
+/** Wire length in bytes — directory offsets and lengths count bytes, not code units. */
+function byteLength(s: string): number {
+  return _textEncoder ? _textEncoder.encode(s).length : s.length;
+}
+
+function pad4(n: number): string {
+  return n.toString().padStart(4, "0");
+}
+
+/**
+ * Applies a jurisdiction's observed element order to the schema field list.
+ *
+ * AAMVA does not mandate an order within the subfile, so schema order is the
+ * default and remains correct. Where a jurisdiction is known to emit a specific
+ * one, matching it makes our output byte-comparable to a real card. Codes the
+ * order does not mention keep their schema order and follow the listed ones,
+ * so a field added to the schema later cannot silently vanish from the payload.
+ */
+function orderFields(fields: AAMVAField[], order?: string[]): AAMVAField[] {
+  if (!order || order.length === 0) return fields;
+  const rank = new Map(order.map((code, i) => [code, i]));
+  // Array.prototype.sort is stable, so unranked fields hold their schema order.
+  return [...fields].sort(
+    (a, b) =>
+      (rank.get(a.code) ?? Number.MAX_SAFE_INTEGER) - (rank.get(b.code) ?? Number.MAX_SAFE_INTEGER)
+  );
+}
+
 export function generateDocumentDiscriminator(length = 12): string {
   const charset = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   const chars = [];
@@ -42,9 +73,17 @@ export function generateDocumentDiscriminator(length = 12): string {
   return chars.join("");
 }
 
-export function generateStateDiscriminator(stateCode?: string): string {
+/**
+ * A document discriminator in the jurisdiction's observed format.
+ *
+ * `issueDateStr` (MMDDYYYY) is passed through to generators that derive part of
+ * the value from it — Connecticut prefixes the DCF with the issue date in
+ * YYMMDD, so a DCF minted without it would not agree with the DBD on the same
+ * card. Generators that ignore the argument are unaffected.
+ */
+export function generateStateDiscriminator(stateCode?: string, issueDateStr?: string): string {
   if (stateCode && AAMVA_STATE_RULES[stateCode]?.generators?.DCF) {
-    return AAMVA_STATE_RULES[stateCode].generators!.DCF();
+    return AAMVA_STATE_RULES[stateCode].generators!.DCF(issueDateStr);
   }
   return generateDocumentDiscriminator();
 }
@@ -114,6 +153,8 @@ export function generateAAMVAPayload(
     dataObj.DCF = generateDocumentDiscriminator();
   }
 
+  const encoding = getJurisdictionEncoding(stateCode);
+
   // Normalise before the mandatory/format checks so values that arrive from an
   // import or a scan are judged on their real content. Decoded AAMVA values
   // carry the encoder's fixed-width space padding, and a required field holding
@@ -122,7 +163,11 @@ export function generateAAMVAPayload(
     const raw = dataObj[field.code];
     if (raw) {
       let val = raw;
-      if (["string", "char", "zip"].includes(field.type)) val = val.toUpperCase();
+      // Jurisdiction subfile values are opaque: a decoded New York card carries
+      // a mixed-case blob in ZNB, and upper-casing it — as the AAMVA text rule
+      // would — silently rewrites data whose meaning we do not know.
+      const isOpaque = field.subfile === "jurisdiction";
+      if (!isOpaque && ["string", "char", "zip"].includes(field.type)) val = val.toUpperCase();
       dataObj[field.code] = val
         .normalize("NFKD")
         .replace(/[\u0300-\u036f]/g, "")
@@ -198,7 +243,10 @@ export function generateAAMVAPayload(
 
   const stateDef = AAMVA_STATES[stateCode];
   const iin = stateDef.IIN;
-  const jurisVersion = "00";
+  // Counts the issuer's own revisions of its implementation, independently of
+  // the AAMVA version. "00" is the right default for an issuer we have never
+  // seen a card from; New York emits "04".
+  const jurisVersion = encoding?.jurisdictionVersion ?? "00";
 
   const compliance = "@";
   const dataElementSeparator = "\n";
@@ -216,36 +264,67 @@ export function generateAAMVAPayload(
     version +
     jurisVersion;
 
-  let subfileData = subfileType;
+  // The DL/ID subfile carries AAMVA-standard elements; a jurisdiction's own Z*
+  // elements are a separate subfile with its own directory entry. Writing them
+  // into the DL subfile would put codes the standard does not define where a
+  // reader expects standard ones.
+  const primaryFields = fields.filter((f) => f.subfile !== "jurisdiction");
+  const jurisdictionFields = fields.filter((f) => f.subfile === "jurisdiction");
 
-  for (const field of fields) {
-    let val = dataObj[field.code];
-    if (val !== undefined && val !== "") {
-      if (field.code === "DAK") {
+  const orderedPrimaryFields = orderFields(primaryFields, encoding?.elementOrder);
+  const padPostal = shouldPadPostalCode(stateCode);
+
+  const buildSubfile = (type: string, subfileFields: AAMVAField[]): string => {
+    let out = type;
+    for (const field of subfileFields) {
+      let val = dataObj[field.code];
+      if (val === undefined || val === "") continue;
+      if (field.code === "DAK" && padPostal) {
         const stripped = val.replace(/-/g, "");
         val = stripped.padEnd(11, " ").substring(0, 11);
+      } else if (field.code === "DAK") {
+        val = val.replace(/-/g, "");
       }
-      subfileData += field.code + val + dataElementSeparator;
+      out += field.code + val + dataElementSeparator;
     }
+    return out + segmentTerminator;
+  };
+
+  const subfiles: Array<{ type: string; data: string }> = [
+    { type: subfileType, data: buildSubfile(subfileType, orderedPrimaryFields) }
+  ];
+
+  // Emitted only when the user actually supplied a value. A jurisdiction
+  // subfile holding nothing but its own type byte is not what the DMV writes,
+  // and it would cost every other consumer a directory entry to skip.
+  const jurisdictionType = encoding?.jurisdictionSubfile?.type;
+  if (jurisdictionType && jurisdictionFields.some((f) => dataObj[f.code])) {
+    subfiles.push({
+      type: jurisdictionType,
+      data: buildSubfile(jurisdictionType, jurisdictionFields)
+    });
   }
 
-  subfileData += segmentTerminator;
+  const numEntries = subfiles.length.toString().padStart(2, "0");
+  // The directory grows with the number of entries, so the first subfile no
+  // longer starts at a fixed offset — it starts after however many 10-byte
+  // entries the header declares.
+  let offset = 21 + subfiles.length * 10;
 
-  const numEntries = "01";
-  const headerLength = 21 + 10;
-  const offset = headerLength;
+  const directory: string[] = [];
+  for (const subfile of subfiles) {
+    const length = byteLength(subfile.data);
+    if (length > 9999)
+      throw new Error("Generated subfile exceeds 4-digit directory length limit (9999 bytes).");
+    directory.push(subfile.type + pad4(offset) + pad4(length));
+    offset += length;
+  }
 
-  const textEncoder = typeof TextEncoder !== "undefined" ? new TextEncoder() : null;
-  const length = textEncoder ? textEncoder.encode(subfileData).length : subfileData.length;
+  if (offset > 9999) {
+    throw new Error("Generated payload exceeds the 4-digit directory offset limit (9999 bytes).");
+  }
 
-  if (length > 9999)
-    throw new Error("Generated subfile exceeds 4-digit directory length limit (9999 bytes).");
-
-  const offsetStr = offset.toString().padStart(4, "0");
-  const lengthStr = length.toString().padStart(4, "0");
-  const subfileDir = subfileType + offsetStr + lengthStr;
-
-  const payload = header + numEntries + subfileDir + subfileData;
+  const payload = header + numEntries + directory.join("") + subfiles.map((s) => s.data).join("");
 
   if (strictMode) {
     const strictStructure = validateAAMVAPayloadStructure(payload, true);

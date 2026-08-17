@@ -30,6 +30,69 @@ export interface JurisdictionDateRules {
   minLearnerAge?: number;
 }
 
+/**
+ * One data element of a jurisdiction-specific subfile.
+ *
+ * These are not AAMVA data elements: the standard reserves subfile types
+ * beginning with `Z` for the issuing jurisdiction and says nothing about what
+ * goes in them, so the codes and meanings are per-jurisdiction and only
+ * discoverable from cards a DMV actually issues.
+ */
+export interface JurisdictionSubfileElement {
+  /** Three-character element identifier as it appears on the wire (e.g. "ZCB"). */
+  code: string;
+  /** Label shown in the form. */
+  label: string;
+  /** Maximum characters, where the observed format implies one. */
+  maxLength?: number;
+}
+
+/**
+ * A jurisdiction-specific subfile carried alongside the DL/ID subfile.
+ *
+ * `type` is the two-character designator written into the header directory.
+ */
+export interface JurisdictionSubfileProfile {
+  type: string;
+  elements: JurisdictionSubfileElement[];
+  /** Where the shape was observed. Keeps guesses distinguishable from evidence. */
+  source: string;
+}
+
+/**
+ * How a jurisdiction's encoder actually lays out the wire format, as opposed to
+ * how the AAMVA spec describes it. Every entry here should be traceable to a
+ * decoded card — the defaults in `schema.ts` and `generator.ts` are the spec
+ * reading, and this is where an observed deviation from it gets recorded.
+ */
+export interface JurisdictionEncodingProfile {
+  /**
+   * Two-digit Jurisdiction Version Number written into the header. It counts
+   * the issuer's own revisions of its implementation, independently of the
+   * AAMVA version beside it, so it is only knowable from a card. Defaults to
+   * "00", which is what an issuer that has never revised would emit — and what
+   * this app emitted for everyone before any card was decoded.
+   */
+  jurisdictionVersion?: string;
+  /**
+   * Element order within the DL/ID subfile. AAMVA does not mandate one, so the
+   * generator defaults to schema order; a jurisdiction that is known to emit a
+   * different order lists it here. Codes absent from the list keep schema order
+   * and follow the listed ones.
+   */
+  elementOrder?: string[];
+  /**
+   * Whether DAK is space-filled to its fixed 11-character width. The spec
+   * defines the field as fixed-width, and that is the default, but issuers are
+   * observed emitting the bare 9-digit ZIP+4.
+   */
+  padPostalCode?: boolean;
+  /** Jurisdiction-specific subfile emitted after the DL/ID subfile. */
+  jurisdictionSubfile?: JurisdictionSubfileProfile;
+  /** Where the profile came from. */
+  source?: string;
+}
+
 export interface JurisdictionRulePack {
   state: string;
   /** Field codes the jurisdiction additionally treats as mandatory. */
@@ -42,6 +105,8 @@ export interface JurisdictionRulePack {
   dateRules?: JurisdictionDateRules;
   /** DCA vehicle-class code → minimum age (years) at issuance. */
   classMinimumAges?: Record<string, number>;
+  /** Observed wire-format deviations from the spec defaults. */
+  encoding?: JurisdictionEncodingProfile;
   /** Free-form description shown in tooling. */
   description?: string;
 }
@@ -157,7 +222,8 @@ export const JURISDICTION_RULE_PACKS: Record<string, JurisdictionRulePack> = {
   },
   CT: {
     state: "CT",
-    description: "Connecticut — 6-year DL term; DAQ is 9 digits.",
+    description:
+      "Connecticut — 6-year DL term; DAQ is 9 digits. Encoding profile taken from an issued card.",
     constraints: [
       {
         field: "DAQ",
@@ -167,7 +233,55 @@ export const JURISDICTION_RULE_PACKS: Record<string, JurisdictionRulePack> = {
       }
     ],
     dateRules: { maxValidityYears: 6, minIssuanceAge: 16 },
-    classMinimumAges: { ...COMMON_CDL_MIN_AGES, D: 16, M: 16 }
+    classMinimumAges: { ...COMMON_CDL_MIN_AGES, D: 16, M: 16 },
+    // Read off a decoded Connecticut credential (AAMVA v09, IIN 636006). Three
+    // things there differ from the spec-default encoding this app used to emit
+    // for every jurisdiction, and all three are visible in the raw bytes:
+    // the element order, an unpadded DAK, and a second `ZC` subfile — which the
+    // header declares as two directory entries, not one.
+    encoding: {
+      source: "Decoded Connecticut DL barcode (AAMVA v09, IIN 636006), captured 2026-08-17",
+      padPostalCode: false,
+      elementOrder: [
+        "DAQ",
+        "DCS",
+        "DDE",
+        "DAC",
+        "DDF",
+        "DAD",
+        "DDG",
+        "DCA",
+        "DCB",
+        "DCD",
+        "DBD",
+        "DBB",
+        "DBA",
+        "DBC",
+        "DAU",
+        "DAY",
+        "DAG",
+        "DAI",
+        "DAJ",
+        "DAK",
+        "DCF",
+        "DCG",
+        "DCK",
+        "DDA",
+        "DDB"
+      ],
+      jurisdictionSubfile: {
+        type: "ZC",
+        source: "Decoded Connecticut DL barcode (AAMVA v09, IIN 636006), captured 2026-08-17",
+        // The card carried ZCA empty and ZCB as a 10-digit number. AAMVA leaves
+        // `Z`-prefixed subfiles entirely to the jurisdiction, so neither
+        // element has a documented meaning to label them by — naming them for
+        // what they are (optional, jurisdiction-defined) is the honest option.
+        elements: [
+          { code: "ZCA", label: "CT Optional Field A", maxLength: 25 },
+          { code: "ZCB", label: "CT Optional Field B", maxLength: 25 }
+        ]
+      }
+    }
   },
   DE: {
     state: "DE",
@@ -521,6 +635,26 @@ export const JURISDICTION_RULE_PACKS: Record<string, JurisdictionRulePack> = {
   },
   NY: {
     state: "NY",
+    // Read off a decoded New York credential (AAMVA v10, IIN 636001). It agrees
+    // with the schema's default element order, which is why no `elementOrder` is
+    // recorded here — the default was right and is now confirmed rather than
+    // assumed. What it does not agree with is the jurisdiction version, which
+    // this app hardcoded to "00" for every issuer.
+    encoding: {
+      source: "Decoded New York DL barcode (AAMVA v10, IIN 636001), captured 2026-08-17",
+      jurisdictionVersion: "04",
+      jurisdictionSubfile: {
+        type: "ZN",
+        source: "Decoded New York DL barcode (AAMVA v10, IIN 636001), captured 2026-08-17",
+        // ZNA held the cardholder's name re-encoded with "@" separators; ZNB an
+        // opaque ~98-character blob of mixed-case printable ASCII. Neither has
+        // a published meaning — AAMVA reserves Z* subfiles to the issuer.
+        elements: [
+          { code: "ZNA", label: "NY Optional Field A", maxLength: 50 },
+          { code: "ZNB", label: "NY Optional Field B", maxLength: 120 }
+        ]
+      }
+    },
     description: "New York — 8-year DL term; DAQ is exactly 9 digits.",
     constraints: [
       {
@@ -862,4 +996,27 @@ export function getEffectiveDateRules(stateCode: string): JurisdictionDateRules 
 /** Returns the global default date rules. */
 export function getDefaultDateRules(): JurisdictionDateRules {
   return { ...DEFAULT_DATE_RULES };
+}
+
+/**
+ * Observed encoding profile for `stateCode`, or `undefined` when nobody has
+ * decoded a card from that jurisdiction yet.
+ *
+ * Absence is meaningful: it means the generator falls back to the spec reading,
+ * not that the spec reading has been confirmed against a real credential.
+ */
+export function getJurisdictionEncoding(
+  stateCode: string
+): JurisdictionEncodingProfile | undefined {
+  return JURISDICTION_RULE_PACKS[stateCode]?.encoding;
+}
+
+/** Jurisdiction-specific subfile elements for `stateCode` (empty when none). */
+export function getJurisdictionSubfileElements(stateCode: string): JurisdictionSubfileElement[] {
+  return JURISDICTION_RULE_PACKS[stateCode]?.encoding?.jurisdictionSubfile?.elements ?? [];
+}
+
+/** True when DAK should be space-filled to its fixed 11-character width. */
+export function shouldPadPostalCode(stateCode: string): boolean {
+  return JURISDICTION_RULE_PACKS[stateCode]?.encoding?.padPostalCode !== false;
 }

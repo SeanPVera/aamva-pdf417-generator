@@ -1,3 +1,5 @@
+import { getJurisdictionSubfileElements } from "./jurisdictionRules";
+
 export interface FieldOption {
   value: string;
   label: string;
@@ -10,6 +12,19 @@ export interface AAMVAField {
   required?: boolean;
   dateFormat?: string;
   options?: FieldOption[];
+  /**
+   * Which subfile the element is written to. Omitted means the DL/ID subfile,
+   * which is every AAMVA-standard element. `"jurisdiction"` marks an element of
+   * a jurisdiction-defined `Z*` subfile, whose codes are not AAMVA data
+   * elements and must not be written into the DL/ID subfile.
+   */
+  subfile?: "jurisdiction";
+  /**
+   * Per-field length cap for elements outside `AAMVA_FIELD_LIMITS`. Standard
+   * codes keep their limit in that table; this exists for jurisdiction-defined
+   * elements, whose codes are only meaningful within one jurisdiction.
+   */
+  maxLength?: number;
 }
 
 export interface AAMVAVersionDef {
@@ -17,7 +32,13 @@ export interface AAMVAVersionDef {
   fields: AAMVAField[];
 }
 
-export type FieldGroupId = "identity" | "physical" | "address" | "license" | "privileges";
+export type FieldGroupId =
+  | "identity"
+  | "physical"
+  | "address"
+  | "license"
+  | "privileges"
+  | "jurisdiction";
 
 export interface FieldGroupDef {
   id: FieldGroupId;
@@ -51,6 +72,12 @@ export const AAMVA_FIELD_GROUPS: FieldGroupDef[] = [
     id: "privileges",
     label: "Driving Privileges",
     description: "Vehicle class, restrictions, and endorsements."
+  },
+  {
+    id: "jurisdiction",
+    label: "Jurisdiction Subfile",
+    description:
+      "Elements the issuing jurisdiction defines for itself, written to a separate Z* subfile."
   }
 ];
 
@@ -85,12 +112,14 @@ const FIELD_CODE_TO_GROUP: Record<string, FieldGroupId> = {
   DAQ: "license",
   DCF: "license",
   DCG: "license",
+  DCK: "license",
   DBA: "license",
   DBD: "license",
   DDB: "license",
   DDA: "license",
   DDK: "license",
   DDL: "license",
+  DDD: "license",
   // Privileges
   DAR: "privileges",
   DAS: "privileges",
@@ -101,6 +130,10 @@ const FIELD_CODE_TO_GROUP: Record<string, FieldGroupId> = {
 };
 
 export function getFieldGroup(code: string): FieldGroupId {
+  // Jurisdiction-defined subfile elements are Z-prefixed by the AAMVA
+  // reservation and never appear in the table above — they belong to one
+  // jurisdiction, not to the standard.
+  if (code.startsWith("Z")) return "jurisdiction";
   return FIELD_CODE_TO_GROUP[code] || "license";
 }
 
@@ -165,6 +198,10 @@ export const AAMVA_FIELD_OPTIONS: Record<string, FieldOption[]> = {
     { value: "1", label: "1 — Veteran" },
     { value: "0", label: "0 — Not a Veteran" }
   ],
+  DDD: [
+    { value: "1", label: "1 — Limited Duration" },
+    { value: "0", label: "0 — Not Limited Duration" }
+  ],
   DCL: [
     { value: "AI", label: "AI — Alaskan/American Indian" },
     { value: "AP", label: "AP — Asian/Pacific Islander" },
@@ -203,6 +240,7 @@ export const AAMVA_FIELD_LIMITS: Record<string, number> = {
   DAX: 3,
   DCF: 25,
   DCG: 3,
+  DCK: 25,
   DCL: 2,
   DDE: 1,
   DDF: 1,
@@ -211,6 +249,7 @@ export const AAMVA_FIELD_LIMITS: Record<string, number> = {
   DDB: 8,
   DDK: 1,
   DDL: 1,
+  DDD: 1,
   DAR: 4,
   DAS: 10,
   DAT: 5
@@ -296,6 +335,7 @@ const V04_FIELDS: AAMVAField[] = [
   { code: "DAQ", label: "Customer ID Number", type: "string", required: true },
   { code: "DCF", label: "Document Discriminator", type: "string", required: true },
   { code: "DCG", label: "Country Identification", type: "string", required: true },
+  { code: "DCK", label: "Inventory Control Number", type: "string" },
   { code: "DDE", label: "Family Name Truncation", type: "string", required: true },
   { code: "DDF", label: "First Name Truncation", type: "string", required: true },
   { code: "DDG", label: "Middle Name Truncation", type: "string", required: true },
@@ -398,6 +438,7 @@ export const AAMVA_VERSIONS: Record<string, AAMVAVersionDef> = {
       { code: "DAY", label: "Eye Color", type: "string", required: true },
       { code: "DCF", label: "Document Discriminator", type: "string", required: true },
       { code: "DCG", label: "Country Identification", type: "string", required: true },
+      { code: "DCK", label: "Inventory Control Number", type: "string" },
       { code: "DAW", label: "Weight (pounds)", type: "string" },
       { code: "DAZ", label: "Hair Color", type: "string" },
       { code: "DCL", label: "Race/Ethnicity", type: "string" }
@@ -442,6 +483,7 @@ export const AAMVA_VERSIONS: Record<string, AAMVAVersionDef> = {
       { code: "DAQ", label: "Customer ID Number", type: "string", required: true },
       { code: "DCF", label: "Document Discriminator", type: "string", required: true },
       { code: "DCG", label: "Country Identification", type: "string", required: true },
+      { code: "DCK", label: "Inventory Control Number", type: "string" },
       { code: "DDE", label: "Family Name Truncation", type: "string", required: true },
       { code: "DDF", label: "First Name Truncation", type: "string", required: true },
       { code: "DDG", label: "Middle Name Truncation", type: "string", required: true },
@@ -452,7 +494,8 @@ export const AAMVA_VERSIONS: Record<string, AAMVAVersionDef> = {
       { code: "DDA", label: "Compliance Type", type: "string" },
       { code: "DDB", label: "Card Revision Date", type: "date" },
       { code: "DDK", label: "Organ Donor Indicator", type: "string" },
-      { code: "DDL", label: "Veteran Indicator", type: "string" }
+      { code: "DDL", label: "Veteran Indicator", type: "string" },
+      { code: "DDD", label: "Limited Duration Document Indicator", type: "string" }
     ]
   },
   "09": {
@@ -478,6 +521,7 @@ export const AAMVA_VERSIONS: Record<string, AAMVAVersionDef> = {
       { code: "DAQ", label: "Customer ID Number", type: "string", required: true },
       { code: "DCF", label: "Document Discriminator", type: "string", required: true },
       { code: "DCG", label: "Country Identification", type: "string", required: true },
+      { code: "DCK", label: "Inventory Control Number", type: "string" },
       { code: "DDE", label: "Family Name Truncation", type: "string", required: true },
       { code: "DDF", label: "First Name Truncation", type: "string", required: true },
       { code: "DDG", label: "Middle Name Truncation", type: "string", required: true },
@@ -488,7 +532,8 @@ export const AAMVA_VERSIONS: Record<string, AAMVAVersionDef> = {
       { code: "DDA", label: "Compliance Type", type: "string" },
       { code: "DDB", label: "Card Revision Date", type: "date" },
       { code: "DDK", label: "Organ Donor Indicator", type: "string" },
-      { code: "DDL", label: "Veteran Indicator", type: "string" }
+      { code: "DDL", label: "Veteran Indicator", type: "string" },
+      { code: "DDD", label: "Limited Duration Document Indicator", type: "string" }
     ]
   },
   "10": {
@@ -514,6 +559,7 @@ export const AAMVA_VERSIONS: Record<string, AAMVAVersionDef> = {
       { code: "DAQ", label: "Customer ID Number", type: "string", required: true },
       { code: "DCF", label: "Document Discriminator", type: "string", required: true },
       { code: "DCG", label: "Country Identification", type: "string", required: true },
+      { code: "DCK", label: "Inventory Control Number", type: "string" },
       { code: "DDE", label: "Family Name Truncation", type: "string", required: true },
       { code: "DDF", label: "First Name Truncation", type: "string", required: true },
       { code: "DDG", label: "Middle Name Truncation", type: "string", required: true },
@@ -524,7 +570,8 @@ export const AAMVA_VERSIONS: Record<string, AAMVAVersionDef> = {
       { code: "DDA", label: "Compliance Type", type: "string" },
       { code: "DDB", label: "Card Revision Date", type: "date" },
       { code: "DDK", label: "Organ Donor Indicator", type: "string" },
-      { code: "DDL", label: "Veteran Indicator", type: "string" }
+      { code: "DDL", label: "Veteran Indicator", type: "string" },
+      { code: "DDD", label: "Limited Duration Document Indicator", type: "string" }
     ]
   }
 };
@@ -574,6 +621,23 @@ export function getFieldsForStateAndVersion(stateCode: string, v: string): AAMVA
     } else {
       result = allFields.filter((f) => f.required || !excludedSet.has(f.code));
     }
+  }
+
+  // Elements of the jurisdiction's own Z* subfile, appended so the form renders
+  // them and the store holds them like any other value. They are tagged
+  // `subfile: "jurisdiction"` and never written into the DL/ID subfile — see
+  // the partition in `generateAAMVAPayload`.
+  const jurisdictionElements = stateCode ? getJurisdictionSubfileElements(stateCode) : [];
+  if (jurisdictionElements.length > 0) {
+    result = result.concat(
+      jurisdictionElements.map((el) => ({
+        code: el.code,
+        label: el.label,
+        type: "string" as const,
+        subfile: "jurisdiction" as const,
+        maxLength: el.maxLength
+      }))
+    );
   }
 
   _stateVersionFieldCache.set(cacheKey, result);
