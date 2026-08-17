@@ -14,4 +14,4 @@ Crucially it inspects the **source card**, not this app's re-encoding of it. A s
 
 Inspection deliberately does not share a code path with decoding: decoding answers what the card says, inspection answers what is in the bytes, and putting diagnostic detail in the path every scan takes would be the wrong trade. `readDirectory` gains an overrun cap so the inspector can read a subfile that declares far more than it holds — the exact anomaly it measures — while the decoder keeps absorbing only a few bytes of drift.
 
-No first-paint cost: the panel rides in the already-lazy preview chunk, and the initial bundle moves 45.06 → 45.08 kB.
+Negligible first-paint cost: the panel rides in the already-lazy preview chunk, and the initial bundle moves 45.06 → 45.12 kB against a 46 kB budget.
