@@ -7,13 +7,16 @@ import {
 } from "../core/schema";
 
 describe("AAMVA_FIELD_GROUPS", () => {
-  test("defines five groups in display order", () => {
+  test("defines six groups in display order", () => {
     expect(AAMVA_FIELD_GROUPS.map((g) => g.id)).toEqual([
       "identity",
       "address",
       "physical",
       "license",
-      "privileges"
+      "privileges",
+      // Last on purpose: a jurisdiction's own subfile elements are the least
+      // standard thing on the card and should not push AAMVA fields down.
+      "jurisdiction"
     ]);
   });
 
@@ -50,8 +53,16 @@ describe("getFieldGroup", () => {
   });
 
   test("classifies license-detail fields", () => {
-    for (const code of ["DAQ", "DCF", "DCG", "DBA", "DBD", "DDA", "DDK", "DDL"]) {
+    for (const code of ["DAQ", "DCF", "DCG", "DCK", "DBA", "DBD", "DDA", "DDK", "DDL"]) {
       expect(getFieldGroup(code)).toBe("license");
+    }
+  });
+
+  test("classifies Z-prefixed jurisdiction subfile elements", () => {
+    // Not a lookup — AAMVA reserves the whole Z space for the jurisdiction, so
+    // codes nobody has catalogued yet still have to land somewhere sensible.
+    for (const code of ["ZCA", "ZCB", "ZTX", "ZVA"]) {
+      expect(getFieldGroup(code)).toBe("jurisdiction");
     }
   });
 

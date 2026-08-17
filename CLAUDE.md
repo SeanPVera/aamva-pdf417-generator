@@ -58,7 +58,7 @@ This file provides AI assistants (Claude, Copilot, etc.) with the context needed
 │   │   ├── pasteImport.ts        # Classifies clipboard text into a loadable field map
 │   │   ├── derivedFields.ts      # App-owned field codes (DAJ) and user-dirty-state checks
 │   │   ├── roadTest.ts           # Parallel-parking physics and examiner scoring (decorative)
-│   │   ├── jurisdictionRules.ts  # Per-jurisdiction rule packs
+│   │   ├── jurisdictionRules.ts  # Per-jurisdiction rule packs + observed encoding profiles
 │   │   ├── barcodeDimensions.ts  # PDF417 row/column sizing for the encoder
 │   │   ├── exportNaming.ts       # Filename construction for PNG/SVG/PDF/JSON exports
 │   │   ├── presets.ts            # Jurisdiction/sample presets
@@ -142,7 +142,7 @@ Named exports:
 |---|---|
 | `generateAAMVAPayload(stateCode, version, fields, dataObj, options)` | Main payload builder |
 | `generateDocumentDiscriminator(length?)` | Random 12-char alphanumeric DCF |
-| `generateStateDiscriminator(stateCode)` | State-specific DCF generator |
+| `generateStateDiscriminator(stateCode, issueDateStr?)` | State-specific DCF generator; the issue date is threaded through for issuers that embed it (CT) |
 | `generateStateLicenseNumber(stateCode)` | State-specific DAQ generator |
 | `generateStateCardRevisionDate(stateCode, issueDateStr)` | Auto-generates DDB from era ranges |
 
@@ -153,7 +153,7 @@ Named exports:
 | `validateAAMVAPayloadStructure(payload, strictMode)` | Validates AAMVA format compliance |
 | `decodePayload(text)` | Generic decoder (handles AAMVA format or JSON) |
 | `decodeAAMVAFormat(text)` | Parses AAMVA binary format string to JSON |
-| `decodeAAMVA(text)` | High-level decoder returning `{ ok, json, mapped }` |
+| `decodeAAMVA(text)` | High-level decoder returning `{ ok, json, mapped, subfiles }` |
 | `describeFields(obj)` | Human-readable field descriptions |
 
 ### `src/core/dateHelpers.ts` — Date entry
@@ -360,6 +360,82 @@ Fields use 3-character codes (e.g., `DAA`, `DCS`, `DAB`). These are standardized
 - `"08"` — 2013 standard; adds organ donor/veteran fields (`DDK`, `DDL`)
 - `"09"`–`"10"` — most recent; used by newer state implementations
 
+`DCK` (inventory control number) is optional from `"03"` onward and absent from `"01"`/`"02"`.
+`DDD` (limited duration document indicator) is optional from `"08"` onward. Both were added
+after decoded cards were found carrying them.
+
+### Subfiles and the header directory
+
+A payload is a header, then a directory of N 10-byte entries, then N subfiles.
+The first entry is always `DL` or `ID`; AAMVA reserves subfile types beginning
+with `Z` for the issuing jurisdiction and says nothing about their contents.
+
+The directory is what makes the layout self-describing, and it is easy to get
+subtly wrong:
+
+- The first subfile's offset is **not** a constant. It is `21 + entries × 10` —
+  31 with one entry, 41 with two. Code that hardcodes `0031` breaks the moment a
+  jurisdiction subfile appears.
+- `generateAAMVAPayload` partitions the field list on `field.subfile`. Elements
+  tagged `"jurisdiction"` go to the `Z*` subfile and must never be written into
+  the `DL`/`ID` subfile, where a reader expects standard codes only.
+- The jurisdiction subfile is emitted only when at least one of its elements
+  holds a value, so the common single-subfile output is byte-identical to what
+  this app produced before multi-subfile support existed.
+
+Two jurisdictions have profiles, both read off decoded cards: Connecticut
+(`ZC`) and New York (`ZN`). Their elements are surfaced in the form through
+`getFieldsForStateAndVersion`, which appends them per jurisdiction, and they are
+tagged `subfile: "jurisdiction"` so nothing else has to special-case them.
+
+Jurisdiction subfile values are **opaque**. They are exempt from the upper-casing
+the AAMVA text rule applies to standard string fields, because a real NY card
+carries a mixed-case blob in `ZNB` and upper-casing it would rewrite data whose
+meaning is not published anywhere.
+
+### Jurisdiction encoding profiles
+
+`jurisdictionRules.ts` carries an optional `encoding` block per jurisdiction
+recording where an issuer's *wire format* departs from the spec default: the
+two-digit **jurisdiction version** in the header (NY emits `04`, not the `00`
+this app assumed for everyone), element order within the subfile, whether `DAK`
+is space-filled to its fixed 11-character width, and any jurisdiction subfile.
+Defaults in `schema.ts` and `generator.ts` are the spec reading; this block is
+where a deviation observed on a real card is written down.
+
+Not everything a card shows belongs in a profile. New York's element order turned
+out to match the schema default exactly — so nothing is recorded for it, and the
+default is now confirmed rather than assumed.
+
+Only add an entry you can trace to a decoded credential, and cite it in
+`source`. Absence of a profile means nobody has checked that jurisdiction — not
+that the spec reading has been confirmed for it.
+
+### Height notation
+
+`DAU` has two live formats in the wild. Connecticut writes total inches with a
+unit (`069 IN`); New York writes feet and inches as three digits (`603` for
+6'3"). Both are 6 characters or fewer and both validate.
+
+`normalizeHeight` in `quickFix.ts` must not "correct" the second into the first:
+`603` read as inches is fifty feet. `isFeetInchesNotation` guards this — a
+three-digit value whose leading digit is 4–7 and whose trailing pair is ≤ 11 is
+left alone. Keep that guard ahead of the inches branch if you touch the function.
+
+### Reading directories that do not add up
+
+Real encoders miscount. The Connecticut card this profile came from declares its
+`DL` subfile one byte longer than the bytes it contains, which puts the declared
+offset of the following `ZC` subfile one past where `ZC` actually begins.
+
+`readDirectory` in `decoder.ts` therefore verifies each entry against the type
+bytes at its declared offset and nudges onto the marker when it just misses,
+within `SUBFILE_OFFSET_TOLERANCE` (4) bytes. Strict mode disables the nudge and
+additionally requires subfiles to be exactly contiguous — the generator
+self-checks with it, and our own output has no excuse for being off. **Do not
+make the encoder reproduce an issuer's arithmetic error**: we absorb drift when
+reading and never emit it.
+
 ### Auto-version Selection
 `getVersionForState(stateCode)` in `src/core/states.ts` maps each jurisdiction to its default AAMVA version. When a user selects a state, `useFormStore.setStateVersion()` rebuilds the field list accordingly.
 
@@ -381,7 +457,7 @@ Two warning channels feed that promise and both are enforced at generation time:
 
 `generateAAMVAPayload` does not mutate the object it is given. Auto-filled values are visible in the returned payload (decode it), not in the caller's map.
 
-`usePayload` caches the values it auto-fills — keyed on jurisdiction for `DCF`, on jurisdiction + issue date for `DDB` — so the payload stays stable across keystrokes instead of re-rolling on every debounce.
+`usePayload` caches the values it auto-fills — both keyed on jurisdiction + issue date — so the payload stays stable across keystrokes instead of re-rolling on every debounce. `DCF` is keyed on the issue date too because some issuers derive it from that date (Connecticut prefixes it with the issue date as `YYMMDD`), and a `DCF` cached across a `DBD` edit would contradict the date printed beside it.
 
 ### Undo/Redo
 `setField()` pushes state to `_history` (20-item cap). `undo()`/`redo()` navigate the stack. History is not persisted across sessions.
@@ -441,6 +517,10 @@ Local hooks (Husky):
 - **Do not** persist PII at all — field values live in memory only (see `partialize` in `useFormStore`); no IndexedDB, no cookies, no remote storage
 - **Do not** build a version picker from `Object.keys(AAMVA_VERSIONS)` — `"10"` is an integer-like key and sorts ahead of `"01"`; use `AAMVA_VERSION_KEYS`
 - **Do not** call `setField` in a loop for a bulk action — use `mergeFields` so it stays one undo step
+- **Do not** assume the first subfile starts at byte 31 — the directory grows with the entry count; read `21 + entries × 10`
+- **Do not** write jurisdiction (`Z*`) elements into the `DL`/`ID` subfile, and do not add them to `AAMVA_VERSIONS` — they belong to one jurisdiction, not to the standard
+- **Do not** upper-case jurisdiction (`Z*`) values — they are opaque, and NY's `ZNB` is mixed-case
+- **Do not** hardcode the jurisdiction version to `"00"` — it is per-issuer and lives in the encoding profile
 - **Do not** add an external test runner — use Vitest only
 - **Do not** bypass the Husky pre-commit hook (`--no-verify`) without fixing the underlying lint/format issue
 
