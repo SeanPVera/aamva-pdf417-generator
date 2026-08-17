@@ -110,7 +110,7 @@ export const PreviewActions: React.FC<PreviewActionsProps> = ({
         />
         <span>
           Put the cardholder&apos;s name in export filenames
-          <span className="block text-gray-400 dark:text-gray-500">
+          <span className="block text-gray-500 dark:text-gray-400">
             Off: <span className="font-mono">{exportBasename("barcode")}.png</span>
           </span>
         </span>

@@ -113,7 +113,7 @@ export const VersionBrowser: React.FC = () => {
                         <td className="py-1 px-2 text-gray-700 dark:text-gray-300">
                           {field.label}
                         </td>
-                        <td className="py-1 px-2 text-gray-400 dark:text-gray-500">{field.type}</td>
+                        <td className="py-1 px-2 text-gray-500 dark:text-gray-400">{field.type}</td>
                         <td className="py-1 px-2 text-center">
                           {field.required ? (
                             <span className="text-red-500" aria-label="Required">

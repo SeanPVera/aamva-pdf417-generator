@@ -105,7 +105,15 @@ html[data-state-theme] .state-primary-bg {
 }
 
 /* ─── Full jurisdiction package surfaces ─────────────────────────────────── */
-html[data-state-theme] .app-shell {
+/* Every palette in stateThemes.ts is built from light tints — `surface` is
+   literally #ffffff and `input` is a near-white mix. `data-state-theme` is set
+   on <html> for every jurisdiction, dark mode included, so these rules used to
+   paint white panels and near-white inputs underneath the near-white text that
+   `html.dark` had already chosen: a text box at roughly 1.05:1 contrast. The
+   light surfaces are therefore scoped to `:not(.dark)`, and dark mode gets its
+   own set below that tints the dark surfaces with the state color instead of
+   replacing them. */
+html[data-state-theme]:not(.dark) .app-shell {
   background:
     radial-gradient(circle at 18% 12%, var(--state-motif-color) 0 13rem, transparent 13.2rem),
     radial-gradient(
@@ -118,6 +126,16 @@ html[data-state-theme] .app-shell {
       var(--state-background) 0%,
       color-mix(in srgb, var(--state-background) 68%, white) 100%
     ) !important;
+}
+html[data-state-theme].dark .app-shell {
+  background:
+    radial-gradient(circle at 18% 12%, var(--state-motif-color) 0 13rem, transparent 13.2rem),
+    radial-gradient(
+      circle at 86% 0%,
+      color-mix(in srgb, var(--state-accent) 10%, transparent) 0 16rem,
+      transparent 16.2rem
+    ),
+    #121212 !important;
 }
 html[data-state-theme] .app-shell::before {
   content: "";
@@ -151,10 +169,14 @@ html[data-state-theme] .dmv-main,
 html[data-state-theme] .dmv-preview {
   position: relative;
   z-index: 1;
-  border-color: var(--state-border) !important;
   box-shadow: var(--state-shadow) !important;
 }
-html[data-state-theme] .dmv-main {
+html[data-state-theme]:not(.dark) .dmv-sidebar,
+html[data-state-theme]:not(.dark) .dmv-main,
+html[data-state-theme]:not(.dark) .dmv-preview {
+  border-color: var(--state-border) !important;
+}
+html[data-state-theme]:not(.dark) .dmv-main {
   background:
     linear-gradient(
       180deg,
@@ -163,17 +185,46 @@ html[data-state-theme] .dmv-main {
     ),
     var(--state-surface) !important;
 }
-html[data-state-theme] .dmv-sidebar,
-html[data-state-theme] .dmv-preview {
+html[data-state-theme]:not(.dark) .dmv-sidebar,
+html[data-state-theme]:not(.dark) .dmv-preview {
   background: linear-gradient(
     180deg,
     var(--state-surface-alt) 0%,
     color-mix(in srgb, var(--state-secondary) 62%, white) 100%
   ) !important;
 }
-html[data-state-theme] .dmv-main > div:first-child {
+html[data-state-theme]:not(.dark) .dmv-main > div:first-child {
   background: linear-gradient(90deg, color-mix(in srgb, var(--state-tint) 72%, white), transparent);
   border-color: var(--state-border) !important;
+}
+
+/* Dark counterparts: the jurisdiction hue is mixed *into* the dark surface so
+   the panels still read as themed without lightening the page under the text. */
+html[data-state-theme].dark .dmv-main {
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--state-primary) 12%, #1e1e1e) 0%, #1e1e1e 52%),
+    #1e1e1e !important;
+}
+html[data-state-theme].dark .dmv-sidebar,
+html[data-state-theme].dark .dmv-preview {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--state-primary) 16%, #1e1e1e) 0%,
+    #1a1a1a 100%
+  ) !important;
+}
+html[data-state-theme].dark .dmv-main > div:first-child {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--state-primary) 18%, transparent),
+    transparent
+  );
+  border-color: color-mix(in srgb, var(--state-primary) 35%, #333333) !important;
+}
+html[data-state-theme].dark .dmv-sidebar,
+html[data-state-theme].dark .dmv-main,
+html[data-state-theme].dark .dmv-preview {
+  border-color: color-mix(in srgb, var(--state-primary) 35%, #333333) !important;
 }
 html[data-state-theme] .state-themed-tab[aria-current="true"],
 html[data-state-theme] .state-primary-bg,
@@ -182,20 +233,45 @@ html[data-state-theme] .state-action-primary {
   color: var(--state-on-primary) !important;
   box-shadow: 0 10px 24px color-mix(in srgb, var(--state-primary) 28%, transparent);
 }
-html[data-state-theme] .dmv-main input:not([type="checkbox"]),
-html[data-state-theme] .dmv-main textarea,
-html[data-state-theme] .dmv-sidebar select,
-html[data-state-theme] .dmv-sidebar input:not([type="checkbox"]),
-html[data-state-theme] .dmv-sidebar textarea {
+/* Text boxes. `--state-input` is a near-white tint, so it is light-mode only —
+   in dark mode the same hue is mixed into the elevated dark surface instead,
+   which keeps the jurisdiction flavor while leaving the field's own light text
+   readable. Only the fill is themed here: the form fields carry their
+   validation state in the bottom border, and an `!important` border-color was
+   repainting every red and amber edge in the jurisdiction's own color. */
+html[data-state-theme]:not(.dark) .dmv-main input:not([type="checkbox"]),
+html[data-state-theme]:not(.dark) .dmv-main select,
+html[data-state-theme]:not(.dark) .dmv-main textarea {
+  background-color: var(--state-input) !important;
+}
+html[data-state-theme].dark .dmv-main input:not([type="checkbox"]),
+html[data-state-theme].dark .dmv-main select,
+html[data-state-theme].dark .dmv-main textarea {
+  background-color: color-mix(in srgb, var(--state-primary) 14%, #2c2c2c) !important;
+}
+html[data-state-theme]:not(.dark) .dmv-sidebar select,
+html[data-state-theme]:not(.dark) .dmv-sidebar input:not([type="checkbox"]),
+html[data-state-theme]:not(.dark) .dmv-sidebar textarea {
   background-color: var(--state-input) !important;
   border-color: var(--state-border) !important;
 }
-html[data-state-theme] .dmv-main input:focus,
-html[data-state-theme] .dmv-main textarea:focus,
+html[data-state-theme].dark .dmv-sidebar select,
+html[data-state-theme].dark .dmv-sidebar input:not([type="checkbox"]),
+html[data-state-theme].dark .dmv-sidebar textarea {
+  background-color: color-mix(in srgb, var(--state-primary) 14%, #2c2c2c) !important;
+  border-color: color-mix(in srgb, var(--state-primary) 40%, #555555) !important;
+}
 html[data-state-theme] .dmv-sidebar select:focus,
 html[data-state-theme] .dmv-sidebar input:focus,
 html[data-state-theme] .dmv-sidebar textarea:focus {
   border-color: var(--state-ring) !important;
+  --tw-ring-color: var(--state-ring) !important;
+}
+/* Focused form fields keep the jurisdiction's ring color, but not its border:
+   a focused field that fails validation has to stay red. */
+html[data-state-theme] .dmv-main input:focus,
+html[data-state-theme] .dmv-main select:focus,
+html[data-state-theme] .dmv-main textarea:focus {
   --tw-ring-color: var(--state-ring) !important;
 }
 html[data-state-theme] .dmv-preview canvas {
@@ -523,12 +599,30 @@ div {
   }
 }
 
-/* ─── Whimsy: Gus the clerk mascot ───────────────────────────────────────── */
-.clerk-mascot {
+/* ─── Whimsy: the desk mascots' shared corner ────────────────────────────── */
+/* Gus and the queue ticket are opt-in together (Playful extras → Desk
+   mascots). One fixed column owns the corner so their heights stack instead of
+   overlapping; the wrapper itself is click-through so it never swallows a
+   click meant for the form underneath. */
+.desk-mascots {
   position: fixed;
   left: calc(12px + env(safe-area-inset-left, 0px));
   bottom: calc(12px + env(safe-area-inset-bottom, 0px));
   z-index: 40;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  max-width: min(78vw, 340px);
+  pointer-events: none;
+}
+.desk-mascots > * {
+  pointer-events: auto;
+}
+
+/* ─── Whimsy: Gus the clerk mascot ───────────────────────────────────────── */
+.clerk-mascot {
+  position: relative;
   display: flex;
   align-items: flex-end;
   gap: 6px;
@@ -980,16 +1074,14 @@ html.dark .plate-frame {
 }
 
 /* ─── Whimsy: take-a-number ticket ───────────────────────────────────────── */
+/* Positioned by `.desk-mascots`; `relative` only so the dismiss button has a
+   containing block. */
 .ticket-dispenser {
-  position: fixed;
-  left: 12px;
-  bottom: 12px;
-  z-index: 40;
+  position: relative;
   display: flex;
   align-items: stretch;
   gap: 6px;
   font-family: ui-monospace, monospace;
-  pointer-events: auto;
 }
 
 .ticket-dismiss {

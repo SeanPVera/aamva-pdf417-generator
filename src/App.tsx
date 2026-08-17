@@ -137,6 +137,7 @@ function App() {
     markTourSeen,
     whimsy,
     soundOn,
+    mascots,
     badgeStats,
     recordBadgeEvent,
     bingoMarked,
@@ -799,7 +800,7 @@ function App() {
             );
           })}
         </div>
-        <p className="text-xs text-gray-400 dark:text-gray-500 text-center mt-1 select-none">
+        <p className="text-xs text-gray-500 dark:text-gray-400 text-center mt-1 select-none">
           Swipe left or right to switch panels
         </p>
       </nav>
@@ -820,7 +821,7 @@ function App() {
               <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
                 Payload Fields
               </h2>
-              <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">
+              <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">
                 Field values stay in memory only — never written to disk. Export JSON to keep a
                 copy.
               </p>
@@ -864,7 +865,7 @@ function App() {
                 role="status"
                 className="flex flex-col items-center justify-center rounded-lg border border-dashed border-gray-200 bg-gray-50 p-8 text-center dark:border-dark-border dark:bg-dark-surface"
               >
-                <SearchX className="mb-3 h-8 w-8 text-gray-400 dark:text-gray-500" aria-hidden />
+                <SearchX className="mb-3 h-8 w-8 text-gray-500 dark:text-gray-400" aria-hidden />
                 <h3 className="mb-1 text-sm font-semibold text-gray-900 dark:text-gray-100">
                   No fields found
                 </h3>
@@ -1019,25 +1020,32 @@ function App() {
         </React.Suspense>
       )}
       <DropZoneOverlay />
-      {whimsy && (
-        <React.Suspense fallback={null}>
-          <TicketDispenser
-            enabled={whimsy}
-            served={badgeStats.generated}
-            onTakeTicket={() => markBingo("took-a-number")}
-          />
-        </React.Suspense>
-      )}
-      {whimsy && (
-        <React.Suspense fallback={null}>
-          <ClerkMascot
-            enabled={whimsy}
-            errorCount={errorCount}
-            requiredComplete={requiredComplete}
-            anyFields={anyFields}
-            onDismiss={() => markBingo("dismissed-gus")}
-          />
-        </React.Suspense>
+      {/* The two corner residents. Unlike the rest of the whimsy — which fires
+          in response to something and then leaves — these sit over the page for
+          the whole session, so they are opt-in on top of `whimsy` rather than
+          on by default. Playful extras → "Desk mascots" turns them on. */}
+      {whimsy && mascots && (
+        // Both used to be independently pinned to the bottom-left corner, which
+        // meant Gus's speech bubble sat directly on top of the queue ticket.
+        // One column, stacked, so each keeps its own height.
+        <div className="desk-mascots">
+          <React.Suspense fallback={null}>
+            <TicketDispenser
+              enabled
+              served={badgeStats.generated}
+              onTakeTicket={() => markBingo("took-a-number")}
+            />
+          </React.Suspense>
+          <React.Suspense fallback={null}>
+            <ClerkMascot
+              enabled
+              errorCount={errorCount}
+              requiredComplete={requiredComplete}
+              anyFields={anyFields}
+              onDismiss={() => markBingo("dismissed-gus")}
+            />
+          </React.Suspense>
+        </div>
       )}
     </div>
   );

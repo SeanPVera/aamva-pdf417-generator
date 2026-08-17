@@ -43,6 +43,19 @@ describe("Phase 3 — FIELD_HELP registry", () => {
     expect(getFieldHelp("ZZZ")).toBeUndefined();
   });
 
+  // DBC renders as a free-text box on every version except 01 — the digits are
+  // the whole content of the field and nothing on screen said what they mean.
+  test("DBC explains the sex coding for both encodings", () => {
+    const help = getFieldHelp("DBC");
+    expect(help).toBeTruthy();
+    expect(help).toContain("1 = male");
+    expect(help).toContain("2 = female");
+    expect(help).toContain("9 = not specified");
+    // Version 01 predates the numeric scheme; the help has to say so or it is
+    // wrong for that version's M / F values.
+    expect(help).toMatch(/M \/ F/);
+  });
+
   test("every help entry is a non-trivial sentence", () => {
     for (const [, text] of Object.entries(FIELD_HELP)) {
       expect(text.length).toBeGreaterThan(20);

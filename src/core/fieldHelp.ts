@@ -19,6 +19,10 @@ export const FIELD_HELP: Record<string, string> = {
   DDE: "Family Name Truncation — T = truncated to fit, N = not truncated, U = unknown.",
   DDF: "First Name Truncation — T = truncated to fit, N = not truncated, U = unknown.",
   DDG: "Middle Name Truncation — T = truncated to fit, N = not truncated, U = unknown.",
+  DBC:
+    "Sex — the barcode carries a code, not a word. Version 04 and later use the " +
+    "digits 1 = male, 2 = female, 9 = not specified. Version 01 predates that " +
+    "scheme and uses M / F instead. Enter the code itself, e.g. 1.",
   DCG: "Country Identification — three-letter code; almost always USA for US credentials.",
   DCL:
     "Race / Ethnicity — optional on most jurisdictions and excluded entirely on " +

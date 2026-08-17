@@ -61,9 +61,13 @@ export interface FormState {
   // ISO timestamp the user finished or skipped the welcome tour. Empty = never seen.
   tourSeenAt: string;
   // Decorative preferences (persisted). `whimsy` gates all the playful flourishes;
-  // `soundOn` gates the synthesized clerk-stamp clicks.
+  // `soundOn` gates the synthesized clerk-stamp clicks; `mascots` gates the two
+  // screen-corner residents (Gus and the queue ticket) specifically. They are
+  // the only decorations that sit over the page permanently rather than firing
+  // in response to something, so they get their own opt-in and default to off.
   whimsy: boolean;
   soundOn: boolean;
+  mascots: boolean;
   // Decorative counters behind the badge board and bingo card. Counters only —
   // never field values.
   badgeStats: BadgeStats;
@@ -96,6 +100,7 @@ export interface FormState {
   resetTour: () => void;
   setWhimsy: (value: boolean) => void;
   setSoundOn: (value: boolean) => void;
+  setMascots: (value: boolean) => void;
   setCameraDeviceId: (id: string) => void;
   recordBadgeEvent: (patch: Partial<BadgeStats>) => void;
   markBingo: (id: string) => void;
@@ -142,6 +147,7 @@ export const useFormStore = create<FormState>()(
       tourSeenAt: "",
       whimsy: true,
       soundOn: false,
+      mascots: false,
       badgeStats: { ...INITIAL_BADGE_STATS },
       bingoMarked: [],
       ticketNumber: 0,
@@ -223,6 +229,8 @@ export const useFormStore = create<FormState>()(
       setWhimsy: (value) => set({ whimsy: value }),
 
       setSoundOn: (value) => set({ soundOn: value }),
+
+      setMascots: (value) => set({ mascots: value }),
 
       setCameraDeviceId: (id) => set({ cameraDeviceId: id }),
 
@@ -358,6 +366,7 @@ export const useFormStore = create<FormState>()(
         tourSeenAt: s.tourSeenAt,
         whimsy: s.whimsy,
         soundOn: s.soundOn,
+        mascots: s.mascots,
         badgeStats: s.badgeStats,
         bingoMarked: s.bingoMarked,
         ticketNumber: s.ticketNumber,

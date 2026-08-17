@@ -107,6 +107,8 @@ export const Header: React.FC<HeaderActionProps> = ({
     setWhimsy,
     soundOn,
     setSoundOn,
+    mascots,
+    setMascots,
     includeNameInExport,
     restoreFields,
     markBingo,
@@ -543,6 +545,30 @@ export const Header: React.FC<HeaderActionProps> = ({
               <button
                 type="button"
                 role="menuitemcheckbox"
+                aria-checked={mascots}
+                disabled={!whimsy}
+                onClick={() => {
+                  setMascots(!mascots);
+                  toast.info(mascots ? "Gus is off the clock." : "Gus is back at the window.");
+                }}
+                title="Gus the clerk and the take-a-number ticket, in the bottom corner"
+                className="w-full flex items-center justify-between px-3 py-2 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-sm focus-visible:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-dark-surface2 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <span className="flex items-center gap-2">
+                  {/* Reuses an icon the toolbar already ships — a new lucide
+                      glyph here costs first-paint bytes for a menu row. */}
+                  <Sparkles size={14} /> Desk mascots
+                </span>
+                <span
+                  aria-hidden
+                  className={`text-xs font-semibold ${mascots && whimsy ? "text-green-600 dark:text-green-400" : "text-gray-500 dark:text-gray-400"}`}
+                >
+                  {mascots ? "ON" : "OFF"}
+                </span>
+              </button>
+              <button
+                type="button"
+                role="menuitemcheckbox"
                 aria-checked={soundOn}
                 onClick={() => {
                   setSoundOn(!soundOn);
@@ -593,7 +619,7 @@ export const Header: React.FC<HeaderActionProps> = ({
               >
                 <Car size={14} /> Take the road test
               </button>
-              <p className="px-3 py-2 text-[11px] text-gray-400 dark:text-gray-500 border-t border-gray-100 dark:border-dark-border">
+              <p className="px-3 py-2 text-[11px] text-gray-500 dark:text-gray-400 border-t border-gray-100 dark:border-dark-border">
                 Cosmetic only — never affects the barcode. Psst: try the Konami code.
               </p>
             </div>

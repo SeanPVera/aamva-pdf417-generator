@@ -147,3 +147,21 @@ describe("useFormStore — persistence excludes PII", () => {
     expect(persisted).not.toContain('"fields"');
   });
 });
+
+describe("useFormStore — desk mascots preference", () => {
+  test("mascots default to off so nothing camps in the corner uninvited", () => {
+    // Gus and the queue ticket are the only decorations that stay on screen for
+    // the whole session, so they are opt-in even though `whimsy` is on.
+    expect(useFormStore.getInitialState().mascots).toBe(false);
+    expect(useFormStore.getInitialState().whimsy).toBe(true);
+  });
+
+  test("setMascots toggles the flag and it survives into the persisted slice", () => {
+    useFormStore.getState().setMascots(true);
+    expect(useFormStore.getState().mascots).toBe(true);
+    expect(window.localStorage.getItem("aamva_form_prefs_v2") ?? "").toContain('"mascots":true');
+
+    useFormStore.getState().setMascots(false);
+    expect(useFormStore.getState().mascots).toBe(false);
+  });
+});

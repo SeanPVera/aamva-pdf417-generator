@@ -111,7 +111,7 @@ export const EmployeeOfTheMonth: React.FC<EmployeeOfTheMonthProps> = ({ open, on
             })}
           </ul>
 
-          <p className="text-[11px] text-gray-400 dark:text-gray-500">
+          <p className="text-[11px] text-gray-500 dark:text-gray-400">
             Counted from actions only — jurisdictions visited, barcodes generated, undos pressed. No
             field value is ever read, stored, or shown here.
           </p>

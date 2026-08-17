@@ -534,7 +534,7 @@ export const BatchProcessor: React.FC<BatchProcessorProps> = ({ open, onClose })
                 className="h-3.5 w-3.5 rounded text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-[#555] dark:bg-dark-surface2"
               />
               Strict validation
-              <span className="text-gray-400 dark:text-gray-500 font-normal">
+              <span className="text-gray-500 dark:text-gray-400 font-normal">
                 (matches the editor&apos;s strict toggle)
               </span>
             </label>
@@ -565,7 +565,7 @@ export const BatchProcessor: React.FC<BatchProcessorProps> = ({ open, onClose })
                 />
               </div>
               {whimsy && soundOn && (
-                <p className="mt-1 text-[11px] italic text-gray-400 dark:text-gray-500">
+                <p className="mt-1 text-[11px] italic text-gray-500 dark:text-gray-400">
                   {holdMusic.caption}
                 </p>
               )}

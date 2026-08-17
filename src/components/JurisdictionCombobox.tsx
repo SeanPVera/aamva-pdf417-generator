@@ -227,7 +227,7 @@ export const JurisdictionCombobox: React.FC<JurisdictionComboboxProps> = ({
           )}
           {groups.map((group) => (
             <li key={group.label} role="presentation">
-              <div className="px-3 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+              <div className="px-3 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 {group.label}
               </div>
               <ul role="presentation">
