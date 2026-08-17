@@ -87,6 +87,23 @@ export interface JurisdictionEncodingProfile {
    * observed emitting the bare 9-digit ZIP+4.
    */
   padPostalCode?: boolean;
+  /**
+   * Widths an issuer space-fills its values to, where those are its own rather
+   * than the spec's. New York pads ten fields, and only four of the widths are
+   * the AAMVA ones — it writes the name fields to 25 where the spec allows 40,
+   * and the vehicle class to 4 where the spec allows 6.
+   *
+   * Only record a width read off a card. A value already at or over its width
+   * is written unchanged, so this can never truncate.
+   */
+  fieldWidths?: Record<string, number>;
+  /**
+   * Whether the last element of a subfile is closed by the segment terminator
+   * alone, with no data element separator before it. The spec's own example
+   * separates every element and then terminates, which is the default; New York
+   * drops that final separator, making each of its subfiles one byte shorter.
+   */
+  omitFinalSeparator?: boolean;
   /** Jurisdiction-specific subfile emitted after the DL/ID subfile. */
   jurisdictionSubfile?: JurisdictionSubfileProfile;
   /** Where the profile came from. */
@@ -643,12 +660,31 @@ export const JURISDICTION_RULE_PACKS: Record<string, JurisdictionRulePack> = {
     encoding: {
       source: "Decoded New York DL barcode (AAMVA v10, IIN 636001), captured 2026-08-17",
       jurisdictionVersion: "04",
+      omitFinalSeparator: true,
+      // Measured from the card's own bytes with the wire ledger: 100 bytes of
+      // space fill across ten elements. Only four widths are the AAMVA ones
+      // (DCD, DAU, DAI, DAK); the rest are New York's own, which is why testing
+      // the byte gap against spec widths alone could never account for it.
+      fieldWidths: {
+        DCA: 4,
+        DCB: 10,
+        DCD: 5,
+        DCS: 25,
+        DAC: 25,
+        DAD: 25,
+        DAU: 6,
+        DAG: 25,
+        DAI: 20,
+        DAK: 11,
+        ZNA: 20
+      },
       jurisdictionSubfile: {
         type: "ZN",
         source: "Decoded New York DL barcode (AAMVA v10, IIN 636001), captured 2026-08-17",
-        // ZNA held the cardholder's name re-encoded with "@" separators; ZNB an
-        // opaque ~98-character blob of mixed-case printable ASCII. Neither has
-        // a published meaning — AAMVA reserves Z* subfiles to the issuer.
+        // ZNA holds the cardholder's name re-encoded with "@" separators,
+        // space-filled to 20; ZNB an opaque 90-character blob of mixed-case
+        // printable ASCII. Neither has a published meaning — AAMVA reserves Z*
+        // subfiles to the issuer.
         elements: [
           { code: "ZNA", label: "NY Optional Field A", maxLength: 50 },
           { code: "ZNB", label: "NY Optional Field B", maxLength: 120 }

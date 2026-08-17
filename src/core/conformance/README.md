@@ -23,20 +23,20 @@ Only `published` and `issued` count as evidence about the outside world. The
 schema and the rules below are enforced by
 `src/tests/conformanceProvenance.test.ts`.
 
-One jurisdiction currently carries real-world evidence: Connecticut
+Two jurisdictions carry real-world evidence. Connecticut
 (`ct-v09-dl-issued.json`), decoded from an issued credential. It is the vector
 that established that a payload can hold more than one subfile, that DAK is not
 always space-filled, and that element order varies by issuer — three things
 every other vector in this directory agreed on only because the same encoder
 wrote them all.
 
-A New York card was also decoded, and its findings are in NY's rule pack
-(jurisdiction version `04`, the `ZN` subfile, `DDD`, an alphanumeric `DCF`, a
-feet-inches height). It has **no vector**: its header declares a 323-byte DL
-subfile where the elements visible in the decode account for 224, and a vector
-whose expected bytes cannot be reconciled with the source would be a guess
-wearing an evidence label. Findings that stand on their own were taken; the byte
-layout was not.
+New York followed (`ny-v10-dl-issued.json`). Its byte layout took longer to pin
+down: the card declares a 323-byte `DL` subfile whose unpadded elements account
+for only 224, and a field dump cannot show where the rest went. The byte ledger
+could — 100 bytes of space fill at widths that are mostly New York's own, and
+one byte per subfile saved by closing the final element with the segment
+terminator alone. Both are now in NY's encoding profile, and the vector
+reproduces the card's directory exactly.
 
 Current coverage — run any time, and printed in CI:
 

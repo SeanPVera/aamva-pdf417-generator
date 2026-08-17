@@ -105,23 +105,26 @@ function inspectSubfile(
     const segment = body.substring(cursor, isLast ? body.length : nextSeparator);
     cursor = isLast ? body.length : nextSeparator + 1;
 
-    // The tail after the final separator is the segment terminator, not an
-    // element. Anything else there is genuinely unexplained.
-    if (isLast) {
-      if (segment === "\r" || segment === "") accounted += segment.length;
-      else if (segment.replace(/\r$/, "") === "") accounted += segment.length;
-      else unparsed.push(segment);
+    // The tail is usually just the segment terminator — but not always. New
+    // York terminates the last element of a subfile with the CR alone, no
+    // separator before it, so the tail is a whole element. Reading it as
+    // leftovers cost exactly one element per subfile: 5 bytes for the DL
+    // subfile's DDD, 94 for the ZN subfile's ZNB, which is how this was found.
+    const terminated = isLast ? segment.replace(/\r$/, "") : segment;
+    if (isLast && terminated === "") {
+      accounted += segment.length;
       break;
     }
 
-    const code = segment.substring(0, 3);
-    if (segment.length < 3 || !RE_FIELD_CODE.test(code)) {
+    const code = terminated.substring(0, 3);
+    if (terminated.length < 3 || !RE_FIELD_CODE.test(code)) {
       unparsed.push(segment);
+      if (isLast) break;
       continue;
     }
 
-    const raw = segment.substring(3);
-    const value = raw.replace(/\r$/, "").replace(/ +$/, "");
+    const raw = terminated.substring(3);
+    const value = raw.replace(/ +$/, "");
     elements.push({
       code,
       subfile: entry.type,
@@ -130,7 +133,10 @@ function inspectSubfile(
       padding: raw.length - value.length,
       known: knownCodes.has(code)
     });
-    accounted += segment.length + 1;
+    // The trailing byte is the separator mid-subfile and the terminator at the
+    // end; either way it belongs to this element's span.
+    accounted += segment.length + (isLast ? 0 : 1);
+    if (isLast) break;
   }
 
   return {
