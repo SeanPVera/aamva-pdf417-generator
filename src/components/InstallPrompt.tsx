@@ -1,5 +1,6 @@
 import React from "react";
 import { Download, Smartphone } from "lucide-react";
+import { useModalShell } from "../hooks/useModalShell";
 
 interface BeforeInstallPromptEvent extends Event {
   readonly platforms: string[];
@@ -15,6 +16,11 @@ export const InstallPrompt: React.FC = () => {
   const [deferredPrompt, setDeferredPrompt] = React.useState<BeforeInstallPromptEvent | null>(null);
   const [installed, setInstalled] = React.useState(false);
   const [showIosHelp, setShowIosHelp] = React.useState(false);
+
+  const dialogRef = useModalShell<HTMLDivElement>({
+    open: showIosHelp,
+    onClose: () => setShowIosHelp(false)
+  });
 
   React.useEffect(() => {
     const onBeforeInstallPrompt = (event: Event) => {
@@ -68,11 +74,16 @@ export const InstallPrompt: React.FC = () => {
       {showIosHelp && (
         <div
           className="fixed inset-0 z-50 bg-black/50 p-4 flex items-center justify-center"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Install on iPhone or iPad"
+          onClick={() => setShowIosHelp(false)}
         >
-          <div className="w-full max-w-sm rounded-lg bg-white dark:bg-dark-surface border border-gray-200 dark:border-dark-border p-4">
+          <div
+            ref={dialogRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Install on iPhone or iPad"
+            className="w-full max-w-sm rounded-lg bg-white dark:bg-dark-surface border border-gray-200 dark:border-dark-border p-4"
+            onClick={(e) => e.stopPropagation()}
+          >
             <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">
               Install on iPhone/iPad
             </h3>
@@ -82,9 +93,10 @@ export const InstallPrompt: React.FC = () => {
               <li>Tap &quot;Add&quot; to install.</li>
             </ol>
             <button
+              data-autofocus
               type="button"
               onClick={() => setShowIosHelp(false)}
-              className="mt-4 w-full rounded bg-brand-600 hover:bg-brand-700 text-white py-2 text-sm font-medium transition"
+              className="mt-4 w-full rounded bg-brand-600 hover:bg-brand-700 text-white py-2 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
             >
               Got it
             </button>
