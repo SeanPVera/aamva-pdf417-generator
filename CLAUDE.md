@@ -249,6 +249,8 @@ Key actions:
 | `setStrictMode(mode)` | Toggle strict validation |
 | `setSubfileType(type)` | Toggle DL vs ID subfile type |
 | `setTheme(theme)` | Switch UI theme (light / dark / dmv) |
+| `setWhimsy(value)` / `setSoundOn(value)` | Gate the playful flourishes and the clerk-stamp clicks |
+| `setMascots(value)` | Gate the two screen-corner residents (Gus, the queue ticket). **Off by default** — they are the only decorations that stay on screen for a whole session rather than firing and leaving, so they are opt-in on top of `whimsy` |
 | `clearFields()` | Reset all fields |
 | `mergeFields(patch)` | Apply many field values as ONE undo step — use for any bulk action |
 | `loadJson(data)` | Import from JSON object |
@@ -466,6 +468,10 @@ reading and never emit it.
 ### State Themes
 `applyStateThemeToDocument(stateCode)` sets CSS custom properties (`--color-primary`, `--color-accent`, etc.) on `<html>` derived from `STATE_THEMES` in `src/core/stateThemes.ts`. All 54 jurisdictions have curated palettes.
 
+**Every `--state-*` surface variable is a light tint** — `surface` is literally `#ffffff`, `input` and `background` are near-white mixes. `data-state-theme` is set for every jurisdiction regardless of the color scheme, because the jurisdiction and the light/dark preference are independent choices. So any rule that paints a background or border with one of them must be scoped `html[data-state-theme]:not(.dark)`, with a `html[data-state-theme].dark` counterpart that mixes the hue *into* the dark surface (`color-mix(in srgb, var(--state-primary) 14%, #2c2c2c)`) rather than replacing it. Unscoped, they render near-white panels under the near-white text `html.dark` has already chosen — the form's own text boxes sat at 1.03:1. `src/tests/themeSurfaces.test.ts` checks the stylesheet for unscoped light surfaces; `e2e/dark-contrast.spec.ts` measures what the browser actually paints.
+
+Form fields carry validation state in their border, so the themed rules set only the *fill* on `.dmv-main input/select/textarea`. An `!important` border-color there repaints every red and amber edge in the jurisdiction's color.
+
 ### Strict Mode
 When enabled, validation warnings are treated as errors and block payload generation. Controlled by `setStrictMode()` in the Zustand store.
 
@@ -541,6 +547,9 @@ Local hooks (Husky):
 - **Do not** persist PII at all — field values live in memory only (see `partialize` in `useFormStore`); no IndexedDB, no cookies, no remote storage
 - **Do not** build a version picker from `Object.keys(AAMVA_VERSIONS)` — `"10"` is an integer-like key and sorts ahead of `"01"`; use `AAMVA_VERSION_KEYS`
 - **Do not** call `setField` in a loop for a bulk action — use `mergeFields` so it stays one undo step
+- **Do not** paint a background or border with a `--state-*` variable without scoping it away from `html.dark` — every palette is a light tint (see State Themes above)
+- **Do not** pair `text-gray-400` with `dark:text-gray-500` — that combination is below AA in *both* themes; `text-gray-500 dark:text-gray-400` clears it in both
+- **Do not** dismiss a popover on the trigger's `blur` alone — clicking a `<button>` does not focus it in Safari or Firefox, so the popover never closes (see `FieldInput.tsx`)
 - **Do not** assume the first subfile starts at byte 31 — the directory grows with the entry count; read `21 + entries × 10`
 - **Do not** write jurisdiction (`Z*`) elements into the `DL`/`ID` subfile, and do not add them to `AAMVA_VERSIONS` — they belong to one jurisdiction, not to the standard
 - **Do not** upper-case jurisdiction (`Z*`) values — they are opaque, and NY's `ZNB` is mixed-case

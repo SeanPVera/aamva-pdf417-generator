@@ -90,7 +90,7 @@ export const DmvBingo: React.FC<DmvBingoProps> = ({ open, onClose, marked, onRes
               );
             })}
           </div>
-          <p className="mt-3 text-[11px] text-gray-400 dark:text-gray-500">
+          <p className="mt-3 text-[11px] text-gray-500 dark:text-gray-400">
             {markedSet.size} of 24 squares marked. Squares fill in as you use the app — nothing here
             inspects what you typed.
           </p>

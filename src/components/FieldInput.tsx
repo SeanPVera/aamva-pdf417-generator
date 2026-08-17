@@ -171,8 +171,43 @@ export const FieldInput: React.FC<FieldInputProps> = ({
     return "";
   }, [value.length, maxLen, field.code]);
 
+  // The popover used to close only on the help button's own `blur`. A click on
+  // a <button> does not move focus in Safari or Firefox, so the blur never
+  // arrived and the box stayed open — one per field, stacking over the form
+  // until the page was reloaded. Dismissal now runs off the events that
+  // actually happen: a pointer press anywhere outside, Escape, or a scroll that
+  // carries the popover away from the field it describes.
+  const helpRef = React.useRef<HTMLDivElement>(null);
+  const helpButtonRef = React.useRef<HTMLButtonElement>(null);
+
+  React.useEffect(() => {
+    if (!helpOpen) return;
+
+    const onPointerDown = (e: PointerEvent | MouseEvent) => {
+      if (!helpRef.current?.contains(e.target as Node)) setHelpOpen(false);
+    };
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      e.stopPropagation();
+      setHelpOpen(false);
+      helpButtonRef.current?.focus();
+    };
+    // Capture phase: a scroll inside the form column does not bubble to window.
+    const onScroll = () => setHelpOpen(false);
+
+    document.addEventListener("pointerdown", onPointerDown, true);
+    document.addEventListener("keydown", onKeyDown);
+    window.addEventListener("scroll", onScroll, true);
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown, true);
+      document.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("scroll", onScroll, true);
+    };
+  }, [helpOpen]);
+
   const helpButton = helpText ? (
     <button
+      ref={helpButtonRef}
       type="button"
       onClick={() => {
         setHelpOpen((v) => {
@@ -180,12 +215,13 @@ export const FieldInput: React.FC<FieldInputProps> = ({
           return !v;
         });
       }}
-      onBlur={() => setHelpOpen(false)}
       aria-expanded={helpOpen}
       aria-controls={helpId}
-      aria-label={`Help for ${field.code}`}
+      aria-label={`${helpOpen ? "Hide" : "Show"} help for ${field.code}`}
       title={`What is ${field.code}?`}
-      className="absolute top-1 right-7 z-30 p-1 rounded text-gray-500 hover:text-brand-500 dark:text-gray-400 dark:hover:text-brand-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+      className={`absolute top-1 right-7 z-30 p-1 rounded hover:text-brand-600 dark:hover:text-brand-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 ${
+        helpOpen ? "text-brand-600 dark:text-brand-300" : "text-gray-600 dark:text-gray-300"
+      }`}
     >
       <HelpCircle size={12} />
     </button>
@@ -198,12 +234,16 @@ export const FieldInput: React.FC<FieldInputProps> = ({
   const warningClass = `${baseInputClass} border-amber-500 focus:border-amber-500`;
   const finalClass = hasError ? errorClass : isWarning ? warningClass : normalClass;
 
+  // The floated label renders at scale-75 of text-sm — about 10.5px. At that
+  // size gray-500 on the near-white themed input fill was only just over the
+  // 4.5:1 floor, which is why the field names read as washed out; gray-600 /
+  // gray-300 clears 7:1 in both themes.
   const labelClass = `absolute text-sm duration-300 transform top-4 z-10 origin-[0] left-3 pointer-events-none ${
     hasError
-      ? "text-red-500"
+      ? "text-red-600 dark:text-red-400"
       : isWarning
-        ? "text-amber-600 dark:text-amber-400"
-        : "text-gray-500 dark:text-gray-400 peer-focus:text-brand-500 peer-focus:dark:text-brand-400"
+        ? "text-amber-700 dark:text-amber-300"
+        : "text-gray-600 dark:text-gray-300 peer-focus:text-brand-600 peer-focus:dark:text-brand-300"
   } truncate w-[85%]`;
 
   const copyIcon = value ? (
@@ -221,14 +261,32 @@ export const FieldInput: React.FC<FieldInputProps> = ({
   return (
     <div className="flex flex-col relative group">
       {copyIcon}
-      {helpButton}
-      {helpOpen && helpText && (
-        <div
-          id={helpId}
-          role="tooltip"
-          className="absolute z-40 top-full left-0 right-0 mt-1 px-3 py-2 text-xs leading-snug rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-surface text-gray-700 dark:text-gray-200 shadow-lg"
-        >
-          {helpText}
+      {helpText && (
+        // Button and popover share a wrapper so the outside-press check has a
+        // single subtree to test against. The wrapper is unpositioned, so both
+        // children still resolve their `absolute` offsets against the field.
+        <div ref={helpRef}>
+          {helpButton}
+          {helpOpen && (
+            <div
+              id={helpId}
+              role="tooltip"
+              className="absolute z-40 top-full left-0 right-0 mt-1 px-3 py-2 pr-7 text-xs leading-snug rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-dark-surface text-gray-800 dark:text-gray-100 shadow-lg"
+            >
+              {helpText}
+              <button
+                type="button"
+                onClick={() => {
+                  setHelpOpen(false);
+                  helpButtonRef.current?.focus();
+                }}
+                aria-label={`Close help for ${field.code}`}
+                className="absolute top-1 right-1 p-1 rounded text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+              >
+                <XIcon size={11} aria-hidden />
+              </button>
+            </div>
+          )}
         </div>
       )}
       {field.options ? (
@@ -241,10 +299,13 @@ export const FieldInput: React.FC<FieldInputProps> = ({
             aria-required={field.required}
             aria-invalid={hasError}
             aria-describedby={showAdvisory ? errorId : undefined}
-            className={finalClass + (value ? "" : " text-transparent")}
+            // An empty select used to render its own text transparent, so the
+            // control was a blank box with no hint that it holds a list at all.
+            // The placeholder is muted rather than invisible.
+            className={finalClass + (value ? "" : " text-gray-600 dark:text-gray-300")}
           >
-            <option value="" disabled className="text-gray-500 dark:text-gray-400">
-              Select...
+            <option value="" disabled className="text-gray-600 dark:text-gray-300">
+              Select…
             </option>
             {field.options.map((opt) => (
               <option
@@ -495,7 +556,7 @@ export const FieldInput: React.FC<FieldInputProps> = ({
           {whimsy && field.code === "DAU" && <HeightSilhouette value={value} />}
           {!field.options && maxLen && (
             <span
-              className="text-xs font-medium text-gray-400 opacity-0 group-focus-within:opacity-100 transition-opacity whitespace-nowrap"
+              className="text-xs font-medium text-gray-600 dark:text-gray-300 opacity-0 group-focus-within:opacity-100 transition-opacity whitespace-nowrap"
               aria-hidden
               title={`${value.length} of ${maxLen} characters used`}
             >

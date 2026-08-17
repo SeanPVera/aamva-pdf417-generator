@@ -140,7 +140,7 @@ export const FieldFilters: React.FC<FieldFiltersProps> = ({
           className={`inline-flex items-center gap-1.5 text-xs font-medium cursor-pointer select-none px-2 py-1 rounded-md border ${
             issueCount > 0
               ? "bg-red-50 dark:bg-red-900/25 border-red-200 dark:border-red-800 text-red-800 dark:text-red-200"
-              : "bg-gray-100 dark:bg-[#2C2C2C] border-gray-200 dark:border-[#444] text-gray-400 dark:text-gray-500 cursor-not-allowed"
+              : "bg-gray-100 dark:bg-[#2C2C2C] border-gray-200 dark:border-[#444] text-gray-500 dark:text-gray-400 cursor-not-allowed"
           }`}
           title={
             issueCount > 0
@@ -248,7 +248,7 @@ export const FieldFilters: React.FC<FieldFiltersProps> = ({
           {filtered ? `${matchCount} of ${totalCount} fields shown` : `${totalCount} fields`}
         </span>
         {filtered && (
-          <span id="field-search-hint" className="text-gray-400 dark:text-gray-500">
+          <span id="field-search-hint" className="text-gray-500 dark:text-gray-400">
             Esc clears
           </span>
         )}

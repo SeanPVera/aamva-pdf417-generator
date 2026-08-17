@@ -211,7 +211,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileHidden = false }) => {
             <HelpCircle size={14} />
           </button>
         </div>
-        <p id="strictMode-desc" className="text-xs text-gray-400 dark:text-gray-500 -mt-2 pl-6">
+        <p id="strictMode-desc" className="text-xs text-gray-500 dark:text-gray-400 -mt-2 pl-6">
           Enforces all AAMVA format requirements at generation time.
         </p>
         {tipsOpen && (
