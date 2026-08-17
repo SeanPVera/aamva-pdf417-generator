@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import type { ValidationIssue } from "../core/validation";
 import type { QuickFix } from "../core/quickFix";
+import { inspectPayload, summarizeAnomalies } from "../core/inspect";
 
 export function CollapsibleSection({
   title,
@@ -66,6 +67,8 @@ export function CollapsibleSection({
 
 interface PayloadInspectorProps {
   payloadStr: string;
+  /** The AAMVA bytes a scan or paste carried, when the form came from one. */
+  sourcePayload?: string | null;
   stale: boolean;
   decodedEntries: Array<[string, string]>;
   decodeError?: string;
@@ -85,6 +88,7 @@ interface PayloadInspectorProps {
  */
 export const PayloadInspector: React.FC<PayloadInspectorProps> = ({
   payloadStr,
+  sourcePayload,
   stale,
   decodedEntries,
   decodeError,
@@ -293,6 +297,173 @@ export const PayloadInspector: React.FC<PayloadInspectorProps> = ({
           </table>
         )}
       </CollapsibleSection>
+
+      <WireLedger payloadStr={payloadStr} sourcePayload={sourcePayload} />
     </>
+  );
+};
+
+/**
+ * Byte accounting for the payload on the wire.
+ *
+ * The decoded table above answers "what does this card say". This answers
+ * "where did every byte go" — a different question, and the one a field dump
+ * cannot answer. A decoded New York credential declared a 323-byte DL subfile
+ * whose visible elements accounted for 224, and there was no way to tell from a
+ * list of name/value pairs whether the missing bytes were fixed-width padding
+ * or elements the reader had no name for. Both show up here.
+ */
+const WireLedger: React.FC<{ payloadStr: string; sourcePayload?: string | null }> = ({
+  payloadStr,
+  sourcePayload
+}) => {
+  // Default to the scanned card when there is one. Inspecting our own
+  // re-encoding is the one thing the ledger cannot learn anything from: it
+  // balances by construction, because this encoder wrote it.
+  const [showSource, setShowSource] = useState(true);
+  const inspecting = sourcePayload && showSource ? sourcePayload : payloadStr;
+  const result = React.useMemo(() => inspectPayload(inspecting), [inspecting]);
+  const inspection = result.inspection;
+  const anomalies = inspection ? summarizeAnomalies(inspection) : null;
+
+  return (
+    <CollapsibleSection
+      title="Wire Ledger"
+      badge={inspection ? (anomalies ? "Check" : "Balanced") : undefined}
+      badgeColor={anomalies ? "amber" : "green"}
+    >
+      {sourcePayload ? (
+        <div
+          className="flex items-center gap-1 mb-2 text-xs"
+          role="group"
+          aria-label="Which payload to inspect"
+        >
+          {(
+            [
+              ["Scanned card", true],
+              ["This app's output", false]
+            ] as const
+          ).map(([label, wantsSource]) => (
+            <button
+              key={label}
+              type="button"
+              onClick={() => setShowSource(wantsSource)}
+              aria-pressed={showSource === wantsSource}
+              className={`px-2 py-0.5 rounded border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 ${
+                showSource === wantsSource
+                  ? "border-brand-500 bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300 font-medium"
+                  : "border-gray-200 dark:border-dark-border text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-dark-surface2"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      ) : null}
+
+      {!inspection ? (
+        <p className="text-xs text-gray-400 py-1">{result.error ?? "No payload to inspect yet."}</p>
+      ) : (
+        <div className="space-y-2">
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            IIN {inspection.iin}
+            {inspection.state ? ` (${inspection.state})` : ""} · AAMVA v{inspection.version} ·
+            jurisdiction version {inspection.jurisdictionVersion} · {inspection.totalBytes} bytes
+          </p>
+
+          <table className="w-full text-xs border-collapse" aria-label="Subfile byte accounting">
+            <thead>
+              <tr className="text-left text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-600">
+                <th className="py-1 pr-2 font-semibold">Subfile</th>
+                <th className="py-1 pr-2 font-semibold text-right">Offset</th>
+                <th className="py-1 pr-2 font-semibold text-right">Declared</th>
+                <th className="py-1 pr-2 font-semibold text-right">Accounted</th>
+                <th className="py-1 font-semibold text-right">Unaccounted</th>
+              </tr>
+            </thead>
+            <tbody>
+              {inspection.subfiles.map((s) => (
+                <tr
+                  key={`${s.type}-${s.declaredOffset}`}
+                  className="border-b border-gray-100 dark:border-gray-700 last:border-0 font-mono"
+                >
+                  <td className="py-1 pr-2 font-semibold">
+                    {s.type}
+                    {s.repaired ? (
+                      <span
+                        className="ml-1 text-amber-600 dark:text-amber-400"
+                        title="Declared offset or length did not match the bytes; repaired on read"
+                      >
+                        ⚠
+                      </span>
+                    ) : null}
+                  </td>
+                  <td className="py-1 pr-2 text-right">{s.declaredOffset}</td>
+                  <td className="py-1 pr-2 text-right">{s.declaredLength}</td>
+                  <td className="py-1 pr-2 text-right">{s.accountedBytes}</td>
+                  <td
+                    className={`py-1 text-right ${
+                      s.unaccountedBytes === 0
+                        ? "text-green-700 dark:text-green-400"
+                        : "text-amber-700 dark:text-amber-400 font-semibold"
+                    }`}
+                  >
+                    {s.unaccountedBytes === 0
+                      ? "0"
+                      : `${s.unaccountedBytes > 0 ? "+" : ""}${s.unaccountedBytes}`}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          {inspection.paddedCodes.length > 0 && (
+            <div className="text-xs">
+              <div className="font-semibold text-gray-600 dark:text-gray-300 mb-0.5">
+                Space-filled on the wire
+              </div>
+              <ul className="font-mono text-gray-600 dark:text-gray-400 space-y-0.5">
+                {inspection.elements
+                  .filter((e) => e.padding > 0)
+                  .map((e) => (
+                    <li key={`${e.subfile}-${e.code}`}>
+                      {e.code} — &quot;{e.value}&quot; + {e.padding} space
+                      {e.padding === 1 ? "" : "s"}
+                    </li>
+                  ))}
+              </ul>
+            </div>
+          )}
+
+          {inspection.unknownCodes.length > 0 && (
+            <div className="text-xs">
+              <div className="font-semibold text-gray-600 dark:text-gray-300 mb-0.5">
+                Not in the v{inspection.version} field table
+              </div>
+              <ul className="font-mono text-gray-600 dark:text-gray-400 space-y-0.5">
+                {inspection.elements
+                  .filter((e) => !e.known && !e.code.startsWith("Z"))
+                  .map((e) => (
+                    <li key={`${e.subfile}-${e.code}`}>
+                      {e.code} — {e.value || <span className="italic">empty</span>}
+                    </li>
+                  ))}
+              </ul>
+            </div>
+          )}
+
+          {anomalies ? (
+            <p className="text-xs text-amber-700 dark:text-amber-400">{anomalies}.</p>
+          ) : (
+            <p className="text-xs text-green-700 dark:text-green-400">
+              Every declared byte is accounted for.
+              {!sourcePayload || !showSource
+                ? " (This is this app's own output, so it balances by construction — scan or paste a card to inspect one.)"
+                : ""}
+            </p>
+          )}
+        </div>
+      )}
+    </CollapsibleSection>
   );
 };

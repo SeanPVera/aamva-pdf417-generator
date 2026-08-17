@@ -141,8 +141,11 @@ describe("WebcamScanner", () => {
       expect(decodeFromImageUrlMock).toHaveBeenCalledWith("blob:mock-url");
     });
 
-    // After successful decode with "valid_payload"
-    expect(mockLoadJson).toHaveBeenCalledWith({ state: "CA", version: "10" });
+    // After successful decode with "valid_payload". The raw scanned bytes ride
+    // along as the second argument: the byte ledger inspects the card itself,
+    // and re-encoding from the form would discard the padding and unrecognised
+    // elements that are the whole reason to look at it.
+    expect(mockLoadJson).toHaveBeenCalledWith({ state: "CA", version: "10" }, "valid_payload");
     expect(mockSetStateVersion).toHaveBeenCalledWith("CA", "10");
     expect(mockOnClose).toHaveBeenCalledTimes(1);
   });
