@@ -273,21 +273,31 @@ export function generateAAMVAPayload(
 
   const orderedPrimaryFields = orderFields(primaryFields, encoding?.elementOrder);
   const padPostal = shouldPadPostalCode(stateCode);
+  const fieldWidths = encoding?.fieldWidths ?? {};
+
+  const omitFinalSeparator = encoding?.omitFinalSeparator === true;
 
   const buildSubfile = (type: string, subfileFields: AAMVAField[]): string => {
-    let out = type;
+    const parts: string[] = [];
     for (const field of subfileFields) {
       let val = dataObj[field.code];
       if (val === undefined || val === "") continue;
-      if (field.code === "DAK" && padPostal) {
-        const stripped = val.replace(/-/g, "");
-        val = stripped.padEnd(11, " ").substring(0, 11);
-      } else if (field.code === "DAK") {
-        val = val.replace(/-/g, "");
-      }
-      out += field.code + val + dataElementSeparator;
+      if (field.code === "DAK") val = val.replace(/-/g, "");
+      // A jurisdiction's own recorded width wins; otherwise DAK falls back to
+      // the spec's fixed 11. Values already at or over their width are written
+      // unchanged, so this only ever pads and can never truncate.
+      const width = fieldWidths[field.code] ?? (field.code === "DAK" && padPostal ? 11 : 0);
+      if (width > val.length) val = val.padEnd(width, " ");
+      parts.push(field.code + val);
     }
-    return out + segmentTerminator;
+    // Every element is separator-terminated by default, which is what the
+    // spec's own example shows. An issuer that closes the last one with the
+    // segment terminator alone saves that byte, and reproducing it is the
+    // difference between matching a card and being one byte off.
+    const body = omitFinalSeparator
+      ? parts.join(dataElementSeparator)
+      : parts.map((part) => part + dataElementSeparator).join("");
+    return type + body + segmentTerminator;
   };
 
   const subfiles: Array<{ type: string; data: string }> = [

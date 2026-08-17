@@ -145,6 +145,46 @@ describe("payload inspection", () => {
     expect(summarizeAnomalies(inspection)).toContain("99 bytes declared but unaccounted for");
   });
 
+  test("counts a final element terminated by CR alone", () => {
+    // New York ends the last element of a subfile with the segment terminator
+    // and no separator before it. Reading that tail as leftovers dropped one
+    // whole element per subfile — 5 bytes for the DL subfile's DDD and 94 for
+    // the ZN subfile's ZNB on a real card.
+    const base = generateCT(CT_RECORD);
+    const nyStyle = base.replace(/\n\r$/, "\r");
+
+    const inspection = inspectPayload(nyStyle).inspection!;
+    expect(inspection.subfiles[0]!.unaccountedBytes).toBe(1);
+    expect(inspection.subfiles[0]!.unparsed).toEqual([]);
+    // The last element is still read, padding stripped, like any other.
+    expect(inspection.elements.at(-1)!.code).toBe("DDB");
+    expect(inspection.elements.at(-1)!.value).toBe("02102017");
+  });
+
+  test("a CR-terminated final element in a jurisdiction subfile is read too", () => {
+    const base = generateCT({ ...CT_RECORD, ZCB: "0000000000" });
+    const nyStyle = base.replace(/\n\r$/, "\r");
+
+    const inspection = inspectPayload(nyStyle).inspection!;
+    const zc = inspection.subfiles.find((s) => s.type === "ZC")!;
+    expect(zc.unparsed).toEqual([]);
+    expect(inspection.elements.find((e) => e.code === "ZCB")!.value).toBe("0000000000");
+  });
+
+  test("genuine leftovers are still reported as unparsed", () => {
+    // The fix must not turn every tail into an element: bytes that are not a
+    // valid code are still unexplained, and saying otherwise would hide damage.
+    const base = generateCT(CT_RECORD);
+    const garbled = base.replace(/\n\r$/, "\n!!garbage\r");
+    const relengthed =
+      garbled.substring(0, 27) +
+      String(parseInt(garbled.substring(27, 31), 10) + 9).padStart(4, "0") +
+      garbled.substring(31);
+
+    const inspection = inspectPayload(relengthed).inspection!;
+    expect(inspection.subfiles[0]!.unparsed).toEqual(["!!garbage\r"]);
+  });
+
   test("surfaces the CT directory drift as a repaired offset", () => {
     const payload = generateCT({ ...CT_RECORD, ZCB: "0000000000" });
     const dlLength = parseInt(payload.substring(27, 31), 10);
