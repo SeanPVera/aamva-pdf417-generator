@@ -38,7 +38,19 @@ export const FIELD_HELP: Record<string, string> = {
   DBB: "Date of Birth — used for age-at-issuance checks (must be ≥14 at issuance).",
   DBD: "Document Issue Date — the date this physical card was issued.",
   DDK: "Organ Donor Indicator — 1 = donor, 0 = not a donor.",
-  DDL: "Veteran Indicator — 1 = veteran, 0 = not a veteran."
+  DDL: "Veteran Indicator — 1 = veteran, 0 = not a veteran.",
+  DCK:
+    "Inventory Control Number — the issuer's own stock/production reference for " +
+    "the physical card. Optional, but real cards carry it (Connecticut builds " +
+    "it from the licence number, the state code, and a batch suffix).",
+  ZCA:
+    "Connecticut jurisdiction subfile, optional field A. AAMVA reserves Z* " +
+    "subfiles for the issuer and defines nothing inside them, so this has no " +
+    "standard meaning — leave it blank unless you are reproducing a specific card.",
+  ZCB:
+    "Connecticut jurisdiction subfile, optional field B. Observed on an issued " +
+    "card as a 10-digit number. Filling either ZC field adds a second subfile " +
+    "to the barcode, which is what real Connecticut credentials carry."
 };
 
 export function getFieldHelp(code: string): string | undefined {

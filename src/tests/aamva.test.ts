@@ -661,7 +661,9 @@ test("generateStateDiscriminator uses state-specific DCF format for CA", () => {
 
 test("generateStateDiscriminator uses state-specific DCF format for NY", () => {
   const dcf = window.generateStateDiscriminator("NY");
-  assert.match(dcf, /^\d{10}$/, "NY DCF should be 10 digits");
+  // A decoded NY card carries a 10-character mixed letter/digit discriminator
+  // ("KMEMI7FG20"); this generator produced 10 digits until that was read.
+  assert.match(dcf, /^[A-Z0-9]{10}$/, "NY DCF should be 10 alphanumeric characters");
 });
 
 test("generateStateDiscriminator uses state-specific DCF format for TX", () => {
@@ -893,8 +895,12 @@ test("generateAAMVAPayload auto-generates DCF when requested", () => {
   // longer writes auto-filled values back into the caller's object.
   const generated = decodeAAMVA(payload).json?.DCF;
   assert.ok(generated, "DCF should be populated when auto-generate is enabled");
-  // NY has a state-specific DCF generator (10 digits)
-  assert.match(generated, /^\d{10}$/, "NY DCF should match state-specific 10-digit format");
+  // NY has a state-specific DCF generator (10 alphanumeric characters)
+  assert.match(
+    generated,
+    /^[A-Z0-9]{10}$/,
+    "NY DCF should match the state-specific 10-character format"
+  );
   assert.equal(dataObj.DCF, "", "the caller's object must not be mutated");
 });
 

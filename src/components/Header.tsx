@@ -26,7 +26,7 @@ import {
 import { useFormStore, Theme } from "../hooks/useFormStore";
 import { InstallPrompt } from "./InstallPrompt";
 import { useToast } from "./Toast";
-import { QUICK_FILL_PRESETS } from "../core/presets";
+import { loadQuickFillPresets, type QuickFillPreset } from "../core/presets";
 import { getStateTheme } from "../core/stateThemes";
 import { AAMVA_STATES } from "../core/states";
 import { buildExportBasename } from "../core/exportNaming";
@@ -119,6 +119,7 @@ export const Header: React.FC<HeaderActionProps> = ({
   const presetsRef = useRef<HTMLDivElement>(null);
   const funRef = useRef<HTMLDivElement>(null);
   const [presetsOpen, setPresetsOpen] = useState(false);
+  const [presets, setPresets] = useState<QuickFillPreset[]>([]);
   const [funOpen, setFunOpen] = useState(false);
   const undoDepth = _history.length;
   const redoDepth = _future.length;
@@ -136,8 +137,15 @@ export const Header: React.FC<HeaderActionProps> = ({
     if (themeToggleCountRef.current >= 3) markBingo("toggled-theme");
   };
 
+  // Fetched on first open rather than at import: the records are a kilobyte of
+  // inert sample data behind a menu, and loading them eagerly put them in the
+  // first-paint bundle. `loadQuickFillPresets` memoises, so reopening is free.
   useEffect(() => {
     if (!presetsOpen) return;
+    let live = true;
+    loadQuickFillPresets().then((loaded) => {
+      if (live) setPresets(loaded);
+    });
     const onClick = (e: MouseEvent) => {
       if (presetsRef.current && !presetsRef.current.contains(e.target as Node)) {
         setPresetsOpen(false);
@@ -149,6 +157,7 @@ export const Header: React.FC<HeaderActionProps> = ({
     window.addEventListener("mousedown", onClick);
     window.addEventListener("keydown", onKey);
     return () => {
+      live = false;
       window.removeEventListener("mousedown", onClick);
       window.removeEventListener("keydown", onKey);
     };
@@ -263,7 +272,7 @@ export const Header: React.FC<HeaderActionProps> = ({
   };
 
   const handleApplyPreset = (presetId: string) => {
-    const preset = QUICK_FILL_PRESETS.find((p) => p.id === presetId);
+    const preset = presets.find((p) => p.id === presetId);
     if (!preset) return;
     const snapshot = { ...fields };
     const hadValues = hasUserData(fields);
@@ -401,8 +410,11 @@ export const Header: React.FC<HeaderActionProps> = ({
               <div className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 border-b border-gray-100 dark:border-dark-border">
                 Quick Fill Presets
               </div>
+              {presets.length === 0 ? (
+                <div className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">Loading…</div>
+              ) : null}
               <ul>
-                {QUICK_FILL_PRESETS.map((p) => (
+                {presets.map((p) => (
                   <li key={p.id}>
                     <button
                       type="button"

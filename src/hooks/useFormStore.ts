@@ -108,7 +108,17 @@ export interface FormState {
   clearFields: () => void;
   mergeFields: (patch: Record<string, string>) => void;
   restoreFields: (fields: Record<string, string>) => void;
-  loadJson: (data: Record<string, string>) => void;
+  /**
+   * The AAMVA bytes a scan or paste actually carried, when the form was filled
+   * from one. Held so the byte ledger can inspect the *source* card rather than
+   * this app's re-encoding of it — regenerating from the form discards exactly
+   * the padding and unrecognised elements the ledger exists to surface.
+   *
+   * Never persisted (see `partialize`) and cleared with the form: it is card
+   * data, and card data does not reach disk.
+   */
+  sourcePayload: string | null;
+  loadJson: (data: Record<string, string>, sourcePayload?: string) => void;
   undo: () => void;
   redo: () => void;
   canUndo: () => boolean;
@@ -137,6 +147,7 @@ export const useFormStore = create<FormState>()(
       strictMode: true,
       subfileType: "DL",
       fields: {},
+      sourcePayload: null,
       theme: "system",
       collapsedGroups: {},
       requiredOnly: false,
@@ -251,6 +262,7 @@ export const useFormStore = create<FormState>()(
       clearFields: () =>
         set((s) => ({
           fields: {},
+          sourcePayload: null,
           _history: [...s._history, s.fields].slice(-HISTORY_LIMIT),
           _future: [],
           _lastEditCode: "",
@@ -288,7 +300,7 @@ export const useFormStore = create<FormState>()(
           _changedAt: Date.now()
         })),
 
-      loadJson: (data) =>
+      loadJson: (data, sourcePayload) =>
         set((s) => {
           const { state: newState, version, ...rest } = data;
           const newFields = Object.fromEntries(
@@ -307,7 +319,11 @@ export const useFormStore = create<FormState>()(
             _lastEditCode: "",
             _lastEditAt: 0,
             _changedCodes: diffChangedCodes(s.fields, newFields),
-            _changedAt: Date.now()
+            _changedAt: Date.now(),
+            // Set when the values came from real AAMVA bytes, cleared otherwise:
+            // a preset or a JSON import has no source card, and leaving a stale
+            // payload attached would have the ledger describe the wrong one.
+            sourcePayload: sourcePayload ?? null
           };
         }),
 

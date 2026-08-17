@@ -375,7 +375,7 @@ function App() {
       };
       const hadValues = hasUserData(before.fields);
 
-      before.loadJson(result.data);
+      before.loadJson(result.data, result.kind === "aamva" ? text : undefined);
       if (result.subfileType && result.subfileType !== before.subfileType) {
         before.setSubfileType(result.subfileType);
       }

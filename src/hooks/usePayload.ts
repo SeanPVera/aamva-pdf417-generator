@@ -78,9 +78,13 @@ export function usePayload(): PayloadResult {
         const data: Record<string, string> = { ...fields, DAJ: state };
 
         if (present.has("DCF") && !data.DCF) {
-          if (auto.dcfKey !== state || !auto.dcf) {
-            auto.dcfKey = state;
-            auto.dcf = generateStateDiscriminator(state);
+          // Keyed on the issue date as well as the jurisdiction: some issuers
+          // (Connecticut) build the discriminator out of the issue date, so a
+          // DCF cached across a DBD edit would contradict the date beside it.
+          const dcfKey = `${state}|${data.DBD ?? ""}`;
+          if (auto.dcfKey !== dcfKey || !auto.dcf) {
+            auto.dcfKey = dcfKey;
+            auto.dcf = generateStateDiscriminator(state, data.DBD);
           }
           data.DCF = auto.dcf;
         }

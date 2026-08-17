@@ -108,7 +108,8 @@ export const FieldInput: React.FC<FieldInputProps> = ({
   const helpId = `help-${field.code}`;
   const helpText = getFieldHelp(field.code);
   const [helpOpen, setHelpOpen] = React.useState(false);
-  const isResettable = field.code === "DCF" || field.code === "DAQ" || field.code === "DDB";
+  // Any field the user can type into is clearable; DAJ is app-owned and read-only.
+  const isResettable = !derivedFrom;
   const allowedValues = hasError ? parseAllowedValues(evalResult.message) : [];
   const maxLen = AAMVA_FIELD_LIMITS[field.code];
 
@@ -557,6 +558,7 @@ export const FieldInput: React.FC<FieldInputProps> = ({
             <span
               className="text-xs font-medium text-gray-600 dark:text-gray-300 opacity-0 group-focus-within:opacity-100 transition-opacity whitespace-nowrap"
               aria-hidden
+              title={`${value.length} of ${maxLen} characters used`}
             >
               {value.length}/{maxLen}
             </span>
