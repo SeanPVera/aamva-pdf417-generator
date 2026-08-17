@@ -37,4 +37,25 @@ describe("Production CSP", () => {
     expect(csp).not.toMatch(/script-src[^;]*'unsafe-eval'/);
     expect(csp).not.toMatch(/script-src[^;]*https:/);
   });
+
+  it("does not upgrade insecure requests", () => {
+    ensureBuilt(distHtml);
+    const html = readFileSync(distHtml, "utf8");
+    const csp = html.match(
+      /<meta\s+http-equiv="Content-Security-Policy"\s+content="([^"]+)"/i
+    )?.[1];
+
+    // `upgrade-insecure-requests` rewrites http:// subresource requests to
+    // https://. The spec exempts potentially-trustworthy origins, and Chromium
+    // and Firefox honour that for http://localhost — WebKit does not. Served
+    // over plain HTTP it therefore asks for https://localhost:4173/assets/*.js,
+    // the server has no TLS, every asset fails, and React never mounts: a blank
+    // page in Safari and on any LAN http:// origin, which is exactly how
+    // `npm run dev:mobile` is meant to be used from a phone.
+    //
+    // It also buys nothing here. Every subresource is same-origin and relative
+    // (this app makes no network requests at all), so on an https:// origin
+    // they are already https. Removing it costs no protection that can apply.
+    expect(csp).not.toMatch(/upgrade-insecure-requests/);
+  });
 });
