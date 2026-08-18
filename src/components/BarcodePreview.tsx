@@ -20,6 +20,7 @@ import { InspectorModal } from "./InspectorModal";
 import { BarcodeCanvas } from "./BarcodeCanvas";
 import { PreviewActions } from "./PreviewActions";
 import { useClerkVoice } from "../hooks/useClerkVoice";
+import { useToast } from "./Toast";
 
 const EXPORT_DPI = 300;
 
@@ -72,6 +73,7 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
   const wasReadyRef = useRef(false);
   const wasValidRef = useRef(false);
   const voice = useClerkVoice();
+  const toast = useToast();
 
   const payloadStr = payload;
 
@@ -293,6 +295,7 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
     try {
       await navigator.clipboard.writeText(payloadStr);
       setCopied(true);
+      toast.success("Copied raw payload to clipboard");
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       console.error("Failed to copy payload:", err);
@@ -307,6 +310,7 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
     try {
       await navigator.clipboard.writeText(JSON.stringify(decoded.json, null, 2));
       setJsonCopied(true);
+      toast.success("Copied decoded JSON to clipboard");
       setTimeout(() => setJsonCopied(false), 2000);
     } catch (err) {
       console.error("Failed to copy JSON:", err);
@@ -326,6 +330,7 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
       if (!blob) return;
       await navigator.clipboard.write([new ClipboardItemCtor({ "image/png": blob })]);
       setImgCopied(true);
+      toast.success("Copied barcode image to clipboard");
       onExported?.();
       setTimeout(() => setImgCopied(false), 2000);
     } catch (err) {
