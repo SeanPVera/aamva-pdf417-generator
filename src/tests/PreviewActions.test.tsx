@@ -41,8 +41,12 @@ describe("PreviewActions", () => {
     expect(screen.getByRole("button", { name: "Export barcode as SVG" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Export barcode as PDF" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Print barcode" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Copy barcode image to clipboard" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Copy decoded payload as JSON" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Copy barcode image to clipboard" })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Copy decoded payload as JSON" })
+    ).toBeInTheDocument();
   });
 
   it("calls handleCopyImage when copy image button is clicked", () => {
