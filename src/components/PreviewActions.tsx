@@ -150,7 +150,9 @@ export const PreviewActions: React.FC<PreviewActionsProps> = ({
             voice.speaking ? voice.stop() : voice.speak(buildReadback(decoded.json ?? {}))
           }
           className="-mt-2 flex items-center justify-center gap-1.5 bg-gray-100 dark:bg-dark-surface2 hover:bg-gray-200 dark:hover:bg-[#383838] text-gray-700 dark:text-gray-200 py-1.5 rounded text-xs font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-          title="Have the clerk read the payload back to you"
+          title={voice.speaking ? "Stop reading payload aloud" : "Have the clerk read the payload back to you"}
+          aria-label={voice.speaking ? "Stop reading payload aloud" : "Read decoded payload aloud"}
+          aria-pressed={voice.speaking}
         >
           {voice.speaking ? <Square size={13} /> : <Volume2 size={13} />}
           {voice.speaking ? "Stop reading" : "Read it back to me"}
