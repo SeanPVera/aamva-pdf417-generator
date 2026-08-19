@@ -25,7 +25,9 @@ const defaultVoice: ClerkVoice = {
   stop: vi.fn()
 };
 
-function renderPreviewActions(overrides: Partial<React.ComponentProps<typeof PreviewActions>> = {}) {
+function renderPreviewActions(
+  overrides: Partial<React.ComponentProps<typeof PreviewActions>> = {}
+) {
   const defaultProps = {
     canExport: true,
     handleExportPNG: vi.fn(),
