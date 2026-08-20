@@ -247,3 +247,55 @@ describe("decodePayload rejects things that are not field maps", () => {
     expect(decodePayload('{"DCS":"DOE"}').data).toEqual({ DCS: "DOE" });
   });
 });
+
+describe("PreviewActions filename privacy toggle", () => {
+  it("has correct aria-describedby and dynamic status text", async () => {
+    const { render, screen, fireEvent } = await import("@testing-library/react");
+    const React = await import("react");
+    const { PreviewActions } = await import("../components/PreviewActions");
+
+    function TestWrapper() {
+      const [includeName, setIncludeName] = React.useState(false);
+      return (
+        <PreviewActions
+          canExport={true}
+          handleExportPNG={() => {}}
+          handleExportSVG={() => {}}
+          handleExportPDF={() => {}}
+          handlePrint={() => {}}
+          includeNameInExport={includeName}
+          setIncludeNameInExport={setIncludeName}
+          exportBasename={(prefix) => `${prefix}_CA_DL_V10`}
+          canCopyImage={false}
+          handleCopyImage={() => {}}
+          imgCopied={false}
+          handleCopyJson={() => {}}
+          jsonCopied={false}
+          decoded={null}
+          stale={false}
+          whimsy={false}
+          voice={{ supported: false, speaking: false, speak: () => {}, stop: () => {} }}
+        />
+      );
+    }
+
+    render(<TestWrapper />);
+
+    const checkbox = screen.getByRole("checkbox", {
+      name: /Put the cardholder's name in export filenames/i
+    });
+    expect(checkbox).not.toBeChecked();
+    expect(checkbox).toHaveAttribute("aria-describedby", "export-filename-preview");
+
+    const previewSpan = screen.getByText(/Off:/i);
+    expect(previewSpan).toBeInTheDocument();
+    expect(previewSpan.id).toBe("export-filename-preview");
+    expect(previewSpan).toHaveTextContent("Off: barcode_CA_DL_V10.png");
+
+    fireEvent.click(checkbox);
+
+    expect(checkbox).toBeChecked();
+    expect(screen.getByText(/On:/i)).toBeInTheDocument();
+    expect(screen.getByText(/On:/i)).toHaveTextContent("On: barcode_CA_DL_V10.png");
+  });
+});
