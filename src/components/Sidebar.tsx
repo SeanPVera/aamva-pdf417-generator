@@ -76,7 +76,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileHidden = false }) => {
 
   return (
     <aside
-      className={`state-themed-sidebar dmv-sidebar w-full lg:w-64 bg-white dark:bg-dark-surface border-b lg:border-b-0 lg:border-r border-gray-200 dark:border-dark-border z-10 flex flex-col max-h-[45vh] lg:max-h-none overflow-y-auto p-4 shadow-sm ${
+      className={`state-themed-sidebar dmv-sidebar w-full lg:w-64 bg-[#F5F5F7] dark:bg-dark-surface border-b lg:border-b-0 lg:border-r border-gray-200 dark:border-dark-border z-10 flex flex-col max-h-[45vh] lg:max-h-none overflow-y-auto p-4 shadow-none ${
         mobileHidden ? "hidden lg:flex" : "flex"
       }`}
       aria-label="Configuration"

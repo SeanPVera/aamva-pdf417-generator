@@ -228,7 +228,7 @@ export const FieldInput: React.FC<FieldInputProps> = ({
   ) : null;
 
   const baseInputClass =
-    "block w-full px-3 pt-5 pb-2 text-sm text-gray-900 bg-gray-100 dark:bg-[#2C2C2C] border-0 border-b-2 appearance-none dark:text-gray-100 focus:outline-none focus:ring-0 peer transition-all duration-200 ease-in-out rounded-t-md pr-16 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-500";
+    "block w-full px-3 pt-5 pb-2 text-sm text-gray-900 bg-white dark:bg-[#1E1E1E] border appearance-none dark:text-gray-100 focus:outline-none focus:ring-0 peer transition-all duration-200 ease-in-out rounded-lg pr-16 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-500";
   const normalClass = `${baseInputClass} border-gray-300 dark:border-[#555] focus:border-brand-500`;
   const errorClass = `${baseInputClass} border-red-500 focus:border-red-500`;
   const warningClass = `${baseInputClass} border-amber-500 focus:border-amber-500`;

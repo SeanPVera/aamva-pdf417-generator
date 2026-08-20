@@ -812,7 +812,7 @@ function App() {
         <Sidebar mobileHidden={mobilePanel !== "config"} />
 
         <div
-          className={`dmv-main flex-1 flex flex-col overflow-y-auto bg-white dark:bg-[#1E1E1E] m-2 lg:m-4 rounded-xl shadow-google dark:shadow-none border border-gray-200 dark:border-[#333333] min-h-[40vh] min-w-0 ${
+          className={`dmv-main flex-1 flex flex-col overflow-y-auto bg-white dark:bg-[#1E1E1E] m-2 lg:m-4 rounded-2xl shadow-apple-md dark:shadow-none border border-gray-200 dark:border-[#333333] min-h-[40vh] min-w-0 ${
             mobilePanel !== "form" ? "hidden lg:flex" : "flex"
           }`}
         >
