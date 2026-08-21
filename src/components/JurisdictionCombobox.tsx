@@ -176,7 +176,7 @@ export const JurisdictionCombobox: React.FC<JurisdictionComboboxProps> = ({
           }}
           onFocus={() => setOpen(true)}
           onKeyDown={handleKeyDown}
-          className="w-full border-gray-300 dark:border-[#555] dark:bg-dark-surface2 dark:text-gray-100 rounded-lg shadow-sm focus:ring-brand-500 focus:border-brand-500 text-sm p-2.5 pr-16 border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          className="w-full border-gray-300 dark:border-[#555] bg-white dark:bg-[#1E1E1E] dark:text-gray-100 rounded-lg shadow-none focus:ring-brand-500 focus:border-brand-500 text-sm p-2.5 pr-16 border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
         />
         {open && (
           <Search
@@ -218,7 +218,7 @@ export const JurisdictionCombobox: React.FC<JurisdictionComboboxProps> = ({
           ref={listRef}
           role="listbox"
           aria-label="Jurisdictions"
-          className="absolute z-40 mt-1 w-full max-h-72 overflow-y-auto rounded-lg border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-surface shadow-lg py-1"
+          className="absolute z-40 mt-1 w-full max-h-72 overflow-y-auto rounded-xl border border-gray-200 dark:border-dark-border bg-white/95 dark:bg-dark-surface/95 backdrop-blur-md shadow-apple-md py-1"
         >
           {flat.length === 0 && (
             <li className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">

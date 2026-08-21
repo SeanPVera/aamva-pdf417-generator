@@ -319,7 +319,7 @@ export const Header: React.FC<HeaderActionProps> = ({
           disabled={!canUndo()}
           title={`Undo (${undoLabel})${undoDepth ? ` — ${undoDepth} step${undoDepth === 1 ? "" : "s"}` : ""}`}
           aria-label={`Undo last field change${undoDepth ? ` (${undoDepth} available)` : ""}`}
-          className="relative flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 disabled:opacity-40 disabled:cursor-not-allowed px-2 py-1.5 rounded transition text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          className="relative flex items-center gap-1 hover:bg-gray-50 dark:hover:bg-[#1E1E1E] text-gray-700 dark:text-gray-300 disabled:opacity-40 disabled:cursor-not-allowed px-2 py-1.5 rounded transition text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
         >
           <Undo2 size={15} />
           {undoDepth > 0 && (
@@ -336,7 +336,7 @@ export const Header: React.FC<HeaderActionProps> = ({
           disabled={!canRedo()}
           title={`Redo (${redoLabel})${redoDepth ? ` — ${redoDepth} step${redoDepth === 1 ? "" : "s"}` : ""}`}
           aria-label={`Redo field change${redoDepth ? ` (${redoDepth} available)` : ""}`}
-          className="relative flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 disabled:opacity-40 disabled:cursor-not-allowed px-2 py-1.5 rounded transition text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          className="relative flex items-center gap-1 hover:bg-gray-50 dark:hover:bg-[#1E1E1E] text-gray-700 dark:text-gray-300 disabled:opacity-40 disabled:cursor-not-allowed px-2 py-1.5 rounded transition text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
         >
           <Redo2 size={15} />
           {redoDepth > 0 && (
@@ -372,7 +372,7 @@ export const Header: React.FC<HeaderActionProps> = ({
                 className={`flex items-center gap-1.5 px-2 py-1.5 text-xs transition focus:outline-none ${
                   theme === t
                     ? "state-primary-bg font-semibold text-white"
-                    : "hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300"
+                    : "hover:bg-gray-50 dark:hover:bg-[#1E1E1E] text-gray-700 dark:text-gray-300"
                 }`}
               >
                 <span
@@ -396,7 +396,7 @@ export const Header: React.FC<HeaderActionProps> = ({
             title="Quick fill from a preset profile"
             aria-haspopup="menu"
             aria-expanded={presetsOpen}
-            className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 px-2 py-1.5 rounded transition text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            className="flex items-center gap-1 hover:bg-gray-50 dark:hover:bg-[#1E1E1E] text-gray-700 dark:text-gray-300 px-2 py-1.5 rounded transition text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           >
             <Sparkles size={15} />
             <span className="hidden sm:inline">Presets</span>
@@ -420,7 +420,7 @@ export const Header: React.FC<HeaderActionProps> = ({
                       type="button"
                       role="menuitem"
                       onClick={() => handleApplyPreset(p.id)}
-                      className="w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-sm text-gray-800 dark:text-gray-100 focus-visible:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-dark-surface2"
+                      className="w-full text-left px-3 py-2 hover:bg-gray-50 dark:hover:bg-[#1E1E1E] text-sm text-gray-800 dark:text-gray-100 focus-visible:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-dark-surface2"
                     >
                       <div className="font-medium">{p.label}</div>
                       <div className="text-xs text-gray-500 dark:text-gray-400">
@@ -438,7 +438,7 @@ export const Header: React.FC<HeaderActionProps> = ({
             own modal instead of living at the bottom of the field form. */}
         <button
           onClick={onOpenBatch}
-          className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 px-2 py-1.5 rounded transition text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          className="flex items-center gap-1 hover:bg-gray-50 dark:hover:bg-[#1E1E1E] text-gray-700 dark:text-gray-300 px-2 py-1.5 rounded transition text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           title="Generate many barcodes from a JSON or CSV file"
           aria-label="Open batch processing"
         >
@@ -449,7 +449,7 @@ export const Header: React.FC<HeaderActionProps> = ({
         {/* Compare */}
         <button
           onClick={onOpenCompare}
-          className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 px-2 py-1.5 rounded transition text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          className="flex items-center gap-1 hover:bg-gray-50 dark:hover:bg-[#1E1E1E] text-gray-700 dark:text-gray-300 px-2 py-1.5 rounded transition text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           title="Compare two payloads side-by-side"
           aria-label="Compare two payloads"
         >
@@ -462,7 +462,7 @@ export const Header: React.FC<HeaderActionProps> = ({
         {/* Scan */}
         <button
           onClick={onStartScan}
-          className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 px-2 py-1.5 rounded transition text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          className="flex items-center gap-1 hover:bg-gray-50 dark:hover:bg-[#1E1E1E] text-gray-700 dark:text-gray-300 px-2 py-1.5 rounded transition text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           title="Scan Barcode from Webcam"
           aria-label="Open barcode scanner"
         >
@@ -482,7 +482,7 @@ export const Header: React.FC<HeaderActionProps> = ({
         />
         <button
           onClick={() => importRef.current?.click()}
-          className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 px-2 py-1.5 rounded transition text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          className="flex items-center gap-1 hover:bg-gray-50 dark:hover:bg-[#1E1E1E] text-gray-700 dark:text-gray-300 px-2 py-1.5 rounded transition text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           title="Import JSON Profile"
           aria-label="Import JSON payload file"
         >
@@ -493,7 +493,7 @@ export const Header: React.FC<HeaderActionProps> = ({
         {/* Export JSON */}
         <button
           onClick={handleExportJson}
-          className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 px-2 py-1.5 rounded transition text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          className="flex items-center gap-1 hover:bg-gray-50 dark:hover:bg-[#1E1E1E] text-gray-700 dark:text-gray-300 px-2 py-1.5 rounded transition text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           title="Export JSON Profile"
           aria-label="Export current fields as JSON"
         >
@@ -507,7 +507,7 @@ export const Header: React.FC<HeaderActionProps> = ({
             markBingo("opened-shortcuts");
             onOpenShortcuts();
           }}
-          className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 px-2 py-1.5 rounded transition text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          className="flex items-center gap-1 hover:bg-gray-50 dark:hover:bg-[#1E1E1E] text-gray-700 dark:text-gray-300 px-2 py-1.5 rounded transition text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           title="Keyboard shortcuts (?)"
           aria-label="Show keyboard shortcuts"
         >
@@ -522,7 +522,7 @@ export const Header: React.FC<HeaderActionProps> = ({
             aria-haspopup="menu"
             aria-expanded={funOpen}
             aria-label="Toggle playful extras"
-            className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 px-2 py-1.5 rounded transition text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            className="flex items-center gap-1 hover:bg-gray-50 dark:hover:bg-[#1E1E1E] text-gray-700 dark:text-gray-300 px-2 py-1.5 rounded transition text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           >
             <PartyPopper size={15} />
           </button>
@@ -542,7 +542,7 @@ export const Header: React.FC<HeaderActionProps> = ({
                   setWhimsy(!whimsy);
                   toast.info(whimsy ? "Whimsy off — all business." : "Whimsy on ✨");
                 }}
-                className="w-full flex items-center justify-between px-3 py-2 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-sm focus-visible:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-dark-surface2"
+                className="w-full flex items-center justify-between px-3 py-2 hover:bg-gray-50 dark:hover:bg-[#1E1E1E] text-sm focus-visible:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-dark-surface2"
               >
                 <span className="flex items-center gap-2">
                   <PartyPopper size={14} /> Whimsy effects
@@ -564,7 +564,7 @@ export const Header: React.FC<HeaderActionProps> = ({
                   toast.info(mascots ? "Gus is off the clock." : "Gus is back at the window.");
                 }}
                 title="Gus the clerk and the take-a-number ticket, in the bottom corner"
-                className="w-full flex items-center justify-between px-3 py-2 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-sm focus-visible:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-dark-surface2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full flex items-center justify-between px-3 py-2 hover:bg-gray-50 dark:hover:bg-[#1E1E1E] text-sm focus-visible:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-dark-surface2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <span className="flex items-center gap-2">
                   {/* Reuses an icon the toolbar already ships — a new lucide
@@ -586,7 +586,7 @@ export const Header: React.FC<HeaderActionProps> = ({
                   setSoundOn(!soundOn);
                   toast.info(soundOn ? "Clerk sounds muted" : "Clerk sounds on 🔊");
                 }}
-                className="w-full flex items-center justify-between px-3 py-2 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-sm focus-visible:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-dark-surface2"
+                className="w-full flex items-center justify-between px-3 py-2 hover:bg-gray-50 dark:hover:bg-[#1E1E1E] text-sm focus-visible:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-dark-surface2"
               >
                 <span className="flex items-center gap-2">
                   {soundOn ? <Volume2 size={14} /> : <VolumeX size={14} />} Clerk sound FX
@@ -605,7 +605,7 @@ export const Header: React.FC<HeaderActionProps> = ({
                   setFunOpen(false);
                   onOpenBadges();
                 }}
-                className="w-full flex items-center gap-2 px-3 py-2 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-sm focus-visible:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-dark-surface2"
+                className="w-full flex items-center gap-2 px-3 py-2 hover:bg-gray-50 dark:hover:bg-[#1E1E1E] text-sm focus-visible:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-dark-surface2"
               >
                 <Award size={14} /> Employee of the Month
               </button>
@@ -616,7 +616,7 @@ export const Header: React.FC<HeaderActionProps> = ({
                   setFunOpen(false);
                   onOpenBingo();
                 }}
-                className="w-full flex items-center gap-2 px-3 py-2 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-sm focus-visible:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-dark-surface2"
+                className="w-full flex items-center gap-2 px-3 py-2 hover:bg-gray-50 dark:hover:bg-[#1E1E1E] text-sm focus-visible:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-dark-surface2"
               >
                 <Tag size={14} /> DMV Bingo
               </button>
@@ -627,7 +627,7 @@ export const Header: React.FC<HeaderActionProps> = ({
                   setFunOpen(false);
                   onOpenRoadTest();
                 }}
-                className="w-full flex items-center gap-2 px-3 py-2 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-sm focus-visible:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-dark-surface2"
+                className="w-full flex items-center gap-2 px-3 py-2 hover:bg-gray-50 dark:hover:bg-[#1E1E1E] text-sm focus-visible:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-dark-surface2"
               >
                 <Car size={14} /> Take the road test
               </button>
@@ -641,7 +641,7 @@ export const Header: React.FC<HeaderActionProps> = ({
         {/* Clear PII */}
         <button
           onClick={handleClearData}
-          className="flex items-center gap-1 bg-red-600 hover:bg-red-700 text-white px-2 py-1.5 rounded transition text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-1 focus-visible:ring-offset-white dark:focus-visible:ring-offset-dark-surface"
+          className="flex items-center gap-1 bg-destructive-500 hover:bg-red-700 text-white px-2 py-1.5 rounded-md shadow-apple-sm transition text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-1 focus-visible:ring-offset-white dark:focus-visible:ring-offset-dark-surface"
           title="Securely Clear Memory"
           aria-label="Clear all PII from memory and storage"
         >

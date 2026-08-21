@@ -24,7 +24,7 @@
   --state-surface-alt: #f4f8ff;
   --state-border: #c8d7ef;
   --state-input: #f3f7ff;
-  --state-ring: #5b8ff0;
+  --state-ring: #14295a;
   --state-shadow: 0 22px 50px #1a73e822;
   --state-gradient: linear-gradient(135deg, #1967d2 0%, #1a73e8 50%, #fbbc04 100%);
   --state-motif-color: #1a73e818;
@@ -114,28 +114,10 @@ html[data-state-theme] .state-primary-bg {
    own set below that tints the dark surfaces with the state color instead of
    replacing them. */
 html[data-state-theme]:not(.dark) .app-shell {
-  background:
-    radial-gradient(circle at 18% 12%, var(--state-motif-color) 0 13rem, transparent 13.2rem),
-    radial-gradient(
-      circle at 86% 0%,
-      color-mix(in srgb, var(--state-accent) 14%, transparent) 0 16rem,
-      transparent 16.2rem
-    ),
-    linear-gradient(
-      180deg,
-      var(--state-background) 0%,
-      color-mix(in srgb, var(--state-background) 68%, white) 100%
-    ) !important;
+  background: #f5f5f7 !important;
 }
 html[data-state-theme].dark .app-shell {
-  background:
-    radial-gradient(circle at 18% 12%, var(--state-motif-color) 0 13rem, transparent 13.2rem),
-    radial-gradient(
-      circle at 86% 0%,
-      color-mix(in srgb, var(--state-accent) 10%, transparent) 0 16rem,
-      transparent 16.2rem
-    ),
-    #121212 !important;
+  background: #000000 !important;
 }
 html[data-state-theme] .app-shell::before {
   content: "";
