@@ -38,11 +38,11 @@ export function CollapsibleSection({
   }[badgeColor];
 
   return (
-    <div className="border border-gray-200 dark:border-dark-border rounded-md overflow-hidden">
+    <div className="border border-gray-200 dark:border-dark-border rounded-xl shadow-apple-sm overflow-hidden">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="w-full flex items-center justify-between px-3 py-2 bg-gray-50 dark:bg-dark-surface2 hover:bg-gray-100 dark:hover:bg-[#383838] transition-colors text-sm font-semibold text-gray-700 dark:text-gray-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-500"
+        className="w-full flex items-center justify-between px-3 py-2 bg-white dark:bg-[#1E1E1E] hover:bg-gray-50 dark:hover:bg-[#2C2C2C] transition-colors text-sm font-semibold text-gray-700 dark:text-gray-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-500"
         aria-expanded={open}
         aria-controls={id}
       >

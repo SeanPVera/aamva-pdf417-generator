@@ -365,7 +365,7 @@ export const FieldInput: React.FC<FieldInputProps> = ({
               <button
                 type="button"
                 onClick={() => onGenerate(field.code)}
-                className="text-xs font-medium bg-gray-200 hover:bg-gray-300 dark:bg-[#444] dark:hover:bg-[#555] rounded px-2 text-gray-700 dark:text-gray-200 transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                className="text-xs font-medium bg-white hover:bg-gray-50 dark:bg-[#1E1E1E] dark:hover:bg-[#2C2C2C] border border-gray-200 dark:border-[#444] rounded-md shadow-apple-sm px-2 text-gray-700 dark:text-gray-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                 title="Generate Card Revision Date"
                 aria-label="Generate Card Revision Date"
               >
@@ -378,7 +378,7 @@ export const FieldInput: React.FC<FieldInputProps> = ({
                 onClick={() => onReset(field.code)}
                 aria-label={`Reset ${field.code}`}
                 title={`Reset ${field.code}`}
-                className="flex items-center justify-center w-5 bg-gray-200 hover:bg-red-100 dark:bg-[#444] dark:hover:bg-red-900/40 rounded text-gray-700 hover:text-red-600 dark:text-gray-200 dark:hover:text-red-400 transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                className="flex items-center justify-center w-5 bg-transparent hover:bg-red-50 dark:hover:bg-red-900/40 rounded text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
               >
                 <XIcon size={11} />
               </button>
@@ -418,7 +418,7 @@ export const FieldInput: React.FC<FieldInputProps> = ({
               <button
                 type="button"
                 onClick={() => onGenerate(field.code)}
-                className="text-xs font-medium bg-gray-200 hover:bg-gray-300 dark:bg-[#444] dark:hover:bg-[#555] rounded px-2 text-gray-700 dark:text-gray-200 transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                className="text-xs font-medium bg-white hover:bg-gray-50 dark:bg-[#1E1E1E] dark:hover:bg-[#2C2C2C] border border-gray-200 dark:border-[#444] rounded-md shadow-apple-sm px-2 text-gray-700 dark:text-gray-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                 title={`Generate ${field.label}`}
                 aria-label={`Generate ${field.label}`}
               >
@@ -429,7 +429,7 @@ export const FieldInput: React.FC<FieldInputProps> = ({
               <button
                 type="button"
                 onClick={() => onChange(field.code, "NONE")}
-                className="text-xs font-medium bg-gray-200 hover:bg-gray-300 dark:bg-[#444] dark:hover:bg-[#555] rounded px-2 text-gray-700 dark:text-gray-200 transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                className="text-xs font-medium bg-white hover:bg-gray-50 dark:bg-[#1E1E1E] dark:hover:bg-[#2C2C2C] border border-gray-200 dark:border-[#444] rounded-md shadow-apple-sm px-2 text-gray-700 dark:text-gray-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                 title={`Set ${field.label} to NONE`}
                 aria-label={`Set ${field.label} to NONE`}
               >
@@ -442,7 +442,7 @@ export const FieldInput: React.FC<FieldInputProps> = ({
                 onClick={() => onReset(field.code)}
                 aria-label={`Reset ${field.code}`}
                 title={`Reset ${field.code}`}
-                className="flex items-center justify-center w-5 bg-gray-200 hover:bg-red-100 dark:bg-[#444] dark:hover:bg-red-900/40 rounded text-gray-700 hover:text-red-600 dark:text-gray-200 dark:hover:text-red-400 transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                className="flex items-center justify-center w-5 bg-transparent hover:bg-red-50 dark:hover:bg-red-900/40 rounded text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
               >
                 <XIcon size={11} />
               </button>
