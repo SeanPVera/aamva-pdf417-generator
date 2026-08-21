@@ -78,4 +78,15 @@ describe("CompareView clear payload", () => {
     await waitFor(() => expect(screen.queryByText("a.json")).not.toBeInTheDocument());
     expect(onClose).not.toHaveBeenCalled();
   });
+
+  test("loads active form data into side A", async () => {
+    renderCompareView();
+    const btn = screen.getByRole("button", { name: "Use active form for payload A" });
+    expect(btn).toBeInTheDocument();
+
+    fireEvent.click(btn);
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "Clear payload A" })).toBeInTheDocument();
+    });
+  });
 });

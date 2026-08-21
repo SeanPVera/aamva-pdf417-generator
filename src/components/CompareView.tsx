@@ -1,7 +1,9 @@
 import React, { useMemo, useRef, useState } from "react";
-import { X, Upload, GitCompare } from "lucide-react";
+import { X, Upload, GitCompare, Sparkles } from "lucide-react";
 import { useToast } from "./Toast";
 import { useModalShell } from "../hooks/useModalShell";
+import { useFormStore } from "../hooks/useFormStore";
+import { getFieldsForStateAndVersion } from "../core/schema";
 
 interface CompareViewProps {
   open: boolean;
@@ -31,6 +33,21 @@ export const CompareView: React.FC<CompareViewProps> = ({ open, onClose }) => {
   const rightInputRef = useRef<HTMLInputElement>(null);
   const toast = useToast();
   const dialogRef = useModalShell<HTMLDivElement>({ open, onClose });
+  const { fields, state, version } = useFormStore();
+
+  const handleLoadCurrentForm = (setSide: (p: PayloadFile) => void) => {
+    const schemaCodes = new Set(getFieldsForStateAndVersion(state, version).map((f) => f.code));
+    const kept: Record<string, string> = {};
+    for (const [code, value] of Object.entries(fields)) {
+      if (!value) continue;
+      if (schemaCodes.has(code)) kept[code] = value;
+    }
+    setSide({
+      name: `Active Form (${state} v${version})`,
+      data: { state, version, ...kept }
+    });
+    toast.success(`Loaded active form data (${state} v${version})`);
+  };
 
   const handleLoad = async (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -121,14 +138,26 @@ export const CompareView: React.FC<CompareViewProps> = ({ open, onClose }) => {
                 className="hidden"
                 aria-label={`Load JSON payload ${side}`}
               />
-              <button
-                type="button"
-                onClick={() => ref.current?.click()}
-                className="flex items-center justify-center gap-2 px-3 py-2 rounded border border-gray-300 dark:border-dark-border bg-gray-50 dark:bg-dark-surface2 hover:bg-gray-100 dark:hover:bg-[#383838] text-sm text-gray-700 dark:text-gray-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-              >
-                <Upload size={14} />
-                Load Payload {side}
-              </button>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => ref.current?.click()}
+                  className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded border border-gray-300 dark:border-dark-border bg-gray-50 dark:bg-dark-surface2 hover:bg-gray-100 dark:hover:bg-[#383838] text-sm text-gray-700 dark:text-gray-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                >
+                  <Upload size={14} />
+                  Load Payload {side}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleLoadCurrentForm(setSide)}
+                  title="Load active form fields from the generator"
+                  aria-label={`Use active form for payload ${side}`}
+                  className="flex items-center justify-center gap-1.5 px-2.5 py-2 rounded border border-gray-300 dark:border-dark-border bg-gray-50 dark:bg-dark-surface2 hover:bg-gray-100 dark:hover:bg-[#383838] text-xs font-medium text-brand-600 dark:text-brand-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 whitespace-nowrap"
+                >
+                  <Sparkles size={13} />
+                  Use active form
+                </button>
+              </div>
               <div className="flex items-center gap-1 min-h-[24px]">
                 <span
                   className="flex-1 text-xs text-gray-500 dark:text-gray-400 truncate"
