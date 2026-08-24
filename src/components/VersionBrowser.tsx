@@ -163,7 +163,8 @@ export const VersionBrowser: React.FC = () => {
                           className="py-4 px-2 text-center text-xs text-gray-500 dark:text-gray-400"
                           role="status"
                         >
-                          No fields matching &lsquo;{searchQuery.trim()}&rsquo; in v{browsedVersion}.
+                          No fields matching &lsquo;{searchQuery.trim()}&rsquo; in v{browsedVersion}
+                          .
                         </td>
                       </tr>
                     ) : (
