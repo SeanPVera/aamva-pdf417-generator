@@ -69,6 +69,17 @@ describe("CompareView clear payload", () => {
     expect(screen.getByRole("button", { name: "Clear payload A" })).toBeInTheDocument();
   });
 
+  test("loads active form data into comparison side", async () => {
+    renderCompareView();
+    const btnA = screen.getByRole("button", { name: "Use active form for payload A" });
+    expect(btnA).toBeInTheDocument();
+
+    fireEvent.click(btnA);
+
+    await screen.findByText("Active Form (CA v10)");
+    expect(screen.getByRole("button", { name: "Clear payload A" })).toBeInTheDocument();
+  });
+
   test("clearing does not close the dialog", async () => {
     const { onClose } = renderCompareView();
     await loadPayload("A", "a.json", { DCS: "SMITH" });
