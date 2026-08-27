@@ -123,12 +123,12 @@ export const FieldFilters: React.FC<FieldFiltersProps> = ({
           )}
         </div>
 
-        <label className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-700 dark:text-gray-200 cursor-pointer select-none px-2 py-1 rounded-md bg-gray-100 dark:bg-[#2C2C2C] border border-gray-200 dark:border-[#444]">
+        <label className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-700 dark:text-gray-200 cursor-pointer select-none px-2 py-1 rounded-md bg-gray-100 dark:bg-[#2C2C2C] border border-gray-200 dark:border-[#444] focus-within:ring-2 focus-within:ring-brand-500">
           <input
             type="checkbox"
             checked={requiredOnly}
             onChange={(e) => onRequiredOnlyChange(e.target.checked)}
-            className="h-3.5 w-3.5 rounded text-brand-600 focus:ring-brand-500 border-gray-300 dark:border-[#555] dark:bg-dark-surface2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            className="h-3.5 w-3.5 rounded text-brand-600 focus:ring-brand-500 border-gray-300 dark:border-[#555] dark:bg-dark-surface2 focus-visible:outline-none"
             aria-label="Show only required fields"
           />
           Required only
@@ -137,7 +137,7 @@ export const FieldFilters: React.FC<FieldFiltersProps> = ({
         {/* Issues-only: with errors scattered across collapsed groups, the old
             workflow was jump → fix → scroll back → jump again. */}
         <label
-          className={`inline-flex items-center gap-1.5 text-xs font-medium cursor-pointer select-none px-2 py-1 rounded-md border ${
+          className={`inline-flex items-center gap-1.5 text-xs font-medium cursor-pointer select-none px-2 py-1 rounded-md border focus-within:ring-2 focus-within:ring-red-500 ${
             issueCount > 0
               ? "bg-red-50 dark:bg-red-900/25 border-red-200 dark:border-red-800 text-red-800 dark:text-red-200"
               : "bg-gray-100 dark:bg-[#2C2C2C] border-gray-200 dark:border-[#444] text-gray-500 dark:text-gray-400 cursor-not-allowed"
@@ -153,7 +153,7 @@ export const FieldFilters: React.FC<FieldFiltersProps> = ({
             checked={issuesOnly}
             disabled={issueCount === 0}
             onChange={(e) => onIssuesOnlyChange(e.target.checked)}
-            className="h-3.5 w-3.5 rounded text-red-600 focus:ring-red-500 border-gray-300 dark:border-[#555] dark:bg-dark-surface2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            className="h-3.5 w-3.5 rounded text-red-600 focus:ring-red-500 border-gray-300 dark:border-[#555] dark:bg-dark-surface2 focus-visible:outline-none"
             aria-label="Show only fields with validation issues"
           />
           <AlertCircle size={12} aria-hidden="true" />
