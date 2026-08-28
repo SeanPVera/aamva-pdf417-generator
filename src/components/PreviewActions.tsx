@@ -101,7 +101,7 @@ export const PreviewActions: React.FC<PreviewActionsProps> = ({
 
       {/* Filename privacy control. Off by default: a download filename is the
           one place a field value would leave the tab. */}
-      <label className="-mt-2 flex items-start gap-2 text-[11px] text-gray-600 dark:text-gray-300 cursor-pointer select-none">
+      <label className="-mt-2 flex items-start gap-2 text-[11px] text-gray-600 dark:text-gray-300 cursor-pointer select-none focus-within:ring-2 focus-within:ring-brand-500 rounded p-0.5">
         <input
           type="checkbox"
           checked={includeNameInExport}
