@@ -79,3 +79,20 @@ describe("CompareView clear payload", () => {
     expect(onClose).not.toHaveBeenCalled();
   });
 });
+
+describe("CompareView use active form", () => {
+  test("loads active form data directly into payload A and payload B", async () => {
+    renderCompareView();
+
+    const activeBtnA = screen.getByRole("button", { name: "Use active form for payload A" });
+    const activeBtnB = screen.getByRole("button", { name: "Use active form for payload B" });
+
+    expect(activeBtnA).toBeInTheDocument();
+    expect(activeBtnB).toBeInTheDocument();
+
+    fireEvent.click(activeBtnA);
+
+    await screen.findByText(/Active form/);
+    expect(screen.getByRole("button", { name: "Clear payload A" })).toBeInTheDocument();
+  });
+});

@@ -1,8 +1,7 @@
 import { AAMVA_VERSION_KEYS, isSupportedVersion } from "./schema";
 
 export type ImportResult =
-  | { ok: true; data: Record<string, string> }
-  | { ok: false; error: string };
+  { ok: true; data: Record<string, string> } | { ok: false; error: string };
 
 /**
  * Parses and validates a JSON payload file before it reaches `loadJson`.
