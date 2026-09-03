@@ -23,18 +23,18 @@ describe("FieldFilters Component", () => {
 
   // The ring lives on the label, not the checkbox: the badge is the visible
   // target and the input inside it is 3.5 units square.
-  test("both filter badges ring on focus-within", () => {
+  test("both filter badges ring on keyboard focus", () => {
     render(<FieldFilters {...defaultProps} />);
 
     const requiredLabel = screen
       .getByRole("checkbox", { name: "Show only required fields" })
       .closest("label");
-    expect(requiredLabel).toHaveClass("focus-within:ring-2");
+    expect(requiredLabel).toHaveClass("has-[:focus-visible]:ring-2");
 
     const issuesLabel = screen
       .getByRole("checkbox", { name: "Show only fields with validation issues" })
       .closest("label");
-    expect(issuesLabel).toHaveClass("focus-within:ring-2");
+    expect(issuesLabel).toHaveClass("has-[:focus-visible]:ring-2");
   });
 
   // The issues badge is red when it has issues to show and gray when it does
@@ -45,8 +45,8 @@ describe("FieldFilters Component", () => {
     const issuesLabel = screen
       .getByRole("checkbox", { name: "Show only fields with validation issues" })
       .closest("label");
-    expect(issuesLabel).toHaveClass("focus-within:ring-red-500");
-    expect(issuesLabel).not.toHaveClass("focus-within:ring-brand-500");
+    expect(issuesLabel).toHaveClass("has-[:focus-visible]:ring-red-500");
+    expect(issuesLabel).not.toHaveClass("has-[:focus-visible]:ring-brand-500");
   });
 
   test("the issues badge rings brand once it is empty and disabled", () => {
@@ -58,8 +58,8 @@ describe("FieldFilters Component", () => {
     expect(issuesCheckbox).toBeDisabled();
 
     const issuesLabel = issuesCheckbox.closest("label");
-    expect(issuesLabel).toHaveClass("focus-within:ring-brand-500");
-    expect(issuesLabel).not.toHaveClass("focus-within:ring-red-500");
+    expect(issuesLabel).toHaveClass("has-[:focus-visible]:ring-brand-500");
+    expect(issuesLabel).not.toHaveClass("has-[:focus-visible]:ring-red-500");
   });
 
   // A ring on the label plus a ring on the input inside it draws twice.
