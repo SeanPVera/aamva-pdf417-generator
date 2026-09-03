@@ -657,8 +657,18 @@ export const JURISDICTION_RULE_PACKS: Record<string, JurisdictionRulePack> = {
     // recorded here — the default was right and is now confirmed rather than
     // assumed. What it does not agree with is the jurisdiction version, which
     // this app hardcoded to "00" for every issuer.
+    //
+    // This describes New York's *plastic DL card*, and only that. A second NY
+    // document decoded from the same issuer — a DMV interim photo document,
+    // also IIN 636001 / AAMVA v10 — carries a materially different wire format:
+    // jurisdiction version "00", no space fill anywhere, DAQ hoisted to the
+    // front of the subfile, and every element in its template emitted even when
+    // empty. So an issuer is not the unit a profile describes; an issuer plus a
+    // document type is. Do not widen this entry to cover both, and do not treat
+    // a mismatch against some other NY document as evidence it is wrong.
     encoding: {
-      source: "Decoded New York DL barcode (AAMVA v10, IIN 636001), captured 2026-08-17",
+      source:
+        "Decoded New York plastic DL card barcode (AAMVA v10, IIN 636001), captured 2026-08-17",
       jurisdictionVersion: "04",
       omitFinalSeparator: true,
       // Measured from the card's own bytes with the wire ledger: 100 bytes of
@@ -680,7 +690,8 @@ export const JURISDICTION_RULE_PACKS: Record<string, JurisdictionRulePack> = {
       },
       jurisdictionSubfile: {
         type: "ZN",
-        source: "Decoded New York DL barcode (AAMVA v10, IIN 636001), captured 2026-08-17",
+        source:
+          "Decoded New York plastic DL card barcode (AAMVA v10, IIN 636001), captured 2026-08-17",
         // ZNA holds the cardholder's name re-encoded with "@" separators,
         // space-filled to 20; ZNB an opaque 90-character blob of mixed-case
         // printable ASCII. Neither has a published meaning — AAMVA reserves Z*
