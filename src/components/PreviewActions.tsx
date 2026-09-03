@@ -106,12 +106,14 @@ export const PreviewActions: React.FC<PreviewActionsProps> = ({
           type="checkbox"
           checked={includeNameInExport}
           onChange={(e) => setIncludeNameInExport(e.target.checked)}
+          aria-describedby="export-filename-preview"
           className="mt-0.5 h-3.5 w-3.5 rounded text-brand-600 focus:ring-brand-500 border-gray-300 dark:border-[#555] dark:bg-dark-surface2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
         />
         <span>
           Put the cardholder&apos;s name in export filenames
-          <span className="block text-gray-500 dark:text-gray-400">
-            Off: <span className="font-mono">{exportBasename("barcode")}.png</span>
+          <span id="export-filename-preview" className="block text-gray-500 dark:text-gray-400">
+            {includeNameInExport ? "On: " : "Off: "}
+            <span className="font-mono">{exportBasename("barcode")}.png</span>
           </span>
         </span>
       </label>
