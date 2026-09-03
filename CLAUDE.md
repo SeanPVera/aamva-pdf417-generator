@@ -437,15 +437,22 @@ Only add an entry you can trace to a decoded credential, and cite it in
 `source`. Absence of a profile means nobody has checked that jurisdiction — not
 that the spec reading has been confirmed for it.
 
-**A profile describes one document type, not an issuer.** New York's plastic DL
-card and New York's DMV interim photo document are both IIN 636001 and both
-AAMVA v10, and their wire formats disagree on nearly everything a profile
-records: jurisdiction version (`04` vs `00`), space fill (100 bytes of it vs
-none), element order (schema default vs `DAQ` first), and whether empty elements
-are emitted at all (the interim document writes `DCA`, `DCF`, `DCG`, `DCU` and
-`ZNA` as bare codes with no value). Neither reading is wrong. So `source` must
-name the document, and a decoded credential that contradicts a profile is
-evidence of a second variant before it is evidence of a bug.
+**A profile's evidence is narrower than its reach.** New York's plastic DL card
+and New York's DMV interim photo document are both IIN 636001 and both AAMVA
+v10, and their wire formats disagree on nearly everything a profile records:
+jurisdiction version (`04` vs `00`), space fill (100 bytes of it vs none),
+element order (schema default vs `DAQ` first), and whether empty elements are
+emitted at all (the interim document writes `DCA`, `DCF`, `DCG`, `DCU` and `ZNA`
+as bare codes with no value). Neither reading is wrong — each is right about the
+document it came from.
+
+But `getJurisdictionEncoding` keys on the jurisdiction alone, and nothing
+selects on document type: one profile per jurisdiction is what the generator
+applies, for `DL` and `ID` output alike. So `source` must name the document the
+bytes came from — that is the claim the entry can actually support — and a
+decoded credential that contradicts a profile shows how far that claim
+generalises before it shows a bug. Recording a second variant would mean adding
+the selection mechanism first.
 
 ### Height notation
 

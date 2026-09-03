@@ -658,14 +658,21 @@ export const JURISDICTION_RULE_PACKS: Record<string, JurisdictionRulePack> = {
     // assumed. What it does not agree with is the jurisdiction version, which
     // this app hardcoded to "00" for every issuer.
     //
-    // This describes New York's *plastic DL card*, and only that. A second NY
-    // document decoded from the same issuer — a DMV interim photo document,
-    // also IIN 636001 / AAMVA v10 — carries a materially different wire format:
-    // jurisdiction version "00", no space fill anywhere, DAQ hoisted to the
-    // front of the subfile, and every element in its template emitted even when
-    // empty. So an issuer is not the unit a profile describes; an issuer plus a
-    // document type is. Do not widen this entry to cover both, and do not treat
-    // a mismatch against some other NY document as evidence it is wrong.
+    // This entry was read off New York's *plastic DL card*, and that is the
+    // whole of the evidence behind it. A second NY document from the same
+    // issuer — a DMV interim photo document, also IIN 636001 / AAMVA v10 —
+    // carries a materially different wire format: jurisdiction version "00",
+    // no space fill anywhere, DAQ hoisted to the front of the subfile, and
+    // every element in its template emitted even when empty.
+    //
+    // That bounds the provenance, not the reach. `getJurisdictionEncoding`
+    // keys on the jurisdiction alone, so these settings are what the generator
+    // applies for NY whether the output subfile is DL or ID; there is no
+    // document-type dimension to select on. Do not add a second NY variant
+    // here expecting one to exist — recording it would mean building the
+    // selection mechanism first. And a decoded NY document that contradicts
+    // these settings shows how far the observation generalises; it is not
+    // evidence that this entry is wrong.
     encoding: {
       source:
         "Decoded New York plastic DL card barcode (AAMVA v10, IIN 636001), captured 2026-08-17",
