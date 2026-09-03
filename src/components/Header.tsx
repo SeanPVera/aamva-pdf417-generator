@@ -369,7 +369,8 @@ export const Header: React.FC<HeaderActionProps> = ({
                 }}
                 title={`${meta.label} theme — ${meta.description}`}
                 aria-pressed={theme === t}
-                className={`flex items-center gap-1.5 px-2 py-1.5 text-xs transition focus:outline-none ${
+                aria-label={`${meta.label} theme`}
+                className={`flex items-center gap-1.5 px-2 py-1.5 text-xs transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:z-10 ${
                   theme === t
                     ? "state-primary-bg font-semibold text-white"
                     : "hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300"
@@ -396,6 +397,7 @@ export const Header: React.FC<HeaderActionProps> = ({
             title="Quick fill from a preset profile"
             aria-haspopup="menu"
             aria-expanded={presetsOpen}
+            aria-label="Quick fill presets"
             className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 px-2 py-1.5 rounded transition text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           >
             <Sparkles size={15} />
