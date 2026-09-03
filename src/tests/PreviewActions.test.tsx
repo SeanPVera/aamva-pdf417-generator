@@ -72,37 +72,47 @@ describe("PreviewActions", () => {
   });
 });
 
-// The button is a toggle, so a screen reader needs aria-pressed to say which
-// half of it is live. Its label has to change too: "Read it back to me" while
-// it is speaking would name the action it no longer performs.
-describe("PreviewActions — the read-aloud toggle", () => {
-  test("announces itself as unpressed and offers to read while idle", () => {
+// It is a command button that swaps commands, not a toggle: the visible text
+// names the action, and the accessible name comes from that text. aria-pressed
+// alongside a changing name would announce as "Stop reading, pressed", which
+// does not say whether reading or stopping is live.
+describe("PreviewActions — the read-aloud button", () => {
+  test("offers to read, and describes that, while idle", () => {
     renderActions({ whimsy: true, voice: { ...silentVoice, speaking: false } });
 
-    const button = screen.getByRole("button", { name: "Read decoded payload aloud" });
-    expect(button).toHaveAttribute("aria-pressed", "false");
+    const button = screen.getByRole("button", { name: "Read it back to me" });
     expect(button).toHaveAttribute("title", "Have the clerk read the payload back to you");
-    expect(button).toHaveTextContent("Read it back to me");
   });
 
-  test("announces itself as pressed and offers to stop while speaking", () => {
+  test("offers to stop, and describes that, while speaking", () => {
     renderActions({ whimsy: true, voice: { ...silentVoice, speaking: true } });
 
-    const button = screen.getByRole("button", { name: "Stop reading payload aloud" });
-    expect(button).toHaveAttribute("aria-pressed", "true");
-    expect(button).toHaveAttribute("title", "Stop reading payload aloud");
-    expect(button).toHaveTextContent("Stop reading");
+    const button = screen.getByRole("button", { name: "Stop reading" });
+    expect(button).toHaveAttribute("title", "Stop reading the payload aloud");
+  });
+
+  // Label in Name (WCAG 2.5.3): a speech-input user says what they can see.
+  test.each([
+    [false, "Read it back to me"],
+    [true, "Stop reading"]
+  ])("its accessible name is the visible text (speaking=%s)", (speaking, visible) => {
+    renderActions({ whimsy: true, voice: { ...silentVoice, speaking } });
+
+    const button = screen.getByRole("button", { name: visible });
+    expect(button).toHaveTextContent(visible);
+    expect(button).not.toHaveAttribute("aria-label");
+    expect(button).not.toHaveAttribute("aria-pressed");
   });
 
   test("speaks when idle and stops when speaking", () => {
     const speak = vi.fn();
     renderActions({ whimsy: true, voice: { ...silentVoice, speaking: false, speak } });
-    fireEvent.click(screen.getByRole("button", { name: "Read decoded payload aloud" }));
+    fireEvent.click(screen.getByRole("button", { name: "Read it back to me" }));
     expect(speak).toHaveBeenCalledTimes(1);
 
     const stop = vi.fn();
     renderActions({ whimsy: true, voice: { ...silentVoice, speaking: true, stop } });
-    fireEvent.click(screen.getByRole("button", { name: "Stop reading payload aloud" }));
+    fireEvent.click(screen.getByRole("button", { name: "Stop reading" }));
     expect(stop).toHaveBeenCalledTimes(1);
   });
 
@@ -114,6 +124,8 @@ describe("PreviewActions — the read-aloud toggle", () => {
     ["nothing decoded", { whimsy: true, decoded: null }]
   ])("is absent when %s", (_label, overrides) => {
     renderActions(overrides);
-    expect(screen.queryByRole("button", { name: /payload aloud/ })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /read it back|stop reading/i })
+    ).not.toBeInTheDocument();
   });
 });
