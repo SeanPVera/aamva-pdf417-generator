@@ -155,7 +155,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileHidden = false, children
             id="version-select"
             value={version}
             onChange={handleVersionChange}
-            className="w-full border-gray-300 dark:border-[#555] dark:bg-dark-surface2 dark:text-gray-100 rounded-lg shadow-sm focus:ring-brand-500 focus:border-brand-500 text-sm p-2.5 border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            className="h-k-control w-full rounded-k border border-gray-300 bg-white px-3 text-k-value text-gray-900 shadow-sm transition-colors focus:border-brand-500 focus:ring-brand-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 dark:border-[#555] dark:bg-dark-surface2 dark:text-gray-100"
             aria-label="Select AAMVA version"
           >
             {AAMVA_VERSION_KEYS.map((v) => {
@@ -182,7 +182,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileHidden = false, children
             id="subfile-select"
             value={subfileType}
             onChange={(e) => setSubfileType(e.target.value as "DL" | "ID")}
-            className="w-full border-gray-300 dark:border-[#555] dark:bg-dark-surface2 dark:text-gray-100 rounded-lg shadow-sm focus:ring-brand-500 focus:border-brand-500 text-sm p-2.5 border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            className="h-k-control w-full rounded-k border border-gray-300 bg-white px-3 text-k-value text-gray-900 shadow-sm transition-colors focus:border-brand-500 focus:ring-brand-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 dark:border-[#555] dark:bg-dark-surface2 dark:text-gray-100"
             aria-label="Select subfile type"
           >
             <option value="DL">Driver's License (DL)</option>
@@ -191,18 +191,18 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileHidden = false, children
         </div>
 
         {/* Strict Mode */}
-        <div className="flex items-center pt-1">
+        <div className="flex min-h-k-touch items-center pt-1">
           <input
             id="strictMode"
             type="checkbox"
             checked={strictMode}
             onChange={(e) => setStrictMode(e.target.checked)}
-            className="h-4 w-4 text-brand-600 focus:ring-brand-500 border-gray-300 dark:border-[#555] dark:bg-dark-surface2 transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-1 focus-visible:ring-offset-white dark:focus-visible:ring-offset-dark-surface"
+            className="h-5 w-5 text-brand-600 focus:ring-brand-500 border-gray-300 dark:border-[#555] dark:bg-dark-surface2 transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-1 focus-visible:ring-offset-white dark:focus-visible:ring-offset-dark-surface"
             aria-describedby="strictMode-desc"
           />
           <label
             htmlFor="strictMode"
-            className="ml-2 block text-sm text-gray-900 dark:text-gray-200"
+            className="ml-2 block text-k-label text-gray-900 dark:text-gray-200"
           >
             Strict Compliance Mode
           </label>
@@ -213,7 +213,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileHidden = false, children
             aria-controls="validation-tips"
             aria-label="Show validation tips"
             title="What does strict mode enforce?"
-            className="ml-1.5 p-0.5 rounded text-gray-400 hover:text-brand-500 dark:hover:text-brand-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            className="ml-1.5 inline-flex h-k-touch w-k-touch items-center justify-center rounded-k text-gray-400 hover:text-brand-500 dark:hover:text-brand-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           >
             <HelpCircle size={14} />
           </button>

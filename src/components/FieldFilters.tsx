@@ -78,12 +78,12 @@ export const FieldFilters: React.FC<FieldFiltersProps> = ({
   const filtered = query.trim().length > 0 || requiredOnly || issuesOnly;
 
   return (
-    <div className="sticky top-0 z-20 bg-white dark:bg-[#1E1E1E] border-b border-gray-100 dark:border-gray-700 px-4 lg:px-6 py-3 space-y-2">
+    <div className="sticky top-0 z-20 border-b border-gray-100 bg-white px-3 py-1.5 dark:border-gray-700 dark:bg-[#1E1E1E] lg:px-6 lg:py-3 space-y-2">
       <div className="flex flex-wrap items-center gap-2">
-        <div className="relative flex-1 min-w-[180px]">
+        <div className="relative flex-1 min-w-0">
           <Search
-            size={14}
-            className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+            size={16}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
             aria-hidden="true"
           />
           <input
@@ -92,10 +92,10 @@ export const FieldFilters: React.FC<FieldFiltersProps> = ({
             value={query}
             onChange={(e) => onQueryChange(e.target.value)}
             onKeyDown={handleSearchKeyDown}
-            placeholder={`Search code, label, or help text (${formatShortcut(["mod", "K"])})`}
+            placeholder={`Search fields (${formatShortcut(["mod", "K"])})`}
             aria-label="Search fields"
             aria-describedby="field-search-hint"
-            className="w-full pl-8 pr-8 py-1.5 text-sm rounded-md bg-gray-100 dark:bg-[#2C2C2C] border border-gray-200 dark:border-[#444] text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            className="h-k-touch w-full rounded-k border border-gray-300 bg-gray-100 pl-9 pr-10 text-k-label text-gray-900 placeholder:text-gray-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 dark:border-[#4A4A4A] dark:bg-[#2C2C2C] dark:text-gray-100 dark:placeholder:text-gray-500"
           />
           {query && (
             <button
@@ -103,14 +103,29 @@ export const FieldFilters: React.FC<FieldFiltersProps> = ({
               onClick={() => onQueryChange("")}
               aria-label="Clear search"
               title="Clear search"
-              className="absolute right-1.5 top-1/2 -translate-y-1/2 p-0.5 rounded text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+              className="absolute right-0 top-1/2 inline-flex h-k-touch w-k-touch -translate-y-1/2 items-center justify-center rounded-k text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
             >
-              <XIcon size={14} />
+              <XIcon size={16} />
             </button>
           )}
         </div>
 
-        <label className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-700 dark:text-gray-200 cursor-pointer select-none px-2 py-1 rounded-md bg-gray-100 dark:bg-[#2C2C2C] border border-gray-200 dark:border-[#444] has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-brand-500">
+        {onFillSample && (
+          <button
+            type="button"
+            onClick={onFillSample}
+            aria-label="Fill all fields with demo data"
+            title="Fill all fields with realistic demo data"
+            className="inline-flex h-k-touch items-center gap-1.5 rounded-k bg-brand-700 px-3 text-k-help font-bold text-white hover:bg-brand-800 lg:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          >
+            <FlaskConical size={16} aria-hidden="true" />
+            Fill
+          </button>
+        )}
+
+        <div className="hidden lg:contents">
+
+        <label className="inline-flex h-k-touch items-center gap-1.5 text-xs font-medium text-gray-700 dark:text-gray-200 cursor-pointer select-none px-3 rounded-k bg-gray-100 dark:bg-[#2C2C2C] border border-gray-200 dark:border-[#444] has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-brand-500">
           <input
             type="checkbox"
             checked={requiredOnly}
@@ -124,7 +139,7 @@ export const FieldFilters: React.FC<FieldFiltersProps> = ({
         {/* Issues-only: with errors scattered across collapsed groups, the old
             workflow was jump → fix → scroll back → jump again. */}
         <label
-          className={`inline-flex items-center gap-1.5 text-xs font-medium cursor-pointer select-none px-2 py-1 rounded-md border has-[:focus-visible]:ring-2 ${
+          className={`inline-flex h-k-touch items-center gap-1.5 text-xs font-medium cursor-pointer select-none px-3 rounded-k border has-[:focus-visible]:ring-2 ${
             issueCount > 0
               ? "bg-red-50 dark:bg-red-900/25 border-red-200 dark:border-red-800 text-red-800 dark:text-red-200 has-[:focus-visible]:ring-red-500"
               : "bg-gray-100 dark:bg-[#2C2C2C] border-gray-200 dark:border-[#444] text-gray-500 dark:text-gray-400 cursor-not-allowed has-[:focus-visible]:ring-brand-500"
@@ -155,7 +170,7 @@ export const FieldFilters: React.FC<FieldFiltersProps> = ({
           title={
             hasNextEmpty ? "Jump to next empty required field" : "All required fields are filled"
           }
-          className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-gray-100 dark:bg-[#2C2C2C] border border-gray-200 dark:border-[#444] text-xs font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-[#333] disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          className="inline-flex h-k-touch items-center gap-1 px-3 rounded-k bg-gray-100 dark:bg-[#2C2C2C] border border-gray-200 dark:border-[#444] text-xs font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-[#333] disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
         >
           <ArrowDown size={12} aria-hidden="true" />
           Next empty required
@@ -166,7 +181,7 @@ export const FieldFilters: React.FC<FieldFiltersProps> = ({
           onClick={onGenerateAutoFields}
           aria-label="Generate auto fields (DCF, DAQ, DDB)"
           title={`Generate auto fields (${formatShortcut(["mod", "G"])})`}
-          className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-gray-100 dark:bg-[#2C2C2C] border border-gray-200 dark:border-[#444] text-xs font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-[#333] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          className="inline-flex h-k-touch items-center gap-1 px-3 rounded-k bg-gray-100 dark:bg-[#2C2C2C] border border-gray-200 dark:border-[#444] text-xs font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-[#333] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
         >
           <Wand2 size={12} aria-hidden="true" />
           Generate auto fields
@@ -178,15 +193,16 @@ export const FieldFilters: React.FC<FieldFiltersProps> = ({
             onClick={onFillSample}
             aria-label="Fill all fields with demo data"
             title="Fill all fields with realistic demo data"
-            className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 text-xs font-medium text-amber-800 dark:text-amber-200 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            className="inline-flex h-k-touch items-center gap-1 px-3 rounded-k bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 text-xs font-medium text-amber-800 dark:text-amber-200 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           >
             <FlaskConical size={12} aria-hidden="true" />
             Autofill demo
           </button>
         )}
+        </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-3 text-xs text-gray-600 dark:text-gray-300">
+      <div className="hidden lg:flex flex-wrap items-center gap-3 text-xs text-gray-600 dark:text-gray-300">
         <div className="flex items-center gap-2">
           <span className="font-medium">
             {requiredFilled}/{requiredTotal} required

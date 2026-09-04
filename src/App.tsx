@@ -812,7 +812,7 @@ function App() {
 
   return (
     <div
-      className={`app-shell flex flex-col min-h-screen bg-white dark:bg-[#121212] text-gray-900 dark:text-gray-200 font-sans${
+      className={`app-shell flex min-h-dvh flex-col overflow-x-hidden bg-white font-sans text-gray-900 dark:bg-[#121212] dark:text-gray-200${
         party && whimsy ? " party-mode" : ""
       }`}
     >
@@ -828,54 +828,6 @@ function App() {
         onOpenBingo={() => setBingoOpen(true)}
         onOpenRoadTest={() => setRoadTestOpen(true)}
       />
-
-      <nav
-        className="lg:hidden z-10 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-2 pb-2 pt-1"
-        aria-label="Mobile panel navigation"
-      >
-        <div className="grid grid-cols-3 gap-2">
-          {[
-            { key: "config", label: "Config" },
-            { key: "form", label: "Fields" },
-            { key: "preview", label: "Preview" }
-          ].map((panel) => {
-            const showErrorBadge = panel.key === "form" && invalidCount > 0;
-            const showReadyBadge = panel.key === "preview" && previewReady;
-            return (
-              <button
-                key={panel.key}
-                type="button"
-                onClick={() => setMobilePanel(panel.key as MobilePanel)}
-                aria-current={mobilePanel === panel.key}
-                className={`state-themed-tab relative rounded-md px-3 py-2 text-sm font-medium transition ${
-                  mobilePanel === panel.key
-                    ? "state-primary-bg text-white"
-                    : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200"
-                }`}
-              >
-                {panel.label}
-                {showErrorBadge && (
-                  <span
-                    className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 rounded-full bg-red-600 text-white text-[10px] leading-4 font-semibold shadow"
-                    aria-label={`${invalidCount} validation error${invalidCount === 1 ? "" : "s"}`}
-                  >
-                    {invalidCount > 9 ? "9+" : invalidCount}
-                  </span>
-                )}
-                {showReadyBadge && (
-                  <span
-                    className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-green-500 text-white text-[10px] leading-4 text-center shadow"
-                    aria-label="Barcode ready"
-                  >
-                    ✓
-                  </span>
-                )}
-              </button>
-            );
-          })}
-        </div>
-        <p className="sr-only">Swipe left or right to switch panels</p>
-      </nav>
 
       <main
         ref={swipeRef}
@@ -898,7 +850,7 @@ function App() {
         </Sidebar>
 
         <div
-          className={`dmv-main m-2 min-h-[40vh] min-w-0 flex-1 flex-col overflow-y-auto rounded-xl border border-gray-200 bg-white shadow-google lg:m-4 dark:border-[#333333] dark:bg-[#1E1E1E] dark:shadow-none ${
+          className={`dmv-main m-0 min-h-[40vh] min-w-0 flex-1 flex-col overflow-y-auto rounded-none border-0 bg-white shadow-none lg:m-4 lg:rounded-xl lg:border lg:border-gray-200 lg:shadow-google dark:bg-[#1E1E1E] dark:shadow-none dark:lg:border-[#333333] ${
             mobilePanel !== "form" ? "hidden lg:flex" : "flex"
           }`}
         >
@@ -906,7 +858,7 @@ function App() {
               old panel heading rather than sitting under it — the heading, its
               privacy note and a six-row filter bar were 347px of an 844px
               screen before a single input. */}
-          <div className="border-b border-gray-100 px-3 py-2.5 lg:hidden dark:border-gray-700">
+          <div className="border-b border-gray-100 px-3 py-1.5 lg:hidden dark:border-gray-700">
             <StepRail
               sections={railSections}
               active={activeSection}
@@ -964,7 +916,7 @@ function App() {
             onFillSample={handleFillSample}
           />
 
-          <div className="px-4 pb-6 pt-4 lg:px-6">
+          <div className="px-3 pb-5 pt-2 lg:px-6 lg:pt-4 lg:pb-6">
             {visibleFields.length === 0 ? (
               // role="status" so screen readers announce the dead end as soon
               // as the filters produce nothing, and a reset button so the user
@@ -1114,6 +1066,8 @@ function App() {
         </React.Suspense>
       )}
       <MobileActionBar
+        panel={mobilePanel}
+        onPanelChange={setMobilePanel}
         errorCount={invalidCount}
         emptyRequired={emptyRequiredCount}
         stale={payloadStale}

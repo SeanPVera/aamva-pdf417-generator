@@ -21,7 +21,8 @@ import {
   Layers,
   Tag,
   Award,
-  Car
+  Car,
+  MoreHorizontal
 } from "lucide-react";
 import { useFormStore, Theme } from "../hooks/useFormStore";
 import { InstallPrompt } from "./InstallPrompt";
@@ -74,6 +75,25 @@ const THEME_LABELS: Record<
 
 const THEMES: Theme[] = ["system", "light", "dark", "dmv"];
 
+function HeaderGroup({
+  label,
+  children,
+  className
+}: {
+  label: string;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={`flex min-w-0 flex-col gap-0.5 ${className ?? ""}`}>
+      <span className="px-1 text-k-eyebrow font-bold uppercase text-gray-500 dark:text-gray-400">
+        {label}
+      </span>
+      <div className="flex items-center gap-1">{children}</div>
+    </div>
+  );
+}
+
 interface HeaderActionProps extends HeaderProps {
   onOpenBatch: () => void;
   onOpenBadges: () => void;
@@ -121,6 +141,8 @@ export const Header: React.FC<HeaderActionProps> = ({
   const [presetsOpen, setPresetsOpen] = useState(false);
   const [presets, setPresets] = useState<QuickFillPreset[]>([]);
   const [funOpen, setFunOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
+  const moreRef = useRef<HTMLDivElement>(null);
   const undoDepth = _history.length;
   const redoDepth = _future.length;
   const toast = useToast();
@@ -180,6 +202,24 @@ export const Header: React.FC<HeaderActionProps> = ({
       window.removeEventListener("keydown", onKey);
     };
   }, [funOpen]);
+
+  useEffect(() => {
+    if (!moreOpen) return;
+    const onClick = (e: MouseEvent) => {
+      if (moreRef.current && !moreRef.current.contains(e.target as Node)) {
+        setMoreOpen(false);
+      }
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMoreOpen(false);
+    };
+    window.addEventListener("mousedown", onClick);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("mousedown", onClick);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [moreOpen]);
 
   const handleExportJson = () => {
     // Only export what the active jurisdiction + version actually encodes.
@@ -295,30 +335,105 @@ export const Header: React.FC<HeaderActionProps> = ({
           the jurisdiction colour gets a surface to itself and every actual
           control lives on the light bar below it, where dark-on-light is
           legible regardless of which of the 54 palettes is loaded. */}
-      <div className="header-identity header-safe-top flex items-center justify-between gap-2 px-3 py-2 sm:px-4">
+      <div className="header-identity header-safe-top flex items-center justify-between gap-2 px-3 py-1.5 sm:px-4 sm:py-2">
         <div className="flex items-center space-x-2 sm:space-x-3 shrink min-w-0">
           <ShieldCheck className="state-brand-icon h-5 w-5 text-brand-600 dark:text-brand-400 shrink-0" />
           <h1 className="state-brand-text text-base sm:text-lg font-bold tracking-wide whitespace-nowrap overflow-hidden text-ellipsis">
-            AAMVA PDF417 Generator
+            AAMVA PDF417
           </h1>
-          <span className="hidden sm:inline state-badge dmv-badge bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300 text-xs py-0.5 px-2 rounded-full border border-brand-200 dark:border-brand-800/50 whitespace-nowrap">
-            Professional Grade
-          </span>
           <span
-            className="jurisdiction-plate hidden md:inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.16em] shadow-sm whitespace-nowrap"
+            className="jurisdiction-plate inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] shadow-sm whitespace-nowrap"
             title={`${activeStateName} theme package: ${activeStateTheme.motif}`}
           >
-            {state} · {activeStateTheme.motif}
+            {state} · v{version}
           </span>
         </div>
-        <div className="flex shrink-0 items-center gap-2">
-          <InstallPrompt />
+        <div className="flex shrink-0 items-center gap-1">
+          <div className="hidden sm:block">
+            <InstallPrompt />
+          </div>
+          <div className="relative lg:hidden" ref={moreRef}>
+            <button
+              type="button"
+              onClick={() => setMoreOpen((v) => !v)}
+              aria-haspopup="menu"
+              aria-expanded={moreOpen}
+              aria-label="More actions"
+              title="More actions"
+              className="inline-flex h-k-touch w-k-touch items-center justify-center rounded-k text-[color:var(--state-on-primary)] hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
+            >
+              <MoreHorizontal size={20} />
+            </button>
+            {moreOpen && (
+              <div
+                role="menu"
+                className="absolute right-0 mt-1 w-56 overflow-hidden rounded-k border border-gray-200 bg-white text-gray-900 shadow-lg z-30 dark:border-dark-border dark:bg-dark-surface dark:text-gray-100"
+              >
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => {
+                    setMoreOpen(false);
+                    onStartScan();
+                  }}
+                  className="flex h-k-touch w-full items-center gap-2 px-3 text-k-label font-medium hover:bg-gray-100 dark:hover:bg-dark-surface2"
+                >
+                  <Camera size={16} /> Scan
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => {
+                    setMoreOpen(false);
+                    importRef.current?.click();
+                  }}
+                  className="flex h-k-touch w-full items-center gap-2 px-3 text-k-label font-medium hover:bg-gray-100 dark:hover:bg-dark-surface2"
+                >
+                  <Upload size={16} /> Import JSON
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => {
+                    setMoreOpen(false);
+                    handleExportJson();
+                  }}
+                  className="flex h-k-touch w-full items-center gap-2 px-3 text-k-label font-medium hover:bg-gray-100 dark:hover:bg-dark-surface2"
+                >
+                  <Download size={16} /> Export JSON
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => {
+                    setMoreOpen(false);
+                    onOpenCompare();
+                  }}
+                  className="flex h-k-touch w-full items-center gap-2 px-3 text-k-label font-medium hover:bg-gray-100 dark:hover:bg-dark-surface2"
+                >
+                  <GitCompare size={16} /> Compare
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => {
+                    setMoreOpen(false);
+                    handleClearData();
+                  }}
+                  className="flex h-k-touch w-full items-center gap-2 px-3 text-k-label font-semibold text-red-700 hover:bg-red-50 dark:text-red-300 dark:hover:bg-red-950/40"
+                >
+                  <Trash2 size={16} /> Clear PII
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Action bar. Fifteen controls in one flat row with no grouping meant
-          Clear PII read at exactly the same weight as Export JSON. */}
-      <div className="header-toolbar flex items-center gap-1 overflow-x-auto px-2 py-1.5 sm:px-3">
+      {/* Action bar. Three labelled groups so Clear PII no longer shares
+          visual weight with Export JSON. Appearance / Record / Session. */}
+      <div className="header-toolbar hidden lg:flex items-end gap-4 overflow-x-auto px-3 py-2">
+        <HeaderGroup label="Appearance">
         {/* Theme toggle */}
         <div className="state-toggle-group flex items-center rounded overflow-hidden border border-gray-200 dark:border-dark-border focus-within:ring-2 focus-within:ring-brand-500">
           {THEMES.map((t) => {
@@ -354,9 +469,9 @@ export const Header: React.FC<HeaderActionProps> = ({
             );
           })}
         </div>
+        </HeaderGroup>
 
-        <div className="state-divider mx-1 h-5 w-px bg-gray-200 dark:bg-dark-border" />
-
+        <HeaderGroup label="Record">
         {/* Undo / Redo */}
         <button
           onClick={undo}
@@ -506,10 +621,11 @@ export const Header: React.FC<HeaderActionProps> = ({
           <Download size={15} />
           <span className="hidden sm:inline">Export JSON</span>
         </button>
+        </HeaderGroup>
 
         {/* Everything past here is utility or destructive, so it is pushed
             away from the data actions rather than continuing the same run. */}
-        <div className="ml-auto flex items-center gap-1">
+        <HeaderGroup label="Session" className="ml-auto">
           {/* Shortcuts */}
           <button
             onClick={() => {
@@ -659,7 +775,7 @@ export const Header: React.FC<HeaderActionProps> = ({
             <Trash2 size={15} />
             <span className="hidden whitespace-nowrap sm:inline">Clear PII</span>
           </button>
-        </div>
+        </HeaderGroup>
       </div>
     </header>
   );

@@ -379,7 +379,7 @@ export const FieldInput: React.FC<FieldInputProps> = ({
                 helpButtonRef.current?.focus();
               }}
               aria-label={`Close help for ${field.code}`}
-              className="absolute right-1 top-1 inline-flex h-8 w-8 items-center justify-center rounded text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+              className="absolute right-1 top-1 inline-flex h-k-touch w-k-touch items-center justify-center rounded-k text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
             >
               <XIcon size={14} aria-hidden />
             </button>
@@ -500,7 +500,7 @@ export const FieldInput: React.FC<FieldInputProps> = ({
               onClick={() => onChange(field.code, quickFix.value)}
               title={quickFix.description}
               aria-label={`${quickFix.description} for ${field.code}`}
-              className={`inline-flex w-fit items-center gap-1.5 rounded-[0.5rem] border px-2.5 py-1.5 text-k-help font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 ${
+              className={`inline-flex min-h-k-touch w-fit items-center gap-1.5 rounded-k border px-3 text-k-help font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 ${
                 showAdvisory
                   ? "border-brand-300 dark:border-brand-700 bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300 hover:bg-brand-100 dark:hover:bg-brand-900/60"
                   : "border-gray-200 dark:border-[#444] bg-gray-50 dark:bg-dark-surface2 text-gray-600 dark:text-gray-300 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 hover:text-gray-900 dark:hover:text-gray-100"
@@ -532,7 +532,7 @@ export const FieldInput: React.FC<FieldInputProps> = ({
                   onClick={() => onChange(field.code, chip.value)}
                   title={chip.title}
                   aria-label={`Set ${field.code}: ${chip.title}`}
-                  className="rounded-[0.5rem] border border-gray-200 bg-gray-50 px-2.5 py-1.5 text-k-help font-medium text-gray-700 transition-colors hover:bg-gray-100 dark:border-[#444] dark:bg-dark-surface2 dark:text-gray-300 dark:hover:bg-[#383838] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                  className="inline-flex min-h-k-touch items-center rounded-k border border-gray-200 bg-gray-50 px-3 text-k-help font-medium text-gray-700 transition-colors hover:bg-gray-100 dark:border-[#444] dark:bg-dark-surface2 dark:text-gray-300 dark:hover:bg-[#383838] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                 >
                   {chip.label}
                 </button>
@@ -549,7 +549,7 @@ export const FieldInput: React.FC<FieldInputProps> = ({
                   type="button"
                   onClick={() => onChange(field.code, allowed)}
                   title={`Set ${field.code} to ${allowed}`}
-                  className="rounded-[0.5rem] border border-red-300 bg-red-50 px-2.5 py-1.5 font-mono text-k-help font-semibold text-red-700 transition-colors hover:bg-red-100 dark:border-red-800 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-900/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                  className="inline-flex min-h-k-touch items-center rounded-k border border-red-300 bg-red-50 px-3 font-mono text-k-help font-semibold text-red-700 transition-colors hover:bg-red-100 dark:border-red-800 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-900/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                 >
                   {allowed}
                 </button>

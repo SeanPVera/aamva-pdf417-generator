@@ -64,7 +64,7 @@ export const InstallPrompt: React.FC = () => {
       <button
         type="button"
         onClick={handleInstall}
-        className="header-ctrl flex items-center gap-1.5 bg-white/15 hover:bg-white/25 text-white px-2 py-1.5 rounded-md text-xs font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
+        className="header-ctrl inline-flex h-k-touch items-center gap-1.5 bg-white/15 hover:bg-white/25 text-white px-3 rounded-k text-k-help font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
         title="Install app on your phone"
       >
         {isIOS() ? <Smartphone size={14} /> : <Download size={14} />}
