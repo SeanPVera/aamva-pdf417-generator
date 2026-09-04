@@ -55,4 +55,17 @@ describe("VersionBrowser component", () => {
     expect(useFormStore.getState().version).toBe("08");
     expect(screen.queryByRole("button", { name: /Set v08 as active/i })).not.toBeInTheDocument();
   });
+
+  it("renders status symbols with role='img', aria-label, and title attributes", () => {
+    render(<VersionBrowser />);
+    fireEvent.click(screen.getByRole("button", { name: /Version Browser/i }));
+
+    const requiredIndicators = screen.getAllByRole("img", { name: "Required" });
+    expect(requiredIndicators.length).toBeGreaterThan(0);
+    expect(requiredIndicators[0]).toHaveAttribute("title", "Required");
+
+    const optionalIndicators = screen.getAllByRole("img", { name: "Optional" });
+    expect(optionalIndicators.length).toBeGreaterThan(0);
+    expect(optionalIndicators[0]).toHaveAttribute("title", "Optional");
+  });
 });

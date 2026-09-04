@@ -177,13 +177,20 @@ export const VersionBrowser: React.FC = () => {
                           </td>
                           <td className="py-1 px-2 text-center">
                             {field.required ? (
-                              <span className="text-red-500" aria-label="Required">
+                              <span
+                                role="img"
+                                className="text-red-500"
+                                aria-label="Required"
+                                title="Required"
+                              >
                                 ✓
                               </span>
                             ) : (
                               <span
+                                role="img"
                                 className="text-gray-300 dark:text-gray-600"
                                 aria-label="Optional"
+                                title="Optional"
                               >
                                 —
                               </span>
