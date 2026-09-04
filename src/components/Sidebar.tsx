@@ -124,7 +124,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileHidden = false, children
               type="button"
               onClick={() => setExclusionsDismissed(true)}
               aria-label="Dismiss exclusion notice"
-              className="shrink-0 text-blue-700 dark:text-blue-300 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded"
+              className="inline-flex h-k-touch w-k-touch shrink-0 items-center justify-center rounded-k text-k-help font-bold text-blue-800 hover:bg-blue-100 dark:text-blue-200 dark:hover:bg-blue-900/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
             >
               OK
             </button>

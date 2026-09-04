@@ -29,7 +29,7 @@ export const VersionBrowser: React.FC = () => {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="w-full flex items-center justify-between px-3 py-2 bg-gray-50 dark:bg-dark-surface2 hover:bg-gray-100 dark:hover:bg-[#383838] transition text-sm font-semibold text-gray-700 dark:text-gray-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-500"
+        className="flex min-h-k-touch w-full items-center justify-between bg-gray-50 px-3 text-k-label font-semibold text-gray-800 transition hover:bg-gray-100 dark:bg-dark-surface2 dark:text-gray-200 dark:hover:bg-[#383838] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-500"
         aria-expanded={open}
         aria-controls="version-browser-panel"
       >

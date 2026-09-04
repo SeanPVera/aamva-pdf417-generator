@@ -43,7 +43,7 @@ export function CollapsibleSection({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="w-full flex items-center justify-between px-3 py-2 bg-gray-50 dark:bg-dark-surface2 hover:bg-gray-100 dark:hover:bg-[#383838] transition-colors text-sm font-semibold text-gray-700 dark:text-gray-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-500"
+        className="flex min-h-k-touch w-full items-center justify-between px-3 text-k-label font-semibold text-gray-700 transition-colors hover:bg-gray-100 dark:bg-dark-surface2 dark:text-gray-200 dark:hover:bg-[#383838] bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-500"
         aria-expanded={open}
         aria-controls={id}
       >
@@ -150,7 +150,7 @@ export const PayloadInspector: React.FC<PayloadInspectorProps> = ({
                   : "Copy to clipboard"
             }
             aria-label={copied ? "Copied payload" : "Copy raw payload to clipboard"}
-            className="absolute top-2 right-2 p-1.5 rounded-md bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm text-gray-500 hover:text-brand-600 dark:text-gray-400 dark:hover:text-brand-400 transition-all opacity-0 group-hover/payload:opacity-100 focus:opacity-100 focus-visible:ring-2 focus-visible:ring-brand-500 disabled:hidden"
+            className="absolute top-2 right-2 inline-flex h-k-touch w-k-touch items-center justify-center rounded-k bg-white text-gray-500 shadow-sm border border-gray-200 hover:text-brand-600 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:text-brand-400 transition-all opacity-0 group-hover/payload:opacity-100 focus:opacity-100 focus-visible:ring-2 focus-visible:ring-brand-500 disabled:hidden"
           >
             {copied ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
           </button>
@@ -184,7 +184,7 @@ export const PayloadInspector: React.FC<PayloadInspectorProps> = ({
                   <button
                     type="button"
                     onClick={onApplyAllFixes}
-                    className="flex items-center gap-1 text-xs px-2 py-1 rounded bg-brand-50 dark:bg-brand-900/30 border border-brand-200 dark:border-brand-800 text-brand-700 dark:text-brand-300 hover:bg-brand-100 dark:hover:bg-brand-900/50 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                    className="inline-flex h-k-touch items-center gap-1.5 rounded-k border border-brand-200 bg-brand-50 px-3 text-k-help font-semibold text-brand-800 hover:bg-brand-100 dark:border-brand-800 dark:bg-brand-900/30 dark:text-brand-300 dark:hover:bg-brand-900/50 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                     aria-label={`Apply ${fixes.length} quick fixes`}
                     title={fixes.map((f) => `${f.code} → ${f.value}`).join("\n")}
                   >
@@ -201,7 +201,7 @@ export const PayloadInspector: React.FC<PayloadInspectorProps> = ({
                       );
                       if (firstError) onScrollToField(firstError.code);
                     }}
-                    className="flex items-center gap-1 text-xs px-2 py-1 rounded bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-900/50 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+                    className="inline-flex h-k-touch items-center gap-1.5 rounded-k border border-red-200 bg-red-50 px-3 text-k-help font-semibold text-red-800 hover:bg-red-100 dark:border-red-800 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-900/50 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
                     aria-label="Scroll to first error"
                   >
                     <ArrowDownToLine size={12} />
@@ -237,7 +237,7 @@ export const PayloadInspector: React.FC<PayloadInspectorProps> = ({
                   >
                     <button
                       type="button"
-                      className="flex-1 flex items-start gap-2 text-xs text-left cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800/50 p-1 rounded transition-colors group/issue focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                      className="flex min-h-k-touch flex-1 items-start gap-2 rounded-k p-2 text-left text-k-help cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800/50 transition-colors group/issue focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                       data-severity={issue.severity}
                       onClick={() => onScrollToField(issue.code)}
                       title={`Jump to ${issue.label} (${issue.code})`}
@@ -257,7 +257,7 @@ export const PayloadInspector: React.FC<PayloadInspectorProps> = ({
                         onClick={() => onApplyFix(fix)}
                         title={fix.description}
                         aria-label={`${fix.description} for ${fix.code}`}
-                        className="mt-1 shrink-0 inline-flex items-center gap-1 rounded border border-brand-200 dark:border-brand-800 bg-brand-50 dark:bg-brand-900/30 px-1.5 py-0.5 text-[10px] font-semibold text-brand-700 dark:text-brand-300 hover:bg-brand-100 dark:hover:bg-brand-900/60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                        className="inline-flex h-k-touch shrink-0 items-center gap-1 rounded-k border border-brand-200 bg-brand-50 px-3 text-k-help font-semibold text-brand-800 hover:bg-brand-100 dark:border-brand-800 dark:bg-brand-900/30 dark:text-brand-300 dark:hover:bg-brand-900/60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                       >
                         <Wand2 size={10} aria-hidden />
                         Fix
@@ -298,7 +298,7 @@ export const PayloadInspector: React.FC<PayloadInspectorProps> = ({
                     <button
                       type="button"
                       onClick={() => onScrollToField(code)}
-                      className="text-blue-700 dark:text-blue-400 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded px-0.5"
+                      className="inline-flex min-h-k-touch items-center rounded-k px-1 font-mono text-k-help font-semibold text-blue-800 hover:underline dark:text-blue-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                       title={`Jump to field ${code}`}
                     >
                       {code}
@@ -365,10 +365,10 @@ const WireLedger: React.FC<{ payloadStr: string; sourcePayload?: string | null }
               type="button"
               onClick={() => setShowSource(wantsSource)}
               aria-pressed={showSource === wantsSource}
-              className={`px-2 py-0.5 rounded border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 ${
+              className={`inline-flex h-k-touch items-center rounded-k border px-3 text-k-help transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 ${
                 showSource === wantsSource
-                  ? "border-brand-500 bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300 font-medium"
-                  : "border-gray-200 dark:border-dark-border text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-dark-surface2"
+                  ? "border-brand-500 bg-brand-50 font-semibold text-brand-800 dark:bg-brand-900/30 dark:text-brand-300"
+                  : "border-gray-200 text-gray-700 hover:bg-gray-50 dark:border-dark-border dark:text-gray-300 dark:hover:bg-dark-surface2"
               }`}
             >
               {label}

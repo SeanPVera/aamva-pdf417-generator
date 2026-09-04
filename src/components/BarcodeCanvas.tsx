@@ -58,7 +58,7 @@ export const BarcodeCanvas: React.FC<BarcodeCanvasProps> = ({
 }) => {
   return (
     <>
-      <div className="printable-barcode bg-white dark:bg-gray-900 border border-gray-200 dark:border-dark-border p-4 rounded-md flex items-center justify-center min-h-[150px] relative overflow-auto barcode-zoom">
+      <div className="printable-barcode relative min-h-[220px] overflow-auto rounded-md border border-gray-200 bg-white p-4 flex items-center justify-center barcode-zoom dark:border-dark-border dark:bg-gray-900">
         <PlateFrame state={state} enabled={whimsy && success}>
           <canvas
             ref={canvasRef}
@@ -91,23 +91,23 @@ export const BarcodeCanvas: React.FC<BarcodeCanvasProps> = ({
 
         {/* Zoom controls — complement native pinch-zoom with explicit buttons. */}
         {success && (
-          <div className="absolute bottom-1.5 right-1.5 z-10 flex items-center gap-0.5 rounded-md bg-white/85 dark:bg-gray-800/85 border border-gray-200 dark:border-gray-700 shadow-sm backdrop-blur-sm print:hidden">
+          <div className="absolute bottom-1.5 right-1.5 z-10 flex items-center rounded-k border border-gray-200 bg-white/90 shadow-sm backdrop-blur-sm print:hidden dark:border-gray-700 dark:bg-gray-800/90">
             <button
               type="button"
               onClick={() => setZoom((z) => Math.max(0.5, Math.round((z - 0.25) * 100) / 100))}
               disabled={zoom <= 0.5}
               aria-label="Zoom out"
               title="Zoom out"
-              className="p-1 text-gray-600 dark:text-gray-300 hover:text-brand-600 disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded"
+              className="inline-flex h-k-touch w-k-touch items-center justify-center text-gray-700 hover:text-brand-700 disabled:opacity-40 dark:text-gray-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded-l-k"
             >
-              <ZoomOut size={13} />
+              <ZoomOut size={16} />
             </button>
             <button
               type="button"
               onClick={() => setZoom(1)}
               aria-label="Reset zoom"
               title="Reset zoom"
-              className="px-1 text-[10px] font-mono tabular-nums text-gray-600 dark:text-gray-300 hover:text-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded"
+              className="inline-flex h-k-touch min-w-k-touch items-center justify-center px-2 font-mono text-k-help tabular-nums text-gray-700 hover:text-brand-700 dark:text-gray-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
             >
               {Math.round(zoom * 100)}%
             </button>
@@ -123,9 +123,9 @@ export const BarcodeCanvas: React.FC<BarcodeCanvasProps> = ({
               disabled={zoom >= 3}
               aria-label="Zoom in"
               title="Zoom in"
-              className="p-1 text-gray-600 dark:text-gray-300 hover:text-brand-600 disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded"
+              className="inline-flex h-k-touch w-k-touch items-center justify-center text-gray-700 hover:text-brand-700 disabled:opacity-40 dark:text-gray-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded-r-k"
             >
-              <ZoomIn size={13} />
+              <ZoomIn size={16} />
             </button>
           </div>
         )}
@@ -150,7 +150,7 @@ export const BarcodeCanvas: React.FC<BarcodeCanvasProps> = ({
                 if (code) scrollToField(code);
               }}
               disabled={emptyRequired.length === 0}
-              className="mt-1 flex items-center gap-1.5 bg-brand-600 hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-3 py-1.5 rounded-md text-xs font-semibold shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+              className="mt-1 inline-flex h-k-touch min-h-k-touch shrink-0 items-center gap-1.5 rounded-k bg-brand-700 px-4 text-k-help font-bold text-white shadow-google transition hover:bg-brand-800 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
             >
               <ArrowDownToLine size={13} />
               {emptyRequired.length > 0

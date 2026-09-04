@@ -972,7 +972,7 @@ function App() {
           {!isFiltering && railSections.length > 1 && (
             <nav
               aria-label="Section navigation"
-              className="sticky bottom-0 mt-auto flex items-center justify-between gap-3 border-t border-gray-200 bg-white/95 px-4 py-3 backdrop-blur lg:px-6 dark:border-[#333] dark:bg-[#1E1E1E]/95"
+              className="mt-auto flex items-center justify-between gap-3 border-t border-gray-200 bg-white/95 px-4 py-3 backdrop-blur lg:sticky lg:bottom-0 lg:px-6 dark:border-[#333] dark:bg-[#1E1E1E]/95"
             >
               {prevSection ? (
                 <button

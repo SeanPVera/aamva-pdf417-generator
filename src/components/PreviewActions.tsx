@@ -60,7 +60,7 @@ export const PreviewActions: React.FC<PreviewActionsProps> = ({
           onClick={handleExportPNG}
           disabled={!canExport}
           aria-label="Export barcode as PNG"
-          className="flex-1 flex items-center justify-center gap-1.5 bg-brand-600 hover:bg-brand-700 disabled:opacity-40 disabled:cursor-not-allowed text-white py-1.5 rounded shadow text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-1 focus-visible:ring-offset-white dark:focus-visible:ring-offset-dark-surface"
+          className="inline-flex h-k-touch flex-1 items-center justify-center gap-1.5 rounded-k bg-brand-700 text-k-help font-semibold text-white shadow-google transition hover:bg-brand-800 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
         >
           <FileImage size={14} />
           PNG
@@ -69,7 +69,7 @@ export const PreviewActions: React.FC<PreviewActionsProps> = ({
           onClick={handleExportSVG}
           disabled={!canExport}
           aria-label="Export barcode as SVG"
-          className="flex-1 flex items-center justify-center gap-1.5 bg-gray-800 hover:bg-gray-900 dark:bg-dark-surface2 dark:hover:bg-[#383838] disabled:opacity-40 disabled:cursor-not-allowed text-white py-1.5 rounded shadow text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-1 focus-visible:ring-offset-white dark:focus-visible:ring-offset-dark-surface"
+          className="inline-flex h-k-touch flex-1 items-center justify-center gap-1.5 rounded-k bg-gray-800 text-k-help font-semibold text-white shadow-google transition hover:bg-gray-900 disabled:cursor-not-allowed disabled:opacity-40 dark:bg-dark-surface2 dark:hover:bg-[#383838] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
         >
           <FileCode2 size={14} />
           SVG
@@ -82,7 +82,7 @@ export const PreviewActions: React.FC<PreviewActionsProps> = ({
           disabled={!canExport}
           aria-label="Export barcode as PDF"
           title="Export a print-ready PDF at the credential's physical size"
-          className="flex-1 flex items-center justify-center gap-1.5 bg-gray-800 hover:bg-gray-900 dark:bg-dark-surface2 dark:hover:bg-[#383838] disabled:opacity-40 disabled:cursor-not-allowed text-white py-1.5 rounded shadow text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-1 focus-visible:ring-offset-white dark:focus-visible:ring-offset-dark-surface"
+          className="inline-flex h-k-touch flex-1 items-center justify-center gap-1.5 rounded-k bg-gray-800 text-k-help font-semibold text-white shadow-google transition hover:bg-gray-900 disabled:cursor-not-allowed disabled:opacity-40 dark:bg-dark-surface2 dark:hover:bg-[#383838] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
         >
           <FileText size={14} />
           PDF
@@ -92,7 +92,7 @@ export const PreviewActions: React.FC<PreviewActionsProps> = ({
           disabled={!canExport}
           aria-label="Print barcode"
           title="Open the print dialog with just the barcode visible"
-          className="flex-1 flex items-center justify-center gap-1.5 bg-gray-100 dark:bg-dark-surface2 hover:bg-gray-200 dark:hover:bg-[#383838] disabled:opacity-40 disabled:cursor-not-allowed text-gray-800 dark:text-gray-100 py-1.5 rounded shadow text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-1 focus-visible:ring-offset-white dark:focus-visible:ring-offset-dark-surface"
+          className="inline-flex h-k-touch flex-1 items-center justify-center gap-1.5 rounded-k bg-gray-100 text-k-help font-semibold text-gray-800 shadow-google transition hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-40 dark:bg-dark-surface2 dark:text-gray-100 dark:hover:bg-[#383838] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
         >
           <Printer size={14} />
           Print
@@ -101,13 +101,13 @@ export const PreviewActions: React.FC<PreviewActionsProps> = ({
 
       {/* Filename privacy control. Off by default: a download filename is the
           one place a field value would leave the tab. */}
-      <label className="-mt-2 flex items-start gap-2 text-[11px] text-gray-600 dark:text-gray-300 cursor-pointer select-none">
+      <label className="flex min-h-k-touch items-start gap-3 text-k-help text-gray-700 dark:text-gray-200 cursor-pointer select-none">
         <input
           type="checkbox"
           checked={includeNameInExport}
           onChange={(e) => setIncludeNameInExport(e.target.checked)}
           aria-describedby="export-filename-preview"
-          className="mt-0.5 h-3.5 w-3.5 rounded text-brand-600 focus:ring-brand-500 border-gray-300 dark:border-[#555] dark:bg-dark-surface2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          className="mt-1 h-5 w-5 shrink-0 rounded text-brand-600 focus:ring-brand-500 border-gray-300 dark:border-[#555] dark:bg-dark-surface2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
         />
         <span>
           Put the cardholder&apos;s name in export filenames
@@ -126,7 +126,7 @@ export const PreviewActions: React.FC<PreviewActionsProps> = ({
             disabled={!canExport}
             aria-label="Copy barcode image to clipboard"
             title="Copy the barcode PNG to the clipboard"
-            className="flex-1 flex items-center justify-center gap-1.5 bg-gray-100 dark:bg-dark-surface2 hover:bg-gray-200 dark:hover:bg-[#383838] disabled:opacity-40 disabled:cursor-not-allowed text-gray-700 dark:text-gray-200 py-1.5 rounded text-xs font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            className="inline-flex h-k-touch flex-1 items-center justify-center gap-1.5 rounded-k bg-gray-100 text-k-help font-semibold text-gray-800 transition hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-40 dark:bg-dark-surface2 dark:text-gray-200 dark:hover:bg-[#383838] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           >
             {imgCopied ? <Check size={13} className="text-green-500" /> : <Clipboard size={13} />}
             {imgCopied ? "Copied!" : "Copy image"}
@@ -137,7 +137,7 @@ export const PreviewActions: React.FC<PreviewActionsProps> = ({
           disabled={!decoded?.json || stale}
           aria-label="Copy decoded payload as JSON"
           title="Copy the decoded payload as structured JSON"
-          className="flex-1 flex items-center justify-center gap-1.5 bg-gray-100 dark:bg-dark-surface2 hover:bg-gray-200 dark:hover:bg-[#383838] disabled:opacity-40 disabled:cursor-not-allowed text-gray-700 dark:text-gray-200 py-1.5 rounded text-xs font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          className="inline-flex h-k-touch flex-1 items-center justify-center gap-1.5 rounded-k bg-gray-100 text-k-help font-semibold text-gray-800 transition hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-40 dark:bg-dark-surface2 dark:text-gray-200 dark:hover:bg-[#383838] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
         >
           {jsonCopied ? <Check size={13} className="text-green-500" /> : <Braces size={13} />}
           {jsonCopied ? "Copied!" : "Copy JSON"}
@@ -159,7 +159,7 @@ export const PreviewActions: React.FC<PreviewActionsProps> = ({
           onClick={() =>
             voice.speaking ? voice.stop() : voice.speak(buildReadback(decoded.json ?? {}))
           }
-          className="-mt-2 flex items-center justify-center gap-1.5 bg-gray-100 dark:bg-dark-surface2 hover:bg-gray-200 dark:hover:bg-[#383838] text-gray-700 dark:text-gray-200 py-1.5 rounded text-xs font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          className="inline-flex h-k-touch w-full items-center justify-center gap-1.5 rounded-k bg-gray-100 text-k-help font-semibold text-gray-800 transition hover:bg-gray-200 dark:bg-dark-surface2 dark:text-gray-200 dark:hover:bg-[#383838] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           title={
             voice.speaking
               ? "Stop reading the payload aloud"
