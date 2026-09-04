@@ -165,16 +165,24 @@ export const AAMVA_FIELD_OPTIONS: Record<string, FieldOption[]> = {
     }
   ],
   DAY: [
-    { value: "BLK", label: "BLK — Black" },
-    { value: "BLU", label: "BLU — Blue" },
-    { value: "BRO", label: "BRO — Brown" },
-    { value: "GRY", label: "GRY — Gray" },
-    { value: "GRN", label: "GRN — Green" },
-    { value: "HAZ", label: "HAZ — Hazel" },
-    { value: "MAR", label: "MAR — Maroon" },
-    { value: "PNK", label: "PNK — Pink" },
-    { value: "DIC", label: "DIC — Dichromatic" },
-    { value: "UNK", label: "UNK — Unknown" }
+    { value: "BLK", label: "BLK — Black", description: "AAMVA eye color: black. Encode BLK, not the word Black." },
+    { value: "BLU", label: "BLU — Blue", description: "AAMVA eye color: blue. Encode BLU, not the word Blue." },
+    { value: "BRO", label: "BRO — Brown", description: "AAMVA eye color: brown. Encode BRO, not the word Brown." },
+    { value: "GRY", label: "GRY — Gray", description: "AAMVA eye color: gray. Encode GRY, not Grey or Gray." },
+    { value: "GRN", label: "GRN — Green", description: "AAMVA eye color: green. Encode GRN, not the word Green." },
+    { value: "HAZ", label: "HAZ — Hazel", description: "AAMVA eye color: hazel. Encode HAZ, not the word Hazel." },
+    { value: "MAR", label: "MAR — Maroon", description: "AAMVA eye color: maroon. Encode MAR, not the word Maroon." },
+    { value: "PNK", label: "PNK — Pink", description: "AAMVA eye color: pink. Encode PNK, not the word Pink." },
+    {
+      value: "DIC",
+      label: "DIC — Dichromatic",
+      description: "Two different eye colors (heterochromia). Encode DIC. AAMVA has no left/right split."
+    },
+    {
+      value: "UNK",
+      label: "UNK — Unknown",
+      description: "Eye color was not recorded. Encode UNK, not a blank — this field is required."
+    }
   ],
   DAZ: [
     { value: "BAL", label: "BAL — Bald" },

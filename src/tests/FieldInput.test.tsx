@@ -138,16 +138,20 @@ describe("FieldInput — enumerated fields", () => {
     expect(onChange).toHaveBeenCalledWith("DDA", "F");
   });
 
-  test("a long enumerated list stays a select, with omit when optional", () => {
-    renderField({
+  test("Eye Color (DAY) is a code selector with what each code means", () => {
+    const { onChange } = renderField({
       code: "DAY",
       label: "Eye Color",
       type: "string",
       required: true
     });
-    const select = screen.getByRole("combobox");
-    expect(select.className).not.toContain("text-transparent");
-    expect(screen.getByRole("option", { name: /select/i })).toBeInTheDocument();
-    expect(screen.getByRole("option", { name: /BRO/i })).toBeInTheDocument();
+    const brown = screen.getByRole("radio", { name: /eye color: brown/i });
+    const dichromatic = screen.getByRole("radio", { name: /heterochromia/i });
+    expect(brown).toHaveAttribute("title", expect.stringMatching(/BRO/));
+    expect(dichromatic).toHaveAttribute("title", expect.stringMatching(/DIC/));
+    expect(screen.queryByRole("combobox")).not.toBeInTheDocument();
+    expect(screen.queryByRole("radio", { name: /omit this element/i })).not.toBeInTheDocument();
+    fireEvent.click(brown);
+    expect(onChange).toHaveBeenCalledWith("DAY", "BRO");
   });
 });

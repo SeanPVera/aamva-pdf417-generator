@@ -31,6 +31,11 @@ export const FIELD_HELP: Record<string, string> = {
   DCL:
     "Race / Ethnicity — optional on most jurisdictions and excluded entirely on " +
     "many states (NY, CT, VT, ME, NH, and others).",
+  DAY:
+    "Eye Color (DAY) is a three-letter AAMVA code, not the English word. " +
+    "BLK black, BLU blue, BRO brown, GRY gray, GRN green, HAZ hazel, " +
+    "MAR maroon, PNK pink, DIC dichromatic (two different colors), UNK unknown. " +
+    "Required on version 02 and later — pick UNK if it was not recorded.",
   DAU:
     "Height — encoded as a 3-digit number followed by a unit, e.g. 069 IN " + "(5'9\") or 175 CM.",
   DAW: "Weight in pounds, zero-padded to three digits, e.g. 180.",

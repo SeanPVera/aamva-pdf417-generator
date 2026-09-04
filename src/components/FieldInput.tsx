@@ -21,8 +21,8 @@ import { HeightSilhouette } from "./HeightSilhouette";
  */
 const UPPERCASED_TYPES = new Set<AAMVAField["type"]>(["string", "char", "zip"]);
 
-/** Short enumerated fields become kiosk chips; longer lists stay a <select>. */
-const CHIP_OPTION_CEILING = 4;
+/** Enumerated AAMVA fields (Sex, REAL ID, eye color, …) are kiosk chips. */
+const CHIP_OPTION_CEILING = 12;
 
 /**
  * Pulls the allowed values out of an enumeration message so they can be offered
