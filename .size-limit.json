@@ -34,5 +34,11 @@
     "path": "dist/assets/*.css",
     "limit": "20 KB",
     "gzip": true
+  },
+  {
+    "name": "Self-hosted fonts (woff2, already compressed) \u2014 both variable faces, latin subset",
+    "path": "dist/assets/*.woff2",
+    "limit": "80 KB",
+    "gzip": false
   }
 ]

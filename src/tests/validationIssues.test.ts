@@ -192,3 +192,51 @@ describe("getValidationIssues: severity ordering", () => {
     expect(errorCodes.filter((c) => schemaOrder.includes(c))).toEqual(expected);
   });
 });
+
+describe("getValidationIssues: issue kind", () => {
+  const fields: AAMVAField[] = [
+    { code: "DCS", label: "Family Name", type: "string", required: true },
+    { code: "DAK", label: "Zip Code", type: "zip", required: true }
+  ];
+
+  // Empty and invalid are both blocking errors, but they are not the same thing
+  // to a person filling the form in. A pristine form is entirely "empty", and
+  // counting that as failure is what put 174 red elements and a "20 errors"
+  // badge on a page nobody had typed into yet.
+  it("marks a blank required field as empty, not invalid", () => {
+    const issues = getValidationIssues(fields, {}, "CA", false);
+    const dcs = issues.find((i) => i.code === "DCS");
+    expect(dcs?.severity).toBe("error");
+    expect(dcs?.kind).toBe("empty");
+  });
+
+  it("marks a populated field the validator rejects as invalid", () => {
+    const issues = getValidationIssues(fields, { DAK: "NOPE" }, "CA", false);
+    const dak = issues.find((i) => i.code === "DAK");
+    expect(dak?.severity).toBe("error");
+    expect(dak?.kind).toBe("invalid");
+  });
+
+  it("reports every issue on an untouched form as empty", () => {
+    const issues = getValidationIssues(fields, {}, "CA", false);
+    expect(issues.length).toBeGreaterThan(0);
+    expect(issues.every((i) => i.kind === "empty")).toBe(true);
+  });
+
+  it("marks cross-field contradictions as invalid — they compare real values", () => {
+    const dateFields: AAMVAField[] = [
+      { code: "DBB", label: "Date of Birth", type: "date", required: true },
+      { code: "DBD", label: "Issue Date", type: "date", required: true }
+    ];
+    // Issued before the holder was born.
+    const issues = getValidationIssues(
+      dateFields,
+      { DBB: "01012000", DBD: "01011990" },
+      "CA",
+      false
+    );
+    const cross = issues.find((i) => i.message.includes("earlier than date of birth"));
+    expect(cross).toBeDefined();
+    expect(cross?.kind).toBe("invalid");
+  });
+});

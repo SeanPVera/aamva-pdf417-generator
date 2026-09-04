@@ -60,6 +60,20 @@ export interface ValidationIssue {
   label: string;
   message: string;
   severity: Severity;
+  /**
+   * Whether the field is blank or holds something the validator rejects.
+   *
+   * Both block generation, so both are `severity: "error"` — but they are not
+   * the same message to a person. A form nobody has touched is *entirely*
+   * `"empty"`, and rendering that as failure opened the app with 174 red
+   * elements and a "20 errors" count before a single keystroke. By the time
+   * something was genuinely wrong, red meant nothing.
+   *
+   * Count and colour these separately: `"empty"` is work remaining, `"invalid"`
+   * is a mistake. Cross-field issues are always `"invalid"` — they compare
+   * values that exist.
+   */
+  kind: "empty" | "invalid";
 }
 
 export type CrossFieldValidationIssue = ValidationIssue;
@@ -411,6 +425,7 @@ export function validateCrossFieldConsistency(
     issues.push({
       code: "DBD",
       label: "Issue Date",
+      kind: "invalid",
       severity: "error",
       message: "Issue date (DBD) cannot be earlier than date of birth (DBB)."
     });
@@ -420,6 +435,7 @@ export function validateCrossFieldConsistency(
     issues.push({
       code: "DBA",
       label: "Expiration Date",
+      kind: "invalid",
       severity: "error",
       message: "Expiration date (DBA) cannot be earlier than issue date (DBD)."
     });
@@ -429,6 +445,7 @@ export function validateCrossFieldConsistency(
     issues.push({
       code: "DBA",
       label: "Expiration Date",
+      kind: "invalid",
       severity: "error",
       message: "Expiration date (DBA) cannot be earlier than date of birth (DBB)."
     });
@@ -438,6 +455,7 @@ export function validateCrossFieldConsistency(
     issues.push({
       code: "DDB",
       label: "Card Revision Date",
+      kind: "invalid",
       severity: "warning",
       message: "Card revision date (DDB) is later than issue date (DBD)."
     });
@@ -454,6 +472,7 @@ export function validateCrossFieldConsistency(
       issues.push({
         code: "DBB",
         label: "Date of Birth",
+        kind: "invalid",
         severity: "warning",
         message:
           minAge > 14 && stateCode
@@ -469,6 +488,7 @@ export function validateCrossFieldConsistency(
       issues.push({
         code: "DBA",
         label: "Expiration Date",
+        kind: "invalid",
         severity: "warning",
         message: `Validity period (${span} yrs) exceeds the ${stateCode || "default"} maximum of ${dateRules.maxValidityYears} years.`
       });
@@ -481,6 +501,7 @@ export function validateCrossFieldConsistency(
       issues.push({
         code: "DBA",
         label: "Expiration Date",
+        kind: "invalid",
         severity: "warning",
         message: `Validity period (${span} yrs) is shorter than the ${stateCode || "default"} minimum of ${dateRules.minValidityYears} years.`
       });
@@ -499,6 +520,7 @@ export function validateCrossFieldConsistency(
           issues.push({
             code: "DCA",
             label: "Vehicle Class",
+            kind: "invalid",
             severity: "error",
             message: `Class ${cls} requires age ≥ ${required} in ${stateCode}; holder is ${ageAtIssue} at issuance.`
           });
@@ -520,6 +542,7 @@ export function validateCrossFieldConsistency(
       issues.push({
         code: "DAA",
         label: "Full Name",
+        kind: "invalid",
         severity: "warning",
         message: `Full name (DAA) family component "${family}" does not match DCS "${dataObj.DCS.toUpperCase().trim()}".`
       });
@@ -540,6 +563,7 @@ export function validateCrossFieldConsistency(
       issues.push({
         code: flag,
         label: `${label} Truncation`,
+        kind: "invalid",
         severity: "warning",
         message: `${flag} is "T" (truncated) but ${name} (${label}) is empty.`
       });
@@ -667,7 +691,8 @@ export function getValidationIssues(
         code: field.code,
         label: field.label,
         message: evalResult.message ?? "Invalid format or value.",
-        severity: evalResult.severity === "info" ? "error" : evalResult.severity
+        severity: evalResult.severity === "info" ? "error" : evalResult.severity,
+        kind: value.trim() ? "invalid" : "empty"
       });
     }
   }
@@ -687,7 +712,8 @@ export function getValidationIssues(
           code,
           label: field?.label ?? code,
           message: `Required by ${stateCode}: this field cannot be empty.`,
-          severity: "error"
+          severity: "error",
+          kind: "empty"
         });
         seen.add(key);
       }
@@ -704,7 +730,8 @@ export function getValidationIssues(
           code,
           label: field?.label ?? code,
           message: `Recommended by ${stateCode}: consider providing a value.`,
-          severity: "warning"
+          severity: "warning",
+          kind: "empty"
         });
         seen.add(key);
       }

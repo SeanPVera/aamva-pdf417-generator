@@ -1,12 +1,55 @@
-/* No @import of remote webfonts. The CSP in index.html is style-src 'self',
-   so a fonts.googleapis.com stylesheet is refused on every platform — the
-   requests only ever cost a blocked round trip per launch, which an
-   offline-first phone app has no reason to pay. The stack in
-   tailwind.config.js falls back to the platform UI font instead. */
+/* Fonts are self-hosted, never fetched. A fonts.googleapis.com stylesheet is
+   refused outright by the CSP in index.html (`style-src 'self'`), and an
+   offline-first phone app has no reason to pay for a blocked round trip per
+   launch. These faces are imported from `src/assets/`, so Vite hashes them and
+   emits relative URLs — which is what keeps them resolvable under `base: './'`
+   at a Pages subpath, from a domain root, and from Electron's `file://` alike.
+   Putting them in `public/` instead would force an absolute `/fonts/` URL and
+   break the first two.
+
+   Both are variable, which is the cheaper option here: one 34 kB face covers
+   weights 200–800, where three static cuts would have cost more.
+
+   Atkinson Hyperlegible Next is not a style choice. It was drawn by the
+   Braille Institute to pull confusable characters apart — 0/O, 1/l/I, 8/B —
+   and this app is a data-entry form for identity documents, where reading a
+   licence number's O as a 0 produces a credential for nobody. JetBrains Mono
+   carries a slashed zero for the same reason, and takes the field codes, the
+   dates, and the raw payload.
+
+   Both are SIL OFL 1.1; the licences ship beside the faces in
+   `src/assets/fonts/`. */
+@font-face {
+  font-family: "Atkinson Hyperlegible Next";
+  src: url("../assets/fonts/atkinson-hyperlegible-next-latin-var.woff2") format("woff2-variations");
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("../assets/fonts/jetbrains-mono-latin-var.woff2") format("woff2-variations");
+  font-weight: 100 800;
+  font-style: normal;
+  font-display: swap;
+}
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ─── Kiosk scale ────────────────────────────────────────────────────────── */
+/* Direction D sizes controls for a thumb and type for arm's length. 56px is
+   the primary control; 44px is the floor every other interactive box has to
+   clear. Kept as custom properties so the stylesheet's own rules and the
+   Tailwind utilities in `tailwind.config.js` cannot drift apart. */
+:root {
+  --k-control-h: 3.5rem;
+  --k-control-h-sm: 2.75rem;
+  --k-radius: 0.625rem;
+  --k-radius-lg: 0.875rem;
+  --k-gap: 1.25rem;
+}
 
 :root {
   /* Core runtime theme (main branch system) */
@@ -312,18 +355,10 @@ textarea {
   @apply transition-colors duration-200;
 }
 
-.float-label-input:focus ~ label,
-.float-label-input:not(:placeholder-shown) ~ label {
-  @apply text-xs -translate-y-3 scale-75;
-}
-
-html.dark .float-label-input:focus ~ label {
-  @apply text-brand-400;
-}
-
-.float-label-input:focus ~ label {
-  @apply text-brand-500;
-}
+/* The floating-label rules that lived here are gone with the label itself.
+   Floating it inside the control is what forced `truncate w-[85%]`, and at a
+   230px column that clipped "Family Name Truncation Indicator" down to
+   "Family Name Trun…". The label now sits above the input, at full width. */
 
 html.dark ::-webkit-scrollbar-thumb {
   background: #333333;
