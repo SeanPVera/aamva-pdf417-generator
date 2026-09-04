@@ -144,7 +144,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileHidden = false, children
               <button
                 type="button"
                 onClick={() => setStateVersion(state, defaultVersion)}
-                className="text-xs font-medium text-brand-600 dark:text-brand-400 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded"
+                className="inline-flex min-h-k-touch items-center rounded-k text-k-help font-medium text-brand-600 dark:text-brand-400 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                 title={`Reset to ${state}'s default version (${defaultVersion})`}
               >
                 Reset to v{defaultVersion}

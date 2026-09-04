@@ -4,6 +4,7 @@ import type { FieldGroupId } from "../core/schema";
 // Type-only: importing the badge *catalog* here would pull its definitions into
 // the initial chunk, even though only the plaque modal ever renders them.
 import type { BadgeStats } from "../core/badges";
+import { isDefaultClass, regularClassFor, seededFields } from "../core/privilegeDirectory";
 
 // Persisted state intentionally excludes the AAMVA `fields` payload, so no PII
 // is ever written to disk. Only UI preferences (state, version, strict mode,
@@ -146,7 +147,7 @@ export const useFormStore = create<FormState>()(
       version: "10",
       strictMode: true,
       subfileType: "DL",
-      fields: {},
+      fields: seededFields("CA", "DL"),
       sourcePayload: null,
       theme: "system",
       collapsedGroups: {},
@@ -202,12 +203,23 @@ export const useFormStore = create<FormState>()(
           const visited = s.badgeStats.visitedStates.includes(stateCode)
             ? s.badgeStats.visitedStates
             : [...s.badgeStats.visitedStates, stateCode];
+          const seeds = seededFields(stateCode, s.subfileType);
+          const nextFields = { ...s.fields };
+          for (const [code, value] of Object.entries(seeds)) {
+            if (code === "DCA") {
+              if (isDefaultClass(s.fields.DCA, s.state, s.subfileType)) {
+                nextFields.DCA = value;
+              }
+              continue;
+            }
+            if (!(s.fields[code] || "").trim()) nextFields[code] = value;
+          }
           return {
             state: stateCode,
             version,
+            fields: nextFields,
             recentStates: promoteRecent(s.recentStates, stateCode),
             badgeStats: { ...s.badgeStats, visitedStates: visited },
-            // A jurisdiction switch is a deliberate break in the edit stream.
             _lastEditCode: "",
             _lastEditAt: 0
           };
@@ -215,7 +227,14 @@ export const useFormStore = create<FormState>()(
 
       setStrictMode: (mode) => set({ strictMode: mode }),
 
-      setSubfileType: (type) => set({ subfileType: type }),
+      setSubfileType: (type) =>
+        set((s) => {
+          const nextFields = { ...s.fields };
+          if (isDefaultClass(s.fields.DCA, s.state, s.subfileType)) {
+            nextFields.DCA = type === "ID" ? "NONE" : regularClassFor(s.state);
+          }
+          return { subfileType: type, fields: nextFields };
+        }),
 
       setTheme: (theme) => set({ theme }),
 
@@ -261,7 +280,7 @@ export const useFormStore = create<FormState>()(
 
       clearFields: () =>
         set((s) => ({
-          fields: {},
+          fields: seededFields(s.state, s.subfileType),
           sourcePayload: null,
           _history: [...s._history, s.fields].slice(-HISTORY_LIMIT),
           _future: [],

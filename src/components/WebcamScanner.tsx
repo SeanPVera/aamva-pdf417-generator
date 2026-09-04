@@ -240,7 +240,7 @@ export function WebcamScanner({ onClose }: WebcamScannerProps) {
           data-autofocus
           onClick={onClose}
           aria-label="Close scanner"
-          className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
+          className="absolute top-4 right-4 inline-flex h-k-touch w-k-touch items-center justify-center rounded-k text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
         >
           <X className="w-6 h-6" />
         </button>
@@ -264,7 +264,7 @@ export function WebcamScanner({ onClose }: WebcamScannerProps) {
               id="camera-select"
               value={selectedDeviceId}
               onChange={(e) => setSelectedDeviceId(e.target.value)}
-              className="flex-1 text-sm border border-slate-300 dark:border-slate-600 rounded px-2 py-1 bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
+              className="h-k-control min-h-k-touch flex-1 rounded-k border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 px-3 text-k-value text-slate-800 dark:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
             >
               {devices.map((dev, idx) => (
                 <option key={dev.deviceId} value={dev.deviceId}>
@@ -314,7 +314,7 @@ export function WebcamScanner({ onClose }: WebcamScannerProps) {
             type="button"
             onClick={() => imageInputRef.current?.click()}
             disabled={imageScanning}
-            className="inline-flex items-center gap-2 rounded border border-slate-300 dark:border-slate-600 px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-60 disabled:cursor-not-allowed"
+            className="inline-flex h-k-touch min-h-k-touch items-center gap-2 rounded-k border border-slate-300 dark:border-slate-600 px-3 text-k-help font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-60 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
             aria-busy={imageScanning}
           >
             <ImagePlus className="h-4 w-4" aria-hidden />
@@ -324,7 +324,7 @@ export function WebcamScanner({ onClose }: WebcamScannerProps) {
             <button
               type="button"
               onClick={handleFlipCamera}
-              className="inline-flex items-center gap-2 rounded border border-slate-300 dark:border-slate-600 px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700"
+              className="inline-flex h-k-touch min-h-k-touch items-center gap-2 rounded-k border border-slate-300 dark:border-slate-600 px-3 text-k-help font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
               title="Switch to the next camera"
               aria-label="Flip camera"
             >
@@ -337,7 +337,7 @@ export function WebcamScanner({ onClose }: WebcamScannerProps) {
               type="button"
               onClick={handleToggleTorch}
               aria-pressed={torchOn}
-              className="inline-flex items-center gap-2 rounded border border-slate-300 dark:border-slate-600 px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700"
+              className="inline-flex h-k-touch min-h-k-touch items-center gap-2 rounded-k border border-slate-300 dark:border-slate-600 px-3 text-k-help font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
               title="Toggle the camera flashlight"
               aria-label="Toggle flashlight"
             >

@@ -12,6 +12,7 @@ import {
   type AamvaDateFormat
 } from "../core/dateHelpers";
 import { getFieldHelp } from "../core/fieldHelp";
+import { getPrivilegeDirectory } from "../core/privilegeDirectory";
 import { HeightSilhouette } from "./HeightSilhouette";
 
 /**
@@ -79,122 +80,6 @@ const WEIGHT_CHIPS: { label: string; value: string; title: string }[] = [
  * code; the text input stays so a jurisdiction-specific string still works.
  */
 const SUGGESTION_CHIPS: Record<string, { label: string; value: string; title: string }[]> = {
-  DCA: [
-    {
-      label: "A CDL combo",
-      value: "A",
-      title: "Class A — combination vehicles (tractor-trailer) over 26,001 lbs with a trailer over 10,000 lbs. CDL. Typical minimum age 21."
-    },
-    {
-      label: "B CDL heavy",
-      value: "B",
-      title: "Class B — a single vehicle over 26,001 lbs (bus, dump truck, box truck). CDL. Typical minimum age 21."
-    },
-    {
-      label: "C regular",
-      value: "C",
-      title: "Class C — passenger cars and light trucks. Used as the regular automobile class in California and many western states."
-    },
-    {
-      label: "D regular",
-      value: "D",
-      title: "Class D — passenger cars and light trucks. Used as the regular automobile class in Texas and many southern and midwestern states."
-    },
-    {
-      label: "E regular",
-      value: "E",
-      title: "Class E — passenger cars / for-hire in New York, Florida, and some others. Check the issuing jurisdiction."
-    },
-    {
-      label: "M motorcycle",
-      value: "M",
-      title: "Class M — motorcycle. Combine with a car class as AM, CM, DM, etc. if the card grants both."
-    },
-    {
-      label: "NONE",
-      value: "NONE",
-      title: "No driving privilege — identification card. Encode NONE, not a blank, on a DL subfile that still requires the field."
-    }
-  ],
-  DCB: [
-    {
-      label: "NONE",
-      value: "NONE",
-      title: "No restrictions. Encode NONE when the field is required and the driver has none."
-    },
-    {
-      label: "B lenses",
-      value: "B",
-      title: "Corrective lenses required. Common passenger-car restriction."
-    },
-    {
-      label: "C mechanical",
-      value: "C",
-      title: "Mechanical aid required (adapted vehicle)."
-    },
-    {
-      label: "D prosthetic",
-      value: "D",
-      title: "Prosthetic aid required."
-    },
-    {
-      label: "E automatic",
-      value: "E",
-      title: "Automatic transmission only (CDL: no manual transmission CMV)."
-    },
-    {
-      label: "K intrastate",
-      value: "K",
-      title: "Intrastate only — may not operate a CMV across state lines."
-    },
-    {
-      label: "L no air brake",
-      value: "L",
-      title: "No air-brake equipped CMV."
-    },
-    {
-      label: "Z no full air",
-      value: "Z",
-      title: "No full air-brake equipped CMV."
-    }
-  ],
-  DCD: [
-    {
-      label: "NONE",
-      value: "NONE",
-      title: "No endorsements. Encode NONE when the field is required and the driver has none."
-    },
-    {
-      label: "H hazmat",
-      value: "H",
-      title: "Hazardous materials endorsement. Requires TSA threat assessment."
-    },
-    {
-      label: "N tank",
-      value: "N",
-      title: "Tank vehicle endorsement."
-    },
-    {
-      label: "P passenger",
-      value: "P",
-      title: "Passenger endorsement (bus)."
-    },
-    {
-      label: "S school",
-      value: "S",
-      title: "School bus endorsement."
-    },
-    {
-      label: "T doubles",
-      value: "T",
-      title: "Doubles / triples trailer endorsement."
-    },
-    {
-      label: "X tank+hazmat",
-      value: "X",
-      title: "Combination tank and hazardous materials endorsement."
-    }
-  ],
   DCU: [
     { label: "JR", value: "JR", title: "Junior. AAMVA name suffix, max 5 characters." },
     { label: "SR", value: "SR", title: "Senior." },
@@ -296,9 +181,7 @@ export const FieldInput: React.FC<FieldInputProps> = ({
   // Any field the user can type into is clearable; DAJ is app-owned and read-only.
   const isResettable = !derivedFrom;
   const allowedValues = hasError ? parseAllowedValues(evalResult.message) : [];
-  const options = field.options?.length
-    ? field.options
-    : AAMVA_FIELD_OPTIONS[field.code];
+  const options = field.options?.length ? field.options : AAMVA_FIELD_OPTIONS[field.code];
   const maxLen = field.maxLength ?? AAMVA_FIELD_LIMITS[field.code];
 
   const dateFormat: AamvaDateFormat = field.dateFormat === "YYYYMMDD" ? "YYYYMMDD" : "MMDDYYYY";
@@ -344,7 +227,15 @@ export const FieldInput: React.FC<FieldInputProps> = ({
       : !value.trim() && field.code === "DAW"
         ? WEIGHT_CHIPS
         : [];
-  const suggestionChips = SUGGESTION_CHIPS[field.code] ?? [];
+  const directory = getPrivilegeDirectory(state);
+  const suggestionChips =
+    field.code === "DCA"
+      ? directory.classes
+      : field.code === "DCB"
+        ? directory.restrictions
+        : field.code === "DCD"
+          ? directory.endorsements
+          : (SUGGESTION_CHIPS[field.code] ?? []);
 
   // A repair for a value that fails, or the encoder-canonical form of one that
   // passes. Both are a single click; neither ever invents a value.

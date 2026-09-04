@@ -124,81 +124,80 @@ export const FieldFilters: React.FC<FieldFiltersProps> = ({
         )}
 
         <div className="hidden lg:contents">
+          <label className="inline-flex h-k-touch items-center gap-1.5 text-xs font-medium text-gray-700 dark:text-gray-200 cursor-pointer select-none px-3 rounded-k bg-gray-100 dark:bg-[#2C2C2C] border border-gray-200 dark:border-[#444] has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-brand-500">
+            <input
+              type="checkbox"
+              checked={requiredOnly}
+              onChange={(e) => onRequiredOnlyChange(e.target.checked)}
+              className="h-3.5 w-3.5 rounded text-brand-600 focus:ring-brand-500 border-gray-300 dark:border-[#555] dark:bg-dark-surface2 focus-visible:outline-none"
+              aria-label="Show only required fields"
+            />
+            Required only
+          </label>
 
-        <label className="inline-flex h-k-touch items-center gap-1.5 text-xs font-medium text-gray-700 dark:text-gray-200 cursor-pointer select-none px-3 rounded-k bg-gray-100 dark:bg-[#2C2C2C] border border-gray-200 dark:border-[#444] has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-brand-500">
-          <input
-            type="checkbox"
-            checked={requiredOnly}
-            onChange={(e) => onRequiredOnlyChange(e.target.checked)}
-            className="h-3.5 w-3.5 rounded text-brand-600 focus:ring-brand-500 border-gray-300 dark:border-[#555] dark:bg-dark-surface2 focus-visible:outline-none"
-            aria-label="Show only required fields"
-          />
-          Required only
-        </label>
-
-        {/* Issues-only: with errors scattered across collapsed groups, the old
+          {/* Issues-only: with errors scattered across collapsed groups, the old
             workflow was jump → fix → scroll back → jump again. */}
-        <label
-          className={`inline-flex h-k-touch items-center gap-1.5 text-xs font-medium cursor-pointer select-none px-3 rounded-k border has-[:focus-visible]:ring-2 ${
-            issueCount > 0
-              ? "bg-red-50 dark:bg-red-900/25 border-red-200 dark:border-red-800 text-red-800 dark:text-red-200 has-[:focus-visible]:ring-red-500"
-              : "bg-gray-100 dark:bg-[#2C2C2C] border-gray-200 dark:border-[#444] text-gray-500 dark:text-gray-400 cursor-not-allowed has-[:focus-visible]:ring-brand-500"
-          }`}
-          title={
-            issueCount > 0
-              ? "Show only fields with a validation issue (F8 steps through them)"
-              : "No validation issues to filter"
-          }
-        >
-          <input
-            type="checkbox"
-            checked={issuesOnly}
-            disabled={issueCount === 0}
-            onChange={(e) => onIssuesOnlyChange(e.target.checked)}
-            className="h-3.5 w-3.5 rounded text-red-600 focus:ring-red-500 border-gray-300 dark:border-[#555] dark:bg-dark-surface2 focus-visible:outline-none"
-            aria-label="Show only fields with validation issues"
-          />
-          <AlertCircle size={12} aria-hidden="true" />
-          Problems only{issueCount > 0 ? ` (${issueCount})` : ""}
-        </label>
+          <label
+            className={`inline-flex h-k-touch items-center gap-1.5 text-xs font-medium cursor-pointer select-none px-3 rounded-k border has-[:focus-visible]:ring-2 ${
+              issueCount > 0
+                ? "bg-red-50 dark:bg-red-900/25 border-red-200 dark:border-red-800 text-red-800 dark:text-red-200 has-[:focus-visible]:ring-red-500"
+                : "bg-gray-100 dark:bg-[#2C2C2C] border-gray-200 dark:border-[#444] text-gray-500 dark:text-gray-400 cursor-not-allowed has-[:focus-visible]:ring-brand-500"
+            }`}
+            title={
+              issueCount > 0
+                ? "Show only fields with a validation issue (F8 steps through them)"
+                : "No validation issues to filter"
+            }
+          >
+            <input
+              type="checkbox"
+              checked={issuesOnly}
+              disabled={issueCount === 0}
+              onChange={(e) => onIssuesOnlyChange(e.target.checked)}
+              className="h-3.5 w-3.5 rounded text-red-600 focus:ring-red-500 border-gray-300 dark:border-[#555] dark:bg-dark-surface2 focus-visible:outline-none"
+              aria-label="Show only fields with validation issues"
+            />
+            <AlertCircle size={12} aria-hidden="true" />
+            Problems only{issueCount > 0 ? ` (${issueCount})` : ""}
+          </label>
 
-        <button
-          type="button"
-          onClick={onJumpToNextEmpty}
-          disabled={!hasNextEmpty}
-          aria-label="Jump to next empty required field"
-          title={
-            hasNextEmpty ? "Jump to next empty required field" : "All required fields are filled"
-          }
-          className="inline-flex h-k-touch items-center gap-1 px-3 rounded-k bg-gray-100 dark:bg-[#2C2C2C] border border-gray-200 dark:border-[#444] text-xs font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-[#333] disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-        >
-          <ArrowDown size={12} aria-hidden="true" />
-          Next empty required
-        </button>
-
-        <button
-          type="button"
-          onClick={onGenerateAutoFields}
-          aria-label="Generate auto fields (DCF, DAQ, DDB)"
-          title={`Generate auto fields (${formatShortcut(["mod", "G"])})`}
-          className="inline-flex h-k-touch items-center gap-1 px-3 rounded-k bg-gray-100 dark:bg-[#2C2C2C] border border-gray-200 dark:border-[#444] text-xs font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-[#333] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-        >
-          <Wand2 size={12} aria-hidden="true" />
-          Generate auto fields
-        </button>
-
-        {onFillSample && (
           <button
             type="button"
-            onClick={onFillSample}
-            aria-label="Fill all fields with demo data"
-            title="Fill all fields with realistic demo data"
-            className="inline-flex h-k-touch items-center gap-1 px-3 rounded-k bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 text-xs font-medium text-amber-800 dark:text-amber-200 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            onClick={onJumpToNextEmpty}
+            disabled={!hasNextEmpty}
+            aria-label="Jump to next empty required field"
+            title={
+              hasNextEmpty ? "Jump to next empty required field" : "All required fields are filled"
+            }
+            className="inline-flex h-k-touch items-center gap-1 px-3 rounded-k bg-gray-100 dark:bg-[#2C2C2C] border border-gray-200 dark:border-[#444] text-xs font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-[#333] disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           >
-            <FlaskConical size={12} aria-hidden="true" />
-            Autofill demo
+            <ArrowDown size={12} aria-hidden="true" />
+            Next empty required
           </button>
-        )}
+
+          <button
+            type="button"
+            onClick={onGenerateAutoFields}
+            aria-label="Generate auto fields (DCF, DAQ, DDB)"
+            title={`Generate auto fields (${formatShortcut(["mod", "G"])})`}
+            className="inline-flex h-k-touch items-center gap-1 px-3 rounded-k bg-gray-100 dark:bg-[#2C2C2C] border border-gray-200 dark:border-[#444] text-xs font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-[#333] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          >
+            <Wand2 size={12} aria-hidden="true" />
+            Generate auto fields
+          </button>
+
+          {onFillSample && (
+            <button
+              type="button"
+              onClick={onFillSample}
+              aria-label="Fill all fields with demo data"
+              title="Fill all fields with realistic demo data"
+              className="inline-flex h-k-touch items-center gap-1 px-3 rounded-k bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 text-xs font-medium text-amber-800 dark:text-amber-200 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            >
+              <FlaskConical size={12} aria-hidden="true" />
+              Autofill demo
+            </button>
+          )}
         </div>
       </div>
 

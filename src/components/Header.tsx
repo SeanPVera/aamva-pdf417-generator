@@ -434,193 +434,193 @@ export const Header: React.FC<HeaderActionProps> = ({
           visual weight with Export JSON. Appearance / Record / Session. */}
       <div className="header-toolbar hidden lg:flex items-end gap-4 overflow-x-auto px-3 py-2">
         <HeaderGroup label="Appearance">
-        {/* Theme toggle */}
-        <div className="state-toggle-group flex items-center rounded overflow-hidden border border-gray-200 dark:border-dark-border focus-within:ring-2 focus-within:ring-brand-500">
-          {THEMES.map((t) => {
-            const meta = THEME_LABELS[t];
-            const swatch = t === "dmv" ? getStateTheme(state).primary : meta.swatch;
-            // "Auto" uses a split swatch, so it needs `background`, not `backgroundColor`.
-            const swatchStyle = swatch.includes("gradient")
-              ? { background: swatch }
-              : { backgroundColor: swatch };
-            return (
-              <button
-                key={t}
-                onClick={() => {
-                  setTheme(t);
-                  bumpThemeToggles();
-                }}
-                title={`${meta.label} theme — ${meta.description}`}
-                aria-pressed={theme === t}
-                className={`flex h-k-touch items-center gap-1.5 px-3 text-k-help transition focus:outline-none ${
-                  theme === t
-                    ? "state-primary-bg font-semibold text-white"
-                    : "hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300"
-                }`}
-              >
-                <span
-                  aria-hidden
-                  className="inline-block w-3 h-3 rounded-full border border-black/15 shadow-sm"
-                  style={swatchStyle}
-                />
-                {meta.icon}
-                <span className="hidden sm:inline">{meta.label}</span>
-              </button>
-            );
-          })}
-        </div>
+          {/* Theme toggle */}
+          <div className="state-toggle-group flex items-center rounded overflow-hidden border border-gray-200 dark:border-dark-border focus-within:ring-2 focus-within:ring-brand-500">
+            {THEMES.map((t) => {
+              const meta = THEME_LABELS[t];
+              const swatch = t === "dmv" ? getStateTheme(state).primary : meta.swatch;
+              // "Auto" uses a split swatch, so it needs `background`, not `backgroundColor`.
+              const swatchStyle = swatch.includes("gradient")
+                ? { background: swatch }
+                : { backgroundColor: swatch };
+              return (
+                <button
+                  key={t}
+                  onClick={() => {
+                    setTheme(t);
+                    bumpThemeToggles();
+                  }}
+                  title={`${meta.label} theme — ${meta.description}`}
+                  aria-pressed={theme === t}
+                  className={`flex h-k-touch items-center gap-1.5 px-3 text-k-help transition focus:outline-none ${
+                    theme === t
+                      ? "state-primary-bg font-semibold text-white"
+                      : "hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300"
+                  }`}
+                >
+                  <span
+                    aria-hidden
+                    className="inline-block w-3 h-3 rounded-full border border-black/15 shadow-sm"
+                    style={swatchStyle}
+                  />
+                  {meta.icon}
+                  <span className="hidden sm:inline">{meta.label}</span>
+                </button>
+              );
+            })}
+          </div>
         </HeaderGroup>
 
         <HeaderGroup label="Record">
-        {/* Undo / Redo */}
-        <button
-          onClick={undo}
-          disabled={!canUndo()}
-          title={`Undo (${undoLabel})${undoDepth ? ` — ${undoDepth} step${undoDepth === 1 ? "" : "s"}` : ""}`}
-          aria-label={`Undo last field change${undoDepth ? ` (${undoDepth} available)` : ""}`}
-          className="relative flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 disabled:opacity-40 disabled:cursor-not-allowed h-k-touch px-3 rounded-k transition text-k-help font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-        >
-          <Undo2 size={15} />
-          {undoDepth > 0 && (
-            <span
-              aria-hidden
-              className="absolute -top-0.5 -right-0.5 min-w-[14px] h-[14px] px-0.5 rounded-full bg-brand-600 text-white text-[9px] leading-[14px] text-center font-semibold shadow"
-            >
-              {undoDepth > 9 ? "9+" : undoDepth}
-            </span>
-          )}
-        </button>
-        <button
-          onClick={redo}
-          disabled={!canRedo()}
-          title={`Redo (${redoLabel})${redoDepth ? ` — ${redoDepth} step${redoDepth === 1 ? "" : "s"}` : ""}`}
-          aria-label={`Redo field change${redoDepth ? ` (${redoDepth} available)` : ""}`}
-          className="relative flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 disabled:opacity-40 disabled:cursor-not-allowed h-k-touch px-3 rounded-k transition text-k-help font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-        >
-          <Redo2 size={15} />
-          {redoDepth > 0 && (
-            <span
-              aria-hidden
-              className="absolute -top-0.5 -right-0.5 min-w-[14px] h-[14px] px-0.5 rounded-full bg-brand-600 text-white text-[9px] leading-[14px] text-center font-semibold shadow"
-            >
-              {redoDepth > 9 ? "9+" : redoDepth}
-            </span>
-          )}
-        </button>
-
-        <div className="state-divider w-px h-5 bg-gray-200 dark:bg-dark-border mx-1" />
-
-        {/* Quick Fill Presets */}
-        <div className="relative" ref={presetsRef}>
+          {/* Undo / Redo */}
           <button
-            onClick={() => setPresetsOpen((v) => !v)}
-            title="Quick fill from a preset profile"
-            aria-haspopup="menu"
-            aria-expanded={presetsOpen}
-            className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 h-k-touch px-3 rounded-k transition text-k-help font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            onClick={undo}
+            disabled={!canUndo()}
+            title={`Undo (${undoLabel})${undoDepth ? ` — ${undoDepth} step${undoDepth === 1 ? "" : "s"}` : ""}`}
+            aria-label={`Undo last field change${undoDepth ? ` (${undoDepth} available)` : ""}`}
+            className="relative flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 disabled:opacity-40 disabled:cursor-not-allowed h-k-touch px-3 rounded-k transition text-k-help font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           >
-            <Sparkles size={15} />
-            <span className="hidden sm:inline">Presets</span>
-            <ChevronDown size={12} />
+            <Undo2 size={15} />
+            {undoDepth > 0 && (
+              <span
+                aria-hidden
+                className="absolute -top-0.5 -right-0.5 min-w-[14px] h-[14px] px-0.5 rounded-full bg-brand-600 text-white text-[9px] leading-[14px] text-center font-semibold shadow"
+              >
+                {undoDepth > 9 ? "9+" : undoDepth}
+              </span>
+            )}
           </button>
-          {presetsOpen && (
-            <div
-              role="menu"
-              className="absolute right-0 mt-1 w-72 bg-white dark:bg-dark-surface border border-gray-200 dark:border-dark-border rounded-md shadow-lg z-30 overflow-hidden"
+          <button
+            onClick={redo}
+            disabled={!canRedo()}
+            title={`Redo (${redoLabel})${redoDepth ? ` — ${redoDepth} step${redoDepth === 1 ? "" : "s"}` : ""}`}
+            aria-label={`Redo field change${redoDepth ? ` (${redoDepth} available)` : ""}`}
+            className="relative flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 disabled:opacity-40 disabled:cursor-not-allowed h-k-touch px-3 rounded-k transition text-k-help font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          >
+            <Redo2 size={15} />
+            {redoDepth > 0 && (
+              <span
+                aria-hidden
+                className="absolute -top-0.5 -right-0.5 min-w-[14px] h-[14px] px-0.5 rounded-full bg-brand-600 text-white text-[9px] leading-[14px] text-center font-semibold shadow"
+              >
+                {redoDepth > 9 ? "9+" : redoDepth}
+              </span>
+            )}
+          </button>
+
+          <div className="state-divider w-px h-5 bg-gray-200 dark:bg-dark-border mx-1" />
+
+          {/* Quick Fill Presets */}
+          <div className="relative" ref={presetsRef}>
+            <button
+              onClick={() => setPresetsOpen((v) => !v)}
+              title="Quick fill from a preset profile"
+              aria-haspopup="menu"
+              aria-expanded={presetsOpen}
+              className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 h-k-touch px-3 rounded-k transition text-k-help font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
             >
-              <div className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 border-b border-gray-100 dark:border-dark-border">
-                Quick Fill Presets
+              <Sparkles size={15} />
+              <span className="hidden sm:inline">Presets</span>
+              <ChevronDown size={12} />
+            </button>
+            {presetsOpen && (
+              <div
+                role="menu"
+                className="absolute right-0 mt-1 w-72 bg-white dark:bg-dark-surface border border-gray-200 dark:border-dark-border rounded-md shadow-lg z-30 overflow-hidden"
+              >
+                <div className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 border-b border-gray-100 dark:border-dark-border">
+                  Quick Fill Presets
+                </div>
+                {presets.length === 0 ? (
+                  <div className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">Loading…</div>
+                ) : null}
+                <ul>
+                  {presets.map((p) => (
+                    <li key={p.id}>
+                      <button
+                        type="button"
+                        role="menuitem"
+                        onClick={() => handleApplyPreset(p.id)}
+                        className="w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-sm text-gray-800 dark:text-gray-100 focus-visible:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-dark-surface2"
+                      >
+                        <div className="font-medium">{p.label}</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                          {p.description}
+                        </div>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
               </div>
-              {presets.length === 0 ? (
-                <div className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">Loading…</div>
-              ) : null}
-              <ul>
-                {presets.map((p) => (
-                  <li key={p.id}>
-                    <button
-                      type="button"
-                      role="menuitem"
-                      onClick={() => handleApplyPreset(p.id)}
-                      className="w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-sm text-gray-800 dark:text-gray-100 focus-visible:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-dark-surface2"
-                    >
-                      <div className="font-medium">{p.label}</div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400">
-                        {p.description}
-                      </div>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
 
-        {/* Batch — a different task from single-payload editing, so it gets its
+          {/* Batch — a different task from single-payload editing, so it gets its
             own modal instead of living at the bottom of the field form. */}
-        <button
-          onClick={onOpenBatch}
-          className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 h-k-touch px-3 rounded-k transition text-k-help font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-          title="Generate many barcodes from a JSON or CSV file"
-          aria-label="Open batch processing"
-        >
-          <Layers size={15} />
-          <span className="hidden sm:inline">Batch</span>
-        </button>
+          <button
+            onClick={onOpenBatch}
+            className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 h-k-touch px-3 rounded-k transition text-k-help font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            title="Generate many barcodes from a JSON or CSV file"
+            aria-label="Open batch processing"
+          >
+            <Layers size={15} />
+            <span className="hidden sm:inline">Batch</span>
+          </button>
 
-        {/* Compare */}
-        <button
-          onClick={onOpenCompare}
-          className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 h-k-touch px-3 rounded-k transition text-k-help font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-          title="Compare two payloads side-by-side"
-          aria-label="Compare two payloads"
-        >
-          <GitCompare size={15} />
-          <span className="hidden sm:inline">Compare</span>
-        </button>
+          {/* Compare */}
+          <button
+            onClick={onOpenCompare}
+            className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 h-k-touch px-3 rounded-k transition text-k-help font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            title="Compare two payloads side-by-side"
+            aria-label="Compare two payloads"
+          >
+            <GitCompare size={15} />
+            <span className="hidden sm:inline">Compare</span>
+          </button>
 
-        <div className="state-divider w-px h-5 bg-gray-200 dark:bg-dark-border mx-1" />
+          <div className="state-divider w-px h-5 bg-gray-200 dark:bg-dark-border mx-1" />
 
-        {/* Scan */}
-        <button
-          onClick={onStartScan}
-          className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 h-k-touch px-3 rounded-k transition text-k-help font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-          title="Scan Barcode from Webcam"
-          aria-label="Open barcode scanner"
-        >
-          <Camera size={15} />
-          <span className="hidden sm:inline">Scan ID</span>
-        </button>
+          {/* Scan */}
+          <button
+            onClick={onStartScan}
+            className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 h-k-touch px-3 rounded-k transition text-k-help font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            title="Scan Barcode from Webcam"
+            aria-label="Open barcode scanner"
+          >
+            <Camera size={15} />
+            <span className="hidden sm:inline">Scan ID</span>
+          </button>
 
-        {/* Import JSON */}
-        <input
-          ref={importRef}
-          type="file"
-          accept=".json,application/json"
-          onChange={handleImportJson}
-          className="hidden"
-          aria-hidden="true"
-          tabIndex={-1}
-        />
-        <button
-          onClick={() => importRef.current?.click()}
-          className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 h-k-touch px-3 rounded-k transition text-k-help font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-          title="Import JSON Profile"
-          aria-label="Import JSON payload file"
-        >
-          <Upload size={15} />
-          <span className="hidden sm:inline">Import JSON</span>
-        </button>
+          {/* Import JSON */}
+          <input
+            ref={importRef}
+            type="file"
+            accept=".json,application/json"
+            onChange={handleImportJson}
+            className="hidden"
+            aria-hidden="true"
+            tabIndex={-1}
+          />
+          <button
+            onClick={() => importRef.current?.click()}
+            className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 h-k-touch px-3 rounded-k transition text-k-help font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            title="Import JSON Profile"
+            aria-label="Import JSON payload file"
+          >
+            <Upload size={15} />
+            <span className="hidden sm:inline">Import JSON</span>
+          </button>
 
-        {/* Export JSON */}
-        <button
-          onClick={handleExportJson}
-          className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 h-k-touch px-3 rounded-k transition text-k-help font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-          title="Export JSON Profile"
-          aria-label="Export current fields as JSON"
-        >
-          <Download size={15} />
-          <span className="hidden sm:inline">Export JSON</span>
-        </button>
+          {/* Export JSON */}
+          <button
+            onClick={handleExportJson}
+            className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 h-k-touch px-3 rounded-k transition text-k-help font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            title="Export JSON Profile"
+            aria-label="Export current fields as JSON"
+          >
+            <Download size={15} />
+            <span className="hidden sm:inline">Export JSON</span>
+          </button>
         </HeaderGroup>
 
         {/* Everything past here is utility or destructive, so it is pushed

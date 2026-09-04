@@ -1,6 +1,7 @@
 import type { AAMVAField } from "./schema";
 import { AAMVA_STATE_RULES } from "./validation";
 import { getEffectiveDateRules } from "./jurisdictionRules";
+import { regularClassFor } from "./privilegeDirectory";
 
 /** A small, deterministic-feel set of values that pass strict validation
  *  for nearly every state. Used by the dev-only "Fill sample" action. */
@@ -81,6 +82,7 @@ export function buildSampleFill(
     if (field.code === "DAQ" && licenseNumber) value = licenseNumber;
     if (field.code === "DBA") value = expiry;
     if (field.code === "DAJ" && stateCode) value = stateCode;
+    if (field.code === "DCA" && stateCode) value = regularClassFor(stateCode);
     if (value !== undefined && value !== "") out[field.code] = value;
   }
   return out;

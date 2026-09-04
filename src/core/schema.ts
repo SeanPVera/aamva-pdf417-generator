@@ -218,7 +218,8 @@ export const AAMVA_FIELD_OPTIONS: Record<string, FieldOption[]> = {
     {
       value: "DIC",
       label: "DIC — Dichromatic",
-      description: "Two different eye colors (heterochromia). Encode DIC. AAMVA has no left/right split.",
+      description:
+        "Two different eye colors (heterochromia). Encode DIC. AAMVA has no left/right split.",
       swatch: "#3b6ea5|#6b3d1f"
     },
     {
@@ -301,17 +302,29 @@ export const AAMVA_FIELD_OPTIONS: Record<string, FieldOption[]> = {
     }
   ],
   DDE: [
-    { value: "T", label: "T — Truncated", description: "The name was cut to fit the field length." },
+    {
+      value: "T",
+      label: "T — Truncated",
+      description: "The name was cut to fit the field length."
+    },
     { value: "N", label: "N — Not truncated", description: "The full name is in the barcode." },
     { value: "U", label: "U — Unknown", description: "Truncation status was not recorded." }
   ],
   DDF: [
-    { value: "T", label: "T — Truncated", description: "The name was cut to fit the field length." },
+    {
+      value: "T",
+      label: "T — Truncated",
+      description: "The name was cut to fit the field length."
+    },
     { value: "N", label: "N — Not truncated", description: "The full name is in the barcode." },
     { value: "U", label: "U — Unknown", description: "Truncation status was not recorded." }
   ],
   DDG: [
-    { value: "T", label: "T — Truncated", description: "The name was cut to fit the field length." },
+    {
+      value: "T",
+      label: "T — Truncated",
+      description: "The name was cut to fit the field length."
+    },
     { value: "N", label: "N — Not truncated", description: "The full name is in the barcode." },
     { value: "U", label: "U — Unknown", description: "Truncation status was not recorded." }
   ],
@@ -330,11 +343,19 @@ export const AAMVA_FIELD_OPTIONS: Record<string, FieldOption[]> = {
     }
   ],
   DDK: [
-    { value: "1", label: "1 — Donor", description: "Organ donor. Encode 1 or 0; do not write the word." },
+    {
+      value: "1",
+      label: "1 — Donor",
+      description: "Organ donor. Encode 1 or 0; do not write the word."
+    },
     { value: "0", label: "0 — Not a donor", description: "Not an organ donor." }
   ],
   DDL: [
-    { value: "1", label: "1 — Veteran", description: "Veteran. Encode 1 or 0; do not write the word." },
+    {
+      value: "1",
+      label: "1 — Veteran",
+      description: "Veteran. Encode 1 or 0; do not write the word."
+    },
     { value: "0", label: "0 — Not a veteran", description: "Not a veteran." }
   ],
   DDD: [
@@ -349,12 +370,14 @@ export const AAMVA_FIELD_OPTIONS: Record<string, FieldOption[]> = {
     {
       value: "AI",
       label: "AI — Alaskan/American Indian",
-      description: "AAMVA race/ethnicity: Alaskan or American Indian. Many states omit this field entirely."
+      description:
+        "AAMVA race/ethnicity: Alaskan or American Indian. Many states omit this field entirely."
     },
     {
       value: "AP",
       label: "AP — Asian/Pacific Islander",
-      description: "AAMVA race/ethnicity: Asian or Pacific Islander. Removed from the 2025 (v11) barcode."
+      description:
+        "AAMVA race/ethnicity: Asian or Pacific Islander. Removed from the 2025 (v11) barcode."
     },
     {
       value: "BK",
@@ -637,7 +660,8 @@ export const AAMVA_VERSIONS: Record<string, AAMVAVersionDef> = {
           {
             value: "F",
             label: "F — Female",
-            description: "AAMVA DL/ID-2000 sex of record: female. Later versions use 2 instead of F."
+            description:
+              "AAMVA DL/ID-2000 sex of record: female. Later versions use 2 instead of F."
           }
         ]
       },

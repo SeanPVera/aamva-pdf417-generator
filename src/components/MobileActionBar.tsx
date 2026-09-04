@@ -1,5 +1,13 @@
 import React from "react";
-import { AlertCircle, FileImage, Loader2, PencilLine, Settings2, List, ScanLine } from "lucide-react";
+import {
+  AlertCircle,
+  FileImage,
+  Loader2,
+  PencilLine,
+  Settings2,
+  List,
+  ScanLine
+} from "lucide-react";
 
 type MobilePanel = "config" | "form" | "preview";
 

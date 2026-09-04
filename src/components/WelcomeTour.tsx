@@ -20,8 +20,8 @@ const STEPS: Step[] = [
     body: (
       <>
         Use the <strong>Setup</strong> panel to pick a jurisdiction and AAMVA version. On a phone
-        that lives in the bottom tab; on a desk it is the left column. The form rebuilds itself
-        for that combination, including any state-specific exclusions.
+        that lives in the bottom tab; on a desk it is the left column. The form rebuilds itself for
+        that combination, including any state-specific exclusions.
       </>
     )
   },

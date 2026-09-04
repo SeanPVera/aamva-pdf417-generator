@@ -176,7 +176,7 @@ export const JurisdictionCombobox: React.FC<JurisdictionComboboxProps> = ({
           }}
           onFocus={() => setOpen(true)}
           onKeyDown={handleKeyDown}
-          className="h-k-control w-full rounded-k border border-gray-300 bg-white pr-16 pl-4 text-k-value text-gray-900 shadow-sm transition-colors focus:border-brand-500 focus:ring-brand-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 dark:border-[#555] dark:bg-dark-surface2 dark:text-gray-100"
+          className="h-k-control min-h-k-touch w-full rounded-k border border-gray-300 bg-white pr-16 pl-4 text-k-value text-gray-900 shadow-sm transition-colors focus:border-brand-500 focus:ring-brand-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 dark:border-[#555] dark:bg-dark-surface2 dark:text-gray-100"
         />
         {open && (
           <Search
