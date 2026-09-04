@@ -346,13 +346,41 @@ export const AAMVA_FIELD_OPTIONS: Record<string, FieldOption[]> = {
     { value: "0", label: "0 — Not limited duration", description: "Full-term credential." }
   ],
   DCL: [
-    { value: "AI", label: "AI — Alaskan/American Indian" },
-    { value: "AP", label: "AP — Asian/Pacific Islander" },
-    { value: "BK", label: "BK — Black" },
-    { value: "H", label: "H — Hispanic Origin" },
-    { value: "O", label: "O — Non-Hispanic" },
-    { value: "U", label: "U — Unknown" },
-    { value: "W", label: "W — White" }
+    {
+      value: "AI",
+      label: "AI — Alaskan/American Indian",
+      description: "AAMVA race/ethnicity: Alaskan or American Indian. Many states omit this field entirely."
+    },
+    {
+      value: "AP",
+      label: "AP — Asian/Pacific Islander",
+      description: "AAMVA race/ethnicity: Asian or Pacific Islander. Removed from the 2025 (v11) barcode."
+    },
+    {
+      value: "BK",
+      label: "BK — Black",
+      description: "AAMVA race/ethnicity: Black. Removed from the 2025 (v11) barcode."
+    },
+    {
+      value: "H",
+      label: "H — Hispanic origin",
+      description: "AAMVA race/ethnicity: Hispanic origin."
+    },
+    {
+      value: "O",
+      label: "O — Non-Hispanic",
+      description: "AAMVA race/ethnicity: Non-Hispanic."
+    },
+    {
+      value: "U",
+      label: "U — Unknown",
+      description: "AAMVA race/ethnicity was not recorded."
+    },
+    {
+      value: "W",
+      label: "W — White",
+      description: "AAMVA race/ethnicity: White. Removed from the 2025 (v11) barcode."
+    }
   ],
   DDM: [
     {

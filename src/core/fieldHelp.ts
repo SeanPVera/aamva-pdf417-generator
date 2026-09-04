@@ -45,9 +45,18 @@ export const FIELD_HELP: Record<string, string> = {
     "(5'9\") or 175 CM. Pick a chip or type it.",
   DAW: "Weight in pounds, zero-padded to three digits, e.g. 180. Pick a chip or type it.",
   DAX: "Weight in kilograms, zero-padded to three digits.",
-  DCA: "Vehicle Class — the licensee's class designation (e.g. C, A, M).",
-  DCB: 'Restriction Codes — use the "None" button if no restrictions apply.',
-  DCD: 'Endorsement Codes — use the "None" button if no endorsements apply.',
+  DCA:
+    "Vehicle Class — the licensee's class designation. A and B are CDL " +
+    "(combination / heavy single). C, D, and E are the regular automobile class, " +
+    "depending on the state (CA uses C, TX uses D, NY/FL often E). M is motorcycle. " +
+    "Combine as AM, DM, etc. ID cards use NONE. Pick a chip or type the jurisdiction's code.",
+  DCB:
+    'Restriction Codes — B = corrective lenses, plus CDL letters (E automatic, K intrastate, L/Z air brake). ' +
+    'Use NONE if none apply. Codes can stack; type a combination if a chip is only one letter.',
+  DCD:
+    "Endorsement Codes — H hazmat, N tank, P passenger, S school bus, T doubles, X tank+hazmat. " +
+    "Use NONE if none apply.",
+  DCU: "Name Suffix — JR, SR, I, II, III, IV, V. Optional; omit if the name has no suffix.",
   DBA: "Expiration Date — must be after the issue date and within the state's max validity window.",
   DBB: "Date of Birth — used for age-at-issuance checks (must be ≥14 at issuance).",
   DBD: "Document Issue Date — the date this physical card was issued.",

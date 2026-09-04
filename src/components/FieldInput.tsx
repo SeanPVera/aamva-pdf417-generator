@@ -74,6 +74,139 @@ const WEIGHT_CHIPS: { label: string; value: string; title: string }[] = [
 });
 
 /**
+ * Suggestion chips for coded fields that are NOT a closed AAMVA enumeration
+ * (vehicle class can be "AM", restrictions can stack). Tapping writes the
+ * code; the text input stays so a jurisdiction-specific string still works.
+ */
+const SUGGESTION_CHIPS: Record<string, { label: string; value: string; title: string }[]> = {
+  DCA: [
+    {
+      label: "A CDL combo",
+      value: "A",
+      title: "Class A — combination vehicles (tractor-trailer) over 26,001 lbs with a trailer over 10,000 lbs. CDL. Typical minimum age 21."
+    },
+    {
+      label: "B CDL heavy",
+      value: "B",
+      title: "Class B — a single vehicle over 26,001 lbs (bus, dump truck, box truck). CDL. Typical minimum age 21."
+    },
+    {
+      label: "C regular",
+      value: "C",
+      title: "Class C — passenger cars and light trucks. Used as the regular automobile class in California and many western states."
+    },
+    {
+      label: "D regular",
+      value: "D",
+      title: "Class D — passenger cars and light trucks. Used as the regular automobile class in Texas and many southern and midwestern states."
+    },
+    {
+      label: "E regular",
+      value: "E",
+      title: "Class E — passenger cars / for-hire in New York, Florida, and some others. Check the issuing jurisdiction."
+    },
+    {
+      label: "M motorcycle",
+      value: "M",
+      title: "Class M — motorcycle. Combine with a car class as AM, CM, DM, etc. if the card grants both."
+    },
+    {
+      label: "NONE",
+      value: "NONE",
+      title: "No driving privilege — identification card. Encode NONE, not a blank, on a DL subfile that still requires the field."
+    }
+  ],
+  DCB: [
+    {
+      label: "NONE",
+      value: "NONE",
+      title: "No restrictions. Encode NONE when the field is required and the driver has none."
+    },
+    {
+      label: "B lenses",
+      value: "B",
+      title: "Corrective lenses required. Common passenger-car restriction."
+    },
+    {
+      label: "C mechanical",
+      value: "C",
+      title: "Mechanical aid required (adapted vehicle)."
+    },
+    {
+      label: "D prosthetic",
+      value: "D",
+      title: "Prosthetic aid required."
+    },
+    {
+      label: "E automatic",
+      value: "E",
+      title: "Automatic transmission only (CDL: no manual transmission CMV)."
+    },
+    {
+      label: "K intrastate",
+      value: "K",
+      title: "Intrastate only — may not operate a CMV across state lines."
+    },
+    {
+      label: "L no air brake",
+      value: "L",
+      title: "No air-brake equipped CMV."
+    },
+    {
+      label: "Z no full air",
+      value: "Z",
+      title: "No full air-brake equipped CMV."
+    }
+  ],
+  DCD: [
+    {
+      label: "NONE",
+      value: "NONE",
+      title: "No endorsements. Encode NONE when the field is required and the driver has none."
+    },
+    {
+      label: "H hazmat",
+      value: "H",
+      title: "Hazardous materials endorsement. Requires TSA threat assessment."
+    },
+    {
+      label: "N tank",
+      value: "N",
+      title: "Tank vehicle endorsement."
+    },
+    {
+      label: "P passenger",
+      value: "P",
+      title: "Passenger endorsement (bus)."
+    },
+    {
+      label: "S school",
+      value: "S",
+      title: "School bus endorsement."
+    },
+    {
+      label: "T doubles",
+      value: "T",
+      title: "Doubles / triples trailer endorsement."
+    },
+    {
+      label: "X tank+hazmat",
+      value: "X",
+      title: "Combination tank and hazardous materials endorsement."
+    }
+  ],
+  DCU: [
+    { label: "JR", value: "JR", title: "Junior. AAMVA name suffix, max 5 characters." },
+    { label: "SR", value: "SR", title: "Senior." },
+    { label: "I", value: "I", title: "The First." },
+    { label: "II", value: "II", title: "The Second." },
+    { label: "III", value: "III", title: "The Third." },
+    { label: "IV", value: "IV", title: "The Fourth." },
+    { label: "V", value: "V", title: "The Fifth." }
+  ]
+};
+
+/**
  * Pulls the allowed values out of an enumeration message so they can be offered
  * as one-click chips instead of being truncated into illegibility. Mirrors the
  * message `evaluateFieldValue` builds for `getAllowedSet` failures.
@@ -211,6 +344,7 @@ export const FieldInput: React.FC<FieldInputProps> = ({
       : !value.trim() && field.code === "DAW"
         ? WEIGHT_CHIPS
         : [];
+  const suggestionChips = SUGGESTION_CHIPS[field.code] ?? [];
 
   // A repair for a value that fails, or the encoder-canonical form of one that
   // passes. Both are a single click; neither ever invents a value.
@@ -678,6 +812,29 @@ export const FieldInput: React.FC<FieldInputProps> = ({
                   {chip.label}
                 </button>
               ))}
+            </div>
+          )}
+          {suggestionChips.length > 0 && (
+            <div className="flex flex-wrap gap-1.5">
+              {suggestionChips.map((chip) => {
+                const selected = value === chip.value;
+                return (
+                  <button
+                    key={chip.value}
+                    type="button"
+                    onClick={() => onChange(field.code, chip.value)}
+                    title={chip.title}
+                    aria-label={`Set ${field.code}: ${chip.title}`}
+                    className={`inline-flex min-h-k-touch items-center rounded-k border px-3 text-k-help font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 ${
+                      selected
+                        ? "border-brand-700 bg-brand-700 text-white"
+                        : "border-gray-200 bg-gray-50 text-gray-700 hover:bg-gray-100 dark:border-[#444] dark:bg-dark-surface2 dark:text-gray-300 dark:hover:bg-[#383838]"
+                    }`}
+                  >
+                    {chip.label}
+                  </button>
+                );
+              })}
             </div>
           )}
           {/* Enumerated values become one-click chips — reading the list and

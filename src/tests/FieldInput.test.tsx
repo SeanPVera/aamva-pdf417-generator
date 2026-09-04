@@ -178,4 +178,29 @@ describe("FieldInput — enumerated fields", () => {
     fireEvent.click(screen.getByRole("button", { name: /5'9".*069 IN/i }));
     expect(onChange).toHaveBeenCalledWith("DAU", "069 IN");
   });
+
+  test("Vehicle Class chips write AAMVA codes without locking the input", () => {
+    const { onChange } = renderField({
+      code: "DCA",
+      label: "Vehicle Class",
+      type: "string",
+      required: true
+    });
+    expect(screen.getByRole("textbox")).toBeInTheDocument();
+    const cdl = screen.getByRole("button", { name: /Class A — combination/i });
+    expect(cdl).toHaveAttribute("title", expect.stringMatching(/CDL/));
+    fireEvent.click(cdl);
+    expect(onChange).toHaveBeenCalledWith("DCA", "A");
+  });
+
+  test("Endorsement chips include NONE and H hazmat", () => {
+    const { onChange } = renderField({
+      code: "DCD",
+      label: "Endorsement Codes",
+      type: "string",
+      required: true
+    });
+    fireEvent.click(screen.getByRole("button", { name: /Hazardous materials/i }));
+    expect(onChange).toHaveBeenCalledWith("DCD", "H");
+  });
 });
