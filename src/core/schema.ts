@@ -3,6 +3,8 @@ import { getJurisdictionSubfileElements } from "./jurisdictionRules";
 export interface FieldOption {
   value: string;
   label: string;
+  /** Native title / chip tooltip — what the code means on a real credential. */
+  description?: string;
 }
 
 export interface AAMVAField {
@@ -20,9 +22,9 @@ export interface AAMVAField {
    */
   subfile?: "jurisdiction";
   /**
-   * Per-field length cap for elements outside `AAMVA_FIELD_LIMITS`. Standard
-   * codes keep their limit in that table; this exists for jurisdiction-defined
-   * elements, whose codes are only meaningful within one jurisdiction.
+   * Optional override of the shared `AAMVA_FIELD_LIMITS` cap. Used for
+   * jurisdiction-defined elements (whose codes are not in that table) and
+   * for version-specific widths that tighten a shared entry.
    */
   maxLength?: number;
 }
@@ -120,6 +122,10 @@ const FIELD_CODE_TO_GROUP: Record<string, FieldGroupId> = {
   DDK: "license",
   DDL: "license",
   DDD: "license",
+  DDM: "license",
+  DDN: "license",
+  DDO: "license",
+  DDP: "license",
   // Privileges
   DAR: "privileges",
   DAS: "privileges",
@@ -139,9 +145,24 @@ export function getFieldGroup(code: string): FieldGroupId {
 
 export const AAMVA_FIELD_OPTIONS: Record<string, FieldOption[]> = {
   DBC: [
-    { value: "1", label: "1 — Male" },
-    { value: "2", label: "2 — Female" },
-    { value: "9", label: "9 — Not Specified" }
+    {
+      value: "1",
+      label: "1 — Male",
+      description:
+        "AAMVA sex of record: male. This is the code in the barcode, not a gender-identity field."
+    },
+    {
+      value: "2",
+      label: "2 — Female",
+      description:
+        "AAMVA sex of record: female. This is the code in the barcode, not a gender-identity field."
+    },
+    {
+      value: "9",
+      label: "9 — Not specified",
+      description:
+        "The jurisdiction did not encode male or female. 9 is not a third sex — it means the field is not specified."
+    }
   ],
   DAY: [
     { value: "BLK", label: "BLK — Black" },
@@ -172,35 +193,49 @@ export const AAMVA_FIELD_OPTIONS: Record<string, FieldOption[]> = {
     { value: "MEX", label: "MEX — Mexico" }
   ],
   DDE: [
-    { value: "T", label: "T — Truncated" },
-    { value: "N", label: "N — Not Truncated" },
-    { value: "U", label: "U — Unknown" }
+    { value: "T", label: "T — Truncated", description: "The name was cut to fit the field length." },
+    { value: "N", label: "N — Not truncated", description: "The full name is in the barcode." },
+    { value: "U", label: "U — Unknown", description: "Truncation status was not recorded." }
   ],
   DDF: [
-    { value: "T", label: "T — Truncated" },
-    { value: "N", label: "N — Not Truncated" },
-    { value: "U", label: "U — Unknown" }
+    { value: "T", label: "T — Truncated", description: "The name was cut to fit the field length." },
+    { value: "N", label: "N — Not truncated", description: "The full name is in the barcode." },
+    { value: "U", label: "U — Unknown", description: "Truncation status was not recorded." }
   ],
   DDG: [
-    { value: "T", label: "T — Truncated" },
-    { value: "N", label: "N — Not Truncated" },
-    { value: "U", label: "U — Unknown" }
+    { value: "T", label: "T — Truncated", description: "The name was cut to fit the field length." },
+    { value: "N", label: "N — Not truncated", description: "The full name is in the barcode." },
+    { value: "U", label: "U — Unknown", description: "Truncation status was not recorded." }
   ],
   DDA: [
-    { value: "F", label: "F — Fully Compliant" },
-    { value: "N", label: "N — Non-Compliant" }
+    {
+      value: "F",
+      label: "F — REAL ID",
+      description:
+        "Fully Compliant. This card meets the REAL ID Act. TSA and federal facilities accept it for domestic air travel and building access."
+    },
+    {
+      value: "N",
+      label: "N — Federal limits apply",
+      description:
+        "Non-Compliant. Not a REAL ID. Valid as a state DL/ID, but not accepted at TSA checkpoints or federal buildings after enforcement. The face is typically marked FEDERAL LIMITS APPLY."
+    }
   ],
   DDK: [
-    { value: "1", label: "1 — Donor" },
-    { value: "0", label: "0 — Not a Donor" }
+    { value: "1", label: "1 — Donor", description: "Organ donor. Encode 1 or 0; do not write the word." },
+    { value: "0", label: "0 — Not a donor", description: "Not an organ donor." }
   ],
   DDL: [
-    { value: "1", label: "1 — Veteran" },
-    { value: "0", label: "0 — Not a Veteran" }
+    { value: "1", label: "1 — Veteran", description: "Veteran. Encode 1 or 0; do not write the word." },
+    { value: "0", label: "0 — Not a veteran", description: "Not a veteran." }
   ],
   DDD: [
-    { value: "1", label: "1 — Limited Duration" },
-    { value: "0", label: "0 — Not Limited Duration" }
+    {
+      value: "1",
+      label: "1 — Limited duration",
+      description: "Temporary / limited-duration document (for example a non-citizen term)."
+    },
+    { value: "0", label: "0 — Not limited duration", description: "Full-term credential." }
   ],
   DCL: [
     { value: "AI", label: "AI — Alaskan/American Indian" },
@@ -210,6 +245,38 @@ export const AAMVA_FIELD_OPTIONS: Record<string, FieldOption[]> = {
     { value: "O", label: "O — Non-Hispanic" },
     { value: "U", label: "U — Unknown" },
     { value: "W", label: "W — White" }
+  ],
+  DDM: [
+    {
+      value: "1",
+      label: "1 — CDL or CLP",
+      description:
+        "CDS 2025. Encode 1 if this is a Commercial Driver’s License or Commercial Learner’s Permit. Omit the field when it is not."
+    }
+  ],
+  DDN: [
+    {
+      value: "1",
+      label: "1 — Non-domiciled",
+      description:
+        "CDS 2025. Encode 1 if the CDL/CLP holder is not domiciled in the issuing jurisdiction. Omit otherwise."
+    }
+  ],
+  DDO: [
+    {
+      value: "1",
+      label: "1 — Enhanced (EDL/EID)",
+      description:
+        "CDS 2025. Encode 1 if this is an Enhanced Driver’s License or Enhanced Identification Card. Omit otherwise."
+    }
+  ],
+  DDP: [
+    {
+      value: "1",
+      label: "1 — Permit",
+      description:
+        "CDS 2025. Encode 1 if this credential is a permit (original, motorcycle, commercial, etc.). Omit otherwise."
+    }
   ]
 };
 
@@ -252,7 +319,11 @@ export const AAMVA_FIELD_LIMITS: Record<string, number> = {
   DDD: 1,
   DAR: 4,
   DAS: 10,
-  DAT: 5
+  DAT: 5,
+  DDM: 1,
+  DDN: 1,
+  DDO: 1,
+  DDP: 1
 };
 
 export const AAMVA_STATE_EXCLUDED_FIELDS: Record<string, string[]> = {
@@ -343,8 +414,55 @@ const V04_FIELDS: AAMVAField[] = [
   { code: "DAW", label: "Weight (pounds)", type: "string" },
   { code: "DAZ", label: "Hair Color", type: "string" },
   { code: "DCL", label: "Race/Ethnicity", type: "string" },
-  { code: "DDA", label: "Compliance Type", type: "string" },
+  { code: "DDA", label: "REAL ID / Compliance Type", type: "string" },
   { code: "DDB", label: "Card Revision Date", type: "date" }
+];
+
+// The 2025 Card Design Standard (AAMVA version 11). Built from the 2020
+// (version 10) DL subfile with the CDS 2025 element-set changes:
+//   - DCL (race/ethnicity), DBN/DBG/DBS (AKA names), and DDC (HAZMAT expiry)
+//     are gone. The last four were never in this table; DCL was.
+//   - DDM/DDN/DDO/DDP document-type indicators are added (encode "1" or omit).
+//   - DAK is specified as V9ANS (variable, max 9) instead of F11ANS (fixed 11).
+//     The shared length table stays at 11 so a dashed ZIP+4 still validates;
+//     encoding still strips the dash. Jurisdiction pad-to-11 is unchanged.
+const V11_FIELDS: AAMVAField[] = [
+  { code: "DCA", label: "Vehicle Class", type: "string", required: true },
+  { code: "DCB", label: "Restriction Codes", type: "string", required: true },
+  { code: "DCD", label: "Endorsement Codes", type: "string", required: true },
+  { code: "DBA", label: "Expiration Date", type: "date", required: true },
+  { code: "DCS", label: "Customer Family Name", type: "string", required: true },
+  { code: "DAC", label: "Customer First Name", type: "string", required: true },
+  { code: "DAD", label: "Customer Middle Name", type: "string" },
+  { code: "DBD", label: "Document Issue Date", type: "date", required: true },
+  { code: "DBB", label: "Date of Birth", type: "date", required: true },
+  { code: "DBC", label: "Sex", type: "char", required: true },
+  { code: "DAY", label: "Eye Color", type: "string", required: true },
+  { code: "DAU", label: "Height", type: "string", required: true },
+  { code: "DAG", label: "Address Street", type: "string", required: true },
+  { code: "DAH", label: "Address Line 2", type: "string" },
+  { code: "DAI", label: "City", type: "string", required: true },
+  { code: "DAJ", label: "Jurisdiction Code", type: "string", required: true },
+  { code: "DAK", label: "Postal Code", type: "zip", required: true },
+  { code: "DAQ", label: "Customer ID Number", type: "string", required: true },
+  { code: "DCF", label: "Document Discriminator", type: "string", required: true },
+  { code: "DCG", label: "Country Identification", type: "string", required: true },
+  { code: "DCK", label: "Inventory Control Number", type: "string" },
+  { code: "DDE", label: "Family Name Truncation", type: "string", required: true },
+  { code: "DDF", label: "First Name Truncation", type: "string", required: true },
+  { code: "DDG", label: "Middle Name Truncation", type: "string", required: true },
+  { code: "DCU", label: "Name Suffix", type: "string" },
+  { code: "DAW", label: "Weight (pounds)", type: "string" },
+  { code: "DAZ", label: "Hair Color", type: "string" },
+  { code: "DDA", label: "REAL ID / Compliance Type", type: "string" },
+  { code: "DDB", label: "Card Revision Date", type: "date" },
+  { code: "DDK", label: "Organ Donor Indicator", type: "string" },
+  { code: "DDL", label: "Veteran Indicator", type: "string" },
+  { code: "DDD", label: "Limited Duration Document Indicator", type: "string" },
+  { code: "DDM", label: "CDL Indicator", type: "char" },
+  { code: "DDN", label: "Non-Domiciled Indicator", type: "char" },
+  { code: "DDO", label: "Enhanced Credential Indicator", type: "char" },
+  { code: "DDP", label: "Permit Indicator", type: "char" }
 ];
 
 export const AAMVA_VERSIONS: Record<string, AAMVAVersionDef> = {
@@ -375,8 +493,16 @@ export const AAMVA_VERSIONS: Record<string, AAMVAVersionDef> = {
         type: "char",
         required: true,
         options: [
-          { value: "M", label: "M — Male" },
-          { value: "F", label: "F — Female" }
+          {
+            value: "M",
+            label: "M — Male",
+            description: "AAMVA DL/ID-2000 sex of record: male. Later versions use 1 instead of M."
+          },
+          {
+            value: "F",
+            label: "F — Female",
+            description: "AAMVA DL/ID-2000 sex of record: female. Later versions use 2 instead of F."
+          }
         ]
       },
       { code: "DBD", label: "Document Issue Date", type: "date", dateFormat: "YYYYMMDD" },
@@ -491,7 +617,7 @@ export const AAMVA_VERSIONS: Record<string, AAMVAVersionDef> = {
       { code: "DAW", label: "Weight (pounds)", type: "string" },
       { code: "DAZ", label: "Hair Color", type: "string" },
       { code: "DCL", label: "Race/Ethnicity", type: "string" },
-      { code: "DDA", label: "Compliance Type", type: "string" },
+      { code: "DDA", label: "REAL ID / Compliance Type", type: "string" },
       { code: "DDB", label: "Card Revision Date", type: "date" },
       { code: "DDK", label: "Organ Donor Indicator", type: "string" },
       { code: "DDL", label: "Veteran Indicator", type: "string" },
@@ -529,7 +655,7 @@ export const AAMVA_VERSIONS: Record<string, AAMVAVersionDef> = {
       { code: "DAW", label: "Weight (pounds)", type: "string" },
       { code: "DAZ", label: "Hair Color", type: "string" },
       { code: "DCL", label: "Race/Ethnicity", type: "string" },
-      { code: "DDA", label: "Compliance Type", type: "string" },
+      { code: "DDA", label: "REAL ID / Compliance Type", type: "string" },
       { code: "DDB", label: "Card Revision Date", type: "date" },
       { code: "DDK", label: "Organ Donor Indicator", type: "string" },
       { code: "DDL", label: "Veteran Indicator", type: "string" },
@@ -567,22 +693,27 @@ export const AAMVA_VERSIONS: Record<string, AAMVAVersionDef> = {
       { code: "DAW", label: "Weight (pounds)", type: "string" },
       { code: "DAZ", label: "Hair Color", type: "string" },
       { code: "DCL", label: "Race/Ethnicity", type: "string" },
-      { code: "DDA", label: "Compliance Type", type: "string" },
+      { code: "DDA", label: "REAL ID / Compliance Type", type: "string" },
       { code: "DDB", label: "Card Revision Date", type: "date" },
       { code: "DDK", label: "Organ Donor Indicator", type: "string" },
       { code: "DDL", label: "Veteran Indicator", type: "string" },
       { code: "DDD", label: "Limited Duration Document Indicator", type: "string" }
     ]
+  },
+  "11": {
+    name: "AAMVA DL/ID-2025 (Version 11)",
+    fields: V11_FIELDS
   }
 };
 
 /**
  * Version tokens in ascending order.
  *
- * `Object.keys(AAMVA_VERSIONS)` cannot be used for display: "10" is a canonical
- * integer-like key, so JavaScript hoists it ahead of the zero-padded string keys
- * "01".."09" and every dropdown built from it listed version 10 first. The keys
- * are all two-digit and zero-padded, so a plain lexicographic sort is correct.
+ * `Object.keys(AAMVA_VERSIONS)` cannot be used for display: "10" and "11" are
+ * canonical integer-like keys, so JavaScript hoists them ahead of the
+ * zero-padded string keys "01".."09" and every dropdown built from it listed
+ * version 10 first. The keys are all two-digit and zero-padded, so a plain
+ * lexicographic sort is correct.
  */
 export const AAMVA_VERSION_KEYS: readonly string[] = Object.keys(AAMVA_VERSIONS).sort();
 
@@ -601,7 +732,7 @@ const _EXCLUDED_SETS: Readonly<Record<string, ReadonlySet<string>>> = Object.fro
 );
 
 // Memoization cache for getFieldsForStateAndVersion — the set of (state, version) combos
-// is small and fixed at runtime, so this Map grows to at most ~54×10 = 540 entries.
+// is small and fixed at runtime, so this Map grows to at most ~54×11 = 594 entries.
 const _stateVersionFieldCache = new Map<string, AAMVAField[]>();
 
 export function getFieldsForStateAndVersion(stateCode: string, v: string): AAMVAField[] {

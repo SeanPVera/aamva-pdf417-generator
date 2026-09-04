@@ -107,20 +107,47 @@ describe("FieldInput — field help popover", () => {
 });
 
 describe("FieldInput — enumerated fields", () => {
-  const withOptions: AAMVAField = {
-    ...SEX,
-    options: [
-      { value: "M", label: "M — Male" },
-      { value: "F", label: "F — Female" }
-    ]
-  };
+  test("Sex (DBC) is a 1 / 2 / 9 selector with definitions on the chips", () => {
+    renderField(SEX);
+    const male = screen.getByRole("radio", { name: /sex of record: male/i });
+    const female = screen.getByRole("radio", { name: /sex of record: female/i });
+    const unspecified = screen.getByRole("radio", { name: /not specified/i });
+    expect(male).toHaveAttribute("title", expect.stringMatching(/barcode/i));
+    expect(female).toHaveAttribute("aria-checked", "false");
+    expect(unspecified).toHaveAttribute("title", expect.stringMatching(/not a third sex/i));
+  });
 
-  test("an empty select shows its placeholder instead of transparent text", () => {
-    renderField(withOptions);
+  test("picking a Sex chip writes the AAMVA code", () => {
+    const { onChange } = renderField(SEX);
+    fireEvent.click(screen.getByRole("radio", { name: /sex of record: male/i }));
+    expect(onChange).toHaveBeenCalledWith("DBC", "1");
+  });
+
+  test("REAL ID / Compliance Type is F / N with what those letters mean", () => {
+    const { onChange } = renderField({
+      code: "DDA",
+      label: "REAL ID / Compliance Type",
+      type: "string"
+    });
+    const realId = screen.getByRole("radio", { name: /meets the REAL ID Act/i });
+    const limits = screen.getByRole("radio", { name: /FEDERAL LIMITS APPLY/i });
+    expect(realId).toHaveAttribute("title", expect.stringMatching(/TSA/i));
+    expect(limits).toHaveAttribute("title", expect.stringMatching(/not a REAL ID/i));
+    expect(screen.getByRole("radio", { name: /omit this element/i })).toBeInTheDocument();
+    fireEvent.click(realId);
+    expect(onChange).toHaveBeenCalledWith("DDA", "F");
+  });
+
+  test("a long enumerated list stays a select, with omit when optional", () => {
+    renderField({
+      code: "DAY",
+      label: "Eye Color",
+      type: "string",
+      required: true
+    });
     const select = screen.getByRole("combobox");
-    // `text-transparent` made the control read as an empty box with no hint
-    // that it held a list at all.
     expect(select.className).not.toContain("text-transparent");
     expect(screen.getByRole("option", { name: /select/i })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: /BRO/i })).toBeInTheDocument();
   });
 });

@@ -1,7 +1,7 @@
 import React from "react";
 import { Copy, Check, X as XIcon, HelpCircle, Wand2 } from "lucide-react";
 import type { AAMVAField } from "../core/schema";
-import { AAMVA_FIELD_LIMITS } from "../core/schema";
+import { AAMVA_FIELD_LIMITS, AAMVA_FIELD_OPTIONS } from "../core/schema";
 import { evaluateFieldValue } from "../core/validation";
 import { getCanonicalRewrite, getQuickFix } from "../core/quickFix";
 import {
@@ -20,6 +20,9 @@ import { HeightSilhouette } from "./HeightSilhouette";
  * will actually be in the barcode, rather than a friendlier fiction.
  */
 const UPPERCASED_TYPES = new Set<AAMVAField["type"]>(["string", "char", "zip"]);
+
+/** Short enumerated fields become kiosk chips; longer lists stay a <select>. */
+const CHIP_OPTION_CEILING = 4;
 
 /**
  * Pulls the allowed values out of an enumeration message so they can be offered
@@ -111,7 +114,10 @@ export const FieldInput: React.FC<FieldInputProps> = ({
   // Any field the user can type into is clearable; DAJ is app-owned and read-only.
   const isResettable = !derivedFrom;
   const allowedValues = hasError ? parseAllowedValues(evalResult.message) : [];
-  const maxLen = AAMVA_FIELD_LIMITS[field.code];
+  const options = field.options?.length
+    ? field.options
+    : AAMVA_FIELD_OPTIONS[field.code];
+  const maxLen = field.maxLength ?? AAMVA_FIELD_LIMITS[field.code];
 
   const dateFormat: AamvaDateFormat = field.dateFormat === "YYYYMMDD" ? "YYYYMMDD" : "MMDDYYYY";
   const isDate = field.type === "date";
@@ -387,7 +393,64 @@ export const FieldInput: React.FC<FieldInputProps> = ({
         </div>
       )}
 
-      {field.options ? (
+      {options && options.length <= CHIP_OPTION_CEILING ? (
+        <div
+          role="radiogroup"
+          id={field.code}
+          aria-required={field.required}
+          aria-invalid={hasError}
+          aria-describedby={showAdvisory ? errorId : undefined}
+          className="flex flex-wrap gap-1.5"
+        >
+          {!field.required && (
+            <button
+              type="button"
+              role="radio"
+              aria-checked={value === "" && touched}
+              title="Omit this element from the barcode"
+              onClick={() => {
+                setTouched(true);
+                onChange(field.code, "");
+              }}
+              className={`inline-flex min-h-k-touch items-center rounded-k border px-3 text-k-help font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 ${
+                value === "" && touched
+                  ? "border-brand-700 bg-brand-700 text-white"
+                  : "border-gray-400 bg-white text-gray-800 hover:bg-gray-100 dark:border-[#555] dark:bg-dark-surface2 dark:text-gray-100 dark:hover:bg-[#383838]"
+              }`}
+            >
+              Omit
+            </button>
+          )}
+          {options.map((opt) => {
+            const selected = value === opt.value;
+            const rest = opt.label.includes("—")
+              ? opt.label.slice(opt.label.indexOf("—") + 1).trim()
+              : opt.label;
+            return (
+              <button
+                key={opt.value}
+                type="button"
+                role="radio"
+                aria-checked={selected}
+                title={opt.description ?? opt.label}
+                aria-label={opt.description ?? opt.label}
+                onClick={() => {
+                  setTouched(true);
+                  onChange(field.code, opt.value);
+                }}
+                className={`inline-flex min-h-k-touch items-center gap-2 rounded-k border px-3 text-k-help font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 ${
+                  selected
+                    ? "border-brand-700 bg-brand-700 text-white"
+                    : "border-gray-400 bg-white text-gray-800 hover:bg-gray-100 dark:border-[#555] dark:bg-dark-surface2 dark:text-gray-100 dark:hover:bg-[#383838]"
+                }`}
+              >
+                <span className="font-mono">{opt.value}</span>
+                <span className="font-medium">{rest}</span>
+              </button>
+            );
+          })}
+        </div>
+      ) : options ? (
         <div className="relative">
           <select
             id={field.code}
@@ -399,13 +462,18 @@ export const FieldInput: React.FC<FieldInputProps> = ({
             aria-describedby={showAdvisory ? errorId : undefined}
             className={finalClass + (value ? "" : " text-gray-600 dark:text-gray-300")}
           >
-            <option value="" disabled className="text-gray-600 dark:text-gray-300">
-              Select…
+            <option
+              value=""
+              disabled={!!field.required}
+              className="text-gray-600 dark:text-gray-300"
+            >
+              {field.required ? "Select…" : "Omit — not encoded"}
             </option>
-            {field.options.map((opt) => (
+            {options.map((opt) => (
               <option
                 key={opt.value}
                 value={opt.value}
+                title={opt.description}
                 className="text-gray-900 dark:text-gray-100 bg-white dark:bg-dark-surface"
               >
                 {opt.label}
@@ -444,7 +512,7 @@ export const FieldInput: React.FC<FieldInputProps> = ({
             value={value}
             onChange={(e) => handleChange(e.target.value)}
             onBlur={() => setTouched(true)}
-            maxLength={AAMVA_FIELD_LIMITS[field.code]}
+            maxLength={maxLen}
             readOnly={!!derivedFrom}
             aria-required={field.required}
             aria-invalid={hasError}
@@ -559,7 +627,7 @@ export const FieldInput: React.FC<FieldInputProps> = ({
         </div>
         <div className="ml-2 flex shrink-0 items-center gap-2">
           {whimsy && field.code === "DAU" && <HeightSilhouette value={value} />}
-          {!field.options && maxLen && (
+          {!options && maxLen && (
             <span
               className="whitespace-nowrap font-mono text-k-help text-gray-600 opacity-0 transition-opacity group-focus-within:opacity-100 dark:text-gray-400"
               aria-hidden

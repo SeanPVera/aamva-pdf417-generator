@@ -14,15 +14,19 @@ export const FIELD_HELP: Record<string, string> = {
     "Card Revision Date — the date the physical card design was last updated. " +
     "The Gen button infers this from the issue date and the state's known era ranges.",
   DDA:
-    "Compliance Type — F means a REAL ID (federally compliant); N means " +
-    "non-compliant (cannot be used for federal access purposes after enforcement).",
+    "REAL ID / Compliance Type (DDA) is one character on the barcode. " +
+    "F — Fully Compliant — this is a REAL ID. TSA and federal facilities accept it for domestic air travel and building access. " +
+    "N — Non-Compliant — not a REAL ID. Valid as a state DL/ID, but typically marked FEDERAL LIMITS APPLY on the face, and not accepted at TSA or federal buildings after enforcement. " +
+    "Encode F or N; do not write the words.",
   DDE: "Family Name Truncation — T = truncated to fit, N = not truncated, U = unknown.",
   DDF: "First Name Truncation — T = truncated to fit, N = not truncated, U = unknown.",
   DDG: "Middle Name Truncation — T = truncated to fit, N = not truncated, U = unknown.",
   DBC:
-    "Sex — the barcode carries a code, not a word. Version 04 and later use the " +
-    "digits 1 = male, 2 = female, 9 = not specified. Version 01 predates that " +
-    "scheme and uses M / F instead. Enter the code itself, e.g. 1.",
+    "Sex (DBC) is the AAMVA sex of record on the barcode — not a gender-identity field. " +
+    "Version 03 and later encode digits: 1 = male, 2 = female, 9 = not specified " +
+    "(the jurisdiction did not encode male or female; 9 is not a third sex). " +
+    "Version 01 (2000) predates that scheme and uses M / F instead. " +
+    "A reader that expects 1/2/9 will reject M/F on a v10 card.",
   DCG: "Country Identification — three-letter code; almost always USA for US credentials.",
   DCL:
     "Race / Ethnicity — optional on most jurisdictions and excluded entirely on " +
@@ -39,6 +43,19 @@ export const FIELD_HELP: Record<string, string> = {
   DBD: "Document Issue Date — the date this physical card was issued.",
   DDK: "Organ Donor Indicator — 1 = donor, 0 = not a donor.",
   DDL: "Veteran Indicator — 1 = veteran, 0 = not a veteran.",
+  DDM:
+    "CDL Indicator — CDS 2025. Encode 1 if this credential is a Commercial " +
+    "Driver's License or Commercial Learner's Permit; leave blank otherwise. " +
+    "The barcode does not carry a 0.",
+  DDN:
+    "Non-Domiciled Indicator — CDS 2025. Encode 1 if the CDL/CLP holder is " +
+    "non-domiciled in the issuing jurisdiction; leave blank otherwise.",
+  DDO:
+    "Enhanced Credential Indicator — CDS 2025. Encode 1 if this is an Enhanced " +
+    "Driver's License or Enhanced Identification Card (EDL/EID); leave blank otherwise.",
+  DDP:
+    "Permit Indicator — CDS 2025. Encode 1 if this credential is a permit " +
+    "(original, motorcycle, commercial, etc.); leave blank otherwise.",
   DCK:
     "Inventory Control Number — the issuer's own stock/production reference for " +
     "the physical card. Optional, but real cards carry it (Connecticut builds " +
