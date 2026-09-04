@@ -41,6 +41,7 @@ This file provides AI assistants (Claude, Copilot, etc.) with the context needed
 ├── scripts/
 │   ├── gen-vectors.mjs           # Regenerates golden conformance vectors
 │   ├── gen-icons.mjs             # Rasterizes the app icon to PNG (zlib only, no image deps)
+│   ├── ui-audit.mjs              # Measures contrast, touch targets, mobile chrome, red-on-empty
 │   └── release-notes.mjs         # Extracts a CHANGELOG section for a GitHub Release
 ├── e2e/                          # Playwright specs (a11y, export, form fill, round-trip, themes)
 ├── src/
@@ -76,10 +77,12 @@ This file provides AI assistants (Claude, Copilot, etc.) with the context needed
 │   │   ├── BatchProcessor.tsx    # Bulk field operations UI
 │   │   ├── WebcamScanner.tsx     # ZXing-based barcode scanner modal
 │   │   ├── VersionBrowser.tsx    # Modal for exploring AAMVA versions 01–10
-│   │   ├── GroupNav.tsx          # Per-group error/empty counts with jump-to-group
+│   │   ├── StepRail.tsx          # Section navigator: one rung per field group, with its state
 │   │   ├── MobileActionBar.tsx   # Sticky mobile status + export strip
 │   │   ├── RoadTest.tsx          # The parallel-parking exam (lazy, decorative)
 │   │   └── ErrorBoundary.tsx     # React error boundary
+│   ├── assets/
+│   │   └── fonts/                # Self-hosted variable faces + their OFL licences
 │   ├── stubs/
 │   │   └── jspdfOptionalRenderer.ts  # Stubs jsPDF's unused html2canvas/dompurify/canvg
 │   └── tests/                    # Vitest suites (see Testing Conventions below)
@@ -224,6 +227,7 @@ as populated.
 | `validateFieldValue(field, value, stateCode, strictMode)` | Single field validation |
 | `validateCrossFieldConsistency(dataObj, fields)` | Date ordering, age-at-issuance logic |
 | `getValidationIssues(fields, values, stateCode, strictMode)` | Full validation report |
+| `ValidationIssue.kind` | `"empty"` (blank) vs `"invalid"` (a value the validator rejects) |
 | `sanitizeFieldValue(value)` | Strips control characters |
 
 ### `src/core/stateThemes.ts` — Color Palettes
@@ -264,7 +268,8 @@ Key actions:
 | Component | Purpose |
 |---|---|
 | `Header.tsx` | Top bar: undo/redo, theme toggle, import/export JSON, clear, scanner launch |
-| `Sidebar.tsx` | State/territory selector, version selector, strict mode toggle, subfile type, version browser |
+| `Sidebar.tsx` | Holds the step rail, then the jurisdiction/version/subfile/strict settings |
+| `StepRail.tsx` | One rung per field group; vertical on desktop, a scrollable strip on a phone |
 | `BarcodePreview.tsx` | PDF417 canvas (bwip-js), payload display, decoded JSON, validation issues, PDF/PNG export |
 | `BatchProcessor.tsx` | Bulk field operations |
 | `WebcamScanner.tsx` | ZXing barcode scanner modal |
@@ -314,6 +319,21 @@ npm test
 # Internally: vitest (Vitest with jsdom environment)
 ```
 
+### Auditing the UI
+
+```bash
+npm run build && npm run serve -- --port 4173 &
+node scripts/ui-audit.mjs --url http://localhost:4173
+```
+
+Prints pass/fail for the contrast floors and the 44px touch floor, and measures
+the two things that have no single right answer: how much of a phone screen is
+chrome before the first field, and how many elements paint red on a form nobody
+has touched. `--baseline <url>` audits a second build alongside it (run another
+revision from a `git worktree` on its own port) so a change can be compared
+rather than asserted. `PW_CHROMIUM_PATH` points it at a browser if Playwright
+cannot find its own.
+
 ### Linting & Formatting
 ```bash
 npm run lint            # ESLint (max-warnings 0)
@@ -352,6 +372,16 @@ npm run format:check    # Prettier check (used in CI)
 14. **Quick fixes** (`src/tests/quickFix.test.ts`) — every returned fix is re-checked against `evaluateFieldValue`; empty fields never get one.
 15. **Paste import** (`src/tests/pasteImport.test.ts`) — round-trips a generated payload, and asserts that non-AAMVA keys are dropped rather than loaded.
 16. **Road test** (`src/tests/roadTest.test.ts`) — vehicle physics, SAT collision, park inspection, and the examiner's score sheet. Pure functions only; the canvas is not involved.
+
+**End-to-end tests and the section form.** Only the open section's fields are
+in the DOM. A spec that reaches for `#DAY` while Identity is showing finds
+nothing, because Physical Description has not been rendered — this is the single
+most likely reason a previously-green e2e spec fails after a form change. Helpers
+that fill or assert on a field must select its section first (the same move
+`handleScrollToField` makes in `App.tsx`), or drive the form through the search
+box, which shows every match across every section. If Playwright cannot find a
+browser locally, point it at one rather than downloading: the sandbox image may
+ship a different build than `@playwright/test` pins.
 
 **Important:** a passing `conformance.test.ts` against a `synthetic` vector proves only that the encoder has not changed — those bytes came from the encoder. Do not treat it as evidence of AAMVA correctness, and do not regenerate vectors to make a failing test pass without reviewing the diff against the spec.
 
@@ -489,6 +519,73 @@ reading and never emit it.
 
 Form fields carry validation state in their border, so the themed rules set only the *fill* on `.dmv-main input/select/textarea`. An `!important` border-color there repaints every red and amber edge in the jurisdiction's color.
 
+### Kiosk scale and typography
+
+The UI is sized for a thumb and read at arm's length. The scale lives in two
+places that must not drift: custom properties at the top of `src/styles/index.css`
+and the matching Tailwind theme keys in `tailwind.config.js`.
+
+| Token | Value | What it is |
+|---|---|---|
+| `h-k-control` | 56px | Primary control height — inputs, selects |
+| `h-k-touch` | 44px | The floor. Nothing interactive may be smaller |
+| `text-k-value` | 18px | What the user typed |
+| `text-k-label` | 15px | Field label |
+| `text-k-help` | 13.5px | Hint, advisory, counter |
+| `text-k-section` | 30px | Section heading |
+| `rounded-k` / `rounded-k-lg` | 10px / 14px | The only two radii |
+
+Two faces, both self-hosted variable woff2 under `src/assets/fonts/`, both
+SIL OFL 1.1 with their licences shipped beside them:
+
+- **Atkinson Hyperlegible Next** for everything. It was drawn by the Braille
+  Institute to pull confusable characters apart — `0`/`O`, `1`/`l`/`I`, `8`/`B`.
+  That is a correctness property here, not an aesthetic one: this is a
+  data-entry form for identity documents, and reading a licence number's `O` as
+  a `0` produces a credential for nobody.
+- **JetBrains Mono** (slashed zero) for field codes, dates, and the raw payload.
+
+They are imported from `src/assets/` rather than dropped in `public/` so Vite
+hashes them and emits **relative** URLs. That is what keeps them resolvable
+under `base: './'` at a Pages subpath, from a domain root, and from Electron's
+`file://`. A `public/fonts/` copy would force an absolute `/fonts/` path and
+break the first two. They also join the service-worker precache
+(`inject-sw-precache-manifest` in `vite.config.mts` globs `woff2`), because
+cache-first would only pick them up after a successful request — an installed
+iOS app whose first launch is offline would otherwise sit on the fallback face
+with no way to recover.
+
+### Section navigation, and what "filtering" switches on
+
+`App.tsx` renders **one field group at a time**, chosen by `activeSection` and
+driven by `StepRail`. The moment a search or a filter is active
+(`isFiltering`), it switches back to the whole-form view: every match across
+every section, each run labelled by `FieldGroup`. Paginating search results by
+section would mean hunting for the section holding your match, which is the
+thing you searched to avoid.
+
+Anything that jumps to a field must go through `handleScrollToField`. The target
+is almost never on the open rung, and an unmounted input cannot be focused, so
+that handler sets the section and hands the code to `pendingFocusRef`; an effect
+retries each commit until the input exists. **Do not** replace that with a
+`requestAnimationFrame` from the click handler — a rAF can run before React
+commits the new section, `getElementById` returns null for an input that is
+about to exist, and the jump silently does nothing.
+
+### Empty is not an error
+
+`ValidationIssue` carries `kind`. Both `"empty"` and `"invalid"` are
+`severity: "error"` and both block generation — the *gate* does not care. Every
+place that **counts or colours** them must:
+
+- say "N to fill" about `"empty"`, in a neutral colour;
+- reserve red and the word "error" for `"invalid"`.
+
+This is not cosmetic. Conflating them opened a form nobody had touched with 174
+red elements and a "20 errors" badge, which taught users that red means nothing.
+`scripts/ui-audit.mjs` counts red elements on a pristine form so the regression
+is visible; the honest floor is a destructive control plus the required markers.
+
 ### Strict Mode
 When enabled, validation warnings are treated as errors and block payload generation. Controlled by `setStrictMode()` in the Zustand store.
 
@@ -571,6 +668,10 @@ Local hooks (Husky):
 - **Do not** write jurisdiction (`Z*`) elements into the `DL`/`ID` subfile, and do not add them to `AAMVA_VERSIONS` — they belong to one jurisdiction, not to the standard
 - **Do not** upper-case jurisdiction (`Z*`) values — they are opaque, and NY's `ZNB` is mixed-case
 - **Do not** hardcode the jurisdiction version to `"00"` — it is per-issuer and lives in the encoding profile
+- **Do not** count a blank required field as an "error" in any badge, chip or report — see *Empty is not an error*
+- **Do not** ship an interactive control under 44px, or a control border under 3:1 against **both** its fill and the surface behind it (WCAG 1.4.11); `scripts/ui-audit.mjs` checks both
+- **Do not** paint text on `--state-gradient` — it runs from the jurisdiction's primary to its *accent*, a light hue, and white on California's accent measures 2.0:1
+- **Do not** move the fonts to `public/` or add a `fonts.googleapis.com` link — the CSP is `style-src 'self'` and `base: './'` needs relative URLs
 - **Do not** add an external test runner — use Vitest only
 - **Do not** bypass the Husky pre-commit hook (`--no-verify`) without fixing the underlying lint/format issue
 
