@@ -1,5 +1,5 @@
 import React from "react";
-import { Check, AlertCircle, CircleAlert } from "lucide-react";
+import { Check, AlertCircle, TriangleAlert } from "lucide-react";
 import type { FieldGroupId } from "../core/schema";
 
 export interface StepRailSection {
@@ -86,13 +86,18 @@ export const StepRail: React.FC<StepRailProps> = ({
           // The marker carries the section's state at a glance: a tick when it
           // is done, the step number until then. Colour is never the only
           // signal — the icon and the line of text both say it too.
+          // Three distinct glyphs. `CircleAlert` and `AlertCircle` are the
+          // same icon in lucide — one is an alias — so the first version of
+          // this drew errors and advisories identically. A triangle for the
+          // advisory keeps colour from being the only difference.
+          const markSize = horizontal ? 15 : 17;
           const marker =
             state === "complete" ? (
-              <Check size={horizontal ? 15 : 17} strokeWidth={3} aria-hidden />
+              <Check size={markSize} strokeWidth={3} aria-hidden />
             ) : state === "errors" ? (
-              <AlertCircle size={horizontal ? 15 : 17} strokeWidth={2.4} aria-hidden />
+              <AlertCircle size={markSize} strokeWidth={2.4} aria-hidden />
             ) : state === "advisories" ? (
-              <CircleAlert size={horizontal ? 15 : 17} strokeWidth={2.4} aria-hidden />
+              <TriangleAlert size={markSize} strokeWidth={2.4} aria-hidden />
             ) : (
               <span className="text-k-help font-bold leading-none">{index + 1}</span>
             );
