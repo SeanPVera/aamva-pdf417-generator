@@ -76,10 +76,9 @@
 
 /* ─── State-themed header & accents ──────────────────────────────────────── */
 /* The header always reflects the selected jurisdiction's flag colors. */
-header.state-themed {
+header.state-themed .header-identity {
   background-color: var(--state-primary) !important;
   color: var(--state-on-primary) !important;
-  border-bottom-color: var(--state-primary-dark) !important;
 }
 header.state-themed h1,
 header.state-themed .state-brand-text {
@@ -93,22 +92,24 @@ header.state-themed .state-badge {
   color: var(--state-on-accent) !important;
   border-color: var(--state-accent) !important;
 }
-header.state-themed button,
-header.state-themed .header-ctrl {
+header.state-themed .header-identity button,
+header.state-themed .header-identity .header-ctrl {
   color: var(--state-on-primary);
 }
-header.state-themed button:hover:not(:disabled),
-header.state-themed .header-ctrl:hover:not(:disabled) {
+header.state-themed .header-identity button:hover:not(:disabled),
+header.state-themed .header-identity .header-ctrl:hover:not(:disabled) {
   background-color: color-mix(in srgb, var(--state-on-primary) 18%, transparent);
 }
-header.state-themed .state-toggle-group {
+header.state-themed .header-identity .state-toggle-group {
   border-color: color-mix(in srgb, var(--state-on-primary) 30%, transparent);
 }
+/* Not scoped to the identity row: the group sits on the light action bar, and
+   accent-fill with --state-on-accent is legible on either surface. */
 header.state-themed .state-toggle-group button[aria-pressed="true"] {
   background-color: var(--state-accent) !important;
   color: var(--state-on-accent) !important;
 }
-header.state-themed .state-divider {
+header.state-themed .header-identity .state-divider {
   background-color: color-mix(in srgb, var(--state-on-primary) 25%, transparent);
 }
 
@@ -203,9 +204,19 @@ html[data-state-theme] .app-shell::before {
     42px 42px;
   mask-image: linear-gradient(180deg, black, transparent 70%);
 }
+/* Solid, not a gradient. `--state-gradient` runs from the jurisdiction's
+   primary to its ACCENT — a light hue by design — and the toolbar painted
+   `--state-on-primary` (white) across the whole width. On California that put
+   Export JSON, Import JSON and Clear PII on #F2A900 at 2.0:1, against AA's
+   4.5:1. The accent still appears, as a rule under the bar where nothing has
+   to be legible on top of it. */
 html[data-state-theme] header.state-themed {
-  background: var(--state-gradient) !important;
   box-shadow: var(--state-shadow);
+}
+/* The accent lands between the identity row and the action bar, where it is a
+   rule rather than a background — nothing has to stay legible on top of it. */
+html[data-state-theme] header.state-themed .header-identity {
+  border-bottom: 3px solid var(--state-accent) !important;
 }
 html[data-state-theme] .dmv-sidebar,
 html[data-state-theme] .dmv-main,
@@ -269,10 +280,11 @@ html[data-state-theme].dark .dmv-main,
 html[data-state-theme].dark .dmv-preview {
   border-color: color-mix(in srgb, var(--state-primary) 35%, #333333) !important;
 }
+/* Same reasoning as the header: these all print --state-on-primary on top. */
 html[data-state-theme] .state-themed-tab[aria-current="true"],
 html[data-state-theme] .state-primary-bg,
 html[data-state-theme] .state-action-primary {
-  background: var(--state-gradient) !important;
+  background: var(--state-primary) !important;
   color: var(--state-on-primary) !important;
   box-shadow: 0 10px 24px color-mix(in srgb, var(--state-primary) 28%, transparent);
 }
@@ -321,9 +333,9 @@ html[data-state-theme] .dmv-preview canvas {
   filter: drop-shadow(0 10px 18px color-mix(in srgb, var(--state-primary) 20%, transparent));
 }
 html[data-state-theme] .jurisdiction-plate {
-  background: var(--state-gradient);
-  color: var(--state-on-primary);
-  border-color: color-mix(in srgb, var(--state-accent) 64%, white);
+  background: var(--state-accent);
+  color: var(--state-on-accent);
+  border-color: color-mix(in srgb, var(--state-accent) 70%, black);
 }
 
 /* ─── Scrollbar polish ───────────────────────────────────────────────────── */

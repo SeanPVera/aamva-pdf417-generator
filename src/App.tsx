@@ -874,9 +874,7 @@ function App() {
             );
           })}
         </div>
-        <p className="text-xs text-gray-500 dark:text-gray-400 text-center mt-1 select-none">
-          Swipe left or right to switch panels
-        </p>
+        <p className="sr-only">Swipe left or right to switch panels</p>
       </nav>
 
       <main
@@ -917,7 +915,7 @@ function App() {
             />
           </div>
 
-          <div id="section-heading" className="px-4 pb-3 pt-4 lg:px-6 lg:pt-5">
+          <div id="section-heading" className="px-4 pb-3 pt-4 max-lg:sr-only lg:px-6 lg:pt-5">
             {isFiltering ? (
               <>
                 <span className="text-k-eyebrow font-bold uppercase text-gray-600 dark:text-gray-400">
