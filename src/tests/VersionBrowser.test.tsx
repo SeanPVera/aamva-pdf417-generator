@@ -55,4 +55,20 @@ describe("VersionBrowser component", () => {
     expect(useFormStore.getState().version).toBe("08");
     expect(screen.queryByRole("button", { name: /Set v08 as active/i })).not.toBeInTheDocument();
   });
+  // The cells hold a bare glyph. An aria-label on a span with no role is not
+  // reliably honoured, so the label can be dropped and a screen reader reads
+  // the raw "✓" or nothing at all; role="img" is what makes it announce.
+  it("announces the required and optional indicators rather than their glyphs", () => {
+    render(<VersionBrowser />);
+    fireEvent.click(screen.getByRole("button", { name: /Version Browser/i }));
+
+    const required = screen.getAllByRole("img", { name: "Required" });
+    const optional = screen.getAllByRole("img", { name: "Optional" });
+    expect(required.length).toBeGreaterThan(0);
+    expect(optional.length).toBeGreaterThan(0);
+
+    // title gives a sighted mouse user the same word the glyph stands for.
+    expect(required[0]).toHaveAttribute("title", "Required");
+    expect(optional[0]).toHaveAttribute("title", "Optional");
+  });
 });

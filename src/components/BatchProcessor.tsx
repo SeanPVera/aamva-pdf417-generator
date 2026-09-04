@@ -525,13 +525,13 @@ export const BatchProcessor: React.FC<BatchProcessorProps> = ({ open, onClose })
               </span>
             </button>
 
-            <label className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-700 dark:text-gray-200 cursor-pointer select-none">
+            <label className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-700 dark:text-gray-200 cursor-pointer select-none has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-brand-500 rounded px-1 py-0.5">
               <input
                 type="checkbox"
                 checked={strict}
                 disabled={processing}
                 onChange={(e) => setStrict(e.target.checked)}
-                className="h-3.5 w-3.5 rounded text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-[#555] dark:bg-dark-surface2"
+                className="h-3.5 w-3.5 rounded text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-[#555] dark:bg-dark-surface2 focus-visible:outline-none"
               />
               Strict validation
               <span className="text-gray-500 dark:text-gray-400 font-normal">
