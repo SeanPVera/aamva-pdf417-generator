@@ -24,6 +24,55 @@ const UPPERCASED_TYPES = new Set<AAMVAField["type"]>(["string", "char", "zip"]);
 /** Enumerated AAMVA fields (Sex, REAL ID, eye color, …) are kiosk chips. */
 const CHIP_OPTION_CEILING = 12;
 
+function ColorSwatch({ color, selected }: { color: string; selected: boolean }) {
+  const parts = color.split("|");
+  const style =
+    parts.length === 2
+      ? { backgroundImage: `linear-gradient(90deg, ${parts[0]} 50%, ${parts[1]} 50%)` }
+      : { backgroundColor: color };
+  return (
+    <span
+      aria-hidden
+      className={`inline-block h-3.5 w-3.5 shrink-0 rounded-full ${
+        selected ? "ring-2 ring-white" : "border border-black/25 dark:border-white/30"
+      } ${color === "transparent" ? "border-dashed" : ""}`}
+      style={style}
+    />
+  );
+}
+
+/** Common adult heights → AAMVA `0xx IN`. Shown only while DAU is empty. */
+const HEIGHT_CHIPS: { label: string; value: string; title: string }[] = (
+  [
+    [5, 0],
+    [5, 2],
+    [5, 4],
+    [5, 6],
+    [5, 7],
+    [5, 8],
+    [5, 9],
+    [5, 10],
+    [5, 11],
+    [6, 0],
+    [6, 1],
+    [6, 2],
+    [6, 4]
+  ] as const
+).map(([feet, inches]) => {
+  const total = feet * 12 + inches;
+  const value = `${String(total).padStart(3, "0")} IN`;
+  const label = `${feet}'${inches}"`;
+  return { label, value, title: `${label} encodes as ${value}` };
+});
+
+/** Common adult weights in pounds, zero-padded. Shown only while DAW is empty. */
+const WEIGHT_CHIPS: { label: string; value: string; title: string }[] = [
+  110, 130, 150, 160, 170, 180, 190, 200, 220, 250
+].map((lb) => {
+  const value = String(lb).padStart(3, "0");
+  return { label: `${lb} lb`, value, title: `${lb} pounds encodes as ${value}` };
+});
+
 /**
  * Pulls the allowed values out of an enumeration message so they can be offered
  * as one-click chips instead of being truncated into illegibility. Mirrors the
@@ -155,6 +204,13 @@ export const FieldInput: React.FC<FieldInputProps> = ({
         : [],
     [isDate, value, field.code, allValues, dateFormat, state]
   );
+
+  const measureChips =
+    !value.trim() && field.code === "DAU"
+      ? HEIGHT_CHIPS
+      : !value.trim() && field.code === "DAW"
+        ? WEIGHT_CHIPS
+        : [];
 
   // A repair for a value that fails, or the encoder-canonical form of one that
   // passes. Both are a single click; neither ever invents a value.
@@ -445,6 +501,7 @@ export const FieldInput: React.FC<FieldInputProps> = ({
                 }`}
               >
                 <span className="font-mono">{opt.value}</span>
+                {opt.swatch ? <ColorSwatch color={opt.swatch} selected={selected} /> : null}
                 <span className="font-medium">{rest}</span>
               </button>
             );
@@ -596,6 +653,22 @@ export const FieldInput: React.FC<FieldInputProps> = ({
               {dateChips.map((chip) => (
                 <button
                   key={chip.label}
+                  type="button"
+                  onClick={() => onChange(field.code, chip.value)}
+                  title={chip.title}
+                  aria-label={`Set ${field.code}: ${chip.title}`}
+                  className="inline-flex min-h-k-touch items-center rounded-k border border-gray-200 bg-gray-50 px-3 text-k-help font-medium text-gray-700 transition-colors hover:bg-gray-100 dark:border-[#444] dark:bg-dark-surface2 dark:text-gray-300 dark:hover:bg-[#383838] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                >
+                  {chip.label}
+                </button>
+              ))}
+            </div>
+          )}
+          {measureChips.length > 0 && (
+            <div className="flex flex-wrap gap-1.5">
+              {measureChips.map((chip) => (
+                <button
+                  key={chip.value}
                   type="button"
                   onClick={() => onChange(field.code, chip.value)}
                   title={chip.title}

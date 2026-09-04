@@ -36,9 +36,14 @@ export const FIELD_HELP: Record<string, string> = {
     "BLK black, BLU blue, BRO brown, GRY gray, GRN green, HAZ hazel, " +
     "MAR maroon, PNK pink, DIC dichromatic (two different colors), UNK unknown. " +
     "Required on version 02 and later — pick UNK if it was not recorded.",
+  DAZ:
+    "Hair Color (DAZ) is a three-letter AAMVA code, not the English word. " +
+    "BAL bald, BLK black, BLN blond, BRO brown, GRY gray, RED red/auburn, " +
+    "SDY sandy, WHI white, UNK unknown. Optional — omit it if the jurisdiction does not encode it.",
   DAU:
-    "Height — encoded as a 3-digit number followed by a unit, e.g. 069 IN " + "(5'9\") or 175 CM.",
-  DAW: "Weight in pounds, zero-padded to three digits, e.g. 180.",
+    "Height — encoded as a 3-digit number followed by a unit, e.g. 069 IN " +
+    "(5'9\") or 175 CM. Pick a chip or type it.",
+  DAW: "Weight in pounds, zero-padded to three digits, e.g. 180. Pick a chip or type it.",
   DAX: "Weight in kilograms, zero-padded to three digits.",
   DCA: "Vehicle Class — the licensee's class designation (e.g. C, A, M).",
   DCB: 'Restriction Codes — use the "None" button if no restrictions apply.',

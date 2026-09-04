@@ -5,6 +5,8 @@ export interface FieldOption {
   label: string;
   /** Native title / chip tooltip — what the code means on a real credential. */
   description?: string;
+  /** CSS color (or `left|right` split) drawn as a swatch on the chip. */
+  swatch?: string;
 }
 
 export interface AAMVAField {
@@ -165,40 +167,138 @@ export const AAMVA_FIELD_OPTIONS: Record<string, FieldOption[]> = {
     }
   ],
   DAY: [
-    { value: "BLK", label: "BLK — Black", description: "AAMVA eye color: black. Encode BLK, not the word Black." },
-    { value: "BLU", label: "BLU — Blue", description: "AAMVA eye color: blue. Encode BLU, not the word Blue." },
-    { value: "BRO", label: "BRO — Brown", description: "AAMVA eye color: brown. Encode BRO, not the word Brown." },
-    { value: "GRY", label: "GRY — Gray", description: "AAMVA eye color: gray. Encode GRY, not Grey or Gray." },
-    { value: "GRN", label: "GRN — Green", description: "AAMVA eye color: green. Encode GRN, not the word Green." },
-    { value: "HAZ", label: "HAZ — Hazel", description: "AAMVA eye color: hazel. Encode HAZ, not the word Hazel." },
-    { value: "MAR", label: "MAR — Maroon", description: "AAMVA eye color: maroon. Encode MAR, not the word Maroon." },
-    { value: "PNK", label: "PNK — Pink", description: "AAMVA eye color: pink. Encode PNK, not the word Pink." },
+    {
+      value: "BLK",
+      label: "BLK — Black",
+      description: "AAMVA eye color: black. Encode BLK, not the word Black.",
+      swatch: "#1a1a1a"
+    },
+    {
+      value: "BLU",
+      label: "BLU — Blue",
+      description: "AAMVA eye color: blue. Encode BLU, not the word Blue.",
+      swatch: "#3b6ea5"
+    },
+    {
+      value: "BRO",
+      label: "BRO — Brown",
+      description: "AAMVA eye color: brown. Encode BRO, not the word Brown.",
+      swatch: "#6b3d1f"
+    },
+    {
+      value: "GRY",
+      label: "GRY — Gray",
+      description: "AAMVA eye color: gray. Encode GRY, not Grey or Gray.",
+      swatch: "#7a7a7a"
+    },
+    {
+      value: "GRN",
+      label: "GRN — Green",
+      description: "AAMVA eye color: green. Encode GRN, not the word Green.",
+      swatch: "#3d7a4a"
+    },
+    {
+      value: "HAZ",
+      label: "HAZ — Hazel",
+      description: "AAMVA eye color: hazel. Encode HAZ, not the word Hazel.",
+      swatch: "#8a6a3a"
+    },
+    {
+      value: "MAR",
+      label: "MAR — Maroon",
+      description: "AAMVA eye color: maroon. Encode MAR, not the word Maroon.",
+      swatch: "#6b1f2a"
+    },
+    {
+      value: "PNK",
+      label: "PNK — Pink",
+      description: "AAMVA eye color: pink. Encode PNK, not the word Pink.",
+      swatch: "#c97a8a"
+    },
     {
       value: "DIC",
       label: "DIC — Dichromatic",
-      description: "Two different eye colors (heterochromia). Encode DIC. AAMVA has no left/right split."
+      description: "Two different eye colors (heterochromia). Encode DIC. AAMVA has no left/right split.",
+      swatch: "#3b6ea5|#6b3d1f"
     },
     {
       value: "UNK",
       label: "UNK — Unknown",
-      description: "Eye color was not recorded. Encode UNK, not a blank — this field is required."
+      description: "Eye color was not recorded. Encode UNK, not a blank — this field is required.",
+      swatch: "transparent"
     }
   ],
   DAZ: [
-    { value: "BAL", label: "BAL — Bald" },
-    { value: "BLK", label: "BLK — Black" },
-    { value: "BLN", label: "BLN — Blond" },
-    { value: "BRO", label: "BRO — Brown" },
-    { value: "GRY", label: "GRY — Gray" },
-    { value: "RED", label: "RED — Red/Auburn" },
-    { value: "SDY", label: "SDY — Sandy" },
-    { value: "WHI", label: "WHI — White" },
-    { value: "UNK", label: "UNK — Unknown" }
+    {
+      value: "BAL",
+      label: "BAL — Bald",
+      description: "AAMVA hair color: bald. Encode BAL, not the word Bald."
+    },
+    {
+      value: "BLK",
+      label: "BLK — Black",
+      description: "AAMVA hair color: black. Encode BLK, not the word Black.",
+      swatch: "#1a1a1a"
+    },
+    {
+      value: "BLN",
+      label: "BLN — Blond",
+      description: "AAMVA hair color: blond. Encode BLN, not Blonde or Blond.",
+      swatch: "#d4b86a"
+    },
+    {
+      value: "BRO",
+      label: "BRO — Brown",
+      description: "AAMVA hair color: brown. Encode BRO, not the word Brown.",
+      swatch: "#6b3d1f"
+    },
+    {
+      value: "GRY",
+      label: "GRY — Gray",
+      description: "AAMVA hair color: gray. Encode GRY, not Grey or Gray.",
+      swatch: "#9a9a9a"
+    },
+    {
+      value: "RED",
+      label: "RED — Red/Auburn",
+      description: "AAMVA hair color: red or auburn. Encode RED, not Auburn.",
+      swatch: "#a33a28"
+    },
+    {
+      value: "SDY",
+      label: "SDY — Sandy",
+      description: "AAMVA hair color: sandy. Encode SDY, not the word Sandy.",
+      swatch: "#c4a574"
+    },
+    {
+      value: "WHI",
+      label: "WHI — White",
+      description: "AAMVA hair color: white. Encode WHI, not the word White.",
+      swatch: "#f4f4f0"
+    },
+    {
+      value: "UNK",
+      label: "UNK — Unknown",
+      description: "Hair color was not recorded. Encode UNK, or omit the field — it is optional.",
+      swatch: "transparent"
+    }
   ],
   DCG: [
-    { value: "USA", label: "USA — United States" },
-    { value: "CAN", label: "CAN — Canada" },
-    { value: "MEX", label: "MEX — Mexico" }
+    {
+      value: "USA",
+      label: "USA — United States",
+      description: "Country of the credential: United States. Almost every US DL/ID encodes USA."
+    },
+    {
+      value: "CAN",
+      label: "CAN — Canada",
+      description: "Country of the credential: Canada."
+    },
+    {
+      value: "MEX",
+      label: "MEX — Mexico",
+      description: "Country of the credential: Mexico."
+    }
   ],
   DDE: [
     { value: "T", label: "T — Truncated", description: "The name was cut to fit the field length." },

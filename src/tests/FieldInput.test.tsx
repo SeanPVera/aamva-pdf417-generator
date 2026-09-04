@@ -154,4 +154,28 @@ describe("FieldInput — enumerated fields", () => {
     fireEvent.click(brown);
     expect(onChange).toHaveBeenCalledWith("DAY", "BRO");
   });
+
+  test("Hair Color (DAZ) is a code selector and can be omitted", () => {
+    const { onChange } = renderField({
+      code: "DAZ",
+      label: "Hair Color",
+      type: "string"
+    });
+    const blond = screen.getByRole("radio", { name: /hair color: blond/i });
+    expect(blond).toHaveAttribute("title", expect.stringMatching(/BLN/));
+    expect(screen.getByRole("radio", { name: /omit this element/i })).toBeInTheDocument();
+    fireEvent.click(blond);
+    expect(onChange).toHaveBeenCalledWith("DAZ", "BLN");
+  });
+
+  test("empty Height offers 5'9\" as 069 IN", () => {
+    const { onChange } = renderField({
+      code: "DAU",
+      label: "Height",
+      type: "string",
+      required: true
+    });
+    fireEvent.click(screen.getByRole("button", { name: /5'9".*069 IN/i }));
+    expect(onChange).toHaveBeenCalledWith("DAU", "069 IN");
+  });
 });
