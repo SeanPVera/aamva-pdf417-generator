@@ -21,13 +21,26 @@ describe("getPrivilegeDirectory", () => {
     expect(dir.classes.map((c) => c.value)).toEqual(
       expect.arrayContaining(["A", "B", "C", "M", "M1", "M2", "NONE"])
     );
-    expect(dir.restrictions.some((c) => c.value === "F")).toBe(true);
   });
 
-  test("NY regular is D, with DJ as an extra", () => {
+  test("restrictions are the AAMVA D20 barcode letters", () => {
+    const dir = getPrivilegeDirectory("PA");
+    const codes = dir.restrictions.map((c) => c.value);
+    expect(codes).toEqual(expect.arrayContaining(["NONE", "B", "F", "G", "K", "T", "V", "Z"]));
+    expect(dir.restrictions.find((c) => c.value === "G")?.title).toMatch(/daylight/i);
+    expect(dir.restrictions.find((c) => c.value === "T")?.title).toMatch(/interlock/i);
+    expect(dir.restrictions.find((c) => c.value === "F")?.title).toMatch(/mirror/i);
+  });
+
+  test("NY regular is D, with DJ from the age table", () => {
     const dir = getPrivilegeDirectory("NY");
     expect(dir.regularClass).toBe("D");
     expect(dir.classes.some((c) => c.value === "DJ")).toBe(true);
+  });
+
+  test("Michigan Operator encodes as O, not the word Operator", () => {
+    expect(regularClassFor("MI")).toBe("O");
+    expect(seededFields("MI", "DL").DCA).toBe("O");
   });
 });
 

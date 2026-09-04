@@ -51,8 +51,10 @@ export const FIELD_HELP: Record<string, string> = {
     "depending on the state (CA uses C, TX uses D, NY/FL often E). M is motorcycle. " +
     "Combine as AM, DM, etc. ID cards use NONE. Pick a chip or type the jurisdiction's code.",
   DCB:
-    "Restriction Codes — B = corrective lenses, plus CDL letters (E automatic, K intrastate, L/Z air brake). " +
-    "Use NONE if none apply. Codes can stack; type a combination if a chip is only one letter.",
+    "Restriction Codes (DCB) use AAMVA D20 letters, not the numbers some states print on the face. " +
+    "B lenses, C mechanical, D prosthetic, E automatic, F outside mirror, G daylight, " +
+    "K intrastate, L/Z air brake, T ignition interlock, NONE if none apply. " +
+    "Codes can stack; type a combination if a chip is only one letter.",
   DCD:
     "Endorsement Codes — H hazmat, N tank, P passenger, S school bus, T doubles, X tank+hazmat. " +
     "Use NONE if none apply.",

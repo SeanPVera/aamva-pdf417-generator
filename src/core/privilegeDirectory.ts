@@ -20,6 +20,11 @@ const MOTO_CLASS = new Set(["M", "M1", "M2", "MJ"]);
 const JUNIOR_CLASS = new Set(["DJ", "MJ"]);
 const TIE_BREAK = ["D", "E", "C", "F", "G", "O", "R", "3"];
 
+/** Age-table keys that are not valid DCA values (max 6). */
+const CLASS_VALUE_ALIASES: Record<string, string> = {
+  Operator: "O"
+};
+
 const CLASS_A: PrivilegeChip = {
   label: "A CDL combo",
   value: "A",
@@ -45,7 +50,9 @@ const CLASS_NONE: PrivilegeChip = {
     "No driving privilege — identification card. Encode NONE, not a blank, when the field is required."
 };
 
-const REGULAR_CLASS_COPY: Record<string, PrivilegeChip> = {
+const KNOWN_CLASS_COPY: Record<string, PrivilegeChip> = {
+  A: CLASS_A,
+  B: CLASS_B,
   C: {
     label: "C regular",
     value: "C",
@@ -76,7 +83,7 @@ const REGULAR_CLASS_COPY: Record<string, PrivilegeChip> = {
   O: {
     label: "O operator",
     value: "O",
-    title: "Class O — operator (Nebraska and similar)."
+    title: "Class O — operator (Nebraska, Michigan, and similar)."
   },
   R: {
     label: "R regular",
@@ -87,10 +94,35 @@ const REGULAR_CLASS_COPY: Record<string, PrivilegeChip> = {
     label: "3 regular",
     value: "3",
     title: "Class 3 — regular operator in this jurisdiction (Hawaii)."
+  },
+  M: CLASS_M,
+  M1: {
+    label: "M1 2-wheel",
+    value: "M1",
+    title: "M1 — two-wheel motorcycle. Distinct from M2 (moped / motor-driven cycle)."
+  },
+  M2: {
+    label: "M2 moped",
+    value: "M2",
+    title: "M2 — motor-driven cycle or moped."
+  },
+  DJ: {
+    label: "DJ junior",
+    value: "DJ",
+    title: "Junior operator. Regular adult operator is a different class in this jurisdiction."
+  },
+  MJ: {
+    label: "MJ junior moto",
+    value: "MJ",
+    title: "Junior motorcycle."
   }
 };
 
-const NATIONAL_RESTRICTIONS: PrivilegeChip[] = [
+/**
+ * AAMVA D20 driver-license restriction codes — what DCB actually encodes on
+ * the barcode. Face-card numbers (PA 1–9, NC 0–80) are a different table.
+ */
+const AAMVA_D20_RESTRICTIONS: PrivilegeChip[] = [
   {
     label: "NONE",
     value: "NONE",
@@ -99,37 +131,102 @@ const NATIONAL_RESTRICTIONS: PrivilegeChip[] = [
   {
     label: "B lenses",
     value: "B",
-    title: "Corrective lenses required. Common passenger-car restriction."
+    title: "AAMVA D20: corrective lenses must be worn."
   },
   {
     label: "C mechanical",
     value: "C",
-    title: "Mechanical aid required (adapted vehicle)."
+    title: "AAMVA D20: mechanical aid (hand controls, spinner knob, adaptive devices)."
   },
   {
     label: "D prosthetic",
     value: "D",
-    title: "Prosthetic aid required."
+    title: "AAMVA D20: prosthetic aid."
   },
   {
     label: "E automatic",
     value: "E",
-    title: "Automatic transmission only (CDL: no manual transmission CMV)."
+    title: "AAMVA D20: no manual transmission / automatic only (CDL skills test in an automatic)."
+  },
+  {
+    label: "F outside mirror",
+    value: "F",
+    title: "AAMVA D20: outside mirror required."
+  },
+  {
+    label: "G daylight",
+    value: "G",
+    title: "AAMVA D20: limited to daylight only."
+  },
+  {
+    label: "H employment",
+    value: "H",
+    title: "AAMVA D20: limited to employment."
+  },
+  {
+    label: "I limited other",
+    value: "I",
+    title: "AAMVA D20: limited — other. Jurisdiction-defined; see the face or J explanation."
+  },
+  {
+    label: "J other",
+    value: "J",
+    title: "AAMVA D20: other. When used, a restriction explanation describes it."
   },
   {
     label: "K intrastate",
     value: "K",
-    title: "Intrastate only — may not operate a CMV across state lines."
+    title: "AAMVA D20: CDL intrastate only — may not operate a CMV across state lines."
   },
   {
     label: "L no air brake",
     value: "L",
-    title: "No air-brake equipped CMV."
+    title: "AAMVA D20: no air-brake equipped CMV."
+  },
+  {
+    label: "M no Class A bus",
+    value: "M",
+    title: "AAMVA D20: no Class A passenger vehicle (passenger skills test in a Class B)."
+  },
+  {
+    label: "N no A/B bus",
+    value: "N",
+    title: "AAMVA D20: no Class A or B passenger vehicle (passenger skills test in a Class C)."
+  },
+  {
+    label: "O no tractor-trailer",
+    value: "O",
+    title: "AAMVA D20: no tractor-trailer CMV (skills test not in a truck tractor-semitrailer)."
+  },
+  {
+    label: "P no CMV passengers",
+    value: "P",
+    title: "AAMVA D20: no passengers in a CMV bus (typical on a CLP with a P endorsement)."
+  },
+  {
+    label: "T interlock",
+    value: "T",
+    title: "AAMVA D20: breath alcohol ignition interlock device."
+  },
+  {
+    label: "V medical variance",
+    value: "V",
+    title: "AAMVA D20: CDL medical variance (SPE / exemption)."
+  },
+  {
+    label: "W farm waiver",
+    value: "W",
+    title: "AAMVA D20: farm waiver."
+  },
+  {
+    label: "X no tank cargo",
+    value: "X",
+    title: "AAMVA D20: no cargo in a CMV tank vehicle (typical on a CLP with an N endorsement)."
   },
   {
     label: "Z no full air",
     value: "Z",
-    title: "No full air-brake equipped CMV."
+    title: "AAMVA D20: no full air-brake equipped CMV."
   }
 ];
 
@@ -155,70 +252,27 @@ const NATIONAL_ENDORSEMENTS: PrivilegeChip[] = [
   }
 ];
 
-/** Extra class chips a jurisdiction prints beyond A/B/regular/M. */
-const EXTRA_CLASSES: Record<string, PrivilegeChip[]> = {
-  CA: [
-    {
-      label: "M1 2-wheel",
-      value: "M1",
-      title: "California M1 — two-wheel motorcycle. Distinct from M2 (motor-driven cycle / moped)."
-    },
-    {
-      label: "M2 moped",
-      value: "M2",
-      title: "California M2 — motor-driven cycle or moped."
-    }
-  ],
-  NY: [
-    {
-      label: "DJ junior",
-      value: "DJ",
-      title: "New York junior operator. Minimum age 16. Regular adult operator is D."
-    }
-  ]
-};
+function encodeClass(raw: string): string {
+  const aliased = CLASS_VALUE_ALIASES[raw] ?? raw;
+  return aliased.length > 6 ? aliased.slice(0, 6) : aliased;
+}
 
-/** Extra restriction letters a DMV uses on top of the national CDL set. */
-const EXTRA_RESTRICTIONS: Record<string, PrivilegeChip[]> = {
-  CA: [
-    {
-      label: "F daylight",
-      value: "F",
-      title: "California: daylight driving only."
-    },
-    {
-      label: "G extras",
-      value: "G",
-      title: "California: limited to extra controls / outside mirrors as printed on the face."
-    }
-  ],
-  NY: [
-    {
-      label: "A 3-wheel",
-      value: "A",
-      title: "New York: motorcycle with sidecar / three-wheel only (confirm on the face)."
-    }
-  ],
-  TX: [
-    {
-      label: "P interlock",
-      value: "P",
-      title: "Texas: ignition interlock required."
-    }
-  ],
-  FL: [
-    {
-      label: "A daytime",
-      value: "A",
-      title: "Florida: daytime driving only."
-    }
-  ]
-};
+function chipForClass(code: string, minAge?: number): PrivilegeChip {
+  const encoded = encodeClass(code);
+  const known = KNOWN_CLASS_COPY[encoded] ?? KNOWN_CLASS_COPY[code];
+  if (known) {
+    return minAge != null ? { ...known, title: `${known.title} Minimum age ${minAge}.` } : known;
+  }
+  return {
+    label: `${encoded} class`,
+    value: encoded,
+    title: `Class ${encoded}${minAge != null ? ` — minimum age ${minAge}` : ""} in this jurisdiction.`
+  };
+}
 
 /**
  * Regular (non-CDL, non-motorcycle) class letter this jurisdiction puts on a
- * standard automobile DL. Read off `classMinimumAges` already in the rule pack
- * — that table is the source of truth we already maintain per DMV.
+ * standard automobile DL. Read off `classMinimumAges` already in the rule pack.
  */
 export function regularClassFor(state: string): string {
   const ages = JURISDICTION_RULE_PACKS[state]?.classMinimumAges ?? {};
@@ -228,39 +282,36 @@ export function regularClassFor(state: string): string {
   if (keys.length === 0) return "D";
   const minAge = Math.min(...keys.map((k) => ages[k] ?? 99));
   const youngest = keys.filter((k) => (ages[k] ?? 99) === minAge);
-  const preferred = TIE_BREAK.find((k) => youngest.includes(k));
-  return preferred ?? youngest[0] ?? "D";
+  const preferred = TIE_BREAK.find(
+    (k) => youngest.includes(encodeClass(k)) || youngest.includes(k)
+  );
+  return encodeClass(preferred ?? youngest[0] ?? "D");
 }
 
 function classChipsFor(state: string, regular: string): PrivilegeChip[] {
-  const regularChip =
-    REGULAR_CLASS_COPY[regular] ??
-    ({
-      label: `${regular} regular`,
-      value: regular,
-      title: `Class ${regular} — regular operator class in this jurisdiction.`
-    } satisfies PrivilegeChip);
-  const extras = EXTRA_CLASSES[state] ?? [];
-  const seen = new Set(["A", "B", regular, "M", "NONE"]);
-  const extra = extras.filter((c) => {
-    if (seen.has(c.value)) return false;
-    seen.add(c.value);
-    return true;
-  });
-  return [CLASS_A, CLASS_B, regularChip, CLASS_M, ...extra, CLASS_NONE];
-}
-
-function mergeChips(base: PrivilegeChip[], extra: PrivilegeChip[] | undefined): PrivilegeChip[] {
-  if (!extra?.length) return base;
-  const seen = new Set(base.map((c) => c.value));
-  const none = base.filter((c) => c.value === "NONE");
-  const rest = base.filter((c) => c.value !== "NONE");
-  for (const chip of extra) {
-    if (seen.has(chip.value)) continue;
+  const ages = JURISDICTION_RULE_PACKS[state]?.classMinimumAges ?? {};
+  const seen = new Set<string>();
+  const out: PrivilegeChip[] = [];
+  const push = (chip: PrivilegeChip) => {
+    if (seen.has(chip.value)) return;
     seen.add(chip.value);
-    rest.push(chip);
+    out.push(chip);
+  };
+
+  push(CLASS_A);
+  push(CLASS_B);
+  push(chipForClass(regular, ages[regular]));
+  push(CLASS_M);
+
+  for (const [raw, age] of Object.entries(ages)) {
+    const encoded = encodeClass(raw);
+    if (encoded === regular) continue;
+    if (CDL_CLASS.has(encoded) || encoded === "M") continue;
+    push(chipForClass(raw, age));
   }
-  return [...rest, ...none];
+
+  push(CLASS_NONE);
+  return out;
 }
 
 export function getPrivilegeDirectory(state: string): PrivilegeDirectory {
@@ -269,7 +320,7 @@ export function getPrivilegeDirectory(state: string): PrivilegeDirectory {
     state,
     regularClass,
     classes: classChipsFor(state, regularClass),
-    restrictions: mergeChips(NATIONAL_RESTRICTIONS, EXTRA_RESTRICTIONS[state]),
+    restrictions: AAMVA_D20_RESTRICTIONS,
     endorsements: NATIONAL_ENDORSEMENTS
   };
 }

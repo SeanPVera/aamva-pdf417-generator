@@ -1,7 +1,9 @@
 import React, { useMemo, useRef, useState } from "react";
-import { X, Upload, GitCompare } from "lucide-react";
+import { X, Upload, GitCompare, FileText } from "lucide-react";
 import { useToast } from "./Toast";
 import { useModalShell } from "../hooks/useModalShell";
+import { useFormStore } from "../hooks/useFormStore";
+import { getFieldsForStateAndVersion } from "../core/schema";
 
 interface CompareViewProps {
   open: boolean;
@@ -25,12 +27,26 @@ async function readJsonFile(file: File): Promise<Record<string, string>> {
 }
 
 export const CompareView: React.FC<CompareViewProps> = ({ open, onClose }) => {
+  const { fields, state, version } = useFormStore();
   const [left, setLeft] = useState<PayloadFile | null>(null);
   const [right, setRight] = useState<PayloadFile | null>(null);
   const leftInputRef = useRef<HTMLInputElement>(null);
   const rightInputRef = useRef<HTMLInputElement>(null);
   const toast = useToast();
   const dialogRef = useModalShell<HTMLDivElement>({ open, onClose });
+
+  const handleUseActiveForm = (setSide: (p: PayloadFile) => void, side: "A" | "B") => {
+    const schemaCodes = new Set(getFieldsForStateAndVersion(state, version).map((f) => f.code));
+    const activeData: Record<string, string> = { state, version };
+    for (const [code, value] of Object.entries(fields)) {
+      if (value && schemaCodes.has(code)) {
+        activeData[code] = value;
+      }
+    }
+    const name = `Active Form (${state} v${version})`;
+    setSide({ name, data: activeData });
+    toast.success(`Loaded active form for payload ${side}`);
+  };
 
   const handleLoad = async (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -121,14 +137,27 @@ export const CompareView: React.FC<CompareViewProps> = ({ open, onClose }) => {
                 className="hidden"
                 aria-label={`Load JSON payload ${side}`}
               />
-              <button
-                type="button"
-                onClick={() => ref.current?.click()}
-                className="inline-flex h-k-touch min-h-k-touch items-center justify-center gap-2 rounded-k border border-gray-300 dark:border-dark-border bg-gray-50 dark:bg-dark-surface2 px-3 text-k-help font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-[#383838] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-              >
-                <Upload size={14} />
-                Load Payload {side}
-              </button>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => ref.current?.click()}
+                  className="inline-flex h-k-touch min-h-k-touch flex-1 items-center justify-center gap-2 rounded-k border border-gray-300 dark:border-dark-border bg-gray-50 dark:bg-dark-surface2 px-3 text-k-help font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-[#383838] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                >
+                  <Upload size={14} />
+                  Load Payload {side}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleUseActiveForm(setSide, side)}
+                  aria-label={`Use active form for payload ${side}`}
+                  title="Load current active form fields into comparison"
+                  className="inline-flex h-k-touch min-h-k-touch items-center justify-center gap-1.5 rounded-k border border-gray-300 dark:border-dark-border bg-gray-50 dark:bg-dark-surface2 px-3 text-k-help font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-[#383838] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 whitespace-nowrap"
+                >
+                  <FileText size={13} />
+                  <span className="hidden sm:inline">Use active form</span>
+                  <span className="sm:hidden">Active</span>
+                </button>
+              </div>
               <div className="flex min-h-k-touch items-center gap-1">
                 <span
                   className="flex-1 text-xs text-gray-500 dark:text-gray-400 truncate"
