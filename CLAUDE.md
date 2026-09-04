@@ -6,7 +6,7 @@ This file provides AI assistants (Claude, Copilot, etc.) with the context needed
 
 ## Project Overview
 
-**aamva-pdf417-generator** is a fully client-side AAMVA PDF417 barcode generator for U.S. driver's licenses and ID cards. It implements the AAMVA (American Association of Motor Vehicle Administrators) specification across versions 01–10 for all 50 states, D.C., and U.S. territories. Versions 05, 06, and 07 share the 2009 (v04) data-element set — those revisions changed card design and security requirements rather than the DL subfile.
+**aamva-pdf417-generator** is a fully client-side AAMVA PDF417 barcode generator for U.S. driver's licenses and ID cards. It implements the AAMVA (American Association of Motor Vehicle Administrators) specification across versions 01–11 for all 50 states, D.C., and U.S. territories. Versions 05, 06, and 07 share the 2009 (v04) data-element set — those revisions changed card design and security requirements rather than the DL subfile. Version 11 is the 2025 Card Design Standard: DCL/AKA/HAZMAT expiry are gone, DDM/DDN/DDO/DDP document-type indicators are in, and DAK is V9ANS.
 
 **Key traits:**
 - Zero server-side code — runs entirely in the browser or as an Electron desktop app
@@ -48,7 +48,7 @@ This file provides AI assistants (Claude, Copilot, etc.) with the context needed
 │   ├── App.tsx                   # Main app component: layout, keyboard shortcuts, theme
 │   ├── setupTests.ts             # Vitest setup (testing-library/jest-dom)
 │   ├── core/
-│   │   ├── schema.ts             # AAMVA versions 01–10 field definitions, IINs, options
+│   │   ├── schema.ts             # AAMVA versions 01–11 field definitions, IINs, options
 │   │   ├── states.ts             # 54 jurisdictions (50 states + DC + 4 territories)
 │   │   ├── generator.ts          # AAMVA payload generator with state-specific rules
 │   │   ├── decoder.ts            # Payload decoder and structural validator
@@ -75,7 +75,7 @@ This file provides AI assistants (Claude, Copilot, etc.) with the context needed
 │   │   ├── BarcodePreview.tsx    # PDF417 canvas via bwip-js, payload display, PNG/SVG/PDF export
 │   │   ├── BatchProcessor.tsx    # Bulk field operations UI
 │   │   ├── WebcamScanner.tsx     # ZXing-based barcode scanner modal
-│   │   ├── VersionBrowser.tsx    # Modal for exploring AAMVA versions 01–10
+│   │   ├── VersionBrowser.tsx    # Modal for exploring AAMVA versions 01–11
 │   │   ├── GroupNav.tsx          # Per-group error/empty counts with jump-to-group
 │   │   ├── MobileActionBar.tsx   # Sticky mobile status + export strip
 │   │   ├── RoadTest.tsx          # The parallel-parking exam (lazy, decorative)
@@ -116,7 +116,7 @@ Named exports:
 
 | Export | Contents |
 |---|---|
-| `AAMVA_VERSIONS` | Object keyed by `"01"`–`"10"`: `{ name, fields: AAMVAField[] }` |
+| `AAMVA_VERSIONS` | Object keyed by `"01"`–`"11"`: `{ name, fields: AAMVAField[] }` |
 | `AAMVA_FIELD_OPTIONS` | Enumerated values for sex, eye color, hair color, race/ethnicity, etc. |
 | `AAMVA_FIELD_LIMITS` | Max character lengths per field code |
 | `AAMVA_STATE_EXCLUDED_FIELDS` | Fields excluded per jurisdiction (e.g., NY excludes `DAW`, `DAX`, `DAZ`, `DCL`) |
@@ -339,7 +339,7 @@ npm run format:check    # Prettier check (used in CI)
 1. **Schema** — all 54 jurisdictions have valid 6-digit IINs with no duplicates; field code format
 2. **Field options** — enums for sex, eye color, hair color, race/ethnicity
 3. **Field limits** — max character enforcement per field code
-4. **AAMVA versions 01–10** — structure and required fields
+4. **AAMVA versions 01–11** — structure and required fields
 5. **State exclusions** — `AAMVA_STATE_EXCLUDED_FIELDS` per jurisdiction
 6. **State-specific generators** — DAQ, DCF, DDB patterns per state
 7. **Payload generation** — golden vectors, header structure, directory length, uppercase enforcement
@@ -384,7 +384,8 @@ Fields use 3-character codes (e.g., `DAA`, `DCS`, `DAB`). These are standardized
 - `"01"` — oldest (AAMVA DL/ID-2000); uses `DAA` for full name (not split)
 - `"04"`–`"07"` — intermediate; split name fields (`DCS`, `DAC`, `DAD`)
 - `"08"` — 2013 standard; adds organ donor/veteran fields (`DDK`, `DDL`)
-- `"09"`–`"10"` — most recent; used by newer state implementations
+- `"09"`–`"10"` — 2016 / 2020; used by most current state implementations
+- `"11"` — 2025 Card Design Standard; adds CDL / non-domiciled / enhanced / permit indicators (`DDM`, `DDN`, `DDO`, `DDP`); drops race/ethnicity (`DCL`), AKA names, and HAZMAT expiry (`DDC`)
 
 `DCK` (inventory control number) is optional from `"03"` onward and absent from `"01"`/`"02"`.
 `DDD` (limited duration document indicator) is optional from `"08"` onward. Both were added
@@ -562,7 +563,7 @@ Local hooks (Husky):
 - **Do not** relax Electron security flags (`nodeIntegration`, `contextIsolation`, `sandbox`)
 - **Do not** add network requests — this app must remain 100% offline-capable
 - **Do not** persist PII at all — field values live in memory only (see `partialize` in `useFormStore`); no IndexedDB, no cookies, no remote storage
-- **Do not** build a version picker from `Object.keys(AAMVA_VERSIONS)` — `"10"` is an integer-like key and sorts ahead of `"01"`; use `AAMVA_VERSION_KEYS`
+- **Do not** build a version picker from `Object.keys(AAMVA_VERSIONS)` — `"10"` and `"11"` are integer-like keys and sort ahead of `"01"`; use `AAMVA_VERSION_KEYS`
 - **Do not** call `setField` in a loop for a bulk action — use `mergeFields` so it stays one undo step
 - **Do not** paint a background or border with a `--state-*` variable without scoping it away from `html.dark` — every palette is a light tint (see State Themes above)
 - **Do not** pair `text-gray-400` with `dark:text-gray-500` — that combination is below AA in *both* themes; `text-gray-500 dark:text-gray-400` clears it in both

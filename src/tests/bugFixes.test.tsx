@@ -121,16 +121,16 @@ describe("generateAAMVAPayload does not mutate its input", () => {
 });
 
 describe("AAMVA version coverage", () => {
-  it("defines every version from 01 to 10", () => {
-    for (let i = 1; i <= 10; i++) {
+  it("defines every version from 01 to 11", () => {
+    for (let i = 1; i <= 11; i++) {
       const key = String(i).padStart(2, "0");
       expect(isSupportedVersion(key), `version ${key}`).toBe(true);
     }
   });
 
   it("lists versions in ascending order for the pickers", () => {
-    // Object.keys puts the integer-like "10" ahead of "01".."09", so every
-    // dropdown built from it opened on version 10.
+    // Object.keys puts the integer-like "10" and "11" ahead of "01".."09", so
+    // every dropdown built from it opened on version 10.
     expect(AAMVA_VERSION_KEYS).toEqual([
       "01",
       "02",
@@ -141,7 +141,8 @@ describe("AAMVA version coverage", () => {
       "07",
       "08",
       "09",
-      "10"
+      "10",
+      "11"
     ]);
     expect([...AAMVA_VERSION_KEYS].sort()).toEqual([...AAMVA_VERSION_KEYS]);
     expect(AAMVA_VERSION_KEYS.length).toBe(Object.keys(AAMVA_VERSIONS).length);
@@ -156,6 +157,24 @@ describe("AAMVA version coverage", () => {
       });
       expect(decodeAAMVA(payload).json?.version).toBe(version);
     }
+  });
+
+  it("builds a usable form and payload for version 11", () => {
+    const fields = getFieldsForStateAndVersion("CA", "11");
+    expect(fields.some((f) => f.code === "DDM")).toBe(true);
+    expect(fields.some((f) => f.code === "DCL")).toBe(false);
+    const payload = generateAAMVAPayload(
+      "CA",
+      "11",
+      fields,
+      formFor("CA", { DDM: "1", DDO: "1" }),
+      { strictMode: false }
+    );
+    const decoded = decodeAAMVA(payload);
+    expect(decoded.json?.version).toBe("11");
+    expect(decoded.json?.DDM).toBe("1");
+    expect(decoded.json?.DDO).toBe("1");
+    expect(decoded.json?.DCL).toBeUndefined();
   });
 
   it("rejects a version outside the table", () => {

@@ -2,7 +2,7 @@
 
 The framework-free AAMVA implementation. This directory is a self-contained
 package: zero React, zero DOM, zero bundler-specific imports. It implements the
-AAMVA DL/ID specification (versions 01–10) for all 54 U.S. jurisdictions.
+AAMVA DL/ID specification (versions 01–11) for all 54 U.S. jurisdictions.
 
 ## Public API
 
@@ -25,7 +25,7 @@ considered internal.
 
 | Module           | Responsibility                                                        |
 | ---------------- | --------------------------------------------------------------------- |
-| `schema.ts`      | AAMVA versions 01–10 field definitions, options, length limits        |
+| `schema.ts`      | AAMVA versions 01–11 field definitions, options, length limits        |
 | `states.ts`      | 54 jurisdictions with IINs, default versions, supported flag          |
 | `generator.ts`   | Encodes a record → AAMVA wire format string                           |
 | `decoder.ts`     | Parses AAMVA wire format → field map; structural validation          |

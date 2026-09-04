@@ -1,6 +1,6 @@
 # Contributing to aamva-pdf417-generator
 
-Thanks for your interest in contributing. This project is a fully client-side AAMVA PDF417 barcode generator covering versions 01–10 across 54 U.S. jurisdictions. Because the AAMVA spec is detailed and state-specific, contributions that touch the encoder, decoder, or validation rules need extra care.
+Thanks for your interest in contributing. This project is a fully client-side AAMVA PDF417 barcode generator covering versions 01–11 across 54 U.S. jurisdictions. Because the AAMVA spec is detailed and state-specific, contributions that touch the encoder, decoder, or validation rules need extra care.
 
 ## Quick start
 

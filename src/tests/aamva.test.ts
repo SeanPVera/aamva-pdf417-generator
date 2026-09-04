@@ -233,11 +233,12 @@ test("all versions include DAH (Address Line 2)", () => {
 /* ============================================================
    AAMVA VERSION DEFINITIONS
    ============================================================ */
-test("versions 01 through 10 are all defined", () => {
+test("versions 01 through 11 are all defined", () => {
   // 05, 06, and 07 were absent for a long time. Nothing in the UI could select
   // them, but a scanned or imported payload names its own version, so a real
-  // 2010/2011/2012 card loaded into a completely empty form.
-  for (let i = 1; i <= 10; i++) {
+  // 2010/2011/2012 card loaded into a completely empty form. Version 11 is the
+  // 2025 Card Design Standard; the same import path has to recognise it.
+  for (let i = 1; i <= 11; i++) {
     const key = i.toString().padStart(2, "0");
     assert.ok(window.AAMVA_VERSIONS[key], `Version ${key} should be defined`);
   }
@@ -272,7 +273,7 @@ test("version 01 uses DAA (full name) instead of split names", () => {
   assert.ok(!fields.some((f) => f.code === "DCS"), "Version 01 should NOT have DCS");
 });
 test("versions 04+ have truncation indicators", () => {
-  for (const ver of ["04", "08", "09", "10"]) {
+  for (const ver of ["04", "08", "09", "10", "11"]) {
     const fields = window.getFieldsForVersion(ver);
     assert.ok(
       fields.some((f) => f.code === "DDE"),
@@ -289,7 +290,7 @@ test("versions 04+ have truncation indicators", () => {
   }
 });
 test("versions 08+ have organ donor and veteran indicators", () => {
-  for (const ver of ["08", "09", "10"]) {
+  for (const ver of ["08", "09", "10", "11"]) {
     const fields = window.getFieldsForVersion(ver);
     assert.ok(
       fields.some((f) => f.code === "DDK"),
@@ -299,6 +300,16 @@ test("versions 08+ have organ donor and veteran indicators", () => {
       fields.some((f) => f.code === "DDL"),
       `Version ${ver} should have DDL (Veteran)`
     );
+  }
+});
+test("version 11 is the 2025 CDS element set", () => {
+  const fields = window.getFieldsForVersion("11");
+  const codes = new Set(fields.map((f) => f.code));
+  for (const added of ["DDM", "DDN", "DDO", "DDP"]) {
+    assert.ok(codes.has(added), `Version 11 should have ${added}`);
+  }
+  for (const removed of ["DCL", "DBN", "DBG", "DBS", "DDC"]) {
+    assert.ok(!codes.has(removed), `Version 11 should not have ${removed}`);
   }
 });
 /* ============================================================

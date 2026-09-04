@@ -53,7 +53,21 @@ describe("getFieldGroup", () => {
   });
 
   test("classifies license-detail fields", () => {
-    for (const code of ["DAQ", "DCF", "DCG", "DCK", "DBA", "DBD", "DDA", "DDK", "DDL"]) {
+    for (const code of [
+      "DAQ",
+      "DCF",
+      "DCG",
+      "DCK",
+      "DBA",
+      "DBD",
+      "DDA",
+      "DDK",
+      "DDL",
+      "DDM",
+      "DDN",
+      "DDO",
+      "DDP"
+    ]) {
       expect(getFieldGroup(code)).toBe("license");
     }
   });
