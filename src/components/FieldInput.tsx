@@ -262,10 +262,18 @@ export const FieldInput: React.FC<FieldInputProps> = ({
   // marker alone made "required" the thing you had to hunt for.
   const isEmpty = !value.trim();
   const baseInputClass = `block w-full h-k-control rounded-k pl-4 ${trailingPad} text-k-value text-gray-900 dark:text-gray-100 bg-white dark:bg-[#2C2C2C] border-[1.5px] appearance-none focus:outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500`;
+  // WCAG 1.4.11 wants 3:1 between a control's boundary and BOTH the colours it
+  // sits between. The jurisdiction theme paints the fill with `!important` (a
+  // deliberate rule — borders carry validation state, so only the fill is
+  // themed), and gray-300 against that fill measured 1.3:1, gray-300 against
+  // the white panel 1.47:1. Neither is a boundary; it is a suggestion of one.
+  // gray-500 clears it at 4.25:1 and 4.83:1. Dark needed a second pass: the
+  // themed dark fill is a color-mix, and #6E6E6E only reached 2.70:1 against
+  // it; #7A7A7A gets 3.20:1 against the fill and 3.96:1 against the surface.
   const restingBorder =
     !field.required && isEmpty
-      ? "border-dashed border-gray-300 dark:border-[#4A4A4A]"
-      : "border-gray-300 dark:border-[#555]";
+      ? "border-dashed border-gray-500 dark:border-[#7A7A7A]"
+      : "border-gray-500 dark:border-[#7A7A7A]";
   const finalClass = hasError
     ? `${baseInputClass} border-red-500 focus:border-red-500`
     : isWarning

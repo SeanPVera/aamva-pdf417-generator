@@ -17,6 +17,8 @@ const VersionBrowser = React.lazy(() =>
 
 interface SidebarProps {
   mobileHidden?: boolean;
+  /** The step rail, which shares this column on desktop rather than taking a fourth. */
+  children?: React.ReactNode;
 }
 
 // The territories actually present in AAMVA_STATES. The previous inline list
@@ -24,7 +26,7 @@ interface SidebarProps {
 // branch could never be taken.
 const US_TERRITORY_CODES = new Set(["AS", "GU", "VI", "PR"].filter((code) => code in AAMVA_STATES));
 
-export const Sidebar: React.FC<SidebarProps> = ({ mobileHidden = false }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ mobileHidden = false, children }) => {
   const {
     state,
     version,
@@ -79,10 +81,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileHidden = false }) => {
       className={`state-themed-sidebar dmv-sidebar w-full lg:w-64 bg-white dark:bg-dark-surface border-b lg:border-b-0 lg:border-r border-gray-200 dark:border-dark-border z-10 flex flex-col max-h-[45vh] lg:max-h-none overflow-y-auto p-4 shadow-sm ${
         mobileHidden ? "hidden lg:flex" : "flex"
       }`}
-      aria-label="Configuration"
+      aria-label="Sections and settings"
     >
-      <h2 className="text-lg font-medium tracking-tight text-gray-900 dark:text-gray-100 mb-4">
-        Configuration
+      {/* The step rail is the primary navigation for the form, so it goes
+          first. Placed after the jurisdiction settings it was landing below the
+          fold on a 950px-tall window — present, correct, and invisible. */}
+      {children}
+
+      <h2 className="mb-4 mt-1 text-k-label font-bold tracking-tight text-gray-900 dark:text-gray-100">
+        Settings
       </h2>
 
       <div className="space-y-4 flex-1">

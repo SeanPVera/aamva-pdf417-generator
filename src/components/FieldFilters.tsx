@@ -1,14 +1,5 @@
 import React from "react";
-import {
-  Search,
-  X as XIcon,
-  ArrowDown,
-  Wand2,
-  FlaskConical,
-  ChevronsDownUp,
-  ChevronsUpDown,
-  AlertCircle
-} from "lucide-react";
+import { Search, X as XIcon, ArrowDown, Wand2, FlaskConical, AlertCircle } from "lucide-react";
 import { formatShortcut } from "../core/modKey";
 
 interface FieldFiltersProps {
@@ -27,8 +18,6 @@ interface FieldFiltersProps {
   hasNextEmpty: boolean;
   onGenerateAutoFields: () => void;
   onFillSample?: () => void;
-  onCollapseAll?: () => void;
-  onExpandAll?: () => void;
   /** Rendered under the counters — the group navigator strip. */
   children?: React.ReactNode;
 }
@@ -49,8 +38,6 @@ export const FieldFilters: React.FC<FieldFiltersProps> = ({
   hasNextEmpty,
   onGenerateAutoFields,
   onFillSample,
-  onCollapseAll,
-  onExpandAll,
   children
 }) => {
   const inputRef = React.useRef<HTMLInputElement | null>(null);
@@ -157,7 +144,7 @@ export const FieldFilters: React.FC<FieldFiltersProps> = ({
             aria-label="Show only fields with validation issues"
           />
           <AlertCircle size={12} aria-hidden="true" />
-          Issues only{issueCount > 0 ? ` (${issueCount})` : ""}
+          Problems only{issueCount > 0 ? ` (${issueCount})` : ""}
         </label>
 
         <button
@@ -195,32 +182,6 @@ export const FieldFilters: React.FC<FieldFiltersProps> = ({
           >
             <FlaskConical size={12} aria-hidden="true" />
             Autofill demo
-          </button>
-        )}
-
-        {onCollapseAll && (
-          <button
-            type="button"
-            onClick={onCollapseAll}
-            aria-label="Collapse all field groups"
-            title="Collapse all field groups"
-            className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-gray-100 dark:bg-[#2C2C2C] border border-gray-200 dark:border-[#444] text-xs font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-[#333] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-          >
-            <ChevronsDownUp size={12} aria-hidden="true" />
-            Collapse all
-          </button>
-        )}
-
-        {onExpandAll && (
-          <button
-            type="button"
-            onClick={onExpandAll}
-            aria-label="Expand all field groups"
-            title="Expand all field groups"
-            className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-gray-100 dark:bg-[#2C2C2C] border border-gray-200 dark:border-[#444] text-xs font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-[#333] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-          >
-            <ChevronsUpDown size={12} aria-hidden="true" />
-            Expand all
           </button>
         )}
       </div>

@@ -127,7 +127,7 @@ describe("Sidebar Component", () => {
     expect(await screen.findByTestId("version-browser-mock")).toBeInTheDocument();
 
     // Check headings and labels
-    expect(screen.getByText("Configuration")).toBeInTheDocument();
+    expect(screen.getByText("Settings")).toBeInTheDocument();
     expect(screen.getByText("State / Territory")).toBeInTheDocument();
     expect(screen.getByText("AAMVA Version")).toBeInTheDocument();
     expect(screen.getByText("Subfile Type")).toBeInTheDocument();

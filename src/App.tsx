@@ -1,5 +1,5 @@
 import React from "react";
-import { SearchX } from "lucide-react";
+import { SearchX, ChevronLeft, ChevronRight } from "lucide-react";
 import { Sidebar } from "./components/Sidebar";
 import { Header } from "./components/Header";
 // Static on purpose: the tour auto-opens on first load. Behind React.lazy it
@@ -8,9 +8,9 @@ import { Header } from "./components/Header";
 // accessibility tree. The bundle saving is not worth that.
 import { WelcomeTour } from "./components/WelcomeTour";
 import { FieldInput } from "./components/FieldInput";
-import { FieldGroup } from "./components/FieldGroup";
+import { FieldGroup, FIELD_GRID_CLASS } from "./components/FieldGroup";
 import { FieldFilters } from "./components/FieldFilters";
-import { GroupNav, type GroupNavStat } from "./components/GroupNav";
+import { StepRail, type StepRailSection } from "./components/StepRail";
 import { MobileActionBar } from "./components/MobileActionBar";
 import { describeActiveFilters } from "./components/filterSummary";
 import { DropZoneOverlay } from "./components/DropZoneOverlay";
@@ -92,6 +92,9 @@ function App() {
   const [roadTestOpen, setRoadTestOpen] = React.useState(false);
   const [tourOpen, setTourOpen] = React.useState(false);
   const [mobilePanel, setMobilePanel] = React.useState<MobilePanel>("form");
+  // Which rung of the rail is open. The form shows one section at a time; the
+  // whole-form view comes back the moment a filter or a search is active.
+  const [activeSectionRaw, setActiveSection] = React.useState<FieldGroupId>("identity");
 
   const cycleMobilePanel = React.useCallback((delta: 1 | -1) => {
     setMobilePanel((current) => {
@@ -127,8 +130,6 @@ function App() {
     redo,
     canUndo,
     canRedo,
-    collapsedGroups,
-    toggleGroupCollapsed,
     requiredOnly,
     setRequiredOnly,
     issuesOnly,
@@ -177,6 +178,8 @@ function App() {
     () => getValidationIssues(schemaFields, { ...fields, DAJ: state }, state, strictMode),
     [schemaFields, fields, state, strictMode]
   );
+  // Everything that blocks generation, blank fields included. Only the
+  // *display* of counts distinguishes the two kinds; the gate does not.
   const errorCount = issues.filter((i) => i.severity === "error").length;
   const issueCodes = React.useMemo(() => new Set(issues.map((i) => i.code)), [issues]);
 
@@ -214,35 +217,77 @@ function App() {
     [schemaFields]
   );
 
-  // Per-group state for the navigator strip. Counts come from the full schema
-  // (a filtered-away error is still an error); `total` comes from what is
-  // actually on screen, so a group the filters emptied drops out of the strip.
-  const groupStats = React.useMemo<GroupNavStat[]>(() => {
-    const errorsByGroup = new Map<FieldGroupId, number>();
+  // Per-section state for the rail. Counts come from the full schema rather
+  // than the filtered view — a section the search hid still owes you the same
+  // work, and a rail that forgets that is worse than no rail.
+  //
+  // `errors` counts only values the validator rejects. Blank required fields
+  // are `requiredTotal - requiredFilled`, which the rail words as work
+  // remaining. Counting them as errors is what made a form nobody had touched
+  // open with every section in red.
+  const railSections = React.useMemo<StepRailSection[]>(() => {
+    const errorsBySection = new Map<FieldGroupId, number>();
+    const advisoriesBySection = new Map<FieldGroupId, number>();
     for (const issue of issues) {
-      if (issue.severity !== "error") continue;
       const id = getFieldGroup(issue.code);
-      errorsByGroup.set(id, (errorsByGroup.get(id) ?? 0) + 1);
+      if (issue.severity === "error") {
+        if (issue.kind === "empty") continue;
+        errorsBySection.set(id, (errorsBySection.get(id) ?? 0) + 1);
+      } else {
+        advisoriesBySection.set(id, (advisoriesBySection.get(id) ?? 0) + 1);
+      }
     }
 
     return AAMVA_FIELD_GROUPS.map((group) => {
       const inGroup = schemaFields.filter((f) => getFieldGroup(f.code) === group.id);
       const requiredInGroup = inGroup.filter((f) => f.required);
-      const emptyRequired = requiredInGroup.filter((f) => !(fields[f.code] || "").trim()).length;
       return {
         id: group.id,
         label: group.label,
-        total: fieldsByGroup.get(group.id)?.length ?? 0,
-        emptyRequired,
-        errors: errorsByGroup.get(group.id) ?? 0,
-        complete: requiredInGroup.length > 0 && emptyRequired === 0
+        total: inGroup.length,
+        requiredTotal: requiredInGroup.length,
+        requiredFilled: requiredInGroup.filter((f) => (fields[f.code] || "").trim()).length,
+        errors: errorsBySection.get(group.id) ?? 0,
+        advisories: advisoriesBySection.get(group.id) ?? 0
       };
-    });
-  }, [schemaFields, fields, issues, fieldsByGroup]);
+      // A version or jurisdiction that defines nothing for a section gets no
+      // step — an empty "Jurisdiction Subfile" rung is a dead end, not a task.
+    }).filter((section) => section.total > 0);
+  }, [schemaFields, fields, issues]);
+  // A jurisdiction switch can remove the section you were standing on — New
+  // York defines a ZN subfile, most states define none — so the rung is
+  // re-resolved against the current rail rather than trusted.
+  const activeSection: FieldGroupId = railSections.some((s) => s.id === activeSectionRaw)
+    ? activeSectionRaw
+    : (railSections[0]?.id ?? "identity");
+
+  // Searching or filtering is the whole-form view. One section at a time is
+  // right for working through a blank form; it is exactly wrong for "where is
+  // the donor field", which is the case the section IA would otherwise break.
+  const isFiltering = normalizedQuery !== "" || requiredOnly || issuesOnly;
+
+  const sectionFields = React.useMemo(
+    () => visibleFields.filter((f) => getFieldGroup(f.code) === activeSection),
+    [visibleFields, activeSection]
+  );
+
+  const activeSectionIndex = railSections.findIndex((s) => s.id === activeSection);
+  const activeSectionDef = AAMVA_FIELD_GROUPS.find((g) => g.id === activeSection);
+  const prevSection = activeSectionIndex > 0 ? railSections[activeSectionIndex - 1] : undefined;
+  const nextSection =
+    activeSectionIndex >= 0 && activeSectionIndex < railSections.length - 1
+      ? railSections[activeSectionIndex + 1]
+      : undefined;
+
   const requiredFilled = requiredFields.filter(
     (f) => (fields[f.code] || "").trim().length > 0
   ).length;
   const requiredTotal = requiredFields.length;
+
+  // Blocking errors that are an actual mistake rather than an unfilled box.
+  // The two are counted separately everywhere they surface.
+  const invalidCount = issues.filter((i) => i.severity === "error" && i.kind === "invalid").length;
+  const emptyRequiredCount = requiredTotal - requiredFilled;
 
   const isFieldFilled = (code: string) => (fields[code] || "").trim().length > 0;
 
@@ -461,17 +506,9 @@ function App() {
     return () => window.clearTimeout(t);
   }, [_changedAt, _changedCodes]);
 
-  const handleCollapseAll = () => {
-    for (const group of AAMVA_FIELD_GROUPS) {
-      if (!collapsedGroups[group.id]) toggleGroupCollapsed(group.id);
-    }
-    markBingo("collapsed-all");
-  };
-  const handleExpandAll = () => {
-    for (const group of AAMVA_FIELD_GROUPS) {
-      if (collapsedGroups[group.id]) toggleGroupCollapsed(group.id);
-    }
-  };
+  // Collapse-all and expand-all went with the accordions. One section is open
+  // at a time now, and in the filtered view every match is shown by
+  // definition — there is nothing left for either control to do.
 
   const handleGenerate = (code: string) => {
     if (code === "DCF") {
@@ -560,13 +597,20 @@ function App() {
     toast.info(`Reset ${code}`);
   };
 
+  // A jump names a field; the effect below performs it once that field is
+  // actually on the page.
+  const pendingFocusRef = React.useRef<string | null>(null);
+
   const handleScrollToField = React.useCallback(
     (code: string) => {
       // On mobile, the form column may be hidden — switch to it first.
       setMobilePanel("form");
-      // Expand the field's group so the input becomes reachable.
+      // The field almost certainly lives on a rung other than the open one, and
+      // an unmounted input cannot be scrolled to or focused. Open its section
+      // first; this is what keeps "jump to the next error", the validation
+      // panel's links, and F8 working now that the form is paginated.
       const group = getFieldGroup(code);
-      if (collapsedGroups[group]) toggleGroupCollapsed(group);
+      setActiveSection(group);
       // If the required-only filter is hiding this field, drop it.
       const fieldDef = schemaFields.find((f) => f.code === code);
       if (fieldDef && requiredOnly && !fieldDef.required) setRequiredOnly(false);
@@ -575,33 +619,39 @@ function App() {
       if (q && !(code.toLowerCase().includes(q) || fieldDef?.label.toLowerCase().includes(q))) {
         setSearchQuery("");
       }
-      // Defer to allow the panel to become visible.
-      requestAnimationFrame(() => {
-        const el = document.getElementById(code);
-        if (!el) return;
-        el.scrollIntoView({ behavior: "smooth", block: "center" });
-        try {
-          el.focus({ preventScroll: true });
-        } catch {
-          el.focus();
-        }
-        // Flash the field briefly so the user can see where they landed.
-        el.classList.remove("field-flash");
-        // Force reflow so the animation re-runs even if the class was just removed.
-        void el.offsetWidth;
-        el.classList.add("field-flash");
-        window.setTimeout(() => el.classList.remove("field-flash"), 1200);
-      });
+      // Hand the focus off to the effect below rather than a rAF. Switching
+      // sections unmounts one set of inputs and mounts another, and a rAF
+      // scheduled here can run before React commits that — `getElementById`
+      // then returns null for an input that is about to exist, and the jump
+      // silently does nothing.
+      pendingFocusRef.current = code;
     },
-    [
-      collapsedGroups,
-      toggleGroupCollapsed,
-      schemaFields,
-      requiredOnly,
-      setRequiredOnly,
-      searchQuery
-    ]
+    [schemaFields, requiredOnly, setRequiredOnly, searchQuery]
   );
+
+  // Runs after every commit, so a jump that had to change section, drop a
+  // filter, or switch mobile panel lands as soon as its input is on the page.
+  React.useEffect(() => {
+    const code = pendingFocusRef.current;
+    if (!code) return;
+    const el = document.getElementById(code);
+    // Still mid-switch: leave the request standing and try again next commit.
+    if (!el) return;
+    pendingFocusRef.current = null;
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+    try {
+      el.focus({ preventScroll: true });
+    } catch {
+      el.focus();
+    }
+    // Flash the field briefly so the user can see where they landed.
+    el.classList.remove("field-flash");
+    // Force reflow so the animation re-runs even if the class was just removed.
+    void el.offsetWidth;
+    el.classList.add("field-flash");
+    const timer = window.setTimeout(() => el.classList.remove("field-flash"), 1200);
+    return () => window.clearTimeout(timer);
+  });
 
   const nextEmptyRequiredCode = React.useMemo(
     () => requiredFields.find((f) => !isFieldFilled(f.code))?.code,
@@ -614,24 +664,21 @@ function App() {
     if (nextEmptyRequiredCode) handleScrollToField(nextEmptyRequiredCode);
   };
 
-  const handleJumpToGroup = React.useCallback(
-    (id: FieldGroupId) => {
-      setMobilePanel("form");
-      if (collapsedGroups[id]) toggleGroupCollapsed(id);
-      requestAnimationFrame(() => {
-        document
-          .getElementById(`field-group-${id}-heading`)
-          ?.scrollIntoView({ behavior: "smooth", block: "start" });
-      });
-    },
-    [collapsedGroups, toggleGroupCollapsed]
-  );
+  const handleSelectSection = React.useCallback((id: FieldGroupId) => {
+    setMobilePanel("form");
+    setActiveSection(id);
+    // A section swap replaces the whole column; leaving the reader wherever
+    // the last one was scrolled to means landing mid-form with no heading.
+    requestAnimationFrame(() => {
+      document.getElementById("section-heading")?.scrollIntoView({ block: "start" });
+    });
+  }, []);
 
-  // The bottom bar's single action: the first error if there is one, otherwise
-  // the first field still missing a value.
+  // The bottom bar's single action. A mistake outranks a blank box — a wrong
+  // value is the thing you cannot finish around.
   const handleMobileFixNext = React.useCallback(() => {
-    const firstError = issues.find((i) => i.severity === "error");
-    const target = firstError?.code ?? nextEmptyRequiredCode;
+    const firstInvalid = issues.find((i) => i.severity === "error" && i.kind === "invalid");
+    const target = firstInvalid?.code ?? nextEmptyRequiredCode;
     if (target) handleScrollToField(target);
   }, [issues, nextEmptyRequiredCode, handleScrollToField]);
 
@@ -736,6 +783,33 @@ function App() {
     recordBadgeEvent({ exports: badgeStats.exports + 1 });
   }, [badgeStats.exports, recordBadgeEvent]);
 
+  // One field renderer for both views. They diverge in what they show and how
+  // it is grouped, never in how a field behaves; two copies of this prop list
+  // is how a fix lands in the section view and not in search results.
+  const renderField = (field: AAMVAField) => (
+    <FieldInput
+      key={field.code}
+      field={field}
+      value={fields[field.code] || ""}
+      state={state}
+      strictMode={strictMode}
+      copied={copiedField === field.code}
+      whimsy={whimsy}
+      allValues={fields}
+      highlight={searchQuery}
+      derivedFrom={field.code === "DAJ" ? "Set from the selected jurisdiction." : undefined}
+      onChange={handleChange}
+      onCopy={handleCopyField}
+      onReset={handleResetField}
+      onGenerate={handleGenerate}
+      onHelpOpened={() => markBingo("read-the-help")}
+      onDisableStrict={() => {
+        setStrictMode(false);
+        toast.info("Strict mode disabled");
+      }}
+    />
+  );
+
   return (
     <div
       className={`app-shell flex flex-col min-h-screen bg-white dark:bg-[#121212] text-gray-900 dark:text-gray-200 font-sans${
@@ -765,7 +839,7 @@ function App() {
             { key: "form", label: "Fields" },
             { key: "preview", label: "Preview" }
           ].map((panel) => {
-            const showErrorBadge = panel.key === "form" && errorCount > 0;
+            const showErrorBadge = panel.key === "form" && invalidCount > 0;
             const showReadyBadge = panel.key === "preview" && previewReady;
             return (
               <button
@@ -783,9 +857,9 @@ function App() {
                 {showErrorBadge && (
                   <span
                     className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 rounded-full bg-red-600 text-white text-[10px] leading-4 font-semibold shadow"
-                    aria-label={`${errorCount} validation error${errorCount === 1 ? "" : "s"}`}
+                    aria-label={`${invalidCount} validation error${invalidCount === 1 ? "" : "s"}`}
                   >
-                    {errorCount > 9 ? "9+" : errorCount}
+                    {invalidCount > 9 ? "9+" : invalidCount}
                   </span>
                 )}
                 {showReadyBadge && (
@@ -809,26 +883,66 @@ function App() {
         ref={swipeRef}
         className="flex flex-1 flex-col lg:flex-row overflow-visible lg:overflow-hidden gap-0 lg:gap-0 pb-safe"
       >
-        <Sidebar mobileHidden={mobilePanel !== "config"} />
+        <Sidebar mobileHidden={mobilePanel !== "config"}>
+          {/* The rail rides in the config column on desktop rather than taking
+              a fourth. On mobile the config panel is its own tab, so the rail
+              appears as a strip above the fields instead — see below. */}
+          <div className="hidden lg:flex lg:min-h-0 lg:flex-col lg:pt-4">
+            <span className="px-3 pb-2 text-k-eyebrow font-bold uppercase text-gray-600 dark:text-gray-400">
+              Sections
+            </span>
+            <StepRail
+              sections={railSections}
+              active={activeSection}
+              onSelect={handleSelectSection}
+            />
+          </div>
+        </Sidebar>
 
         <div
-          className={`dmv-main flex-1 flex flex-col overflow-y-auto bg-white dark:bg-[#1E1E1E] m-2 lg:m-4 rounded-xl shadow-google dark:shadow-none border border-gray-200 dark:border-[#333333] min-h-[40vh] min-w-0 ${
+          className={`dmv-main m-2 min-h-[40vh] min-w-0 flex-1 flex-col overflow-y-auto rounded-xl border border-gray-200 bg-white shadow-google lg:m-4 dark:border-[#333333] dark:bg-[#1E1E1E] dark:shadow-none ${
             mobilePanel !== "form" ? "hidden lg:flex" : "flex"
           }`}
         >
-          <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between gap-3">
-            <div className="min-w-0">
-              <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
-                Payload Fields
-              </h2>
-              <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">
-                Field values stay in memory only — never written to disk. Export JSON to keep a
-                copy.
-              </p>
-            </div>
-            <div className="text-sm text-gray-500 dark:text-gray-400 font-medium shrink-0">
-              AAMVA Version {version} &bull; {state}
-            </div>
+          {/* Phone: the rail collapses to a scrollable strip. It replaces the
+              old panel heading rather than sitting under it — the heading, its
+              privacy note and a six-row filter bar were 347px of an 844px
+              screen before a single input. */}
+          <div className="border-b border-gray-100 px-3 py-2.5 lg:hidden dark:border-gray-700">
+            <StepRail
+              sections={railSections}
+              active={activeSection}
+              onSelect={handleSelectSection}
+              orientation="horizontal"
+            />
+          </div>
+
+          <div id="section-heading" className="px-4 pb-3 pt-4 lg:px-6 lg:pt-5">
+            {isFiltering ? (
+              <>
+                <span className="text-k-eyebrow font-bold uppercase text-gray-600 dark:text-gray-400">
+                  Across all sections
+                </span>
+                <h2 className="mt-1 text-k-section font-bold text-gray-900 dark:text-gray-50">
+                  {visibleFields.length} of {schemaFields.length} fields
+                </h2>
+                <p className="mt-1 text-k-help text-gray-600 dark:text-gray-400">
+                  {describeActiveFilters(searchQuery, requiredOnly, issuesOnly, issues.length)}
+                </p>
+              </>
+            ) : (
+              <>
+                <span className="text-k-eyebrow font-bold uppercase text-gray-600 dark:text-gray-400">
+                  Section {activeSectionIndex + 1} of {railSections.length}
+                </span>
+                <h2 className="mt-1 text-k-section font-bold text-gray-900 dark:text-gray-50">
+                  {activeSectionDef?.label}
+                </h2>
+                <p className="mt-1 text-k-help text-gray-600 dark:text-gray-400">
+                  {activeSectionDef?.description}
+                </p>
+              </>
+            )}
           </div>
 
           <FieldFilters
@@ -841,7 +955,7 @@ function App() {
             onRequiredOnlyChange={setRequiredOnly}
             issuesOnly={issuesOnly}
             onIssuesOnlyChange={setIssuesOnly}
-            issueCount={issues.length}
+            issueCount={invalidCount}
             matchCount={visibleFields.length}
             totalCount={schemaFields.length}
             requiredFilled={requiredFilled}
@@ -850,87 +964,90 @@ function App() {
             hasNextEmpty={!!nextEmptyRequiredCode}
             onGenerateAutoFields={handleGenerateAllAuto}
             onFillSample={handleFillSample}
-            onCollapseAll={handleCollapseAll}
-            onExpandAll={handleExpandAll}
-          >
-            <GroupNav stats={groupStats} onJump={handleJumpToGroup} />
-          </FieldFilters>
+          />
 
-          <div className="p-4 lg:p-6">
+          <div className="px-4 pb-6 pt-4 lg:px-6">
             {visibleFields.length === 0 ? (
               // role="status" so screen readers announce the dead end as soon
               // as the filters produce nothing, and a reset button so the user
               // can recover without hunting for which filter to undo.
               <div
                 role="status"
-                className="flex flex-col items-center justify-center rounded-lg border border-dashed border-gray-200 bg-gray-50 p-8 text-center dark:border-dark-border dark:bg-dark-surface"
+                className="flex flex-col items-center justify-center rounded-k-lg border border-dashed border-gray-300 bg-gray-50 p-8 text-center dark:border-dark-border dark:bg-dark-surface"
               >
                 <SearchX className="mb-3 h-8 w-8 text-gray-500 dark:text-gray-400" aria-hidden />
-                <h3 className="mb-1 text-sm font-semibold text-gray-900 dark:text-gray-100">
+                <h3 className="mb-1 text-k-label font-bold text-gray-900 dark:text-gray-100">
                   No fields found
                 </h3>
-                <p className="mb-4 max-w-sm text-xs text-gray-600 dark:text-gray-400">
+                <p className="mb-4 max-w-sm text-k-help text-gray-600 dark:text-gray-400">
                   {describeActiveFilters(searchQuery, requiredOnly, issuesOnly, issues.length)}
                 </p>
                 <button
                   type="button"
                   onClick={handleResetFilters}
-                  className="inline-flex items-center gap-1.5 rounded-md bg-brand-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                  className="inline-flex h-k-touch items-center gap-1.5 rounded-k bg-brand-700 px-4 text-k-help font-bold text-white transition-colors hover:bg-brand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                 >
                   Reset all filters
                 </button>
               </div>
-            ) : (
+            ) : isFiltering ? (
+              // Filtering is the whole-form view: matches from every section at
+              // once, each run labelled with where it came from. Paginating
+              // search results by section would mean hunting for the section
+              // holding your match, which is the thing you searched to avoid.
               AAMVA_FIELD_GROUPS.map((group) => {
                 const groupFields = fieldsByGroup.get(group.id);
                 if (!groupFields || groupFields.length === 0) return null;
                 const requiredInGroup = groupFields.filter((f) => f.required);
-                const filledInGroup = groupFields.filter((f) => isFieldFilled(f.code)).length;
-                const requiredFilledInGroup = requiredInGroup.filter((f) =>
-                  isFieldFilled(f.code)
-                ).length;
-                const isCollapsed = !!collapsedGroups[group.id];
                 return (
                   <FieldGroup
                     key={group.id}
                     group={group}
-                    collapsed={isCollapsed}
                     fieldCount={groupFields.length}
-                    filledCount={filledInGroup}
+                    filledCount={groupFields.filter((f) => isFieldFilled(f.code)).length}
                     requiredCount={requiredInGroup.length}
-                    requiredFilled={requiredFilledInGroup}
-                    onToggle={() => toggleGroupCollapsed(group.id)}
+                    requiredFilled={requiredInGroup.filter((f) => isFieldFilled(f.code)).length}
                   >
-                    {groupFields.map((field) => (
-                      <FieldInput
-                        key={field.code}
-                        field={field}
-                        value={fields[field.code] || ""}
-                        state={state}
-                        strictMode={strictMode}
-                        copied={copiedField === field.code}
-                        whimsy={whimsy}
-                        allValues={fields}
-                        highlight={searchQuery}
-                        derivedFrom={
-                          field.code === "DAJ" ? "Set from the selected jurisdiction." : undefined
-                        }
-                        onChange={handleChange}
-                        onCopy={handleCopyField}
-                        onReset={handleResetField}
-                        onGenerate={handleGenerate}
-                        onHelpOpened={() => markBingo("read-the-help")}
-                        onDisableStrict={() => {
-                          setStrictMode(false);
-                          toast.info("Strict mode disabled");
-                        }}
-                      />
-                    ))}
+                    {groupFields.map(renderField)}
                   </FieldGroup>
                 );
               })
+            ) : (
+              <div className={FIELD_GRID_CLASS}>{sectionFields.map(renderField)}</div>
             )}
           </div>
+
+          {/* Step navigation. Only in the section view — in search results
+              "next section" has no meaning. */}
+          {!isFiltering && railSections.length > 1 && (
+            <nav
+              aria-label="Section navigation"
+              className="sticky bottom-0 mt-auto flex items-center justify-between gap-3 border-t border-gray-200 bg-white/95 px-4 py-3 backdrop-blur lg:px-6 dark:border-[#333] dark:bg-[#1E1E1E]/95"
+            >
+              {prevSection ? (
+                <button
+                  type="button"
+                  onClick={() => handleSelectSection(prevSection.id)}
+                  className="inline-flex h-k-touch items-center gap-2 rounded-k border-[1.5px] border-gray-300 px-4 text-k-label font-semibold text-gray-800 transition-colors hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 dark:border-[#4A4A4A] dark:text-gray-100 dark:hover:bg-dark-surface2"
+                >
+                  <ChevronLeft size={18} aria-hidden />
+                  {prevSection.label}
+                </button>
+              ) : (
+                <span />
+              )}
+              {nextSection && (
+                <button
+                  type="button"
+                  onClick={() => handleSelectSection(nextSection.id)}
+                  className="inline-flex h-k-touch items-center gap-2 rounded-k bg-brand-700 px-5 text-k-label font-bold text-white transition-colors hover:bg-brand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
+                >
+                  {nextSection.label}
+                  <ChevronRight size={18} aria-hidden />
+                </button>
+              )}
+            </nav>
+          )}
         </div>
 
         <React.Suspense fallback={null}>
@@ -999,8 +1116,8 @@ function App() {
         </React.Suspense>
       )}
       <MobileActionBar
-        errorCount={errorCount}
-        emptyRequired={requiredTotal - requiredFilled}
+        errorCount={invalidCount}
+        emptyRequired={emptyRequiredCount}
         stale={payloadStale}
         ready={previewReady && !!payload}
         onFixNext={handleMobileFixNext}
@@ -1039,7 +1156,7 @@ function App() {
           <React.Suspense fallback={null}>
             <ClerkMascot
               enabled
-              errorCount={errorCount}
+              errorCount={invalidCount}
               requiredComplete={requiredComplete}
               anyFields={anyFields}
               onDismiss={() => markBingo("dismissed-gus")}
