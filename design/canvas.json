@@ -1,0 +1,54 @@
+{
+  "artboards": [
+    { "file": "Main.dc.html", "x": 0, "y": 0, "w": 1440, "h": 900, "title": "A · Civic Modern" },
+    { "file": "Instrument.dc.html", "x": 1560, "y": 0, "w": 1440, "h": 900, "title": "B · Instrument" },
+    { "file": "Ledger.dc.html", "x": 3120, "y": 0, "w": 1440, "h": 900, "title": "C · Ledger" },
+    { "file": "Kiosk.dc.html", "x": 0, "y": 1300, "w": 1440, "h": 900, "title": "D · Kiosk" },
+    { "file": "Laminate.dc.html", "x": 1560, "y": 1300, "w": 1440, "h": 900, "title": "E · Laminate" }
+  ],
+  "annotations": [
+    {
+      "id": "brief",
+      "x": -460,
+      "y": 0,
+      "w": 380,
+      "text": "FIVE DIRECTIONS — same screen, same data, five design languages.\n\nAll five are drawn from the real tokens: CA #00264A / #003A70 / #F2A900, the Google-blue brand ramp, the 3-column field grid.\n\nWhat every one of them fixes, because all three are measured faults in the build today:\n\n1. White toolbar text on the gradient's gold end sits at 2.0:1. AA wants 4.5:1.\n\n2. 15 controls in one flat header row, destructive Clear PII at the same weight as Export JSON.\n\n3. 174 red text nodes on a form nobody has touched — empty rendered as wrong.\n\nPick one and I build it across the whole app."
+    },
+    {
+      "id": "opt-a",
+      "x": 0,
+      "y": -230,
+      "w": 460,
+      "text": "A · CIVIC MODERN — my pick\n\nKeeps the government identity and executes it properly. The navy goes solid; the state colour becomes a 3px rule and a plate, so nothing interactive ever sits on a gradient. Actions drop to a white sub-bar in three labelled groups, Clear PII outlined rather than filled. Empty fields read as 'still to fill', amber only where a jurisdiction rule actually has something to say.\n\nTrade-off: it is the safe one. Correct, legible, and nobody is going to gasp."
+    },
+    {
+      "id": "opt-b",
+      "x": 1560,
+      "y": -230,
+      "w": 460,
+      "text": "B · INSTRUMENT\n\nTreats the payload as the product. Dark, dense, monospace. The field form becomes a table with a length column, and the right half becomes the byte ledger inspect.ts already computes and nothing surfaces — offsets, declared vs accounted, padding, unknown codes. State colour shrinks to a 3px bar. Fastest thing here for someone doing this all day.\n\nTrade-off: cold. It drops the DMV character entirely, and a table is worse than cards on a phone."
+    },
+    {
+      "id": "opt-c",
+      "x": 3120,
+      "y": -230,
+      "w": 460,
+      "text": "C · LEDGER\n\nPaper, not software. Warm ground, Newsreader for the display face, ruled entry lines instead of filled boxes, sections numbered §1 §2. Rules and type carry the hierarchy — no cards, no shadows. Calm on a screen you sit in front of for an hour.\n\nTrade-off: lowest density of the five, so more scrolling. Serif numerals in a field of 8-digit dates need watching. And it reads more like a document than a tool."
+    },
+    {
+      "id": "opt-d",
+      "x": 0,
+      "y": 1070,
+      "w": 460,
+      "text": "D · KIOSK\n\nThe only one that changes structure rather than paint. One section at a time behind a step rail, 56px controls, 16–18px type. This is the direction that fixes the phone at the root: today 347px of an 844px iPhone screen is chrome before the first input. Optional fields are visibly dashed, so you can see what you may skip.\n\nTrade-off: power users lose the whole-form view and Ctrl+F across all 32 elements. Biggest build of the five."
+    },
+    {
+      "id": "opt-e",
+      "x": 1560,
+      "y": 1070,
+      "w": 460,
+      "text": "E · LAMINATE\n\nFull commitment to the bit. Guilloche security print under everything, a rainbow sheen across the masthead, numbered form boxes set like a real paper application, Courier throughout. The preview stops being a floating barcode and becomes the card front, with the code where it actually sits.\n\nTrade-off: loud, and it edges toward resembling the credential rather than a tool that makes one. Hardest of the five to keep accessible and the one most likely to wear thin."
+    }
+  ],
+  "launch": { "view": "canvas" }
+}

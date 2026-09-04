@@ -1,0 +1,226 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+  <style>
+    body { margin: 0; font-family: "IBM Plex Sans", system-ui, sans-serif; }
+    a { color: #6FD3C7; } a:hover { color: #A5E8DF; }
+    .mono { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+  </style>
+</helmet>
+
+<div style="width: 1440px; height: 900px; display: flex; flex-direction: column; background: #0C0E11; color: #C9D2DC; overflow: hidden;">
+
+  <!-- One bar. Everything is a keystroke away, so the chrome stays thin. -->
+  <div style="height: 40px; background: #101317; border-bottom: 1px solid #1E242B; display: flex; align-items: center; justify-content: space-between; padding: 0 14px; flex-shrink: 0;">
+    <div style="display: flex; align-items: center; gap: 14px;">
+      <span class="mono" style="font-size: 12.5px; font-weight: 600; color: #E7EDF3; letter-spacing: -0.01em;">aamva</span>
+      <div style="display: flex; align-items: center; gap: 8px; padding: 3px 9px; border-radius: 4px; background: #171C22; border: 1px solid #232A32;">
+        <span style="width: 3px; height: 13px; border-radius: 1px; background: #F2A900;"></span>
+        <span class="mono" style="font-size: 12px; color: #E7EDF3;">CA</span>
+        <span class="mono" style="font-size: 12px; color: #6B7885;">v10</span>
+        <span class="mono" style="font-size: 12px; color: #6B7885;">DL</span>
+      </div>
+      <span class="mono" style="font-size: 11.5px; color: #6B7885;">strict</span>
+      <span style="display: inline-flex; align-items: center; gap: 5px;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #45C08A;"></span><span class="mono" style="font-size: 11.5px; color: #45C08A;">encodes</span></span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 4px;">
+      <span class="mono" style="font-size: 11.5px; color: #8A97A4; padding: 4px 8px; border-radius: 4px; background: #171C22;">⌘G fill</span>
+      <span class="mono" style="font-size: 11.5px; color: #8A97A4; padding: 4px 8px; border-radius: 4px; background: #171C22;">⌘E png</span>
+      <span class="mono" style="font-size: 11.5px; color: #8A97A4; padding: 4px 8px; border-radius: 4px; background: #171C22;">⌘K</span>
+      <span class="mono" style="font-size: 11.5px; color: #D4736A; padding: 4px 8px; border-radius: 4px; border: 1px solid #3A2422;">wipe</span>
+    </div>
+  </div>
+
+  <div style="flex: 1; display: flex; min-height: 0;">
+
+    <!-- Field table. No cards, no shadows: rows. -->
+    <div style="flex-grow: 1; display: flex; flex-direction: column; min-width: 0; border-right: 1px solid #1E242B;">
+
+      <div style="height: 36px; display: flex; align-items: center; gap: 10px; padding: 0 14px; border-bottom: 1px solid #1E242B; flex-shrink: 0;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#5C6874" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+        <span class="mono" style="font-size: 12px; color: #5C6874;">filter fields</span>
+        <div style="flex-grow: 1;"></div>
+        <span class="mono" style="font-size: 11.5px; color: #6B7885;">32 elements</span>
+        <span class="mono" style="font-size: 11.5px; color: #6B7885;">·</span>
+        <span class="mono" style="font-size: 11.5px; color: #C9D2DC;">14/21 req</span>
+        <span class="mono" style="font-size: 11.5px; color: #D9A441;">1 advisory</span>
+      </div>
+
+      <!-- Column header -->
+      <div style="display: grid; grid-template-columns: 62px 200px 1fr 108px; gap: 0; height: 28px; align-items: center; padding: 0 14px; border-bottom: 1px solid #1E242B; background: #0F1216; flex-shrink: 0;">
+        <span class="mono" style="font-size: 10.5px; color: #566270; letter-spacing: 0.06em;">CODE</span>
+        <span class="mono" style="font-size: 10.5px; color: #566270; letter-spacing: 0.06em;">ELEMENT</span>
+        <span class="mono" style="font-size: 10.5px; color: #566270; letter-spacing: 0.06em;">VALUE</span>
+        <span class="mono" style="font-size: 10.5px; color: #566270; letter-spacing: 0.06em; text-align: right;">LEN</span>
+      </div>
+
+      <div style="flex-grow: 1; display: flex; flex-direction: column; overflow: hidden;">
+
+        <div style="display: flex; align-items: center; gap: 9px; padding: 7px 14px; background: #12161A; border-bottom: 1px solid #1E242B;">
+          <span class="mono" style="font-size: 10.5px; color: #7E8B98; letter-spacing: 0.1em;">IDENTITY</span>
+          <span style="flex-grow: 1; height: 1px; background: #1E242B;"></span>
+          <span class="mono" style="font-size: 10.5px; color: #45C08A;">9/9</span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 62px 200px 1fr 108px; align-items: center; padding: 0 14px; height: 34px; border-bottom: 1px solid #15191E;">
+          <span class="mono" style="font-size: 12.5px; color: #6FD3C7;">DCS</span>
+          <span style="font-size: 12.5px; color: #8A97A4;">Family name</span>
+          <span class="mono" style="font-size: 13px; color: #E7EDF3;">VERA</span>
+          <span class="mono" style="font-size: 11.5px; color: #566270; text-align: right;">4/40</span>
+        </div>
+        <div style="display: grid; grid-template-columns: 62px 200px 1fr 108px; align-items: center; padding: 0 14px; height: 34px; border-bottom: 1px solid #15191E;">
+          <span class="mono" style="font-size: 12.5px; color: #6FD3C7;">DAC</span>
+          <span style="font-size: 12.5px; color: #8A97A4;">First name</span>
+          <span class="mono" style="font-size: 13px; color: #E7EDF3;">SEAN</span>
+          <span class="mono" style="font-size: 11.5px; color: #566270; text-align: right;">4/40</span>
+        </div>
+        <div style="display: grid; grid-template-columns: 62px 200px 1fr 108px; align-items: center; padding: 0 14px; height: 34px; border-bottom: 1px solid #15191E; background: #131A20; box-shadow: inset 2px 0 0 #6FD3C7;">
+          <span class="mono" style="font-size: 12.5px; color: #6FD3C7;">DAD</span>
+          <span style="font-size: 12.5px; color: #C9D2DC;">Middle name</span>
+          <span class="mono" style="font-size: 13px; color: #ffffff;">PATRICK<span style="color: #6FD3C7;">|</span></span>
+          <span class="mono" style="font-size: 11.5px; color: #8A97A4; text-align: right;">7/40</span>
+        </div>
+        <div style="display: grid; grid-template-columns: 62px 200px 1fr 108px; align-items: center; padding: 0 14px; height: 34px; border-bottom: 1px solid #15191E;">
+          <span class="mono" style="font-size: 12.5px; color: #6FD3C7;">DBB</span>
+          <span style="font-size: 12.5px; color: #8A97A4;">Date of birth</span>
+          <span style="display: flex; align-items: baseline; gap: 10px;"><span class="mono" style="font-size: 13px; color: #E7EDF3;">08111990</span><span style="font-size: 11.5px; color: #566270;">Aug 11 1990 · 36y</span></span>
+          <span class="mono" style="font-size: 11.5px; color: #566270; text-align: right;">8/8</span>
+        </div>
+        <div style="display: grid; grid-template-columns: 62px 200px 1fr 108px; align-items: center; padding: 0 14px; height: 34px; border-bottom: 1px solid #15191E;">
+          <span class="mono" style="font-size: 12.5px; color: #6FD3C7;">DBC</span>
+          <span style="font-size: 12.5px; color: #8A97A4;">Sex</span>
+          <span style="display: flex; align-items: baseline; gap: 10px;"><span class="mono" style="font-size: 13px; color: #E7EDF3;">1</span><span style="font-size: 11.5px; color: #566270;">male</span></span>
+          <span class="mono" style="font-size: 11.5px; color: #566270; text-align: right;">1/1</span>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 9px; padding: 7px 14px; background: #12161A; border-bottom: 1px solid #1E242B; border-top: 1px solid #1E242B;">
+          <span class="mono" style="font-size: 10.5px; color: #7E8B98; letter-spacing: 0.1em;">ADDRESS</span>
+          <span style="flex-grow: 1; height: 1px; background: #1E242B;"></span>
+          <span class="mono" style="font-size: 10.5px; color: #45C08A;">5/5</span>
+        </div>
+        <div style="display: grid; grid-template-columns: 62px 200px 1fr 108px; align-items: center; padding: 0 14px; height: 34px; border-bottom: 1px solid #15191E;">
+          <span class="mono" style="font-size: 12.5px; color: #6FD3C7;">DAG</span>
+          <span style="font-size: 12.5px; color: #8A97A4;">Street address</span>
+          <span class="mono" style="font-size: 13px; color: #E7EDF3;">1200 GETTY CENTER DR</span>
+          <span class="mono" style="font-size: 11.5px; color: #566270; text-align: right;">20/35</span>
+        </div>
+        <div style="display: grid; grid-template-columns: 62px 200px 1fr 108px; align-items: center; padding: 0 14px; height: 34px; border-bottom: 1px solid #15191E;">
+          <span class="mono" style="font-size: 12.5px; color: #6FD3C7;">DAI</span>
+          <span style="font-size: 12.5px; color: #8A97A4;">City</span>
+          <span class="mono" style="font-size: 13px; color: #E7EDF3;">LOS ANGELES</span>
+          <span class="mono" style="font-size: 11.5px; color: #566270; text-align: right;">11/20</span>
+        </div>
+        <div style="display: grid; grid-template-columns: 62px 200px 1fr 108px; align-items: center; padding: 0 14px; height: 34px; border-bottom: 1px solid #15191E;">
+          <span class="mono" style="font-size: 12.5px; color: #6FD3C7;">DAJ</span>
+          <span style="font-size: 12.5px; color: #8A97A4;">Jurisdiction</span>
+          <span style="display: flex; align-items: baseline; gap: 10px;"><span class="mono" style="font-size: 13px; color: #8A97A4;">CA</span><span style="font-size: 11.5px; color: #566270;">derived</span></span>
+          <span class="mono" style="font-size: 11.5px; color: #566270; text-align: right;">2/2</span>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 9px; padding: 7px 14px; background: #12161A; border-bottom: 1px solid #1E242B; border-top: 1px solid #1E242B;">
+          <span class="mono" style="font-size: 10.5px; color: #7E8B98; letter-spacing: 0.1em;">DRIVING PRIVILEGES</span>
+          <span style="flex-grow: 1; height: 1px; background: #1E242B;"></span>
+          <span class="mono" style="font-size: 10.5px; color: #D9A441;">2/3</span>
+        </div>
+        <div style="display: grid; grid-template-columns: 62px 200px 1fr 108px; align-items: center; padding: 0 14px; height: 34px; border-bottom: 1px solid #15191E; box-shadow: inset 2px 0 0 #D9A441;">
+          <span class="mono" style="font-size: 12.5px; color: #D9A441;">DCB</span>
+          <span style="font-size: 12.5px; color: #8A97A4;">Restriction codes</span>
+          <span style="display: flex; align-items: baseline; gap: 10px;"><span class="mono" style="font-size: 13px; color: #566270;">empty</span><span style="font-size: 11.5px; color: #D9A441;">CA writes NONE →</span></span>
+          <span class="mono" style="font-size: 11.5px; color: #566270; text-align: right;">0/12</span>
+        </div>
+        <div style="display: grid; grid-template-columns: 62px 200px 1fr 108px; align-items: center; padding: 0 14px; height: 34px; border-bottom: 1px solid #15191E;">
+          <span class="mono" style="font-size: 12.5px; color: #6FD3C7;">DCA</span>
+          <span style="font-size: 12.5px; color: #8A97A4;">Vehicle class</span>
+          <span class="mono" style="font-size: 13px; color: #E7EDF3;">C</span>
+          <span class="mono" style="font-size: 11.5px; color: #566270; text-align: right;">1/6</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- The payload is the product, so it gets the space. -->
+    <div style="width: 452px; display: flex; flex-direction: column; flex-shrink: 0; background: #0A0C0F;">
+
+      <div style="padding: 14px; display: flex; flex-direction: column; gap: 11px; border-bottom: 1px solid #1E242B;">
+        <div style="background: #ffffff; padding: 11px 10px; border-radius: 3px; display: flex; flex-direction: column; gap: 3px;">
+          <span style="display: block; height: 5px; background: repeating-linear-gradient(to right, #000 0 2px, transparent 2px 5px, #000 5px 9px, transparent 9px 11px, #000 11px 13px, transparent 13px 18px);"></span>
+          <span style="display: block; height: 5px; background: repeating-linear-gradient(to right, #000 0 4px, transparent 4px 6px, #000 6px 8px, transparent 8px 13px, #000 13px 16px, transparent 16px 19px);"></span>
+          <span style="display: block; height: 5px; background: repeating-linear-gradient(to right, #000 0 2px, transparent 2px 7px, #000 7px 12px, transparent 12px 14px, #000 14px 17px, transparent 17px 20px);"></span>
+          <span style="display: block; height: 5px; background: repeating-linear-gradient(to right, #000 0 6px, transparent 6px 8px, #000 8px 10px, transparent 10px 15px, #000 15px 17px, transparent 17px 21px);"></span>
+          <span style="display: block; height: 5px; background: repeating-linear-gradient(to right, #000 0 3px, transparent 3px 5px, #000 5px 11px, transparent 11px 13px, #000 13px 15px, transparent 15px 18px);"></span>
+          <span style="display: block; height: 5px; background: repeating-linear-gradient(to right, #000 0 2px, transparent 2px 4px, #000 4px 9px, transparent 9px 14px, #000 14px 18px, transparent 18px 20px);"></span>
+          <span style="display: block; height: 5px; background: repeating-linear-gradient(to right, #000 0 5px, transparent 5px 7px, #000 7px 9px, transparent 9px 12px, #000 12px 16px, transparent 16px 19px);"></span>
+          <span style="display: block; height: 5px; background: repeating-linear-gradient(to right, #000 0 2px, transparent 2px 6px, #000 6px 8px, transparent 8px 11px, #000 11px 16px, transparent 16px 18px);"></span>
+          <span style="display: block; height: 5px; background: repeating-linear-gradient(to right, #000 0 4px, transparent 4px 9px, #000 9px 11px, transparent 11px 13px, #000 13px 18px, transparent 18px 22px);"></span>
+          <span style="display: block; height: 5px; background: repeating-linear-gradient(to right, #000 0 3px, transparent 3px 5px, #000 5px 7px, transparent 7px 12px, #000 12px 15px, transparent 15px 17px);"></span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <span class="mono" style="flex-grow: 1; text-align: center; padding: 6px 0; border-radius: 4px; background: #1D2933; border: 1px solid #2A3945; font-size: 11.5px; color: #C9D2DC;">png</span>
+          <span class="mono" style="flex-grow: 1; text-align: center; padding: 6px 0; border-radius: 4px; background: #171C22; border: 1px solid #232A32; font-size: 11.5px; color: #8A97A4;">svg</span>
+          <span class="mono" style="flex-grow: 1; text-align: center; padding: 6px 0; border-radius: 4px; background: #171C22; border: 1px solid #232A32; font-size: 11.5px; color: #8A97A4;">pdf</span>
+          <span class="mono" style="flex-grow: 1; text-align: center; padding: 6px 0; border-radius: 4px; background: #171C22; border: 1px solid #232A32; font-size: 11.5px; color: #8A97A4;">json</span>
+        </div>
+      </div>
+
+      <!-- Byte ledger. inspect.ts already computes this; nothing surfaces it. -->
+      <div style="flex-grow: 1; display: flex; flex-direction: column; min-height: 0;">
+        <div style="height: 30px; display: flex; align-items: center; justify-content: space-between; padding: 0 14px; border-bottom: 1px solid #1E242B;">
+          <span class="mono" style="font-size: 10.5px; color: #7E8B98; letter-spacing: 0.08em;">WIRE</span>
+          <span class="mono" style="font-size: 10.5px; color: #45C08A;">288 B · balances</span>
+        </div>
+        <div style="padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; overflow: hidden;">
+          <div style="display: flex; gap: 10px;">
+            <span class="mono" style="font-size: 10.5px; color: #4A5561; width: 40px; flex-shrink: 0;">0000</span>
+            <span class="mono" style="font-size: 11.5px; line-height: 1.6; color: #C9D2DC; word-break: break-all;"><span style="color: #D9A441;">@\n\r</span><span style="color: #E7EDF3;">ANSI </span><span style="color: #6FD3C7;">636014</span><span style="color: #B48BD9;">10</span><span style="color: #D9A441;">00</span><span style="color: #E7EDF3;">02</span></span>
+          </div>
+          <div style="display: flex; gap: 10px;">
+            <span class="mono" style="font-size: 10.5px; color: #4A5561; width: 40px; flex-shrink: 0;">0021</span>
+            <span class="mono" style="font-size: 11.5px; line-height: 1.6; color: #C9D2DC; word-break: break-all;"><span style="color: #6FD3C7;">DL</span><span style="color: #8A97A4;">0041</span><span style="color: #B48BD9;">0288</span><span style="color: #6FD3C7;">ZC</span><span style="color: #8A97A4;">0329</span><span style="color: #B48BD9;">0053</span></span>
+          </div>
+          <div style="display: flex; gap: 10px;">
+            <span class="mono" style="font-size: 10.5px; color: #4A5561; width: 40px; flex-shrink: 0;">0041</span>
+            <span class="mono" style="font-size: 11.5px; line-height: 1.6; color: #C9D2DC; word-break: break-all;"><span style="color: #6FD3C7;">DL</span>DAQY1234567\nDCSVERA\nDACSEAN\nDADPATRICK\nDBD08112024\nDBB08111990\nDBA08112029\nDBC1\nDAU070 IN\nDAYBRO\nDAG1200 GETTY CENTER DR\nDAILOS ANGELES\nDAJCA\nDAK900491234\nDCAC\nDCGUSA\r</span>
+          </div>
+          <div style="display: flex; gap: 10px;">
+            <span class="mono" style="font-size: 10.5px; color: #4A5561; width: 40px; flex-shrink: 0;">0329</span>
+            <span class="mono" style="font-size: 11.5px; line-height: 1.6; color: #C9D2DC; word-break: break-all;"><span style="color: #6FD3C7;">ZC</span>ZCAY\nZCBN\nZCCBRN\nZCDN\r</span>
+          </div>
+        </div>
+
+        <div style="margin-top: auto; border-top: 1px solid #1E242B; padding: 11px 14px; display: flex; flex-direction: column; gap: 7px;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <span class="mono" style="font-size: 11px; color: #7E8B98;">declared</span>
+            <span class="mono" style="font-size: 11px; color: #C9D2DC;">288</span>
+          </div>
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <span class="mono" style="font-size: 11px; color: #7E8B98;">accounted</span>
+            <span class="mono" style="font-size: 11px; color: #C9D2DC;">288</span>
+          </div>
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <span class="mono" style="font-size: 11px; color: #7E8B98;">padding · unknown</span>
+            <span class="mono" style="font-size: 11px; color: #C9D2DC;">0 · 0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Status line -->
+  <div style="height: 26px; background: #101317; border-top: 1px solid #1E242B; display: flex; align-items: center; justify-content: space-between; padding: 0 14px; flex-shrink: 0;">
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <span class="mono" style="font-size: 11px; color: #6B7885;">CA · 636014 · v10 · DL+ZC</span>
+      <span class="mono" style="font-size: 11px; color: #D9A441;">1 advisory</span>
+      <span class="mono" style="font-size: 11px; color: #566270;">F8 next issue</span>
+    </div>
+    <span class="mono" style="font-size: 11px; color: #566270;">memory only · nothing written to disk</span>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>
