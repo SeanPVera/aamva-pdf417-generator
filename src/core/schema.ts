@@ -672,6 +672,19 @@ export function isSupportedVersion(v: string): boolean {
   return Object.prototype.hasOwnProperty.call(AAMVA_VERSIONS, v);
 }
 
+/**
+ * The cap that actually applies to a field.
+ *
+ * A field's own `maxLength` wins so a version can tighten a shared table entry
+ * — CDS 2025 narrows DAK to nine while the table stays at eleven. Both the
+ * validator and the form control read this, because deriving the input's
+ * `maxLength` from the shared table alone let a user type eleven characters
+ * into a field validation would then reject at nine.
+ */
+export function getEffectiveMaxLength(field: AAMVAField): number | undefined {
+  return field.maxLength ?? AAMVA_FIELD_LIMITS[field.code];
+}
+
 export function getFieldsForVersion(v: string): AAMVAField[] {
   return AAMVA_VERSIONS[v]?.fields || [];
 }
