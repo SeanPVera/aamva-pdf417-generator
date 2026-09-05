@@ -490,6 +490,7 @@ export const FieldInput: React.FC<FieldInputProps> = ({
             <button
               type="button"
               role="radio"
+              data-value=""
               aria-checked={value === "" && touched}
               title="Omit this element from the barcode"
               onClick={() => {
@@ -515,6 +516,11 @@ export const FieldInput: React.FC<FieldInputProps> = ({
                 key={opt.value}
                 type="button"
                 role="radio"
+                // The accessible name is the human description ("Female"), so
+                // the wire value it writes ("2") is otherwise unreadable from
+                // outside. Same contract as `data-severity` on the validation
+                // rows: the encoded value, exposed as data.
+                data-value={opt.value}
                 aria-checked={selected}
                 title={opt.description ?? opt.label}
                 aria-label={opt.description ?? opt.label}

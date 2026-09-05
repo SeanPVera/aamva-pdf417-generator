@@ -1,5 +1,11 @@
 import { test, expect } from "@playwright/test";
-import { dismissTour, ensurePanel, fillCaliforniaForm, waitForPreview } from "./helpers";
+import {
+  clickHeaderAction,
+  dismissTour,
+  ensurePanel,
+  fillCaliforniaForm,
+  waitForPreview
+} from "./helpers";
 
 // Smokes the PNG, SVG, and JSON export buttons. We don't validate the
 // byte stream — bwip-js is upstream and tested heavily — only that the
@@ -60,7 +66,7 @@ test.describe("export buttons", () => {
 
     const [download] = await Promise.all([
       page.waitForEvent("download"),
-      page.getByRole("button", { name: /export current fields as json/i }).click()
+      clickHeaderAction(page, /export current fields as json/i, /^export json$/i)
     ]);
     const name = download.suggestedFilename();
     expect(name).toMatch(/^aamva_CA_DL_V10(_[A-Z0-9]+)?\.json$/i);

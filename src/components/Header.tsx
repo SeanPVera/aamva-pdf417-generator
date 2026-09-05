@@ -356,6 +356,132 @@ export const Header: React.FC<HeaderActionProps> = ({
           <div className="hidden sm:block">
             <InstallPrompt />
           </div>
+          {/* Playful extras. This lives on the identity row rather than in the
+              action bar below, because that bar is `hidden lg:flex` — leaving it
+              there put the whimsy toggles, the badge case, DMV Bingo and the road
+              test out of reach on every phone. One trigger, every width. */}
+          <div className="relative" ref={funRef}>
+            <button
+              onClick={() => setFunOpen((v) => !v)}
+              title="Playful extras"
+              aria-haspopup="menu"
+              aria-expanded={funOpen}
+              aria-label="Toggle playful extras"
+              className="inline-flex h-k-touch w-k-touch items-center justify-center rounded-k text-[color:var(--state-on-primary)] transition hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
+            >
+              <PartyPopper size={15} />
+            </button>
+            {funOpen && (
+              <div
+                role="menu"
+                className="absolute right-0 mt-1 w-64 bg-white dark:bg-dark-surface border border-gray-200 dark:border-dark-border rounded-md shadow-lg z-30 overflow-hidden text-gray-800 dark:text-gray-100"
+              >
+                <div className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 border-b border-gray-100 dark:border-dark-border">
+                  Playful extras
+                </div>
+                <button
+                  type="button"
+                  role="menuitemcheckbox"
+                  aria-checked={whimsy}
+                  onClick={() => {
+                    setWhimsy(!whimsy);
+                    toast.info(whimsy ? "Whimsy off — all business." : "Whimsy on ✨");
+                  }}
+                  className="w-full flex items-center justify-between px-3 py-2 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-sm focus-visible:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-dark-surface2"
+                >
+                  <span className="flex items-center gap-2">
+                    <PartyPopper size={14} /> Whimsy effects
+                  </span>
+                  <span
+                    aria-hidden
+                    className={`text-xs font-semibold ${whimsy ? "text-green-600 dark:text-green-400" : "text-gray-400"}`}
+                  >
+                    {whimsy ? "ON" : "OFF"}
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  role="menuitemcheckbox"
+                  aria-checked={mascots}
+                  disabled={!whimsy}
+                  onClick={() => {
+                    setMascots(!mascots);
+                    toast.info(mascots ? "Gus is off the clock." : "Gus is back at the window.");
+                  }}
+                  title="Gus the clerk and the take-a-number ticket, in the bottom corner"
+                  className="w-full flex items-center justify-between px-3 py-2 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-sm focus-visible:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-dark-surface2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <span className="flex items-center gap-2">
+                    {/* Reuses an icon the toolbar already ships — a new lucide
+                      glyph here costs first-paint bytes for a menu row. */}
+                    <Sparkles size={14} /> Desk mascots
+                  </span>
+                  <span
+                    aria-hidden
+                    className={`text-xs font-semibold ${mascots && whimsy ? "text-green-600 dark:text-green-400" : "text-gray-500 dark:text-gray-400"}`}
+                  >
+                    {mascots ? "ON" : "OFF"}
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  role="menuitemcheckbox"
+                  aria-checked={soundOn}
+                  onClick={() => {
+                    setSoundOn(!soundOn);
+                    toast.info(soundOn ? "Clerk sounds muted" : "Clerk sounds on 🔊");
+                  }}
+                  className="w-full flex items-center justify-between px-3 py-2 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-sm focus-visible:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-dark-surface2"
+                >
+                  <span className="flex items-center gap-2">
+                    {soundOn ? <Volume2 size={14} /> : <VolumeX size={14} />} Clerk sound FX
+                  </span>
+                  <span
+                    aria-hidden
+                    className={`text-xs font-semibold ${soundOn ? "text-green-600 dark:text-green-400" : "text-gray-400"}`}
+                  >
+                    {soundOn ? "ON" : "OFF"}
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => {
+                    setFunOpen(false);
+                    onOpenBadges();
+                  }}
+                  className="w-full flex items-center gap-2 px-3 py-2 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-sm focus-visible:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-dark-surface2"
+                >
+                  <Award size={14} /> Employee of the Month
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => {
+                    setFunOpen(false);
+                    onOpenBingo();
+                  }}
+                  className="w-full flex items-center gap-2 px-3 py-2 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-sm focus-visible:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-dark-surface2"
+                >
+                  <Tag size={14} /> DMV Bingo
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => {
+                    setFunOpen(false);
+                    onOpenRoadTest();
+                  }}
+                  className="w-full flex items-center gap-2 px-3 py-2 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-sm focus-visible:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-dark-surface2"
+                >
+                  <Car size={14} /> Take the road test
+                </button>
+                <p className="px-3 py-2 text-[11px] text-gray-500 dark:text-gray-400 border-t border-gray-100 dark:border-dark-border">
+                  Cosmetic only — never affects the barcode. Psst: try the Konami code.
+                </p>
+              </div>
+            )}
+          </div>{" "}
           <div className="relative lg:hidden" ref={moreRef}>
             <button
               type="button"
@@ -642,130 +768,6 @@ export const Header: React.FC<HeaderActionProps> = ({
           >
             <Keyboard size={15} />
           </button>
-
-          {/* Fun / whimsy toggles */}
-          <div className="relative" ref={funRef}>
-            <button
-              onClick={() => setFunOpen((v) => !v)}
-              title="Playful extras"
-              aria-haspopup="menu"
-              aria-expanded={funOpen}
-              aria-label="Toggle playful extras"
-              className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 h-k-touch px-3 rounded-k transition text-k-help font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-            >
-              <PartyPopper size={15} />
-            </button>
-            {funOpen && (
-              <div
-                role="menu"
-                className="absolute right-0 mt-1 w-64 bg-white dark:bg-dark-surface border border-gray-200 dark:border-dark-border rounded-md shadow-lg z-30 overflow-hidden text-gray-800 dark:text-gray-100"
-              >
-                <div className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 border-b border-gray-100 dark:border-dark-border">
-                  Playful extras
-                </div>
-                <button
-                  type="button"
-                  role="menuitemcheckbox"
-                  aria-checked={whimsy}
-                  onClick={() => {
-                    setWhimsy(!whimsy);
-                    toast.info(whimsy ? "Whimsy off — all business." : "Whimsy on ✨");
-                  }}
-                  className="w-full flex items-center justify-between px-3 py-2 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-sm focus-visible:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-dark-surface2"
-                >
-                  <span className="flex items-center gap-2">
-                    <PartyPopper size={14} /> Whimsy effects
-                  </span>
-                  <span
-                    aria-hidden
-                    className={`text-xs font-semibold ${whimsy ? "text-green-600 dark:text-green-400" : "text-gray-400"}`}
-                  >
-                    {whimsy ? "ON" : "OFF"}
-                  </span>
-                </button>
-                <button
-                  type="button"
-                  role="menuitemcheckbox"
-                  aria-checked={mascots}
-                  disabled={!whimsy}
-                  onClick={() => {
-                    setMascots(!mascots);
-                    toast.info(mascots ? "Gus is off the clock." : "Gus is back at the window.");
-                  }}
-                  title="Gus the clerk and the take-a-number ticket, in the bottom corner"
-                  className="w-full flex items-center justify-between px-3 py-2 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-sm focus-visible:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-dark-surface2 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <span className="flex items-center gap-2">
-                    {/* Reuses an icon the toolbar already ships — a new lucide
-                      glyph here costs first-paint bytes for a menu row. */}
-                    <Sparkles size={14} /> Desk mascots
-                  </span>
-                  <span
-                    aria-hidden
-                    className={`text-xs font-semibold ${mascots && whimsy ? "text-green-600 dark:text-green-400" : "text-gray-500 dark:text-gray-400"}`}
-                  >
-                    {mascots ? "ON" : "OFF"}
-                  </span>
-                </button>
-                <button
-                  type="button"
-                  role="menuitemcheckbox"
-                  aria-checked={soundOn}
-                  onClick={() => {
-                    setSoundOn(!soundOn);
-                    toast.info(soundOn ? "Clerk sounds muted" : "Clerk sounds on 🔊");
-                  }}
-                  className="w-full flex items-center justify-between px-3 py-2 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-sm focus-visible:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-dark-surface2"
-                >
-                  <span className="flex items-center gap-2">
-                    {soundOn ? <Volume2 size={14} /> : <VolumeX size={14} />} Clerk sound FX
-                  </span>
-                  <span
-                    aria-hidden
-                    className={`text-xs font-semibold ${soundOn ? "text-green-600 dark:text-green-400" : "text-gray-400"}`}
-                  >
-                    {soundOn ? "ON" : "OFF"}
-                  </span>
-                </button>
-                <button
-                  type="button"
-                  role="menuitem"
-                  onClick={() => {
-                    setFunOpen(false);
-                    onOpenBadges();
-                  }}
-                  className="w-full flex items-center gap-2 px-3 py-2 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-sm focus-visible:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-dark-surface2"
-                >
-                  <Award size={14} /> Employee of the Month
-                </button>
-                <button
-                  type="button"
-                  role="menuitem"
-                  onClick={() => {
-                    setFunOpen(false);
-                    onOpenBingo();
-                  }}
-                  className="w-full flex items-center gap-2 px-3 py-2 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-sm focus-visible:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-dark-surface2"
-                >
-                  <Tag size={14} /> DMV Bingo
-                </button>
-                <button
-                  type="button"
-                  role="menuitem"
-                  onClick={() => {
-                    setFunOpen(false);
-                    onOpenRoadTest();
-                  }}
-                  className="w-full flex items-center gap-2 px-3 py-2 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-sm focus-visible:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-dark-surface2"
-                >
-                  <Car size={14} /> Take the road test
-                </button>
-                <p className="px-3 py-2 text-[11px] text-gray-500 dark:text-gray-400 border-t border-gray-100 dark:border-dark-border">
-                  Cosmetic only — never affects the barcode. Psst: try the Konami code.
-                </p>
-              </div>
-            )}
-          </div>
 
           <div className="state-divider mx-1 h-5 w-px bg-gray-200 dark:bg-dark-border" />
 

@@ -92,11 +92,17 @@ header.state-themed .state-badge {
   color: var(--state-on-accent) !important;
   border-color: var(--state-accent) !important;
 }
-header.state-themed .header-identity button,
+/* Opt-in, via .header-ctrl — never a bare `button`. These are descendant
+   selectors, and a popover anchored to the identity row is not *on* it: it
+   paints its own white (or dark-surface) panel. While `button` was in this
+   list, every item in the "More actions" menu was repainted
+   --state-on-primary, which for California is #ffffff on #ffffff. The whole
+   menu measured 1.00:1 — five controls rendering as blank rows on every
+   phone. The identity row's own controls set their colour inline; anything
+   else that lands there gets .header-ctrl. */
 header.state-themed .header-identity .header-ctrl {
   color: var(--state-on-primary);
 }
-header.state-themed .header-identity button:hover:not(:disabled),
 header.state-themed .header-identity .header-ctrl:hover:not(:disabled) {
   background-color: color-mix(in srgb, var(--state-on-primary) 18%, transparent);
 }
