@@ -4,7 +4,7 @@ import type { FieldGroupId } from "../core/schema";
 // Type-only: importing the badge *catalog* here would pull its definitions into
 // the initial chunk, even though only the plaque modal ever renders them.
 import type { BadgeStats } from "../core/badges";
-import { seededFields } from "../core/privilegeDirectory";
+import { seededFields } from "../core/derivedFields";
 
 // Persisted state intentionally excludes the AAMVA `fields` payload, so no PII
 // is ever written to disk. Only UI preferences (state, version, strict mode,

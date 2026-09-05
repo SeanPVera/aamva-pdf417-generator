@@ -32,8 +32,7 @@ import {
   generateStateCardRevisionDate
 } from "./core/generator";
 import { buildSampleFill } from "./core/sampleFiller";
-import { hasUserData } from "./core/derivedFields";
-import { seededFields } from "./core/privilegeDirectory";
+import { hasUserData, seededFields } from "./core/derivedFields";
 import { useSwipe } from "./hooks/useSwipe";
 import { useClickClack } from "./hooks/useClickClack";
 import { useKonami } from "./hooks/useKonami";

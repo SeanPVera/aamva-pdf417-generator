@@ -1,5 +1,6 @@
 import { describe, expect, test } from "vitest";
-import { getPrivilegeDirectory, regularClassFor, seededFields } from "../core/privilegeDirectory";
+import { getPrivilegeDirectory, regularClassFor } from "../core/privilegeDirectory";
+import { seededFields } from "../core/derivedFields";
 
 describe("regularClassFor", () => {
   test("reads the automobile class off the jurisdiction age table", () => {

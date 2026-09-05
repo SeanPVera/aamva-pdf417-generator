@@ -69,3 +69,30 @@ export function hasUserData(
       !isUntouchedAppValue(code, value, appWritten)
   );
 }
+
+/**
+ * Values the app writes on the user's behalf when a form is opened or the
+ * jurisdiction changes.
+ *
+ * Only structural elements belong here — ones whose value is a property of the
+ * document or the issuer rather than a claim about the person holding it.
+ * `DCG` is the country of issuance; the three truncation indicators describe
+ * how the name fields were encoded.
+ *
+ * `DCA`, `DCB` and `DCD` are deliberately NOT seeded. They are mandatory, and
+ * a vehicle class, a restriction set and an endorsement set are assertions
+ * about a specific person's driving privileges. Filling them in for a form
+ * nobody has touched states that this holder drives a class C car with no
+ * restrictions and no endorsements — the same failure the DAQ rule already
+ * names: it "silently both put a fictional identifier into the barcode and
+ * defeated the missing-mandatory-field check." The chips in Driving Privileges
+ * put each of them one tap away, which is the affordance without the claim.
+ */
+export function seededFields(_state: string, _subfileType: "DL" | "ID"): Record<string, string> {
+  return {
+    DDE: "N",
+    DDF: "N",
+    DDG: "N",
+    DCG: "USA"
+  };
+}
