@@ -119,6 +119,10 @@ const FIELD_CODE_TO_GROUP: Record<string, FieldGroupId> = {
   DDA: "license",
   DDK: "license",
   DDL: "license",
+  DDM: "license",
+  DDN: "license",
+  DDO: "license",
+  DDP: "license",
   DDD: "license",
   // Privileges
   DAR: "privileges",
@@ -210,7 +214,14 @@ export const AAMVA_FIELD_OPTIONS: Record<string, FieldOption[]> = {
     { value: "O", label: "O — Non-Hispanic" },
     { value: "U", label: "U — Unknown" },
     { value: "W", label: "W — White" }
-  ]
+  ],
+  // CDS 2025 document-type indicators. Each is, in the standard's words,
+  // "either absent or has the following value" — so there is one option and
+  // omitting the element is the other state.
+  DDM: [{ value: "1", label: "1 — CDL or CLP" }],
+  DDN: [{ value: "1", label: "1 — Non-domiciled" }],
+  DDO: [{ value: "1", label: "1 — Enhanced credential" }],
+  DDP: [{ value: "1", label: "1 — Permit" }]
 };
 
 export const AAMVA_FIELD_LIMITS: Record<string, number> = {
@@ -252,7 +263,11 @@ export const AAMVA_FIELD_LIMITS: Record<string, number> = {
   DDD: 1,
   DAR: 4,
   DAS: 10,
-  DAT: 5
+  DAT: 5,
+  DDM: 1,
+  DDN: 1,
+  DDO: 1,
+  DDP: 1
 };
 
 export const AAMVA_STATE_EXCLUDED_FIELDS: Record<string, string[]> = {
@@ -345,6 +360,68 @@ const V04_FIELDS: AAMVAField[] = [
   { code: "DCL", label: "Race/Ethnicity", type: "string" },
   { code: "DDA", label: "Compliance Type", type: "string" },
   { code: "DDB", label: "Card Revision Date", type: "date" }
+];
+
+/**
+ * The 2025 Card Design Standard, AAMVA version 11.
+ *
+ * Built from the 2020 (version 10) DL subfile with the element-set changes the
+ * standard lists. Verified against the published PDF, whose own example header
+ * reads `AAMVA Version Number: 11`:
+ *
+ *   - `DCL` (race/ethnicity) is gone. The standard now records it as
+ *     "Placeholder for future data element", so the code is reserved rather
+ *     than reused. The AKA name elements and the HAZMAT expiry went with it;
+ *     none of those were in this table to begin with.
+ *   - `DDM`/`DDN`/`DDO`/`DDP` are added: CDL, non-domiciled, enhanced
+ *     credential, and permit indicators. Each is F1N and "either absent or"
+ *     the value 1, which is why the option tables above carry a single entry.
+ *   - `DAK` is specified to zero-fill to nine digits ("e.g. 123450000"), not
+ *     the eleven the shared length table carries. The table is left alone so a
+ *     dashed ZIP+4 still validates and the encoder still strips the dash;
+ *     `maxLength` on the field below is what narrows it for this version.
+ *
+ * `DDN` carries a constraint this table cannot express: the standard says it
+ * "can only be present if the CDL Indicator is present". That belongs in
+ * `validateCrossFieldConsistency` and is not implemented yet.
+ */
+const V11_FIELDS: AAMVAField[] = [
+  { code: "DCA", label: "Vehicle Class", type: "string", required: true },
+  { code: "DCB", label: "Restriction Codes", type: "string", required: true },
+  { code: "DCD", label: "Endorsement Codes", type: "string", required: true },
+  { code: "DBA", label: "Expiration Date", type: "date", required: true },
+  { code: "DCS", label: "Customer Family Name", type: "string", required: true },
+  { code: "DAC", label: "Customer First Name", type: "string", required: true },
+  { code: "DAD", label: "Customer Middle Name", type: "string" },
+  { code: "DBD", label: "Document Issue Date", type: "date", required: true },
+  { code: "DBB", label: "Date of Birth", type: "date", required: true },
+  { code: "DBC", label: "Sex", type: "char", required: true },
+  { code: "DAY", label: "Eye Color", type: "string", required: true },
+  { code: "DAU", label: "Height", type: "string", required: true },
+  { code: "DAG", label: "Address Street", type: "string", required: true },
+  { code: "DAH", label: "Address Line 2", type: "string" },
+  { code: "DAI", label: "City", type: "string", required: true },
+  { code: "DAJ", label: "Jurisdiction Code", type: "string", required: true },
+  { code: "DAK", label: "Postal Code", type: "zip", required: true, maxLength: 9 },
+  { code: "DAQ", label: "Customer ID Number", type: "string", required: true },
+  { code: "DCF", label: "Document Discriminator", type: "string", required: true },
+  { code: "DCG", label: "Country Identification", type: "string", required: true },
+  { code: "DCK", label: "Inventory Control Number", type: "string" },
+  { code: "DDE", label: "Family Name Truncation", type: "string", required: true },
+  { code: "DDF", label: "First Name Truncation", type: "string", required: true },
+  { code: "DDG", label: "Middle Name Truncation", type: "string", required: true },
+  { code: "DCU", label: "Name Suffix", type: "string" },
+  { code: "DAW", label: "Weight (pounds)", type: "string" },
+  { code: "DAZ", label: "Hair Color", type: "string" },
+  { code: "DDA", label: "REAL ID / Compliance Type", type: "string" },
+  { code: "DDB", label: "Card Revision Date", type: "date" },
+  { code: "DDK", label: "Organ Donor Indicator", type: "string" },
+  { code: "DDL", label: "Veteran Indicator", type: "string" },
+  { code: "DDD", label: "Limited Duration Document Indicator", type: "string" },
+  { code: "DDM", label: "CDL Indicator", type: "char" },
+  { code: "DDN", label: "Non-Domiciled Indicator", type: "char" },
+  { code: "DDO", label: "Enhanced Credential Indicator", type: "char" },
+  { code: "DDP", label: "Permit Indicator", type: "char" }
 ];
 
 export const AAMVA_VERSIONS: Record<string, AAMVAVersionDef> = {
@@ -573,6 +650,10 @@ export const AAMVA_VERSIONS: Record<string, AAMVAVersionDef> = {
       { code: "DDL", label: "Veteran Indicator", type: "string" },
       { code: "DDD", label: "Limited Duration Document Indicator", type: "string" }
     ]
+  },
+  "11": {
+    name: "AAMVA DL/ID-2025 (Version 11)",
+    fields: V11_FIELDS
   }
 };
 
