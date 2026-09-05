@@ -43,7 +43,7 @@ This file provides AI assistants (Claude, Copilot, etc.) with the context needed
 │   ├── gen-icons.mjs             # Rasterizes the app icon to PNG (zlib only, no image deps)
 │   ├── ui-audit.mjs              # Measures contrast, touch targets, mobile chrome, red-on-empty
 │   └── release-notes.mjs         # Extracts a CHANGELOG section for a GitHub Release
-├── e2e/                          # Playwright specs (a11y, export, form fill, round-trip, themes)
+├── e2e/                          # Playwright specs (a11y, contrast, export, form fill, header popovers, round-trip, themes)
 ├── src/
 │   ├── main.tsx                  # React root render with ErrorBoundary
 │   ├── App.tsx                   # Main app component: layout, keyboard shortcuts, theme
@@ -376,12 +376,28 @@ npm run format:check    # Prettier check (used in CI)
 **End-to-end tests and the section form.** Only the open section's fields are
 in the DOM. A spec that reaches for `#DAY` while Identity is showing finds
 nothing, because Physical Description has not been rendered — this is the single
-most likely reason a previously-green e2e spec fails after a form change. Helpers
-that fill or assert on a field must select its section first (the same move
-`handleScrollToField` makes in `App.tsx`), or drive the form through the search
-box, which shows every match across every section. If Playwright cannot find a
-browser locally, point it at one rather than downloading: the sandbox image may
-ship a different build than `@playwright/test` pins.
+most likely reason a previously-green e2e spec fails after a form change. Go
+through `revealField` in `e2e/helpers.ts`, which opens the field's rung the way
+`handleScrollToField` does in `App.tsx`; `fillField` already does. The other
+route is the search box, which shows every match across every section. If
+Playwright cannot find a browser locally, point it at one rather than
+downloading: the sandbox image may ship a different build than
+`@playwright/test` pins.
+
+`e2e/helpers.ts` carries the three moves a spec cannot make on its own, and each
+exists because a rename silently broke a suite:
+
+| Helper | What it hides |
+|---|---|
+| `revealField(page, code)` | Opens the rung holding `code`. No-ops when the field is already on the page, which covers both the right rung and the filtered whole-form view |
+| `ensurePanel(page, panel)` | The phone's panel switcher — nav `Mobile panels`, tabs **Setup / Form / Barcode**, active one marked `aria-current="page"`. It moved to the bottom bar and was renamed with it |
+| `clickHeaderAction(page, barName, menuName)` | The action bar is `hidden lg:flex`; below that the same actions are **More actions** menu items under shorter names |
+
+A short enumeration renders as a chip group, not a `<select>`: a
+`role="radiogroup"` div carrying the field's id, one `role="radio"` button per
+value. The button's accessible name is the human description ("Female"), so the
+wire value it writes ("2") is exposed as `data-value` — the same contract as
+`data-severity` on the validation rows. `fillField` branches on the role.
 
 **Important:** a passing `conformance.test.ts` against a `synthetic` vector proves only that the encoder has not changed — those bytes came from the encoder. Do not treat it as evidence of AAMVA correctness, and do not regenerate vectors to make a failing test pass without reviewing the diff against the spec.
 
@@ -662,6 +678,7 @@ Local hooks (Husky):
 - **Do not** build a version picker from `Object.keys(AAMVA_VERSIONS)` — `"10"` is an integer-like key and sorts ahead of `"01"`; use `AAMVA_VERSION_KEYS`
 - **Do not** call `setField` in a loop for a bulk action — use `mergeFields` so it stays one undo step
 - **Do not** paint a background or border with a `--state-*` variable without scoping it away from `html.dark` — every palette is a light tint (see State Themes above)
+- **Do not** select a bare `button` under `.header-identity` in a themed rule — use `.header-ctrl`. Those are descendant selectors and a popover *anchored* to the identity row is not *on* it; every palette sets `onPrimary: #ffffff`, so a `button` selector painted the whole **More actions** menu white-on-white at 1.00:1. `e2e/header-popovers.spec.ts` measures both header menus on a phone
 - **Do not** pair `text-gray-400` with `dark:text-gray-500` — that combination is below AA in *both* themes; `text-gray-500 dark:text-gray-400` clears it in both
 - **Do not** dismiss a popover on the trigger's `blur` alone — clicking a `<button>` does not focus it in Safari or Firefox, so the popover never closes (see `FieldInput.tsx`)
 - **Do not** assume the first subfile starts at byte 31 — the directory grows with the entry count; read `21 + entries × 10`
