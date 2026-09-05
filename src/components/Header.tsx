@@ -32,6 +32,7 @@ import { getStateTheme } from "../core/stateThemes";
 import { AAMVA_STATES } from "../core/states";
 import { buildExportBasename } from "../core/exportNaming";
 import { hasUserData, userEnteredCodes } from "../core/derivedFields";
+import { seededFields } from "../core/privilegeDirectory";
 import { getFieldsForStateAndVersion } from "../core/schema";
 import { downloadBlob } from "../core/download";
 import { parseImportedPayload } from "../core/importPayload";
@@ -135,6 +136,10 @@ export const Header: React.FC<HeaderActionProps> = ({
     _history,
     _future
   } = useFormStore();
+
+  // What the app pre-filled. Passed to the dirty-state checks so an untouched
+  // seed is not reported as data the user entered.
+  const appSeeds = React.useMemo(() => seededFields(state, subfileType), [state, subfileType]);
   const importRef = useRef<HTMLInputElement>(null);
   const presetsRef = useRef<HTMLDivElement>(null);
   const funRef = useRef<HTMLDivElement>(null);
@@ -265,7 +270,7 @@ export const Header: React.FC<HeaderActionProps> = ({
     if (!file) return;
     const reader = new FileReader();
     const snapshot = { ...fields };
-    const hadValues = hasUserData(fields);
+    const hadValues = hasUserData(fields, appSeeds);
     reader.onload = (evt) => {
       // Shared with the drag-and-drop overlay so both import paths agree on what
       // is loadable — including the unsupported-version guard.
@@ -296,7 +301,7 @@ export const Header: React.FC<HeaderActionProps> = ({
     const snapshot = { ...fields };
     // DAJ is filled by the app, not the user — counting it would report
     // "Cleared 1 field" on a form nobody has typed into.
-    const filledCount = userEnteredCodes(fields).length;
+    const filledCount = userEnteredCodes(fields, appSeeds).length;
     // PII lives only in memory — it is never persisted (see useFormStore), so
     // clearing the in-memory fields is the complete and honest cleanup.
     clearFields();
@@ -315,7 +320,7 @@ export const Header: React.FC<HeaderActionProps> = ({
     const preset = presets.find((p) => p.id === presetId);
     if (!preset) return;
     const snapshot = { ...fields };
-    const hadValues = hasUserData(fields);
+    const hadValues = hasUserData(fields, appSeeds);
     loadJson({ state: preset.state, version: preset.version, ...preset.fields });
     setPresetsOpen(false);
     markBingo("used-preset");

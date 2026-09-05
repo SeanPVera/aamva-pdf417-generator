@@ -133,7 +133,8 @@ describe("FieldInput — enumerated fields", () => {
     const limits = screen.getByRole("radio", { name: /FEDERAL LIMITS APPLY/i });
     expect(realId).toHaveAttribute("title", expect.stringMatching(/TSA/i));
     expect(limits).toHaveAttribute("title", expect.stringMatching(/not a REAL ID/i));
-    expect(screen.getByRole("radio", { name: /omit this element/i })).toBeInTheDocument();
+    const omit = screen.getByRole("radio", { name: /^omit$/i });
+    expect(omit).toHaveAttribute("title", expect.stringMatching(/omit this element/i));
     fireEvent.click(realId);
     expect(onChange).toHaveBeenCalledWith("DDA", "F");
   });
@@ -150,7 +151,7 @@ describe("FieldInput — enumerated fields", () => {
     expect(brown).toHaveAttribute("title", expect.stringMatching(/BRO/));
     expect(dichromatic).toHaveAttribute("title", expect.stringMatching(/DIC/));
     expect(screen.queryByRole("combobox")).not.toBeInTheDocument();
-    expect(screen.queryByRole("radio", { name: /omit this element/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("radio", { name: /^omit$/i })).not.toBeInTheDocument();
     fireEvent.click(brown);
     expect(onChange).toHaveBeenCalledWith("DAY", "BRO");
   });
@@ -163,7 +164,8 @@ describe("FieldInput — enumerated fields", () => {
     });
     const blond = screen.getByRole("radio", { name: /hair color: blond/i });
     expect(blond).toHaveAttribute("title", expect.stringMatching(/BLN/));
-    expect(screen.getByRole("radio", { name: /omit this element/i })).toBeInTheDocument();
+    const omit = screen.getByRole("radio", { name: /^omit$/i });
+    expect(omit).toHaveAttribute("title", expect.stringMatching(/omit this element/i));
     fireEvent.click(blond);
     expect(onChange).toHaveBeenCalledWith("DAZ", "BLN");
   });
@@ -200,7 +202,12 @@ describe("FieldInput — enumerated fields", () => {
       type: "string",
       required: true
     });
-    fireEvent.click(screen.getByRole("button", { name: /Hazardous materials/i }));
+    // Anchored: "X tank+hazmat" is "Combination tank and hazardous materials",
+    // so an unanchored /hazardous materials/ matches two chips.
+    expect(screen.getByRole("button", { name: /^Set DCD: No endorsements/i })).toBeInTheDocument();
+    fireEvent.click(
+      screen.getByRole("button", { name: /^Set DCD: Hazardous materials endorsement/i })
+    );
     expect(onChange).toHaveBeenCalledWith("DCD", "H");
   });
 });

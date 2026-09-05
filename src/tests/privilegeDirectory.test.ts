@@ -40,22 +40,35 @@ describe("getPrivilegeDirectory", () => {
 
   test("Michigan Operator encodes as O, not the word Operator", () => {
     expect(regularClassFor("MI")).toBe("O");
-    expect(seededFields("MI", "DL").DCA).toBe("O");
   });
 });
 
 describe("seededFields", () => {
-  test("fills truncation, country, class, and NONE privileges", () => {
-    expect(seededFields("CA", "DL")).toMatchObject({
+  test("seeds the structural elements", () => {
+    expect(seededFields("CA", "DL")).toEqual({
       DDE: "N",
       DDF: "N",
       DDG: "N",
-      DCG: "USA",
-      DCA: "C",
-      DCB: "NONE",
-      DCD: "NONE"
+      DCG: "USA"
     });
-    expect(seededFields("NY", "DL").DCA).toBe("D");
-    expect(seededFields("FL", "ID").DCA).toBe("NONE");
+  });
+
+  // A vehicle class, a restriction set and an endorsement set are claims about
+  // a specific person's driving privileges. Seeding them told the barcode this
+  // holder drives a class C car with nothing on their record, on a form nobody
+  // had touched — and filled three mandatory fields so the missing-field check
+  // stopped noticing they were unanswered.
+  test("never seeds a driving privilege", () => {
+    for (const [state, subfile] of [
+      ["CA", "DL"],
+      ["NY", "DL"],
+      ["MI", "DL"],
+      ["FL", "ID"]
+    ] as const) {
+      const seeds = seededFields(state, subfile);
+      expect(seeds.DCA).toBeUndefined();
+      expect(seeds.DCB).toBeUndefined();
+      expect(seeds.DCD).toBeUndefined();
+    }
   });
 });

@@ -33,6 +33,7 @@ import {
 } from "./core/generator";
 import { buildSampleFill } from "./core/sampleFiller";
 import { hasUserData } from "./core/derivedFields";
+import { seededFields } from "./core/privilegeDirectory";
 import { useSwipe } from "./hooks/useSwipe";
 import { useClickClack } from "./hooks/useClickClack";
 import { useKonami } from "./hooks/useKonami";
@@ -291,7 +292,10 @@ function App() {
 
   const isFieldFilled = (code: string) => (fields[code] || "").trim().length > 0;
 
-  const anyFields = React.useMemo(() => hasUserData(fields), [fields]);
+  // What the app pre-filled, so the dirty-state checks can tell a seed from
+  // something the user typed.
+  const appSeeds = React.useMemo(() => seededFields(state, subfileType), [state, subfileType]);
+  const anyFields = React.useMemo(() => hasUserData(fields, appSeeds), [fields, appSeeds]);
   const requiredComplete = requiredTotal > 0 && requiredFilled === requiredTotal;
   const previewReady = anyFields && errorCount === 0 && requiredComplete;
 
@@ -362,6 +366,7 @@ function App() {
     state,
     version,
     subfileType,
+    appSeeds,
     loadJson,
     restoreFields,
     setSubfileType,
@@ -372,6 +377,7 @@ function App() {
       fields,
       state,
       version,
+      appSeeds,
       subfileType,
       loadJson,
       restoreFields,
@@ -418,7 +424,7 @@ function App() {
         version: before.version,
         subfileType: before.subfileType
       };
-      const hadValues = hasUserData(before.fields);
+      const hadValues = hasUserData(before.fields, before.appSeeds);
 
       before.loadJson(result.data, result.kind === "aamva" ? text : undefined);
       if (result.subfileType && result.subfileType !== before.subfileType) {
