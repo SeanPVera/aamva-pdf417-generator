@@ -39,6 +39,19 @@ export const FIELD_HELP: Record<string, string> = {
   DBD: "Document Issue Date — the date this physical card was issued.",
   DDK: "Organ Donor Indicator — 1 = donor, 0 = not a donor.",
   DDL: "Veteran Indicator — 1 = veteran, 0 = not a veteran.",
+  DDM:
+    "CDL Indicator — CDS 2025. Encode 1 if this credential is a Commercial " +
+    "Driver's License or Commercial Learner's Permit; leave blank otherwise. " +
+    "The barcode does not carry a 0.",
+  DDN:
+    "Non-Domiciled Indicator — CDS 2025. Encode 1 if the CDL/CLP holder is " +
+    "non-domiciled in the issuing jurisdiction; leave blank otherwise.",
+  DDO:
+    "Enhanced Credential Indicator — CDS 2025. Encode 1 if this is an Enhanced " +
+    "Driver's License or Enhanced Identification Card (EDL/EID); leave blank otherwise.",
+  DDP:
+    "Permit Indicator — CDS 2025. Encode 1 if this credential is a permit " +
+    "(original, motorcycle, commercial, etc.); leave blank otherwise.",
   DCK:
     "Inventory Control Number — the issuer's own stock/production reference for " +
     "the physical card. Optional, but real cards carry it (Connecticut builds " +
