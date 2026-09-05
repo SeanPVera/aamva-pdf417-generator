@@ -93,7 +93,7 @@ export function usePayload(): PayloadResult {
           const ddbKey = `${state}|${data.DBD ?? ""}`;
           if (auto.ddbKey !== ddbKey || !auto.ddb) {
             auto.ddbKey = ddbKey;
-            auto.ddb = generateStateCardRevisionDate(state, data.DBD) ?? "";
+            auto.ddb = generateStateCardRevisionDate(state, data.DBD, version) ?? "";
           }
           if (auto.ddb) data.DDB = auto.ddb;
         }

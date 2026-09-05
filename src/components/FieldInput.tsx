@@ -1,7 +1,7 @@
 import React from "react";
 import { Copy, Check, X as XIcon, HelpCircle, Wand2 } from "lucide-react";
 import type { AAMVAField } from "../core/schema";
-import { AAMVA_FIELD_LIMITS } from "../core/schema";
+import { getEffectiveMaxLength } from "../core/schema";
 import { evaluateFieldValue } from "../core/validation";
 import { getCanonicalRewrite, getQuickFix } from "../core/quickFix";
 import {
@@ -111,7 +111,7 @@ export const FieldInput: React.FC<FieldInputProps> = ({
   // Any field the user can type into is clearable; DAJ is app-owned and read-only.
   const isResettable = !derivedFrom;
   const allowedValues = hasError ? parseAllowedValues(evalResult.message) : [];
-  const maxLen = AAMVA_FIELD_LIMITS[field.code];
+  const maxLen = getEffectiveMaxLength(field);
 
   const dateFormat: AamvaDateFormat = field.dateFormat === "YYYYMMDD" ? "YYYYMMDD" : "MMDDYYYY";
   const isDate = field.type === "date";
@@ -394,7 +394,7 @@ export const FieldInput: React.FC<FieldInputProps> = ({
             placeholder={field.dateFormat || " "}
             onChange={(e) => handleChange(e.target.value)}
             onBlur={() => setTouched(true)}
-            maxLength={AAMVA_FIELD_LIMITS[field.code]}
+            maxLength={maxLen}
             readOnly={!!derivedFrom}
             aria-required={field.required}
             aria-invalid={hasError}

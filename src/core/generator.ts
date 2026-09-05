@@ -1,6 +1,11 @@
 import { AAMVA_STATES, isJurisdictionSupported } from "./states";
 import { AAMVA_VERSIONS, getMandatoryFields, AAMVAField } from "./schema";
-import { AAMVA_STATE_RULES, evaluateFieldValue, validateCrossFieldConsistency } from "./validation";
+import {
+  AAMVA_STATE_RULES,
+  evaluateFieldValue,
+  revisionDateForVersion,
+  validateCrossFieldConsistency
+} from "./validation";
 import { getJurisdictionEncoding, shouldPadPostalCode } from "./jurisdictionRules";
 import { validateAAMVAPayloadStructure } from "./decoder";
 import { secureGetRandomInt } from "./crypto";
@@ -99,8 +104,15 @@ export function generateStateLicenseNumber(stateCode?: string): string {
 
 export function generateStateCardRevisionDate(
   stateCode?: string,
-  issueDateStr?: string
+  issueDateStr?: string,
+  version?: string
 ): string | null {
+  // An explicitly chosen version wins over the jurisdiction's default, which is
+  // all the per-state generators know about.
+  if (version) {
+    const forVersion = revisionDateForVersion(version, issueDateStr);
+    if (forVersion) return forVersion;
+  }
   if (stateCode && AAMVA_STATE_RULES[stateCode]?.generators?.DDB) {
     return AAMVA_STATE_RULES[stateCode].generators!.DDB(issueDateStr);
   }
@@ -286,8 +298,22 @@ export function generateAAMVAPayload(
       // A jurisdiction's own recorded width wins; otherwise DAK falls back to
       // the spec's fixed 11. Values already at or over their width are written
       // unchanged, so this only ever pads and can never truncate.
-      const width = fieldWidths[field.code] ?? (field.code === "DAK" && padPostal ? 11 : 0);
-      if (width > val.length) val = val.padEnd(width, " ");
+      let width = fieldWidths[field.code] ?? (field.code === "DAK" && padPostal ? 11 : 0);
+      // A version that narrows the element caps the pad. CDS 2025 specifies
+      // DAK at nine, so padding it to the 2020 fixed eleven would emit exactly
+      // the representation this version replaced — validation alone would have
+      // rejected the value while the encoder still wrote the old one.
+      if (field.maxLength !== undefined && width > field.maxLength) width = field.maxLength;
+      if (width > val.length) {
+        // "If the trailing portion of the postal code in the U.S. is not
+        // known, zeros will be used to fill the trailing set of numbers up to
+        // nine (9) digits (e.g. 123450000)" — CDS 2025, DAK. Zero-fill is the
+        // standard's own representation of an unknown +4, not invented data,
+        // and it only applies where a version asked for a narrower DAK; the
+        // space-padded 11 every other version emits is untouched.
+        const filler = field.code === "DAK" && field.maxLength !== undefined ? "0" : " ";
+        val = val.padEnd(width, filler);
+      }
       parts.push(field.code + val);
     }
     // Every element is separator-terminated by default, which is what the

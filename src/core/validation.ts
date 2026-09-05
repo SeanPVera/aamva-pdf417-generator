@@ -1,4 +1,4 @@
-import { AAMVAField, AAMVA_FIELD_OPTIONS, AAMVA_FIELD_LIMITS } from "./schema";
+import { AAMVAField, AAMVA_FIELD_OPTIONS, getEffectiveMaxLength } from "./schema";
 import { AAMVA_STATES } from "./states";
 import { secureGetRandomInt } from "./crypto";
 
@@ -27,15 +27,9 @@ const _GLOBAL_OPTION_SETS = new Map<string, Set<string>>(
 // Keyed by the field object reference (stable module-level constants in AAMVA_VERSIONS).
 const _inlineOptionSets = new WeakMap<AAMVAField, Set<string>>();
 
-/**
- * Length cap for a field. Standard AAMVA codes carry theirs in
- * `AAMVA_FIELD_LIMITS`; jurisdiction-defined subfile elements carry their own,
- * because their codes only mean anything inside one jurisdiction and putting
- * them in the shared table would imply the standard defines them.
- */
-function getMaxLength(field: AAMVAField): number | undefined {
-  return AAMVA_FIELD_LIMITS[field.code] ?? field.maxLength;
-}
+// Shared with the form control so the input's cap and the validator's cannot
+// disagree; see `getEffectiveMaxLength`.
+const getMaxLength = getEffectiveMaxLength;
 
 function getAllowedSet(field: AAMVAField): Set<string> | undefined {
   if (field.options && field.options.length > 0) {
@@ -97,6 +91,7 @@ const alnum = (n: number) => {
 };
 
 const VERSION_ERA_RANGES: Record<string, [number, number]> = {
+  "11": [2025, 2030],
   "10": [2019, 2024],
   "09": [2015, 2020],
   "08": [2013, 2017],
@@ -164,6 +159,21 @@ function randomDateInRange(startYear: number, endYear: number, beforeDateStr?: s
   const dd = String(dt.getUTCDate()).padStart(2, "0");
   const yyyy = String(dt.getUTCFullYear());
   return mm + dd + yyyy;
+}
+
+/**
+ * A card revision date for an explicitly chosen AAMVA version.
+ *
+ * The per-state DDB generators below are built once at module load from
+ * `AAMVA_STATES[state].aamvaVersion` — the jurisdiction's DEFAULT version. That
+ * is the right era whenever the user leaves the version alone, and the wrong
+ * one the moment they change it: with no state defaulting to 11, a v11 payload
+ * for California was getting a 2019–2024 revision date from the v10 range.
+ */
+export function revisionDateForVersion(version: string, issueDateStr?: string): string | null {
+  const range = VERSION_ERA_RANGES[version];
+  if (!range) return null;
+  return randomDateInRange(range[0], range[1], issueDateStr);
 }
 
 export const AAMVA_STATE_RULES: Record<string, StateRules> = (() => {

@@ -479,7 +479,7 @@ function App() {
       markBingo("regenerated-dd");
     } else if (code === "DAQ") handleChange(code, generateStateLicenseNumber(state));
     else if (code === "DDB")
-      handleChange(code, generateStateCardRevisionDate(state, fields["DBD"]) || "");
+      handleChange(code, generateStateCardRevisionDate(state, fields["DBD"], version) || "");
   };
 
   // One click, one undo step — see `mergeFields` in useFormStore.
@@ -489,7 +489,7 @@ function App() {
     if (presentCodes.has("DCF")) patch.DCF = generateStateDiscriminator(state);
     if (presentCodes.has("DAQ")) patch.DAQ = generateStateLicenseNumber(state);
     if (presentCodes.has("DDB")) {
-      const ddb = generateStateCardRevisionDate(state, fields["DBD"]);
+      const ddb = generateStateCardRevisionDate(state, fields["DBD"], version);
       if (ddb) patch.DDB = ddb;
     }
     const count = Object.keys(patch).length;
