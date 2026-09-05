@@ -178,7 +178,7 @@ export const JurisdictionCombobox: React.FC<JurisdictionComboboxProps> = ({
           onKeyDown={handleKeyDown}
           className="w-full border-gray-300 dark:border-[#555] dark:bg-dark-surface2 dark:text-gray-100 rounded-lg shadow-sm focus:ring-brand-500 focus:border-brand-500 text-sm p-2.5 pr-16 border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
         />
-        {open && (
+        {open && !query && (
           <Search
             size={14}
             aria-hidden
