@@ -28,12 +28,13 @@ const _GLOBAL_OPTION_SETS = new Map<string, Set<string>>(
 const _inlineOptionSets = new WeakMap<AAMVAField, Set<string>>();
 
 /**
- * Length cap for a field. `field.maxLength` wins so a version can tighten a
- * shared table entry. Jurisdiction-defined subfile elements carry their own
- * because their codes only mean anything inside one jurisdiction.
+ * Length cap for a field. Standard AAMVA codes carry theirs in
+ * `AAMVA_FIELD_LIMITS`; jurisdiction-defined subfile elements carry their own,
+ * because their codes only mean anything inside one jurisdiction and putting
+ * them in the shared table would imply the standard defines them.
  */
 function getMaxLength(field: AAMVAField): number | undefined {
-  return field.maxLength ?? AAMVA_FIELD_LIMITS[field.code];
+  return AAMVA_FIELD_LIMITS[field.code] ?? field.maxLength;
 }
 
 function getAllowedSet(field: AAMVAField): Set<string> | undefined {
@@ -110,7 +111,6 @@ const alnum = (n: number) => {
 };
 
 const VERSION_ERA_RANGES: Record<string, [number, number]> = {
-  "11": [2025, 2030],
   "10": [2019, 2024],
   "09": [2015, 2020],
   "08": [2013, 2017],

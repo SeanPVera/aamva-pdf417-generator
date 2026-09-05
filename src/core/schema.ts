@@ -124,10 +124,6 @@ const FIELD_CODE_TO_GROUP: Record<string, FieldGroupId> = {
   DDK: "license",
   DDL: "license",
   DDD: "license",
-  DDM: "license",
-  DDN: "license",
-  DDO: "license",
-  DDP: "license",
   // Privileges
   DAR: "privileges",
   DAS: "privileges",
@@ -376,13 +372,12 @@ export const AAMVA_FIELD_OPTIONS: Record<string, FieldOption[]> = {
     {
       value: "AP",
       label: "AP — Asian/Pacific Islander",
-      description:
-        "AAMVA race/ethnicity: Asian or Pacific Islander. Removed from the 2025 (v11) barcode."
+      description: "AAMVA race/ethnicity: Asian or Pacific Islander."
     },
     {
       value: "BK",
       label: "BK — Black",
-      description: "AAMVA race/ethnicity: Black. Removed from the 2025 (v11) barcode."
+      description: "AAMVA race/ethnicity: Black."
     },
     {
       value: "H",
@@ -402,39 +397,7 @@ export const AAMVA_FIELD_OPTIONS: Record<string, FieldOption[]> = {
     {
       value: "W",
       label: "W — White",
-      description: "AAMVA race/ethnicity: White. Removed from the 2025 (v11) barcode."
-    }
-  ],
-  DDM: [
-    {
-      value: "1",
-      label: "1 — CDL or CLP",
-      description:
-        "CDS 2025. Encode 1 if this is a Commercial Driver’s License or Commercial Learner’s Permit. Omit the field when it is not."
-    }
-  ],
-  DDN: [
-    {
-      value: "1",
-      label: "1 — Non-domiciled",
-      description:
-        "CDS 2025. Encode 1 if the CDL/CLP holder is not domiciled in the issuing jurisdiction. Omit otherwise."
-    }
-  ],
-  DDO: [
-    {
-      value: "1",
-      label: "1 — Enhanced (EDL/EID)",
-      description:
-        "CDS 2025. Encode 1 if this is an Enhanced Driver’s License or Enhanced Identification Card. Omit otherwise."
-    }
-  ],
-  DDP: [
-    {
-      value: "1",
-      label: "1 — Permit",
-      description:
-        "CDS 2025. Encode 1 if this credential is a permit (original, motorcycle, commercial, etc.). Omit otherwise."
+      description: "AAMVA race/ethnicity: White."
     }
   ]
 };
@@ -478,11 +441,7 @@ export const AAMVA_FIELD_LIMITS: Record<string, number> = {
   DDD: 1,
   DAR: 4,
   DAS: 10,
-  DAT: 5,
-  DDM: 1,
-  DDN: 1,
-  DDO: 1,
-  DDP: 1
+  DAT: 5
 };
 
 export const AAMVA_STATE_EXCLUDED_FIELDS: Record<string, string[]> = {
@@ -575,53 +534,6 @@ const V04_FIELDS: AAMVAField[] = [
   { code: "DCL", label: "Race/Ethnicity", type: "string" },
   { code: "DDA", label: "REAL ID / Compliance Type", type: "string" },
   { code: "DDB", label: "Card Revision Date", type: "date" }
-];
-
-// The 2025 Card Design Standard (AAMVA version 11). Built from the 2020
-// (version 10) DL subfile with the CDS 2025 element-set changes:
-//   - DCL (race/ethnicity), DBN/DBG/DBS (AKA names), and DDC (HAZMAT expiry)
-//     are gone. The last four were never in this table; DCL was.
-//   - DDM/DDN/DDO/DDP document-type indicators are added (encode "1" or omit).
-//   - DAK is specified as V9ANS (variable, max 9) instead of F11ANS (fixed 11).
-//     The shared length table stays at 11 so a dashed ZIP+4 still validates;
-//     encoding still strips the dash. Jurisdiction pad-to-11 is unchanged.
-const V11_FIELDS: AAMVAField[] = [
-  { code: "DCA", label: "Vehicle Class", type: "string", required: true },
-  { code: "DCB", label: "Restriction Codes", type: "string", required: true },
-  { code: "DCD", label: "Endorsement Codes", type: "string", required: true },
-  { code: "DBA", label: "Expiration Date", type: "date", required: true },
-  { code: "DCS", label: "Customer Family Name", type: "string", required: true },
-  { code: "DAC", label: "Customer First Name", type: "string", required: true },
-  { code: "DAD", label: "Customer Middle Name", type: "string" },
-  { code: "DBD", label: "Document Issue Date", type: "date", required: true },
-  { code: "DBB", label: "Date of Birth", type: "date", required: true },
-  { code: "DBC", label: "Sex", type: "char", required: true },
-  { code: "DAY", label: "Eye Color", type: "string", required: true },
-  { code: "DAU", label: "Height", type: "string", required: true },
-  { code: "DAG", label: "Address Street", type: "string", required: true },
-  { code: "DAH", label: "Address Line 2", type: "string" },
-  { code: "DAI", label: "City", type: "string", required: true },
-  { code: "DAJ", label: "Jurisdiction Code", type: "string", required: true },
-  { code: "DAK", label: "Postal Code", type: "zip", required: true },
-  { code: "DAQ", label: "Customer ID Number", type: "string", required: true },
-  { code: "DCF", label: "Document Discriminator", type: "string", required: true },
-  { code: "DCG", label: "Country Identification", type: "string", required: true },
-  { code: "DCK", label: "Inventory Control Number", type: "string" },
-  { code: "DDE", label: "Family Name Truncation", type: "string", required: true },
-  { code: "DDF", label: "First Name Truncation", type: "string", required: true },
-  { code: "DDG", label: "Middle Name Truncation", type: "string", required: true },
-  { code: "DCU", label: "Name Suffix", type: "string" },
-  { code: "DAW", label: "Weight (pounds)", type: "string" },
-  { code: "DAZ", label: "Hair Color", type: "string" },
-  { code: "DDA", label: "REAL ID / Compliance Type", type: "string" },
-  { code: "DDB", label: "Card Revision Date", type: "date" },
-  { code: "DDK", label: "Organ Donor Indicator", type: "string" },
-  { code: "DDL", label: "Veteran Indicator", type: "string" },
-  { code: "DDD", label: "Limited Duration Document Indicator", type: "string" },
-  { code: "DDM", label: "CDL Indicator", type: "char" },
-  { code: "DDN", label: "Non-Domiciled Indicator", type: "char" },
-  { code: "DDO", label: "Enhanced Credential Indicator", type: "char" },
-  { code: "DDP", label: "Permit Indicator", type: "char" }
 ];
 
 export const AAMVA_VERSIONS: Record<string, AAMVAVersionDef> = {
@@ -859,18 +771,14 @@ export const AAMVA_VERSIONS: Record<string, AAMVAVersionDef> = {
       { code: "DDL", label: "Veteran Indicator", type: "string" },
       { code: "DDD", label: "Limited Duration Document Indicator", type: "string" }
     ]
-  },
-  "11": {
-    name: "AAMVA DL/ID-2025 (Version 11)",
-    fields: V11_FIELDS
   }
 };
 
 /**
  * Version tokens in ascending order.
  *
- * `Object.keys(AAMVA_VERSIONS)` cannot be used for display: "10" and "11" are
- * canonical integer-like keys, so JavaScript hoists them ahead of the
+ * `Object.keys(AAMVA_VERSIONS)` cannot be used for display: "10" is
+ * a canonical integer-like key, so JavaScript hoists it ahead of the
  * zero-padded string keys "01".."09" and every dropdown built from it listed
  * version 10 first. The keys are all two-digit and zero-padded, so a plain
  * lexicographic sort is correct.

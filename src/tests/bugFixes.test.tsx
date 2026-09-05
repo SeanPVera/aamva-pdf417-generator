@@ -121,15 +121,15 @@ describe("generateAAMVAPayload does not mutate its input", () => {
 });
 
 describe("AAMVA version coverage", () => {
-  it("defines every version from 01 to 11", () => {
-    for (let i = 1; i <= 11; i++) {
+  it("defines every version from 01 to 10", () => {
+    for (let i = 1; i <= 10; i++) {
       const key = String(i).padStart(2, "0");
       expect(isSupportedVersion(key), `version ${key}`).toBe(true);
     }
   });
 
   it("lists versions in ascending order for the pickers", () => {
-    // Object.keys puts the integer-like "10"/"11" ahead of "01".."09", so every
+    // Object.keys puts the integer-like "10" ahead of "01".."09", so every
     // dropdown built from it opened on version 10.
     expect(AAMVA_VERSION_KEYS).toEqual([
       "01",
@@ -141,8 +141,7 @@ describe("AAMVA version coverage", () => {
       "07",
       "08",
       "09",
-      "10",
-      "11"
+      "10"
     ]);
     expect([...AAMVA_VERSION_KEYS].sort()).toEqual([...AAMVA_VERSION_KEYS]);
     expect(AAMVA_VERSION_KEYS.length).toBe(Object.keys(AAMVA_VERSIONS).length);
