@@ -12,3 +12,6 @@ coverage/
 .env
 .env.local
 .env.*.local
+
+# Seeded design-canvas output (~2.5MB of baked editor). Rebuild from design/*.dc.html.
+/aamva-generator-redesign.html

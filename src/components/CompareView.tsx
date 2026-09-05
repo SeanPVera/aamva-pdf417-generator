@@ -115,7 +115,7 @@ export const CompareView: React.FC<CompareViewProps> = ({ open, onClose }) => {
             type="button"
             onClick={onClose}
             aria-label="Close compare view"
-            className="p-1 rounded hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-600 dark:text-gray-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            className="inline-flex h-k-touch w-k-touch items-center justify-center rounded-k hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-600 dark:text-gray-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           >
             <X size={16} />
           </button>
@@ -141,7 +141,7 @@ export const CompareView: React.FC<CompareViewProps> = ({ open, onClose }) => {
                 <button
                   type="button"
                   onClick={() => ref.current?.click()}
-                  className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded border border-gray-300 dark:border-dark-border bg-gray-50 dark:bg-dark-surface2 hover:bg-gray-100 dark:hover:bg-[#383838] text-sm text-gray-700 dark:text-gray-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                  className="inline-flex h-k-touch min-h-k-touch flex-1 items-center justify-center gap-2 rounded-k border border-gray-300 dark:border-dark-border bg-gray-50 dark:bg-dark-surface2 px-3 text-k-help font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-[#383838] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                 >
                   <Upload size={14} />
                   Load Payload {side}
@@ -151,14 +151,14 @@ export const CompareView: React.FC<CompareViewProps> = ({ open, onClose }) => {
                   onClick={() => handleUseActiveForm(setSide, side)}
                   aria-label={`Use active form for payload ${side}`}
                   title="Load current active form fields into comparison"
-                  className="flex items-center justify-center gap-1.5 px-2.5 py-2 rounded border border-gray-300 dark:border-dark-border bg-gray-50 dark:bg-dark-surface2 hover:bg-gray-100 dark:hover:bg-[#383838] text-xs font-medium text-gray-700 dark:text-gray-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 whitespace-nowrap"
+                  className="inline-flex h-k-touch min-h-k-touch items-center justify-center gap-1.5 rounded-k border border-gray-300 dark:border-dark-border bg-gray-50 dark:bg-dark-surface2 px-3 text-k-help font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-[#383838] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 whitespace-nowrap"
                 >
                   <FileText size={13} />
                   <span className="hidden sm:inline">Use active form</span>
                   <span className="sm:hidden">Active</span>
                 </button>
               </div>
-              <div className="flex items-center gap-1 min-h-[24px]">
+              <div className="flex min-h-k-touch items-center gap-1">
                 <span
                   className="flex-1 text-xs text-gray-500 dark:text-gray-400 truncate"
                   title={file?.name}
@@ -173,7 +173,7 @@ export const CompareView: React.FC<CompareViewProps> = ({ open, onClose }) => {
                       toast.info(`Cleared payload ${side}`);
                     }}
                     aria-label={`Clear payload ${side}`}
-                    className="shrink-0 p-1 rounded text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-dark-surface2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                    className="inline-flex h-k-touch w-k-touch shrink-0 items-center justify-center rounded-k text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-dark-surface2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                   >
                     <X size={12} />
                   </button>

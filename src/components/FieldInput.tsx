@@ -1,7 +1,7 @@
 import React from "react";
 import { Copy, Check, X as XIcon, HelpCircle, Wand2 } from "lucide-react";
 import type { AAMVAField } from "../core/schema";
-import { getEffectiveMaxLength } from "../core/schema";
+import { AAMVA_FIELD_OPTIONS, getEffectiveMaxLength } from "../core/schema";
 import { evaluateFieldValue } from "../core/validation";
 import { getCanonicalRewrite, getQuickFix } from "../core/quickFix";
 import {
@@ -12,6 +12,7 @@ import {
   type AamvaDateFormat
 } from "../core/dateHelpers";
 import { getFieldHelp } from "../core/fieldHelp";
+import { getPrivilegeDirectory } from "../core/privilegeDirectory";
 import { HeightSilhouette } from "./HeightSilhouette";
 
 /**
@@ -20,6 +21,75 @@ import { HeightSilhouette } from "./HeightSilhouette";
  * will actually be in the barcode, rather than a friendlier fiction.
  */
 const UPPERCASED_TYPES = new Set<AAMVAField["type"]>(["string", "char", "zip"]);
+
+/** Enumerated AAMVA fields (Sex, REAL ID, eye color, …) are kiosk chips. */
+const CHIP_OPTION_CEILING = 12;
+
+function ColorSwatch({ color, selected }: { color: string; selected: boolean }) {
+  const parts = color.split("|");
+  const style =
+    parts.length === 2
+      ? { backgroundImage: `linear-gradient(90deg, ${parts[0]} 50%, ${parts[1]} 50%)` }
+      : { backgroundColor: color };
+  return (
+    <span
+      aria-hidden
+      className={`inline-block h-3.5 w-3.5 shrink-0 rounded-full ${
+        selected ? "ring-2 ring-white" : "border border-black/25 dark:border-white/30"
+      } ${color === "transparent" ? "border-dashed" : ""}`}
+      style={style}
+    />
+  );
+}
+
+/** Common adult heights → AAMVA `0xx IN`. Shown only while DAU is empty. */
+const HEIGHT_CHIPS: { label: string; value: string; title: string }[] = (
+  [
+    [5, 0],
+    [5, 2],
+    [5, 4],
+    [5, 6],
+    [5, 7],
+    [5, 8],
+    [5, 9],
+    [5, 10],
+    [5, 11],
+    [6, 0],
+    [6, 1],
+    [6, 2],
+    [6, 4]
+  ] as const
+).map(([feet, inches]) => {
+  const total = feet * 12 + inches;
+  const value = `${String(total).padStart(3, "0")} IN`;
+  const label = `${feet}'${inches}"`;
+  return { label, value, title: `${label} encodes as ${value}` };
+});
+
+/** Common adult weights in pounds, zero-padded. Shown only while DAW is empty. */
+const WEIGHT_CHIPS: { label: string; value: string; title: string }[] = [
+  110, 130, 150, 160, 170, 180, 190, 200, 220, 250
+].map((lb) => {
+  const value = String(lb).padStart(3, "0");
+  return { label: `${lb} lb`, value, title: `${lb} pounds encodes as ${value}` };
+});
+
+/**
+ * Suggestion chips for coded fields that are NOT a closed AAMVA enumeration
+ * (vehicle class can be "AM", restrictions can stack). Tapping writes the
+ * code; the text input stays so a jurisdiction-specific string still works.
+ */
+const SUGGESTION_CHIPS: Record<string, { label: string; value: string; title: string }[]> = {
+  DCU: [
+    { label: "JR", value: "JR", title: "Junior. AAMVA name suffix, max 5 characters." },
+    { label: "SR", value: "SR", title: "Senior." },
+    { label: "I", value: "I", title: "The First." },
+    { label: "II", value: "II", title: "The Second." },
+    { label: "III", value: "III", title: "The Third." },
+    { label: "IV", value: "IV", title: "The Fourth." },
+    { label: "V", value: "V", title: "The Fifth." }
+  ]
+};
 
 /**
  * Pulls the allowed values out of an enumeration message so they can be offered
@@ -111,6 +181,10 @@ export const FieldInput: React.FC<FieldInputProps> = ({
   // Any field the user can type into is clearable; DAJ is app-owned and read-only.
   const isResettable = !derivedFrom;
   const allowedValues = hasError ? parseAllowedValues(evalResult.message) : [];
+  const options = field.options?.length ? field.options : AAMVA_FIELD_OPTIONS[field.code];
+  // Both sides had reached the same rule independently — a field's own
+  // maxLength over the shared table. `getEffectiveMaxLength` is the one
+  // definition the validator also uses.
   const maxLen = getEffectiveMaxLength(field);
 
   const dateFormat: AamvaDateFormat = field.dateFormat === "YYYYMMDD" ? "YYYYMMDD" : "MMDDYYYY";
@@ -149,6 +223,22 @@ export const FieldInput: React.FC<FieldInputProps> = ({
         : [],
     [isDate, value, field.code, allValues, dateFormat, state]
   );
+
+  const measureChips =
+    !value.trim() && field.code === "DAU"
+      ? HEIGHT_CHIPS
+      : !value.trim() && field.code === "DAW"
+        ? WEIGHT_CHIPS
+        : [];
+  const directory = getPrivilegeDirectory(state);
+  const suggestionChips =
+    field.code === "DCA"
+      ? directory.classes
+      : field.code === "DCB"
+        ? directory.restrictions
+        : field.code === "DCD"
+          ? directory.endorsements
+          : (SUGGESTION_CHIPS[field.code] ?? []);
 
   // A repair for a value that fails, or the encoder-canonical form of one that
   // passes. Both are a single click; neither ever invents a value.
@@ -205,6 +295,10 @@ export const FieldInput: React.FC<FieldInputProps> = ({
     };
   }, [helpOpen]);
 
+  // Help and copy sit on the label row now. Under the floating label they were
+  // absolutely positioned over the input, which put two ~24px targets on top of
+  // the text the user was typing; at 56px controls that overlap is worse, not
+  // better.
   const helpButton = helpText ? (
     <button
       ref={helpButtonRef}
@@ -219,77 +313,229 @@ export const FieldInput: React.FC<FieldInputProps> = ({
       aria-controls={helpId}
       aria-label={`${helpOpen ? "Hide" : "Show"} help for ${field.code}`}
       title={`What is ${field.code}?`}
-      className={`absolute top-1 right-7 z-30 p-1 rounded hover:text-brand-600 dark:hover:text-brand-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 ${
-        helpOpen ? "text-brand-600 dark:text-brand-300" : "text-gray-600 dark:text-gray-300"
+      className={`inline-flex h-k-touch w-k-touch items-center justify-center rounded-k transition-colors hover:bg-gray-100 dark:hover:bg-dark-surface2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 ${
+        helpOpen ? "text-brand-600 dark:text-brand-300" : "text-gray-500 dark:text-gray-400"
       }`}
     >
-      <HelpCircle size={12} />
+      <HelpCircle size={17} aria-hidden />
     </button>
   ) : null;
 
-  const baseInputClass =
-    "block w-full px-3 pt-5 pb-2 text-sm text-gray-900 bg-gray-100 dark:bg-[#2C2C2C] border-0 border-b-2 appearance-none dark:text-gray-100 focus:outline-none focus:ring-0 peer transition-all duration-200 ease-in-out rounded-t-md pr-16 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-500";
-  const normalClass = `${baseInputClass} border-gray-300 dark:border-[#555] focus:border-brand-500`;
-  const errorClass = `${baseInputClass} border-red-500 focus:border-red-500`;
-  const warningClass = `${baseInputClass} border-amber-500 focus:border-amber-500`;
-  const finalClass = hasError ? errorClass : isWarning ? warningClass : normalClass;
-
-  // The floated label renders at scale-75 of text-sm — about 10.5px. At that
-  // size gray-500 on the near-white themed input fill was only just over the
-  // 4.5:1 floor, which is why the field names read as washed out; gray-600 /
-  // gray-300 clears 7:1 in both themes.
-  const labelClass = `absolute text-sm duration-300 transform top-4 z-10 origin-[0] left-3 pointer-events-none ${
-    hasError
-      ? "text-red-600 dark:text-red-400"
-      : isWarning
-        ? "text-amber-700 dark:text-amber-300"
-        : "text-gray-600 dark:text-gray-300 peer-focus:text-brand-600 peer-focus:dark:text-brand-300"
-  } truncate w-[85%]`;
-
-  const copyIcon = value ? (
+  const copyButton = value ? (
     <button
       type="button"
       onClick={() => onCopy(field.code, value)}
       aria-label={copied ? "Copied" : `Copy ${field.code} value`}
       title={copied ? "Copied!" : `Copy ${field.code}`}
-      className="field-hover-action absolute -top-1 right-1 z-30 p-1 rounded text-gray-500 hover:text-brand-500 dark:text-gray-400 dark:hover:text-brand-400 bg-white/70 dark:bg-dark-surface/70 backdrop-blur-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+      className="field-hover-action inline-flex h-k-touch w-k-touch items-center justify-center rounded-k text-gray-500 transition-colors hover:bg-gray-100 hover:text-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 dark:text-gray-400 dark:hover:bg-dark-surface2 dark:hover:text-brand-400"
     >
-      {copied ? <Check size={12} className="text-green-500" /> : <Copy size={12} />}
+      {copied ? (
+        <Check size={17} className="text-green-600 dark:text-green-400" aria-hidden />
+      ) : (
+        <Copy size={17} aria-hidden />
+      )}
     </button>
   ) : null;
 
+  // A trailing action needs room inside the control, and only some fields have
+  // one — reserving the gutter unconditionally left every other field with a
+  // ragged-looking right margin.
+  const generatesOwnValue = field.code === "DDB" || field.code === "DCF" || field.code === "DAQ";
+  const offersNone = field.code === "DCB" || field.code === "DCD";
+  const trailingActions =
+    (generatesOwnValue ? 1 : 0) + (offersNone ? 1 : 0) + (isResettable && value ? 1 : 0);
+  const trailingPad =
+    trailingActions >= 2 ? "pr-[8.5rem]" : trailingActions === 1 ? "pr-[5.25rem]" : "pr-4";
+
+  // 56px tall, 18px value. An empty optional field is dashed rather than solid
+  // so what may be skipped is legible without reading a legend — the required
+  // marker alone made "required" the thing you had to hunt for.
+  const isEmpty = !value.trim();
+  const baseInputClass = `block w-full h-k-control rounded-k pl-4 ${trailingPad} text-k-value text-gray-900 dark:text-gray-100 bg-white dark:bg-[#2C2C2C] border-[1.5px] appearance-none focus:outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500`;
+  // WCAG 1.4.11 wants 3:1 between a control's boundary and BOTH the colours it
+  // sits between. The jurisdiction theme paints the fill with `!important` (a
+  // deliberate rule — borders carry validation state, so only the fill is
+  // themed), and gray-300 against that fill measured 1.3:1, gray-300 against
+  // the white panel 1.47:1. Neither is a boundary; it is a suggestion of one.
+  // gray-500 clears it at 4.25:1 and 4.83:1. Dark needed a second pass: the
+  // themed dark fill is a color-mix, and #6E6E6E only reached 2.70:1 against
+  // it; #7A7A7A gets 3.20:1 against the fill and 3.96:1 against the surface.
+  const restingBorder =
+    !field.required && isEmpty
+      ? "border-dashed border-gray-500 dark:border-[#7A7A7A]"
+      : "border-gray-500 dark:border-[#7A7A7A]";
+  const finalClass = hasError
+    ? `${baseInputClass} border-red-500 focus:border-red-500`
+    : isWarning
+      ? `${baseInputClass} border-amber-500 focus:border-amber-500`
+      : `${baseInputClass} ${restingBorder} focus:border-brand-500`;
+
+  // The trailing buttons clear the 44px floor. Under the old 40px control they
+  // were 20px wide, which is a target you aim at rather than press.
+  const trailingButtonClass =
+    "inline-flex h-k-touch items-center justify-center rounded-[0.5rem] px-3 text-k-help font-semibold text-gray-700 transition-colors bg-gray-100 hover:bg-gray-200 dark:bg-[#3A3A3A] dark:text-gray-100 dark:hover:bg-[#484848] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500";
+
+  const labelRow = (
+    <div className="flex items-center justify-between gap-2">
+      {/* No truncation and no width cap. The floated label was clamped to 85%
+          of a 230px column, which is why "DDE — Family Name Trun…" was the
+          whole name a user ever saw. */}
+      <label
+        htmlFor={field.code}
+        className={`text-k-label font-semibold leading-snug ${
+          hasError
+            ? "text-red-700 dark:text-red-300"
+            : isWarning
+              ? "text-amber-800 dark:text-amber-300"
+              : "text-gray-800 dark:text-gray-100"
+        }`}
+      >
+        <span className="font-mono text-k-help font-medium text-gray-500 dark:text-gray-400">
+          <Highlighted text={field.code} term={highlight} />
+        </span>{" "}
+        <Highlighted text={field.label} term={highlight} />
+        {field.required ? (
+          <span className="text-red-600 dark:text-red-400" title="Required">
+            {" "}
+            *
+          </span>
+        ) : (
+          <span className="ml-1.5 text-k-help font-medium text-gray-500 dark:text-gray-400">
+            optional
+          </span>
+        )}
+      </label>
+      <div className="flex shrink-0 items-center">
+        {copyButton}
+        {helpButton}
+      </div>
+    </div>
+  );
+
+  const trailingActionNodes = (
+    <div className="absolute right-2 top-1/2 z-20 flex -translate-y-1/2 items-center gap-1.5">
+      {generatesOwnValue && (
+        <button
+          type="button"
+          onClick={() => onGenerate(field.code)}
+          className={trailingButtonClass}
+          title={`Generate ${field.label}`}
+          aria-label={`Generate ${field.label}`}
+        >
+          Generate
+        </button>
+      )}
+      {offersNone && (
+        <button
+          type="button"
+          onClick={() => onChange(field.code, "NONE")}
+          className={trailingButtonClass}
+          title={`Set ${field.label} to NONE`}
+          aria-label={`Set ${field.label} to NONE`}
+        >
+          None
+        </button>
+      )}
+      {isResettable && value && (
+        <button
+          type="button"
+          onClick={() => onReset(field.code)}
+          aria-label={`Reset ${field.code}`}
+          title={`Reset ${field.code}`}
+          className="inline-flex h-k-touch w-k-touch items-center justify-center rounded-[0.5rem] bg-gray-100 text-gray-700 transition-colors hover:bg-red-100 hover:text-red-700 dark:bg-[#3A3A3A] dark:text-gray-100 dark:hover:bg-red-900/40 dark:hover:text-red-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+        >
+          <XIcon size={16} aria-hidden />
+        </button>
+      )}
+    </div>
+  );
+
   return (
-    <div className="flex flex-col relative group">
-      {copyIcon}
-      {helpText && (
-        // Button and popover share a wrapper so the outside-press check has a
-        // single subtree to test against. The wrapper is unpositioned, so both
-        // children still resolve their `absolute` offsets against the field.
+    <div className="group flex flex-col gap-2">
+      {labelRow}
+
+      {helpText && helpOpen && (
         <div ref={helpRef}>
-          {helpButton}
-          {helpOpen && (
-            <div
-              id={helpId}
-              role="tooltip"
-              className="absolute z-40 top-full left-0 right-0 mt-1 px-3 py-2 pr-7 text-xs leading-snug rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-dark-surface text-gray-800 dark:text-gray-100 shadow-lg"
+          <div
+            id={helpId}
+            role="tooltip"
+            className="relative rounded-k border border-gray-300 bg-gray-50 px-3.5 py-2.5 pr-10 text-k-help leading-relaxed text-gray-800 dark:border-gray-600 dark:bg-dark-surface2 dark:text-gray-100"
+          >
+            {helpText}
+            <button
+              type="button"
+              onClick={() => {
+                setHelpOpen(false);
+                helpButtonRef.current?.focus();
+              }}
+              aria-label={`Close help for ${field.code}`}
+              className="absolute right-1 top-1 inline-flex h-k-touch w-k-touch items-center justify-center rounded-k text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
             >
-              {helpText}
-              <button
-                type="button"
-                onClick={() => {
-                  setHelpOpen(false);
-                  helpButtonRef.current?.focus();
-                }}
-                aria-label={`Close help for ${field.code}`}
-                className="absolute top-1 right-1 p-1 rounded text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-              >
-                <XIcon size={11} aria-hidden />
-              </button>
-            </div>
-          )}
+              <XIcon size={14} aria-hidden />
+            </button>
+          </div>
         </div>
       )}
-      {field.options ? (
+
+      {options && options.length <= CHIP_OPTION_CEILING ? (
+        <div
+          role="radiogroup"
+          id={field.code}
+          aria-required={field.required}
+          aria-invalid={hasError}
+          aria-describedby={showAdvisory ? errorId : undefined}
+          className="flex flex-wrap gap-1.5"
+        >
+          {!field.required && (
+            <button
+              type="button"
+              role="radio"
+              aria-checked={value === "" && touched}
+              title="Omit this element from the barcode"
+              onClick={() => {
+                setTouched(true);
+                onChange(field.code, "");
+              }}
+              className={`inline-flex min-h-k-touch items-center rounded-k border px-3 text-k-help font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 ${
+                value === "" && touched
+                  ? "border-brand-700 bg-brand-700 text-white"
+                  : "border-gray-400 bg-white text-gray-800 hover:bg-gray-100 dark:border-[#555] dark:bg-dark-surface2 dark:text-gray-100 dark:hover:bg-[#383838]"
+              }`}
+            >
+              Omit
+            </button>
+          )}
+          {options.map((opt) => {
+            const selected = value === opt.value;
+            const rest = opt.label.includes("—")
+              ? opt.label.slice(opt.label.indexOf("—") + 1).trim()
+              : opt.label;
+            return (
+              <button
+                key={opt.value}
+                type="button"
+                role="radio"
+                aria-checked={selected}
+                title={opt.description ?? opt.label}
+                aria-label={opt.description ?? opt.label}
+                onClick={() => {
+                  setTouched(true);
+                  onChange(field.code, opt.value);
+                }}
+                className={`inline-flex min-h-k-touch items-center gap-2 rounded-k border px-3 text-k-help font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 ${
+                  selected
+                    ? "border-brand-700 bg-brand-700 text-white"
+                    : "border-gray-400 bg-white text-gray-800 hover:bg-gray-100 dark:border-[#555] dark:bg-dark-surface2 dark:text-gray-100 dark:hover:bg-[#383838]"
+                }`}
+              >
+                <span className="font-mono">{opt.value}</span>
+                {opt.swatch ? <ColorSwatch color={opt.swatch} selected={selected} /> : null}
+                <span className="font-medium">{rest}</span>
+              </button>
+            );
+          })}
+        </div>
+      ) : options ? (
         <div className="relative">
           <select
             id={field.code}
@@ -299,35 +545,26 @@ export const FieldInput: React.FC<FieldInputProps> = ({
             aria-required={field.required}
             aria-invalid={hasError}
             aria-describedby={showAdvisory ? errorId : undefined}
-            // An empty select used to render its own text transparent, so the
-            // control was a blank box with no hint that it holds a list at all.
-            // The placeholder is muted rather than invisible.
             className={finalClass + (value ? "" : " text-gray-600 dark:text-gray-300")}
           >
-            <option value="" disabled className="text-gray-600 dark:text-gray-300">
-              Select…
+            <option
+              value=""
+              disabled={!!field.required}
+              className="text-gray-600 dark:text-gray-300"
+            >
+              {field.required ? "Select…" : "Omit — not encoded"}
             </option>
-            {field.options.map((opt) => (
+            {options.map((opt) => (
               <option
                 key={opt.value}
                 value={opt.value}
+                title={opt.description}
                 className="text-gray-900 dark:text-gray-100 bg-white dark:bg-dark-surface"
               >
                 {opt.label}
               </option>
             ))}
           </select>
-          <label
-            htmlFor={field.code}
-            className={labelClass.replace(
-              "transform top-4",
-              "transform -translate-y-3 scale-75 top-4"
-            )}
-          >
-            <Highlighted text={field.code} term={highlight} /> —{" "}
-            <Highlighted text={field.label} term={highlight} />{" "}
-            {field.required && <span className="text-red-500">*</span>}
-          </label>
         </div>
       ) : field.type === "date" ? (
         <div className="relative flex">
@@ -335,7 +572,7 @@ export const FieldInput: React.FC<FieldInputProps> = ({
             type="text"
             id={field.code}
             value={value}
-            placeholder={field.dateFormat || " "}
+            placeholder={field.dateFormat || undefined}
             onChange={(e) => handleChange(e.target.value)}
             onBlur={() => {
               setTouched(true);
@@ -344,46 +581,13 @@ export const FieldInput: React.FC<FieldInputProps> = ({
             // Roomy enough to type the separators people actually use
             // ("08/11/2026"); the blur handler folds it back to eight digits.
             maxLength={10}
+            inputMode="numeric"
             aria-required={field.required}
             aria-invalid={hasError}
             aria-describedby={showAdvisory ? errorId : undefined}
-            className={`${finalClass} float-label-input`}
+            className={`${finalClass} font-mono tracking-[0.06em]`}
           />
-          <label
-            htmlFor={field.code}
-            className={labelClass.replace(
-              "transform top-4",
-              "transform -translate-y-3 scale-75 top-4"
-            )}
-          >
-            <Highlighted text={field.code} term={highlight} /> —{" "}
-            <Highlighted text={field.label} term={highlight} />{" "}
-            {field.required && <span className="text-red-500">*</span>}
-          </label>
-          <div className="absolute right-1.5 top-2 bottom-2 flex gap-1 z-20">
-            {field.code === "DDB" && (
-              <button
-                type="button"
-                onClick={() => onGenerate(field.code)}
-                className="text-xs font-medium bg-gray-200 hover:bg-gray-300 dark:bg-[#444] dark:hover:bg-[#555] rounded px-2 text-gray-700 dark:text-gray-200 transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-                title="Generate Card Revision Date"
-                aria-label="Generate Card Revision Date"
-              >
-                Gen
-              </button>
-            )}
-            {isResettable && value && (
-              <button
-                type="button"
-                onClick={() => onReset(field.code)}
-                aria-label={`Reset ${field.code}`}
-                title={`Reset ${field.code}`}
-                className="flex items-center justify-center w-5 bg-gray-200 hover:bg-red-100 dark:bg-[#444] dark:hover:bg-red-900/40 rounded text-gray-700 hover:text-red-600 dark:text-gray-200 dark:hover:text-red-400 transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-              >
-                <XIcon size={11} />
-              </button>
-            )}
-          </div>
+          {trailingActionNodes}
         </div>
       ) : (
         <div className="relative flex">
@@ -391,7 +595,6 @@ export const FieldInput: React.FC<FieldInputProps> = ({
             type="text"
             id={field.code}
             value={value}
-            placeholder={field.dateFormat || " "}
             onChange={(e) => handleChange(e.target.value)}
             onBlur={() => setTouched(true)}
             maxLength={maxLen}
@@ -400,71 +603,26 @@ export const FieldInput: React.FC<FieldInputProps> = ({
             aria-invalid={hasError}
             aria-describedby={showAdvisory ? errorId : undefined}
             title={derivedFrom}
-            className={`${finalClass} float-label-input${derivedFrom ? " cursor-not-allowed opacity-80" : ""}`}
+            className={`${finalClass}${derivedFrom ? " cursor-not-allowed opacity-80" : ""}`}
           />
-          <label
-            htmlFor={field.code}
-            className={labelClass.replace(
-              "transform top-4",
-              "transform -translate-y-3 scale-75 top-4"
-            )}
-          >
-            <Highlighted text={field.code} term={highlight} /> —{" "}
-            <Highlighted text={field.label} term={highlight} />{" "}
-            {field.required && <span className="text-red-500">*</span>}
-          </label>
-          <div className="absolute right-1.5 top-2 bottom-2 flex gap-1 z-20">
-            {(field.code === "DCF" || field.code === "DAQ") && (
-              <button
-                type="button"
-                onClick={() => onGenerate(field.code)}
-                className="text-xs font-medium bg-gray-200 hover:bg-gray-300 dark:bg-[#444] dark:hover:bg-[#555] rounded px-2 text-gray-700 dark:text-gray-200 transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-                title={`Generate ${field.label}`}
-                aria-label={`Generate ${field.label}`}
-              >
-                Gen
-              </button>
-            )}
-            {(field.code === "DCB" || field.code === "DCD") && (
-              <button
-                type="button"
-                onClick={() => onChange(field.code, "NONE")}
-                className="text-xs font-medium bg-gray-200 hover:bg-gray-300 dark:bg-[#444] dark:hover:bg-[#555] rounded px-2 text-gray-700 dark:text-gray-200 transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-                title={`Set ${field.label} to NONE`}
-                aria-label={`Set ${field.label} to NONE`}
-              >
-                None
-              </button>
-            )}
-            {isResettable && value && (
-              <button
-                type="button"
-                onClick={() => onReset(field.code)}
-                aria-label={`Reset ${field.code}`}
-                title={`Reset ${field.code}`}
-                className="flex items-center justify-center w-5 bg-gray-200 hover:bg-red-100 dark:bg-[#444] dark:hover:bg-red-900/40 rounded text-gray-700 hover:text-red-600 dark:text-gray-200 dark:hover:text-red-400 transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-              >
-                <XIcon size={11} />
-              </button>
-            )}
-          </div>
+          {trailingActionNodes}
         </div>
       )}
 
-      <div className="absolute -bottom-4 left-0 right-0 flex justify-between items-start pointer-events-none transition-opacity duration-200">
-        <div className="flex-1 min-w-0">
+      {/* Everything under the control now flows instead of being pinned to
+          `-bottom-4`. The absolute box was why the field grid needed a 32px gap
+          it did not otherwise want, and why a two-line advisory overlapped the
+          field beneath it. */}
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0 flex-1 flex flex-col gap-1.5">
           {showAdvisory && (
             <span
               id={errorId}
               role={hasError ? "alert" : "status"}
               data-severity={hasError ? "error" : "warning"}
-              // Two lines plus a title: enumeration messages ("Value must be one
-              // of: BLK, BLU, BRO, GRY, GRN, HAZ, MAR, PNK, DIC, UNK.") used to
-              // be clipped to about six useful characters with no way to read
-              // the rest.
               title={evalResult.message}
-              className={`block text-xs font-medium field-advisory pointer-events-auto ${
-                hasError ? "text-red-500" : "text-amber-600 dark:text-amber-400"
+              className={`block text-k-help font-medium field-advisory ${
+                hasError ? "text-red-600 dark:text-red-400" : "text-amber-700 dark:text-amber-400"
               }`}
             >
               {allowedValues.length > 0
@@ -495,13 +653,13 @@ export const FieldInput: React.FC<FieldInputProps> = ({
               onClick={() => onChange(field.code, quickFix.value)}
               title={quickFix.description}
               aria-label={`${quickFix.description} for ${field.code}`}
-              className={`mt-0.5 inline-flex items-center gap-1 px-1.5 py-0.5 rounded border text-[10px] font-semibold pointer-events-auto transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 ${
+              className={`inline-flex min-h-k-touch w-fit items-center gap-1.5 rounded-k border px-3 text-k-help font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 ${
                 showAdvisory
                   ? "border-brand-300 dark:border-brand-700 bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300 hover:bg-brand-100 dark:hover:bg-brand-900/60"
-                  : "border-gray-200 dark:border-[#444] bg-gray-50 dark:bg-dark-surface2 text-gray-500 dark:text-gray-400 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 hover:text-gray-800 dark:hover:text-gray-100"
+                  : "border-gray-200 dark:border-[#444] bg-gray-50 dark:bg-dark-surface2 text-gray-600 dark:text-gray-300 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 hover:text-gray-900 dark:hover:text-gray-100"
               }`}
             >
-              <Wand2 size={10} aria-hidden />
+              <Wand2 size={13} aria-hidden />
               {quickFix.label}
               <span className="font-mono">{quickFix.value}</span>
             </button>
@@ -509,17 +667,17 @@ export const FieldInput: React.FC<FieldInputProps> = ({
           {/* What the eight digits actually mean, so a transposed year is
               visible before it reaches the barcode. */}
           {dateReadout && !showAdvisory && (
-            <span className="mt-0.5 block text-[11px] text-gray-500 dark:text-gray-400 truncate">
+            <span className="block text-k-help text-gray-600 dark:text-gray-400">
               {dateReadout}
             </span>
           )}
           {derivedFrom && (
-            <span className="mt-0.5 block text-[11px] text-gray-500 dark:text-gray-400 truncate">
+            <span className="block text-k-help text-gray-600 dark:text-gray-400">
               {derivedFrom}
             </span>
           )}
           {dateChips.length > 0 && (
-            <div className="mt-0.5 flex flex-wrap gap-1 pointer-events-auto">
+            <div className="flex flex-wrap gap-1.5">
               {dateChips.map((chip) => (
                 <button
                   key={chip.label}
@@ -527,24 +685,63 @@ export const FieldInput: React.FC<FieldInputProps> = ({
                   onClick={() => onChange(field.code, chip.value)}
                   title={chip.title}
                   aria-label={`Set ${field.code}: ${chip.title}`}
-                  className="px-1.5 py-0.5 rounded border border-gray-200 dark:border-[#444] bg-gray-50 dark:bg-dark-surface2 text-[10px] font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#383838] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                  className="inline-flex min-h-k-touch items-center rounded-k border border-gray-200 bg-gray-50 px-3 text-k-help font-medium text-gray-700 transition-colors hover:bg-gray-100 dark:border-[#444] dark:bg-dark-surface2 dark:text-gray-300 dark:hover:bg-[#383838] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                 >
                   {chip.label}
                 </button>
               ))}
             </div>
           )}
+          {measureChips.length > 0 && (
+            <div className="flex flex-wrap gap-1.5">
+              {measureChips.map((chip) => (
+                <button
+                  key={chip.value}
+                  type="button"
+                  onClick={() => onChange(field.code, chip.value)}
+                  title={chip.title}
+                  aria-label={`Set ${field.code}: ${chip.title}`}
+                  className="inline-flex min-h-k-touch items-center rounded-k border border-gray-200 bg-gray-50 px-3 text-k-help font-medium text-gray-700 transition-colors hover:bg-gray-100 dark:border-[#444] dark:bg-dark-surface2 dark:text-gray-300 dark:hover:bg-[#383838] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                >
+                  {chip.label}
+                </button>
+              ))}
+            </div>
+          )}
+          {suggestionChips.length > 0 && (
+            <div className="flex flex-wrap gap-1.5">
+              {suggestionChips.map((chip) => {
+                const selected = value === chip.value;
+                return (
+                  <button
+                    key={chip.value}
+                    type="button"
+                    onClick={() => onChange(field.code, chip.value)}
+                    title={chip.title}
+                    aria-label={`Set ${field.code}: ${chip.title}`}
+                    className={`inline-flex min-h-k-touch items-center rounded-k border px-3 text-k-help font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 ${
+                      selected
+                        ? "border-brand-700 bg-brand-700 text-white"
+                        : "border-gray-200 bg-gray-50 text-gray-700 hover:bg-gray-100 dark:border-[#444] dark:bg-dark-surface2 dark:text-gray-300 dark:hover:bg-[#383838]"
+                    }`}
+                  >
+                    {chip.label}
+                  </button>
+                );
+              })}
+            </div>
+          )}
           {/* Enumerated values become one-click chips — reading the list and
               fixing the field are the same gesture. */}
           {allowedValues.length > 0 && (
-            <div className="mt-0.5 flex flex-wrap gap-1 pointer-events-auto">
+            <div className="flex flex-wrap gap-1.5">
               {allowedValues.map((allowed) => (
                 <button
                   key={allowed}
                   type="button"
                   onClick={() => onChange(field.code, allowed)}
                   title={`Set ${field.code} to ${allowed}`}
-                  className="px-1.5 py-0.5 rounded border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-900/30 text-[10px] font-mono font-semibold text-red-700 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-900/60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                  className="inline-flex min-h-k-touch items-center rounded-k border border-red-300 bg-red-50 px-3 font-mono text-k-help font-semibold text-red-700 transition-colors hover:bg-red-100 dark:border-red-800 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-900/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                 >
                   {allowed}
                 </button>
@@ -552,11 +749,11 @@ export const FieldInput: React.FC<FieldInputProps> = ({
             </div>
           )}
         </div>
-        <div className="flex items-center gap-1.5 shrink-0 ml-2">
+        <div className="ml-2 flex shrink-0 items-center gap-2">
           {whimsy && field.code === "DAU" && <HeightSilhouette value={value} />}
-          {!field.options && maxLen && (
+          {!options && maxLen && (
             <span
-              className="text-xs font-medium text-gray-600 dark:text-gray-300 opacity-0 group-focus-within:opacity-100 transition-opacity whitespace-nowrap"
+              className="whitespace-nowrap font-mono text-k-help text-gray-600 opacity-0 transition-opacity group-focus-within:opacity-100 dark:text-gray-400"
               aria-hidden
               title={`${value.length} of ${maxLen} characters used`}
             >

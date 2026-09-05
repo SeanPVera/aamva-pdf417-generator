@@ -1,8 +1,8 @@
 [
   {
-    "name": "Initial JS (gzipped) \u2014 first-paint UI, form affordances, paste import (quick-fill sample records load on demand)",
+    "name": "Initial JS (gzipped) \u2014 first-paint UI, the step rail, and the privilege chips (quick-fill sample records load on demand)",
     "path": "dist/assets/index-*.js",
-    "limit": "47 KB",
+    "limit": "55 KB",
     "gzip": true
   },
   {
@@ -34,5 +34,11 @@
     "path": "dist/assets/*.css",
     "limit": "20 KB",
     "gzip": true
+  },
+  {
+    "name": "Self-hosted fonts (woff2, already compressed) \u2014 both variable faces, latin subset",
+    "path": "dist/assets/*.woff2",
+    "limit": "80 KB",
+    "gzip": false
   }
 ]

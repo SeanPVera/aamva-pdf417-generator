@@ -4,6 +4,7 @@ import type { FieldGroupId } from "../core/schema";
 // Type-only: importing the badge *catalog* here would pull its definitions into
 // the initial chunk, even though only the plaque modal ever renders them.
 import type { BadgeStats } from "../core/badges";
+import { seededFields } from "../core/derivedFields";
 
 // Persisted state intentionally excludes the AAMVA `fields` payload, so no PII
 // is ever written to disk. Only UI preferences (state, version, strict mode,
@@ -146,7 +147,7 @@ export const useFormStore = create<FormState>()(
       version: "10",
       strictMode: true,
       subfileType: "DL",
-      fields: {},
+      fields: seededFields("CA", "DL"),
       sourcePayload: null,
       theme: "system",
       collapsedGroups: {},
@@ -202,12 +203,18 @@ export const useFormStore = create<FormState>()(
           const visited = s.badgeStats.visitedStates.includes(stateCode)
             ? s.badgeStats.visitedStates
             : [...s.badgeStats.visitedStates, stateCode];
+          const seeds = seededFields(stateCode, s.subfileType);
+          const nextFields = { ...s.fields };
+          // Seeds never overwrite something the user typed.
+          for (const [code, value] of Object.entries(seeds)) {
+            if (!(s.fields[code] || "").trim()) nextFields[code] = value;
+          }
           return {
             state: stateCode,
             version,
+            fields: nextFields,
             recentStates: promoteRecent(s.recentStates, stateCode),
             badgeStats: { ...s.badgeStats, visitedStates: visited },
-            // A jurisdiction switch is a deliberate break in the edit stream.
             _lastEditCode: "",
             _lastEditAt: 0
           };
@@ -215,6 +222,8 @@ export const useFormStore = create<FormState>()(
 
       setStrictMode: (mode) => set({ strictMode: mode }),
 
+      // Switching DL/ID no longer rewrites the vehicle class. Picking a
+      // subfile type is not the user stating what they are licensed to drive.
       setSubfileType: (type) => set({ subfileType: type }),
 
       setTheme: (theme) => set({ theme }),
@@ -259,6 +268,10 @@ export const useFormStore = create<FormState>()(
 
       resetBingo: () => set({ bingoMarked: [] }),
 
+      // Clear PII clears. It is the app's one destructive privacy control, and
+      // re-seeding from it meant "clear" left seven values behind — including,
+      // before the seeds were narrowed, a vehicle class. Structural defaults
+      // come back when a jurisdiction is chosen, not when data is wiped.
       clearFields: () =>
         set((s) => ({
           fields: {},

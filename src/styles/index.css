@@ -1,12 +1,55 @@
-/* No @import of remote webfonts. The CSP in index.html is style-src 'self',
-   so a fonts.googleapis.com stylesheet is refused on every platform — the
-   requests only ever cost a blocked round trip per launch, which an
-   offline-first phone app has no reason to pay. The stack in
-   tailwind.config.js falls back to the platform UI font instead. */
+/* Fonts are self-hosted, never fetched. A fonts.googleapis.com stylesheet is
+   refused outright by the CSP in index.html (`style-src 'self'`), and an
+   offline-first phone app has no reason to pay for a blocked round trip per
+   launch. These faces are imported from `src/assets/`, so Vite hashes them and
+   emits relative URLs — which is what keeps them resolvable under `base: './'`
+   at a Pages subpath, from a domain root, and from Electron's `file://` alike.
+   Putting them in `public/` instead would force an absolute `/fonts/` URL and
+   break the first two.
+
+   Both are variable, which is the cheaper option here: one 34 kB face covers
+   weights 200–800, where three static cuts would have cost more.
+
+   Atkinson Hyperlegible Next is not a style choice. It was drawn by the
+   Braille Institute to pull confusable characters apart — 0/O, 1/l/I, 8/B —
+   and this app is a data-entry form for identity documents, where reading a
+   licence number's O as a 0 produces a credential for nobody. JetBrains Mono
+   carries a slashed zero for the same reason, and takes the field codes, the
+   dates, and the raw payload.
+
+   Both are SIL OFL 1.1; the licences ship beside the faces in
+   `src/assets/fonts/`. */
+@font-face {
+  font-family: "Atkinson Hyperlegible Next";
+  src: url("../assets/fonts/atkinson-hyperlegible-next-latin-var.woff2") format("woff2-variations");
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("../assets/fonts/jetbrains-mono-latin-var.woff2") format("woff2-variations");
+  font-weight: 100 800;
+  font-style: normal;
+  font-display: swap;
+}
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ─── Kiosk scale ────────────────────────────────────────────────────────── */
+/* Direction D sizes controls for a thumb and type for arm's length. 56px is
+   the primary control; 44px is the floor every other interactive box has to
+   clear. Kept as custom properties so the stylesheet's own rules and the
+   Tailwind utilities in `tailwind.config.js` cannot drift apart. */
+:root {
+  --k-control-h: 3.5rem;
+  --k-control-h-sm: 2.75rem;
+  --k-radius: 0.625rem;
+  --k-radius-lg: 0.875rem;
+  --k-gap: 1.25rem;
+}
 
 :root {
   /* Core runtime theme (main branch system) */
@@ -33,10 +76,9 @@
 
 /* ─── State-themed header & accents ──────────────────────────────────────── */
 /* The header always reflects the selected jurisdiction's flag colors. */
-header.state-themed {
+header.state-themed .header-identity {
   background-color: var(--state-primary) !important;
   color: var(--state-on-primary) !important;
-  border-bottom-color: var(--state-primary-dark) !important;
 }
 header.state-themed h1,
 header.state-themed .state-brand-text {
@@ -50,22 +92,24 @@ header.state-themed .state-badge {
   color: var(--state-on-accent) !important;
   border-color: var(--state-accent) !important;
 }
-header.state-themed button,
-header.state-themed .header-ctrl {
+header.state-themed .header-identity button,
+header.state-themed .header-identity .header-ctrl {
   color: var(--state-on-primary);
 }
-header.state-themed button:hover:not(:disabled),
-header.state-themed .header-ctrl:hover:not(:disabled) {
+header.state-themed .header-identity button:hover:not(:disabled),
+header.state-themed .header-identity .header-ctrl:hover:not(:disabled) {
   background-color: color-mix(in srgb, var(--state-on-primary) 18%, transparent);
 }
-header.state-themed .state-toggle-group {
+header.state-themed .header-identity .state-toggle-group {
   border-color: color-mix(in srgb, var(--state-on-primary) 30%, transparent);
 }
+/* Not scoped to the identity row: the group sits on the light action bar, and
+   accent-fill with --state-on-accent is legible on either surface. */
 header.state-themed .state-toggle-group button[aria-pressed="true"] {
   background-color: var(--state-accent) !important;
   color: var(--state-on-accent) !important;
 }
-header.state-themed .state-divider {
+header.state-themed .header-identity .state-divider {
   background-color: color-mix(in srgb, var(--state-on-primary) 25%, transparent);
 }
 
@@ -160,9 +204,19 @@ html[data-state-theme] .app-shell::before {
     42px 42px;
   mask-image: linear-gradient(180deg, black, transparent 70%);
 }
+/* Solid, not a gradient. `--state-gradient` runs from the jurisdiction's
+   primary to its ACCENT — a light hue by design — and the toolbar painted
+   `--state-on-primary` (white) across the whole width. On California that put
+   Export JSON, Import JSON and Clear PII on #F2A900 at 2.0:1, against AA's
+   4.5:1. The accent still appears, as a rule under the bar where nothing has
+   to be legible on top of it. */
 html[data-state-theme] header.state-themed {
-  background: var(--state-gradient) !important;
   box-shadow: var(--state-shadow);
+}
+/* The accent lands between the identity row and the action bar, where it is a
+   rule rather than a background — nothing has to stay legible on top of it. */
+html[data-state-theme] header.state-themed .header-identity {
+  border-bottom: 3px solid var(--state-accent) !important;
 }
 html[data-state-theme] .dmv-sidebar,
 html[data-state-theme] .dmv-main,
@@ -226,10 +280,11 @@ html[data-state-theme].dark .dmv-main,
 html[data-state-theme].dark .dmv-preview {
   border-color: color-mix(in srgb, var(--state-primary) 35%, #333333) !important;
 }
+/* Same reasoning as the header: these all print --state-on-primary on top. */
 html[data-state-theme] .state-themed-tab[aria-current="true"],
 html[data-state-theme] .state-primary-bg,
 html[data-state-theme] .state-action-primary {
-  background: var(--state-gradient) !important;
+  background: var(--state-primary) !important;
   color: var(--state-on-primary) !important;
   box-shadow: 0 10px 24px color-mix(in srgb, var(--state-primary) 28%, transparent);
 }
@@ -278,9 +333,9 @@ html[data-state-theme] .dmv-preview canvas {
   filter: drop-shadow(0 10px 18px color-mix(in srgb, var(--state-primary) 20%, transparent));
 }
 html[data-state-theme] .jurisdiction-plate {
-  background: var(--state-gradient);
-  color: var(--state-on-primary);
-  border-color: color-mix(in srgb, var(--state-accent) 64%, white);
+  background: var(--state-accent);
+  color: var(--state-on-accent);
+  border-color: color-mix(in srgb, var(--state-accent) 70%, black);
 }
 
 /* ─── Scrollbar polish ───────────────────────────────────────────────────── */
@@ -312,18 +367,10 @@ textarea {
   @apply transition-colors duration-200;
 }
 
-.float-label-input:focus ~ label,
-.float-label-input:not(:placeholder-shown) ~ label {
-  @apply text-xs -translate-y-3 scale-75;
-}
-
-html.dark .float-label-input:focus ~ label {
-  @apply text-brand-400;
-}
-
-.float-label-input:focus ~ label {
-  @apply text-brand-500;
-}
+/* The floating-label rules that lived here are gone with the label itself.
+   Floating it inside the control is what forced `truncate w-[85%]`, and at a
+   230px column that clipped "Family Name Truncation Indicator" down to
+   "Family Name Trun…". The label now sits above the input, at full width. */
 
 html.dark ::-webkit-scrollbar-thumb {
   background: #333333;

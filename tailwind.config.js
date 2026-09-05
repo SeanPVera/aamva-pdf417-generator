@@ -30,19 +30,43 @@ export default {
         }
       },
       fontFamily: {
-        // No webfont is loaded (see src/styles/index.css), so these named
-        // families only apply when the OS already has them. `system-ui` and
-        // `-apple-system` are what actually resolve: San Francisco on iOS,
-        // Roboto on Android, Segoe on Windows. Without them iOS falls all the
-        // way through to Helvetica.
+        // Self-hosted variable faces; the @font-face rules and the reasoning
+        // live at the top of src/styles/index.css. The fallbacks still matter:
+        // `font-display: swap` paints in them for the first frame, and they are
+        // what an artboard export or a blocked font request lands on.
         sans: [
-          '"Google Sans"',
-          '"Inter"',
-          '"Roboto"',
+          '"Atkinson Hyperlegible Next"',
           'system-ui',
           '-apple-system',
+          '"Segoe UI"',
           'sans-serif',
         ],
+        mono: [
+          '"JetBrains Mono"',
+          'ui-monospace',
+          'SFMono-Regular',
+          'Menlo',
+          'monospace',
+        ],
+      },
+      // Kiosk scale (direction D). Five steps, not seventeen — every size in
+      // the shell resolves to one of these.
+      fontSize: {
+        'k-eyebrow': ['0.8125rem', { lineHeight: '1.2', letterSpacing: '0.1em' }],
+        'k-help': ['0.84375rem', { lineHeight: '1.45' }],
+        'k-label': ['0.9375rem', { lineHeight: '1.3' }],
+        'k-value': ['1.125rem', { lineHeight: '1.4' }],
+        'k-section': ['1.875rem', { lineHeight: '1.15', letterSpacing: '-0.022em' }],
+      },
+      spacing: {
+        // The primary control height, and the floor nothing interactive may
+        // go under. Both are referenced from index.css as custom properties.
+        'k-control': '3.5rem',
+        'k-touch': '2.75rem',
+      },
+      borderRadius: {
+        k: '0.625rem',
+        'k-lg': '0.875rem',
       },
       boxShadow: {
         'google': '0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15)',

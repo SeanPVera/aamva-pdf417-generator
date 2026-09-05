@@ -5,6 +5,7 @@ import {
   CheckCircle2,
   XCircle,
   AlertTriangle,
+  Circle,
   Copy,
   Check,
   ArrowDownToLine,
@@ -42,7 +43,7 @@ export function CollapsibleSection({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="w-full flex items-center justify-between px-3 py-2 bg-gray-50 dark:bg-dark-surface2 hover:bg-gray-100 dark:hover:bg-[#383838] transition-colors text-sm font-semibold text-gray-700 dark:text-gray-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-500"
+        className="flex min-h-k-touch w-full items-center justify-between px-3 text-k-label font-semibold text-gray-700 transition-colors hover:bg-gray-100 dark:bg-dark-surface2 dark:text-gray-200 dark:hover:bg-[#383838] bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-500"
         aria-expanded={open}
         aria-controls={id}
       >
@@ -101,20 +102,24 @@ export const PayloadInspector: React.FC<PayloadInspectorProps> = ({
   copied
 }) => {
   const fixByCode = React.useMemo(() => new Map(fixes.map((fix) => [fix.code, fix])), [fixes]);
-  const errorCount = issues.filter((i) => i.severity === "error").length;
+  // This panel was the single loudest source of the empty-as-error problem:
+  // on an untouched California form it printed "Required field is empty." in
+  // red twenty times under a red "20 errors" badge — 106 of the page's 128 red
+  // elements, before anyone had typed a character.
+  const invalidCount = issues.filter((i) => i.severity === "error" && i.kind === "invalid").length;
+  const emptyCount = issues.filter((i) => i.severity === "error" && i.kind === "empty").length;
   const warningCount = issues.filter((i) => i.severity === "warning").length;
   const issueCount = issues.length;
 
-  const reportBadge =
-    issueCount === 0
-      ? "Pass"
-      : warningCount === 0
-        ? `${errorCount} error${errorCount === 1 ? "" : "s"}`
-        : errorCount === 0
-          ? `${warningCount} warning${warningCount === 1 ? "" : "s"}`
-          : `${errorCount} error${errorCount === 1 ? "" : "s"} · ${warningCount} warning${warningCount === 1 ? "" : "s"}`;
-  const reportBadgeColor: "green" | "red" | "amber" =
-    issueCount === 0 ? "green" : errorCount > 0 ? "red" : "amber";
+  // The badge leads with whichever is worse, and only says "error" about a
+  // value someone actually got wrong.
+  const parts: string[] = [];
+  if (invalidCount > 0) parts.push(`${invalidCount} error${invalidCount === 1 ? "" : "s"}`);
+  if (warningCount > 0) parts.push(`${warningCount} to check`);
+  if (emptyCount > 0) parts.push(`${emptyCount} to fill`);
+  const reportBadge = issueCount === 0 ? "Pass" : parts.join(" · ");
+  const reportBadgeColor: "green" | "red" | "amber" | "gray" =
+    issueCount === 0 ? "green" : invalidCount > 0 ? "red" : warningCount > 0 ? "amber" : "gray";
 
   return (
     <>
@@ -145,7 +150,7 @@ export const PayloadInspector: React.FC<PayloadInspectorProps> = ({
                   : "Copy to clipboard"
             }
             aria-label={copied ? "Copied payload" : "Copy raw payload to clipboard"}
-            className="absolute top-2 right-2 p-1.5 rounded-md bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm text-gray-500 hover:text-brand-600 dark:text-gray-400 dark:hover:text-brand-400 transition-all opacity-0 group-hover/payload:opacity-100 focus:opacity-100 focus-visible:ring-2 focus-visible:ring-brand-500 disabled:hidden"
+            className="absolute top-2 right-2 inline-flex h-k-touch w-k-touch items-center justify-center rounded-k bg-white text-gray-500 shadow-sm border border-gray-200 hover:text-brand-600 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:text-brand-400 transition-all opacity-0 group-hover/payload:opacity-100 focus:opacity-100 focus-visible:ring-2 focus-visible:ring-brand-500 disabled:hidden"
           >
             {copied ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
           </button>
@@ -170,7 +175,7 @@ export const PayloadInspector: React.FC<PayloadInspectorProps> = ({
           </div>
         ) : (
           <>
-            {(errorCount > 0 || fixes.length > 0) && (
+            {(invalidCount > 0 || fixes.length > 0) && (
               <div className="mb-2 flex flex-wrap justify-end gap-1.5">
                 {/* Every listed fix is a rewrite of a value the user already
                     typed, and each was checked against the validator before
@@ -179,7 +184,7 @@ export const PayloadInspector: React.FC<PayloadInspectorProps> = ({
                   <button
                     type="button"
                     onClick={onApplyAllFixes}
-                    className="flex items-center gap-1 text-xs px-2 py-1 rounded bg-brand-50 dark:bg-brand-900/30 border border-brand-200 dark:border-brand-800 text-brand-700 dark:text-brand-300 hover:bg-brand-100 dark:hover:bg-brand-900/50 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                    className="inline-flex h-k-touch items-center gap-1.5 rounded-k border border-brand-200 bg-brand-50 px-3 text-k-help font-semibold text-brand-800 hover:bg-brand-100 dark:border-brand-800 dark:bg-brand-900/30 dark:text-brand-300 dark:hover:bg-brand-900/50 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                     aria-label={`Apply ${fixes.length} quick fixes`}
                     title={fixes.map((f) => `${f.code} → ${f.value}`).join("\n")}
                   >
@@ -187,14 +192,16 @@ export const PayloadInspector: React.FC<PayloadInspectorProps> = ({
                     Fix {fixes.length}
                   </button>
                 )}
-                {errorCount > 0 && (
+                {invalidCount > 0 && (
                   <button
                     type="button"
                     onClick={() => {
-                      const firstError = issues.find((i) => i.severity === "error");
+                      const firstError = issues.find(
+                        (i) => i.severity === "error" && i.kind === "invalid"
+                      );
                       if (firstError) onScrollToField(firstError.code);
                     }}
-                    className="flex items-center gap-1 text-xs px-2 py-1 rounded bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-900/50 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+                    className="inline-flex h-k-touch items-center gap-1.5 rounded-k border border-red-200 bg-red-50 px-3 text-k-help font-semibold text-red-800 hover:bg-red-100 dark:border-red-800 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-900/50 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
                     aria-label="Scroll to first error"
                   >
                     <ArrowDownToLine size={12} />
@@ -205,14 +212,23 @@ export const PayloadInspector: React.FC<PayloadInspectorProps> = ({
             )}
             <ul className="space-y-1.5 pt-1" role="list" aria-label="Validation issues">
               {issues.map((issue, idx) => {
+                // Three tiers, not two. A blank required field is work
+                // remaining and gets a neutral marker; red is reserved for a
+                // value the validator rejects, so that when red does appear it
+                // still means something.
                 const isWarn = issue.severity === "warning";
-                const Icon = isWarn ? AlertTriangle : XCircle;
+                const isEmpty = issue.severity === "error" && issue.kind === "empty";
+                const Icon = isWarn ? AlertTriangle : isEmpty ? Circle : XCircle;
                 const iconClass = isWarn
-                  ? "text-amber-500 mt-0.5 shrink-0"
-                  : "text-red-500 mt-0.5 shrink-0";
+                  ? "text-amber-600 mt-0.5 shrink-0"
+                  : isEmpty
+                    ? "text-gray-500 dark:text-gray-400 mt-0.5 shrink-0"
+                    : "text-red-600 mt-0.5 shrink-0";
                 const messageClass = isWarn
                   ? "text-amber-700 dark:text-amber-300"
-                  : "text-red-600 dark:text-red-400";
+                  : isEmpty
+                    ? "text-gray-600 dark:text-gray-400"
+                    : "text-red-700 dark:text-red-400";
                 const fix = fixByCode.get(issue.code);
                 return (
                   <li
@@ -221,7 +237,7 @@ export const PayloadInspector: React.FC<PayloadInspectorProps> = ({
                   >
                     <button
                       type="button"
-                      className="flex-1 flex items-start gap-2 text-xs text-left cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800/50 p-1 rounded transition-colors group/issue focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                      className="flex min-h-k-touch flex-1 items-start gap-2 rounded-k p-2 text-left text-k-help cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800/50 transition-colors group/issue focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                       data-severity={issue.severity}
                       onClick={() => onScrollToField(issue.code)}
                       title={`Jump to ${issue.label} (${issue.code})`}
@@ -241,7 +257,7 @@ export const PayloadInspector: React.FC<PayloadInspectorProps> = ({
                         onClick={() => onApplyFix(fix)}
                         title={fix.description}
                         aria-label={`${fix.description} for ${fix.code}`}
-                        className="mt-1 shrink-0 inline-flex items-center gap-1 rounded border border-brand-200 dark:border-brand-800 bg-brand-50 dark:bg-brand-900/30 px-1.5 py-0.5 text-[10px] font-semibold text-brand-700 dark:text-brand-300 hover:bg-brand-100 dark:hover:bg-brand-900/60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                        className="inline-flex h-k-touch shrink-0 items-center gap-1 rounded-k border border-brand-200 bg-brand-50 px-3 text-k-help font-semibold text-brand-800 hover:bg-brand-100 dark:border-brand-800 dark:bg-brand-900/30 dark:text-brand-300 dark:hover:bg-brand-900/60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                       >
                         <Wand2 size={10} aria-hidden />
                         Fix
@@ -282,7 +298,7 @@ export const PayloadInspector: React.FC<PayloadInspectorProps> = ({
                     <button
                       type="button"
                       onClick={() => onScrollToField(code)}
-                      className="text-blue-700 dark:text-blue-400 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded px-0.5"
+                      className="inline-flex min-h-k-touch items-center rounded-k px-1 font-mono text-k-help font-semibold text-blue-800 hover:underline dark:text-blue-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                       title={`Jump to field ${code}`}
                     >
                       {code}
@@ -349,10 +365,10 @@ const WireLedger: React.FC<{ payloadStr: string; sourcePayload?: string | null }
               type="button"
               onClick={() => setShowSource(wantsSource)}
               aria-pressed={showSource === wantsSource}
-              className={`px-2 py-0.5 rounded border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 ${
+              className={`inline-flex h-k-touch items-center rounded-k border px-3 text-k-help transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 ${
                 showSource === wantsSource
-                  ? "border-brand-500 bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300 font-medium"
-                  : "border-gray-200 dark:border-dark-border text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-dark-surface2"
+                  ? "border-brand-500 bg-brand-50 font-semibold text-brand-800 dark:bg-brand-900/30 dark:text-brand-300"
+                  : "border-gray-200 text-gray-700 hover:bg-gray-50 dark:border-dark-border dark:text-gray-300 dark:hover:bg-dark-surface2"
               }`}
             >
               {label}

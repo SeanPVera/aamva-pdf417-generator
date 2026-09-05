@@ -53,3 +53,30 @@ describe("derived fields", () => {
     });
   });
 });
+
+describe("app-seeded values are not user data", () => {
+  // The app pre-fills a few structural elements on load. Counted as typing,
+  // they made a form nobody had touched report filled fields — so the
+  // unsaved-work prompt fired on every refresh of a blank page and Clear PII
+  // claimed to have cleared values that were never entered.
+  const seeds = { DDE: "N", DDF: "N", DDG: "N", DCG: "USA" };
+
+  test("an untouched seeded form holds no user data", () => {
+    expect(hasUserData({ ...seeds, DAJ: "CA" }, seeds)).toBe(false);
+    expect(userEnteredCodes({ ...seeds, DAJ: "CA" }, seeds)).toEqual([]);
+  });
+
+  test("a seeded code counts once the user changes it", () => {
+    expect(hasUserData({ ...seeds, DCG: "CAN" }, seeds)).toBe(true);
+    expect(userEnteredCodes({ ...seeds, DCG: "CAN" }, seeds)).toEqual(["DCG"]);
+  });
+
+  test("anything the user types alongside the seeds still counts", () => {
+    expect(hasUserData({ ...seeds, DCS: "DOE" }, seeds)).toBe(true);
+    expect(userEnteredCodes({ ...seeds, DCS: "DOE" }, seeds)).toEqual(["DCS"]);
+  });
+
+  test("without the seed map every filled code counts, as before", () => {
+    expect(hasUserData({ ...seeds })).toBe(true);
+  });
+});

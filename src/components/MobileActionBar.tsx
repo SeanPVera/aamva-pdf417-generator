@@ -1,7 +1,19 @@
 import React from "react";
-import { AlertCircle, FileImage, Loader2, PencilLine } from "lucide-react";
+import {
+  AlertCircle,
+  FileImage,
+  Loader2,
+  PencilLine,
+  Settings2,
+  List,
+  ScanLine
+} from "lucide-react";
+
+type MobilePanel = "config" | "form" | "preview";
 
 interface MobileActionBarProps {
+  panel: MobilePanel;
+  onPanelChange: (panel: MobilePanel) => void;
   /** Errors currently blocking generation. */
   errorCount: number;
   /** Required fields still empty. */
@@ -15,14 +27,16 @@ interface MobileActionBarProps {
 }
 
 /**
- * A status-and-action strip pinned to the bottom of the mobile layout.
+ * Bottom kiosk chrome on phones: panel switcher plus the next action.
  *
- * On phones the three panels are mutually exclusive, so the form gives no sign
- * of whether the barcode is ready and the export buttons live one tab away.
- * This puts the answer and the button in the same place, above the home
- * indicator, without touching the desktop layout.
+ * The three panels used to live in a 48px tab row *above* the form, on top of
+ * the header, the step strip and the filter bar — that stack is what left the
+ * first input at 51% of an 844px screen. Putting the tabs here (where thumbs
+ * already are) is the remaining half of direction D.
  */
 export const MobileActionBar: React.FC<MobileActionBarProps> = ({
+  panel,
+  onPanelChange,
   errorCount,
   emptyRequired,
   stale,
@@ -32,58 +46,87 @@ export const MobileActionBar: React.FC<MobileActionBarProps> = ({
 }) => {
   const blocked = errorCount > 0 || emptyRequired > 0;
 
+  const tabs: Array<{ key: MobilePanel; label: string; icon: React.ReactNode; badge?: string }> = [
+    { key: "config", label: "Setup", icon: <Settings2 size={16} aria-hidden /> },
+    {
+      key: "form",
+      label: "Form",
+      icon: <List size={16} aria-hidden />,
+      badge: errorCount > 0 ? (errorCount > 9 ? "9+" : String(errorCount)) : undefined
+    },
+    {
+      key: "preview",
+      label: "Barcode",
+      icon: <ScanLine size={16} aria-hidden />,
+      badge: ready && !blocked ? "✓" : undefined
+    }
+  ];
+
   return (
-    <div className="mobile-action-bar lg:hidden" role="region" aria-label="Barcode status">
-      <div className="flex items-center gap-2 px-3 py-2">
-        <span className="flex min-w-0 flex-1 items-center gap-1.5 text-xs font-medium">
-          {stale ? (
-            <>
-              <Loader2 size={13} className="shrink-0 animate-spin text-gray-400" aria-hidden />
-              <span className="truncate text-gray-500 dark:text-gray-400">Encoding…</span>
-            </>
-          ) : errorCount > 0 ? (
-            <>
-              <AlertCircle size={13} className="shrink-0 text-red-500" aria-hidden />
-              <span className="truncate text-red-600 dark:text-red-400">
-                {errorCount} error{errorCount === 1 ? "" : "s"}
-              </span>
-            </>
-          ) : emptyRequired > 0 ? (
-            <>
-              <PencilLine size={13} className="shrink-0 text-amber-500" aria-hidden />
-              <span className="truncate text-amber-700 dark:text-amber-400">
-                {emptyRequired} required field{emptyRequired === 1 ? "" : "s"} left
-              </span>
-            </>
-          ) : ready ? (
-            <span className="truncate text-green-700 dark:text-green-400">Barcode ready</span>
-          ) : (
-            <span className="truncate text-gray-500 dark:text-gray-400">
-              Fill the form to start
-            </span>
-          )}
-        </span>
+    <div className="mobile-action-bar lg:hidden" role="region" aria-label="Kiosk navigation">
+      <div className="flex items-center gap-2 px-2 py-2">
+        <nav aria-label="Mobile panels" className="grid min-w-0 flex-1 grid-cols-3 gap-1">
+          {tabs.map((tab) => (
+            <button
+              key={tab.key}
+              type="button"
+              onClick={() => onPanelChange(tab.key)}
+              aria-current={panel === tab.key ? "page" : undefined}
+              className={`relative inline-flex h-k-touch items-center justify-center gap-1 rounded-k px-1 text-k-help font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 ${
+                panel === tab.key
+                  ? "state-primary-bg text-white"
+                  : "bg-gray-100 text-gray-800 dark:bg-dark-surface2 dark:text-gray-100"
+              }`}
+            >
+              {tab.icon}
+              <span>{tab.label}</span>
+              {tab.badge && (
+                <span
+                  className={`absolute -right-0.5 -top-0.5 min-w-4 rounded-full px-1 text-[10px] leading-4 ${
+                    tab.key === "form" && errorCount > 0
+                      ? "bg-red-600 text-white"
+                      : "bg-green-600 text-white"
+                  }`}
+                >
+                  {tab.badge}
+                </span>
+              )}
+            </button>
+          ))}
+        </nav>
 
         {blocked ? (
           <button
             type="button"
             onClick={onFixNext}
-            className="shrink-0 rounded-md bg-gray-100 px-3 py-1.5 text-xs font-semibold text-gray-800 transition-colors hover:bg-gray-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 dark:bg-dark-surface2 dark:text-gray-100 dark:hover:bg-[#383838]"
+            className="inline-flex h-k-touch shrink-0 items-center gap-1.5 rounded-k bg-gray-900 px-3 text-k-help font-bold text-white dark:bg-gray-100 dark:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           >
-            {errorCount > 0 ? "Fix next" : "Next field"}
+            {errorCount > 0 ? (
+              <>
+                <AlertCircle size={15} aria-hidden />
+                Fix
+              </>
+            ) : (
+              <>
+                <PencilLine size={15} aria-hidden />
+                Next
+              </>
+            )}
           </button>
+        ) : stale ? (
+          <span className="inline-flex h-k-touch shrink-0 items-center gap-1.5 px-2 text-k-help text-gray-500">
+            <Loader2 size={15} className="animate-spin" aria-hidden />
+            Encoding
+          </span>
         ) : (
           <button
             type="button"
             onClick={onExport}
             disabled={!ready || stale}
-            // Distinct from the preview panel's "Export barcode as PNG": both
-            // are in the DOM at mobile widths, and two controls answering to
-            // one name is ambiguous to anyone navigating by accessible name.
             aria-label="Quick export barcode as PNG"
-            className="shrink-0 inline-flex items-center gap-1.5 rounded-md bg-brand-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            className="inline-flex h-k-touch shrink-0 items-center gap-1.5 rounded-k bg-brand-700 px-3 text-k-help font-bold text-white hover:bg-brand-800 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           >
-            <FileImage size={13} aria-hidden />
+            <FileImage size={15} aria-hidden />
             PNG
           </button>
         )}

@@ -42,7 +42,11 @@ function injectSwPrecacheManifest(): Plugin {
       const manifest: string[] = [];
       for (const entry of fs.readdirSync(assetsDir, { withFileTypes: true })) {
         if (!entry.isFile()) continue;
-        if (!/\.(?:js|css)$/.test(entry.name)) continue;
+        // Fonts join the precache deliberately. `handleAsset` is cache-first
+        // and would pick them up opportunistically, but only after a request
+        // that succeeded — an installed iOS app whose first launch is offline
+        // would otherwise sit on the fallback face with no way to recover.
+        if (!/\.(?:js|css|woff2)$/.test(entry.name)) continue;
         manifest.push('./assets/' + entry.name);
       }
       manifest.sort();

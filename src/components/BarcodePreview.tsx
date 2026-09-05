@@ -506,7 +506,7 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
               onClick={() => setExpanded(true)}
               title="Expand the payload, decode, and validation views"
               aria-label="Expand inspector"
-              className="p-1 rounded text-gray-500 hover:text-brand-600 dark:text-gray-400 dark:hover:text-brand-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+              className="inline-flex h-k-touch w-k-touch items-center justify-center rounded-k text-gray-600 hover:bg-gray-100 hover:text-brand-700 dark:text-gray-300 dark:hover:bg-dark-surface2 dark:hover:text-brand-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
             >
               <Maximize2 size={14} />
             </button>

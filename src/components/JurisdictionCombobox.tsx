@@ -176,7 +176,7 @@ export const JurisdictionCombobox: React.FC<JurisdictionComboboxProps> = ({
           }}
           onFocus={() => setOpen(true)}
           onKeyDown={handleKeyDown}
-          className="w-full border-gray-300 dark:border-[#555] dark:bg-dark-surface2 dark:text-gray-100 rounded-lg shadow-sm focus:ring-brand-500 focus:border-brand-500 text-sm p-2.5 pr-16 border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          className="h-k-control min-h-k-touch w-full rounded-k border border-gray-300 bg-white pr-16 pl-4 text-k-value text-gray-900 shadow-sm transition-colors focus:border-brand-500 focus:ring-brand-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 dark:border-[#555] dark:bg-dark-surface2 dark:text-gray-100"
         />
         {open && (
           <Search
@@ -193,7 +193,7 @@ export const JurisdictionCombobox: React.FC<JurisdictionComboboxProps> = ({
               setQuery("");
               inputRef.current?.focus();
             }}
-            className="absolute right-8 top-1/2 -translate-y-1/2 p-0.5 rounded text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            className="absolute right-10 top-1/2 inline-flex h-k-touch w-k-touch -translate-y-1/2 items-center justify-center rounded-k text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           >
             <XIcon size={14} />
           </button>
@@ -206,7 +206,7 @@ export const JurisdictionCombobox: React.FC<JurisdictionComboboxProps> = ({
             setOpen((v) => !v);
             inputRef.current?.focus();
           }}
-          className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 rounded text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+          className="absolute right-1 top-1/2 inline-flex h-k-touch w-k-touch -translate-y-1/2 items-center justify-center rounded-k text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
         >
           <ChevronsUpDown size={14} />
         </button>
@@ -246,7 +246,7 @@ export const JurisdictionCombobox: React.FC<JurisdictionComboboxProps> = ({
                       data-active={isActive}
                       onMouseEnter={() => setActiveIndex(index)}
                       onClick={() => commit(option)}
-                      className={`flex items-center justify-between gap-2 px-3 py-1.5 text-sm cursor-pointer ${
+                      className={`flex min-h-k-touch items-center justify-between gap-2 px-3 text-k-label cursor-pointer ${
                         isActive ? "bg-brand-50 dark:bg-brand-900/30" : ""
                       } ${
                         option.supported

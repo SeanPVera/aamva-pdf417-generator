@@ -19,8 +19,9 @@ const STEPS: Step[] = [
     icon: <Sparkles size={18} />,
     body: (
       <>
-        Use the <strong>Configuration</strong> sidebar to choose a jurisdiction and AAMVA version.
-        The form rebuilds itself for that combination, including any state-specific exclusions.
+        Use the <strong>Setup</strong> panel to pick a jurisdiction and AAMVA version. On a phone
+        that lives in the bottom tab; on a desk it is the left column. The form rebuilds itself for
+        that combination, including any state-specific exclusions.
       </>
     )
   },
@@ -29,13 +30,12 @@ const STEPS: Step[] = [
     icon: <Search size={18} />,
     body: (
       <>
-        Fields are organized into <strong>Identity</strong>, <strong>Address</strong>,{" "}
-        <strong>License Details</strong>, and more. Use{" "}
+        One section at a time, behind the <strong>step rail</strong>. Identity, Address, License
+        Details — work a rung, then the next. Search with{" "}
         <kbd className="px-1 py-0.5 rounded border bg-gray-100 dark:bg-gray-700 text-[11px] font-mono">
           Ctrl+K
         </kbd>{" "}
-        to search by code or label, or click <em>Required only</em> to focus on what blocks
-        generation.
+        to bring every match back onto one screen.
       </>
     )
   },
@@ -122,7 +122,7 @@ const WelcomeTourBody: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             type="button"
             onClick={onClose}
             aria-label="Skip tour"
-            className="p-1 rounded hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-600 dark:text-gray-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            className="inline-flex h-k-touch w-k-touch items-center justify-center rounded-k text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-dark-surface2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           >
             <X size={16} />
           </button>
@@ -150,7 +150,7 @@ const WelcomeTourBody: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               onClick={() => setStep((s) => Math.max(0, s - 1))}
               disabled={step === 0}
               aria-label="Previous step"
-              className="inline-flex items-center gap-1 px-2 py-1 rounded text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-dark-surface2 disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+              className="inline-flex h-k-touch items-center gap-1 rounded-k px-3 text-k-label text-gray-700 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40 dark:text-gray-200 dark:hover:bg-dark-surface2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
             >
               <ChevronLeft size={14} />
               Back
@@ -159,7 +159,7 @@ const WelcomeTourBody: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               <button
                 type="button"
                 onClick={onClose}
-                className="inline-flex items-center gap-1 px-3 py-1 rounded bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                className="inline-flex h-k-touch items-center gap-1 rounded-k bg-brand-600 px-4 text-k-label font-semibold text-white hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
               >
                 Get started
               </button>
@@ -167,7 +167,7 @@ const WelcomeTourBody: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               <button
                 type="button"
                 onClick={() => setStep((s) => Math.min(STEPS.length - 1, s + 1))}
-                className="inline-flex items-center gap-1 px-3 py-1 rounded bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                className="inline-flex h-k-touch items-center gap-1 rounded-k bg-brand-600 px-4 text-k-label font-semibold text-white hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
               >
                 Next
                 <ChevronRight size={14} />

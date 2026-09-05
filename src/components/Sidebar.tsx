@@ -17,6 +17,8 @@ const VersionBrowser = React.lazy(() =>
 
 interface SidebarProps {
   mobileHidden?: boolean;
+  /** The step rail, which shares this column on desktop rather than taking a fourth. */
+  children?: React.ReactNode;
 }
 
 // The territories actually present in AAMVA_STATES. The previous inline list
@@ -24,7 +26,7 @@ interface SidebarProps {
 // branch could never be taken.
 const US_TERRITORY_CODES = new Set(["AS", "GU", "VI", "PR"].filter((code) => code in AAMVA_STATES));
 
-export const Sidebar: React.FC<SidebarProps> = ({ mobileHidden = false }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ mobileHidden = false, children }) => {
   const {
     state,
     version,
@@ -79,10 +81,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileHidden = false }) => {
       className={`state-themed-sidebar dmv-sidebar w-full lg:w-64 bg-white dark:bg-dark-surface border-b lg:border-b-0 lg:border-r border-gray-200 dark:border-dark-border z-10 flex flex-col max-h-[45vh] lg:max-h-none overflow-y-auto p-4 shadow-sm ${
         mobileHidden ? "hidden lg:flex" : "flex"
       }`}
-      aria-label="Configuration"
+      aria-label="Sections and settings"
     >
-      <h2 className="text-lg font-medium tracking-tight text-gray-900 dark:text-gray-100 mb-4">
-        Configuration
+      {/* The step rail is the primary navigation for the form, so it goes
+          first. Placed after the jurisdiction settings it was landing below the
+          fold on a 950px-tall window — present, correct, and invisible. */}
+      {children}
+
+      <h2 className="mb-4 mt-1 text-k-label font-bold tracking-tight text-gray-900 dark:text-gray-100">
+        Settings
       </h2>
 
       <div className="space-y-4 flex-1">
@@ -117,7 +124,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileHidden = false }) => {
               type="button"
               onClick={() => setExclusionsDismissed(true)}
               aria-label="Dismiss exclusion notice"
-              className="shrink-0 text-blue-700 dark:text-blue-300 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded"
+              className="inline-flex h-k-touch w-k-touch shrink-0 items-center justify-center rounded-k text-k-help font-bold text-blue-800 hover:bg-blue-100 dark:text-blue-200 dark:hover:bg-blue-900/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
             >
               OK
             </button>
@@ -137,7 +144,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileHidden = false }) => {
               <button
                 type="button"
                 onClick={() => setStateVersion(state, defaultVersion)}
-                className="text-xs font-medium text-brand-600 dark:text-brand-400 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded"
+                className="inline-flex min-h-k-touch items-center rounded-k text-k-help font-medium text-brand-600 dark:text-brand-400 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                 title={`Reset to ${state}'s default version (${defaultVersion})`}
               >
                 Reset to v{defaultVersion}
@@ -148,7 +155,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileHidden = false }) => {
             id="version-select"
             value={version}
             onChange={handleVersionChange}
-            className="w-full border-gray-300 dark:border-[#555] dark:bg-dark-surface2 dark:text-gray-100 rounded-lg shadow-sm focus:ring-brand-500 focus:border-brand-500 text-sm p-2.5 border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            className="h-k-control w-full rounded-k border border-gray-300 bg-white px-3 text-k-value text-gray-900 shadow-sm transition-colors focus:border-brand-500 focus:ring-brand-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 dark:border-[#555] dark:bg-dark-surface2 dark:text-gray-100"
             aria-label="Select AAMVA version"
           >
             {AAMVA_VERSION_KEYS.map((v) => {
@@ -175,7 +182,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileHidden = false }) => {
             id="subfile-select"
             value={subfileType}
             onChange={(e) => setSubfileType(e.target.value as "DL" | "ID")}
-            className="w-full border-gray-300 dark:border-[#555] dark:bg-dark-surface2 dark:text-gray-100 rounded-lg shadow-sm focus:ring-brand-500 focus:border-brand-500 text-sm p-2.5 border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            className="h-k-control w-full rounded-k border border-gray-300 bg-white px-3 text-k-value text-gray-900 shadow-sm transition-colors focus:border-brand-500 focus:ring-brand-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 dark:border-[#555] dark:bg-dark-surface2 dark:text-gray-100"
             aria-label="Select subfile type"
           >
             <option value="DL">Driver's License (DL)</option>
@@ -184,18 +191,18 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileHidden = false }) => {
         </div>
 
         {/* Strict Mode */}
-        <div className="flex items-center pt-1">
+        <div className="flex min-h-k-touch items-center pt-1">
           <input
             id="strictMode"
             type="checkbox"
             checked={strictMode}
             onChange={(e) => setStrictMode(e.target.checked)}
-            className="h-4 w-4 text-brand-600 focus:ring-brand-500 border-gray-300 dark:border-[#555] dark:bg-dark-surface2 transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-1 focus-visible:ring-offset-white dark:focus-visible:ring-offset-dark-surface"
+            className="h-5 w-5 text-brand-600 focus:ring-brand-500 border-gray-300 dark:border-[#555] dark:bg-dark-surface2 transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-1 focus-visible:ring-offset-white dark:focus-visible:ring-offset-dark-surface"
             aria-describedby="strictMode-desc"
           />
           <label
             htmlFor="strictMode"
-            className="ml-2 block text-sm text-gray-900 dark:text-gray-200"
+            className="ml-2 block text-k-label text-gray-900 dark:text-gray-200"
           >
             Strict Compliance Mode
           </label>
@@ -206,7 +213,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileHidden = false }) => {
             aria-controls="validation-tips"
             aria-label="Show validation tips"
             title="What does strict mode enforce?"
-            className="ml-1.5 p-0.5 rounded text-gray-400 hover:text-brand-500 dark:hover:text-brand-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            className="ml-1.5 inline-flex h-k-touch w-k-touch items-center justify-center rounded-k text-gray-400 hover:text-brand-500 dark:hover:text-brand-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           >
             <HelpCircle size={14} />
           </button>

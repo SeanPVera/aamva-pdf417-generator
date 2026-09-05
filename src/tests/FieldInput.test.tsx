@@ -107,20 +107,107 @@ describe("FieldInput — field help popover", () => {
 });
 
 describe("FieldInput — enumerated fields", () => {
-  const withOptions: AAMVAField = {
-    ...SEX,
-    options: [
-      { value: "M", label: "M — Male" },
-      { value: "F", label: "F — Female" }
-    ]
-  };
+  test("Sex (DBC) is a 1 / 2 / 9 selector with definitions on the chips", () => {
+    renderField(SEX);
+    const male = screen.getByRole("radio", { name: /sex of record: male/i });
+    const female = screen.getByRole("radio", { name: /sex of record: female/i });
+    const unspecified = screen.getByRole("radio", { name: /not specified/i });
+    expect(male).toHaveAttribute("title", expect.stringMatching(/barcode/i));
+    expect(female).toHaveAttribute("aria-checked", "false");
+    expect(unspecified).toHaveAttribute("title", expect.stringMatching(/not a third sex/i));
+  });
 
-  test("an empty select shows its placeholder instead of transparent text", () => {
-    renderField(withOptions);
-    const select = screen.getByRole("combobox");
-    // `text-transparent` made the control read as an empty box with no hint
-    // that it held a list at all.
-    expect(select.className).not.toContain("text-transparent");
-    expect(screen.getByRole("option", { name: /select/i })).toBeInTheDocument();
+  test("picking a Sex chip writes the AAMVA code", () => {
+    const { onChange } = renderField(SEX);
+    fireEvent.click(screen.getByRole("radio", { name: /sex of record: male/i }));
+    expect(onChange).toHaveBeenCalledWith("DBC", "1");
+  });
+
+  test("REAL ID / Compliance Type is F / N with what those letters mean", () => {
+    const { onChange } = renderField({
+      code: "DDA",
+      label: "REAL ID / Compliance Type",
+      type: "string"
+    });
+    const realId = screen.getByRole("radio", { name: /meets the REAL ID Act/i });
+    const limits = screen.getByRole("radio", { name: /FEDERAL LIMITS APPLY/i });
+    expect(realId).toHaveAttribute("title", expect.stringMatching(/TSA/i));
+    expect(limits).toHaveAttribute("title", expect.stringMatching(/not a REAL ID/i));
+    const omit = screen.getByRole("radio", { name: /^omit$/i });
+    expect(omit).toHaveAttribute("title", expect.stringMatching(/omit this element/i));
+    fireEvent.click(realId);
+    expect(onChange).toHaveBeenCalledWith("DDA", "F");
+  });
+
+  test("Eye Color (DAY) is a code selector with what each code means", () => {
+    const { onChange } = renderField({
+      code: "DAY",
+      label: "Eye Color",
+      type: "string",
+      required: true
+    });
+    const brown = screen.getByRole("radio", { name: /eye color: brown/i });
+    const dichromatic = screen.getByRole("radio", { name: /heterochromia/i });
+    expect(brown).toHaveAttribute("title", expect.stringMatching(/BRO/));
+    expect(dichromatic).toHaveAttribute("title", expect.stringMatching(/DIC/));
+    expect(screen.queryByRole("combobox")).not.toBeInTheDocument();
+    expect(screen.queryByRole("radio", { name: /^omit$/i })).not.toBeInTheDocument();
+    fireEvent.click(brown);
+    expect(onChange).toHaveBeenCalledWith("DAY", "BRO");
+  });
+
+  test("Hair Color (DAZ) is a code selector and can be omitted", () => {
+    const { onChange } = renderField({
+      code: "DAZ",
+      label: "Hair Color",
+      type: "string"
+    });
+    const blond = screen.getByRole("radio", { name: /hair color: blond/i });
+    expect(blond).toHaveAttribute("title", expect.stringMatching(/BLN/));
+    const omit = screen.getByRole("radio", { name: /^omit$/i });
+    expect(omit).toHaveAttribute("title", expect.stringMatching(/omit this element/i));
+    fireEvent.click(blond);
+    expect(onChange).toHaveBeenCalledWith("DAZ", "BLN");
+  });
+
+  test("empty Height offers 5'9\" as 069 IN", () => {
+    const { onChange } = renderField({
+      code: "DAU",
+      label: "Height",
+      type: "string",
+      required: true
+    });
+    fireEvent.click(screen.getByRole("button", { name: /5'9".*069 IN/i }));
+    expect(onChange).toHaveBeenCalledWith("DAU", "069 IN");
+  });
+
+  test("Vehicle Class chips write AAMVA codes without locking the input", () => {
+    const { onChange } = renderField({
+      code: "DCA",
+      label: "Vehicle Class",
+      type: "string",
+      required: true
+    });
+    expect(screen.getByRole("textbox")).toBeInTheDocument();
+    const cdl = screen.getByRole("button", { name: /Class A — combination/i });
+    expect(cdl).toHaveAttribute("title", expect.stringMatching(/CDL/));
+    fireEvent.click(cdl);
+    expect(onChange).toHaveBeenCalledWith("DCA", "A");
+  });
+
+  test("Endorsement chips include NONE and H hazmat", () => {
+    const { onChange } = renderField({
+      code: "DCD",
+      label: "Endorsement Codes",
+      type: "string",
+      required: true
+    });
+    // Anchored: "X tank+hazmat" is "Combination tank and hazardous materials",
+    // so an unanchored /hazardous materials/ matches two chips.
+    expect(screen.getByRole("button", { name: /^Set DCD: No endorsements/i })).toBeInTheDocument();
+    fireEvent.click(
+      screen.getByRole("button", { name: /^Set DCD: Hazardous materials endorsement/i })
+    );
+    expect(onChange).toHaveBeenCalledWith("DCD", "H");
   });
 });

@@ -14,26 +14,51 @@ export const FIELD_HELP: Record<string, string> = {
     "Card Revision Date — the date the physical card design was last updated. " +
     "The Gen button infers this from the issue date and the state's known era ranges.",
   DDA:
-    "Compliance Type — F means a REAL ID (federally compliant); N means " +
-    "non-compliant (cannot be used for federal access purposes after enforcement).",
+    "REAL ID / Compliance Type (DDA) is one character on the barcode. " +
+    "F — Fully Compliant — this is a REAL ID. TSA and federal facilities accept it for domestic air travel and building access. " +
+    "N — Non-Compliant — not a REAL ID. Valid as a state DL/ID, but typically marked FEDERAL LIMITS APPLY on the face, and not accepted at TSA or federal buildings after enforcement. " +
+    "Encode F or N; do not write the words.",
   DDE: "Family Name Truncation — T = truncated to fit, N = not truncated, U = unknown.",
   DDF: "First Name Truncation — T = truncated to fit, N = not truncated, U = unknown.",
   DDG: "Middle Name Truncation — T = truncated to fit, N = not truncated, U = unknown.",
   DBC:
-    "Sex — the barcode carries a code, not a word. Version 04 and later use the " +
-    "digits 1 = male, 2 = female, 9 = not specified. Version 01 predates that " +
-    "scheme and uses M / F instead. Enter the code itself, e.g. 1.",
+    "Sex (DBC) is the AAMVA sex of record on the barcode — not a gender-identity field. " +
+    "Version 03 and later encode digits: 1 = male, 2 = female, 9 = not specified " +
+    "(the jurisdiction did not encode male or female; 9 is not a third sex). " +
+    "Version 01 (2000) predates that scheme and uses M / F instead. " +
+    "A reader that expects 1/2/9 will reject M/F on a v10 card.",
   DCG: "Country Identification — three-letter code; almost always USA for US credentials.",
   DCL:
     "Race / Ethnicity — optional on most jurisdictions and excluded entirely on " +
     "many states (NY, CT, VT, ME, NH, and others).",
+  DAY:
+    "Eye Color (DAY) is a three-letter AAMVA code, not the English word. " +
+    "BLK black, BLU blue, BRO brown, GRY gray, GRN green, HAZ hazel, " +
+    "MAR maroon, PNK pink, DIC dichromatic (two different colors), UNK unknown. " +
+    "Required on version 02 and later — pick UNK if it was not recorded.",
+  DAZ:
+    "Hair Color (DAZ) is a three-letter AAMVA code, not the English word. " +
+    "BAL bald, BLK black, BLN blond, BRO brown, GRY gray, RED red/auburn, " +
+    "SDY sandy, WHI white, UNK unknown. Optional — omit it if the jurisdiction does not encode it.",
   DAU:
-    "Height — encoded as a 3-digit number followed by a unit, e.g. 069 IN " + "(5'9\") or 175 CM.",
-  DAW: "Weight in pounds, zero-padded to three digits, e.g. 180.",
+    "Height — encoded as a 3-digit number followed by a unit, e.g. 069 IN " +
+    "(5'9\") or 175 CM. Pick a chip or type it.",
+  DAW: "Weight in pounds, zero-padded to three digits, e.g. 180. Pick a chip or type it.",
   DAX: "Weight in kilograms, zero-padded to three digits.",
-  DCA: "Vehicle Class — the licensee's class designation (e.g. C, A, M).",
-  DCB: 'Restriction Codes — use the "None" button if no restrictions apply.',
-  DCD: 'Endorsement Codes — use the "None" button if no endorsements apply.',
+  DCA:
+    "Vehicle Class — the licensee's class designation. A and B are CDL " +
+    "(combination / heavy single). C, D, and E are the regular automobile class, " +
+    "depending on the state (CA uses C, TX uses D, NY/FL often E). M is motorcycle. " +
+    "Combine as AM, DM, etc. ID cards use NONE. Pick a chip or type the jurisdiction's code.",
+  DCB:
+    "Restriction Codes (DCB) use AAMVA D20 letters, not the numbers some states print on the face. " +
+    "B lenses, C mechanical, D prosthetic, E automatic, F outside mirror, G daylight, " +
+    "K intrastate, L/Z air brake, T ignition interlock, NONE if none apply. " +
+    "Codes can stack; type a combination if a chip is only one letter.",
+  DCD:
+    "Endorsement Codes — H hazmat, N tank, P passenger, S school bus, T doubles, X tank+hazmat. " +
+    "Use NONE if none apply.",
+  DCU: "Name Suffix — JR, SR, I, II, III, IV, V. Optional; omit if the name has no suffix.",
   DBA: "Expiration Date — must be after the issue date and within the state's max validity window.",
   DBB: "Date of Birth — used for age-at-issuance checks (must be ≥14 at issuance).",
   DBD: "Document Issue Date — the date this physical card was issued.",

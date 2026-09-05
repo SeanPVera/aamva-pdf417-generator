@@ -3,6 +3,10 @@ import { getJurisdictionSubfileElements } from "./jurisdictionRules";
 export interface FieldOption {
   value: string;
   label: string;
+  /** Native title / chip tooltip — what the code means on a real credential. */
+  description?: string;
+  /** CSS color (or `left|right` split) drawn as a swatch on the chip. */
+  swatch?: string;
 }
 
 export interface AAMVAField {
@@ -20,9 +24,9 @@ export interface AAMVAField {
    */
   subfile?: "jurisdiction";
   /**
-   * Per-field length cap for elements outside `AAMVA_FIELD_LIMITS`. Standard
-   * codes keep their limit in that table; this exists for jurisdiction-defined
-   * elements, whose codes are only meaningful within one jurisdiction.
+   * Optional override of the shared `AAMVA_FIELD_LIMITS` cap. Used for
+   * jurisdiction-defined elements (whose codes are not in that table) and
+   * for version-specific widths that tighten a shared entry.
    */
   maxLength?: number;
 }
@@ -143,85 +147,296 @@ export function getFieldGroup(code: string): FieldGroupId {
 
 export const AAMVA_FIELD_OPTIONS: Record<string, FieldOption[]> = {
   DBC: [
-    { value: "1", label: "1 — Male" },
-    { value: "2", label: "2 — Female" },
-    { value: "9", label: "9 — Not Specified" }
+    {
+      value: "1",
+      label: "1 — Male",
+      description:
+        "AAMVA sex of record: male. This is the code in the barcode, not a gender-identity field."
+    },
+    {
+      value: "2",
+      label: "2 — Female",
+      description:
+        "AAMVA sex of record: female. This is the code in the barcode, not a gender-identity field."
+    },
+    {
+      value: "9",
+      label: "9 — Not specified",
+      description:
+        "The jurisdiction did not encode male or female. 9 is not a third sex — it means the field is not specified."
+    }
   ],
   DAY: [
-    { value: "BLK", label: "BLK — Black" },
-    { value: "BLU", label: "BLU — Blue" },
-    { value: "BRO", label: "BRO — Brown" },
-    { value: "GRY", label: "GRY — Gray" },
-    { value: "GRN", label: "GRN — Green" },
-    { value: "HAZ", label: "HAZ — Hazel" },
-    { value: "MAR", label: "MAR — Maroon" },
-    { value: "PNK", label: "PNK — Pink" },
-    { value: "DIC", label: "DIC — Dichromatic" },
-    { value: "UNK", label: "UNK — Unknown" }
+    {
+      value: "BLK",
+      label: "BLK — Black",
+      description: "AAMVA eye color: black. Encode BLK, not the word Black.",
+      swatch: "#1a1a1a"
+    },
+    {
+      value: "BLU",
+      label: "BLU — Blue",
+      description: "AAMVA eye color: blue. Encode BLU, not the word Blue.",
+      swatch: "#3b6ea5"
+    },
+    {
+      value: "BRO",
+      label: "BRO — Brown",
+      description: "AAMVA eye color: brown. Encode BRO, not the word Brown.",
+      swatch: "#6b3d1f"
+    },
+    {
+      value: "GRY",
+      label: "GRY — Gray",
+      description: "AAMVA eye color: gray. Encode GRY, not Grey or Gray.",
+      swatch: "#7a7a7a"
+    },
+    {
+      value: "GRN",
+      label: "GRN — Green",
+      description: "AAMVA eye color: green. Encode GRN, not the word Green.",
+      swatch: "#3d7a4a"
+    },
+    {
+      value: "HAZ",
+      label: "HAZ — Hazel",
+      description: "AAMVA eye color: hazel. Encode HAZ, not the word Hazel.",
+      swatch: "#8a6a3a"
+    },
+    {
+      value: "MAR",
+      label: "MAR — Maroon",
+      description: "AAMVA eye color: maroon. Encode MAR, not the word Maroon.",
+      swatch: "#6b1f2a"
+    },
+    {
+      value: "PNK",
+      label: "PNK — Pink",
+      description: "AAMVA eye color: pink. Encode PNK, not the word Pink.",
+      swatch: "#c97a8a"
+    },
+    {
+      value: "DIC",
+      label: "DIC — Dichromatic",
+      description:
+        "Two different eye colors (heterochromia). Encode DIC. AAMVA has no left/right split.",
+      swatch: "#3b6ea5|#6b3d1f"
+    },
+    {
+      value: "UNK",
+      label: "UNK — Unknown",
+      description: "Eye color was not recorded. Encode UNK, not a blank — this field is required.",
+      swatch: "transparent"
+    }
   ],
   DAZ: [
-    { value: "BAL", label: "BAL — Bald" },
-    { value: "BLK", label: "BLK — Black" },
-    { value: "BLN", label: "BLN — Blond" },
-    { value: "BRO", label: "BRO — Brown" },
-    { value: "GRY", label: "GRY — Gray" },
-    { value: "RED", label: "RED — Red/Auburn" },
-    { value: "SDY", label: "SDY — Sandy" },
-    { value: "WHI", label: "WHI — White" },
-    { value: "UNK", label: "UNK — Unknown" }
+    {
+      value: "BAL",
+      label: "BAL — Bald",
+      description: "AAMVA hair color: bald. Encode BAL, not the word Bald."
+    },
+    {
+      value: "BLK",
+      label: "BLK — Black",
+      description: "AAMVA hair color: black. Encode BLK, not the word Black.",
+      swatch: "#1a1a1a"
+    },
+    {
+      value: "BLN",
+      label: "BLN — Blond",
+      description: "AAMVA hair color: blond. Encode BLN, not Blonde or Blond.",
+      swatch: "#d4b86a"
+    },
+    {
+      value: "BRO",
+      label: "BRO — Brown",
+      description: "AAMVA hair color: brown. Encode BRO, not the word Brown.",
+      swatch: "#6b3d1f"
+    },
+    {
+      value: "GRY",
+      label: "GRY — Gray",
+      description: "AAMVA hair color: gray. Encode GRY, not Grey or Gray.",
+      swatch: "#9a9a9a"
+    },
+    {
+      value: "RED",
+      label: "RED — Red/Auburn",
+      description: "AAMVA hair color: red or auburn. Encode RED, not Auburn.",
+      swatch: "#a33a28"
+    },
+    {
+      value: "SDY",
+      label: "SDY — Sandy",
+      description: "AAMVA hair color: sandy. Encode SDY, not the word Sandy.",
+      swatch: "#c4a574"
+    },
+    {
+      value: "WHI",
+      label: "WHI — White",
+      description: "AAMVA hair color: white. Encode WHI, not the word White.",
+      swatch: "#f4f4f0"
+    },
+    {
+      value: "UNK",
+      label: "UNK — Unknown",
+      description: "Hair color was not recorded. Encode UNK, or omit the field — it is optional.",
+      swatch: "transparent"
+    }
   ],
   DCG: [
-    { value: "USA", label: "USA — United States" },
-    { value: "CAN", label: "CAN — Canada" },
-    { value: "MEX", label: "MEX — Mexico" }
+    {
+      value: "USA",
+      label: "USA — United States",
+      description: "Country of the credential: United States. Almost every US DL/ID encodes USA."
+    },
+    {
+      value: "CAN",
+      label: "CAN — Canada",
+      description: "Country of the credential: Canada."
+    },
+    {
+      value: "MEX",
+      label: "MEX — Mexico",
+      description: "Country of the credential: Mexico."
+    }
   ],
   DDE: [
-    { value: "T", label: "T — Truncated" },
-    { value: "N", label: "N — Not Truncated" },
-    { value: "U", label: "U — Unknown" }
+    {
+      value: "T",
+      label: "T — Truncated",
+      description: "The name was cut to fit the field length."
+    },
+    { value: "N", label: "N — Not truncated", description: "The full name is in the barcode." },
+    { value: "U", label: "U — Unknown", description: "Truncation status was not recorded." }
   ],
   DDF: [
-    { value: "T", label: "T — Truncated" },
-    { value: "N", label: "N — Not Truncated" },
-    { value: "U", label: "U — Unknown" }
+    {
+      value: "T",
+      label: "T — Truncated",
+      description: "The name was cut to fit the field length."
+    },
+    { value: "N", label: "N — Not truncated", description: "The full name is in the barcode." },
+    { value: "U", label: "U — Unknown", description: "Truncation status was not recorded." }
   ],
   DDG: [
-    { value: "T", label: "T — Truncated" },
-    { value: "N", label: "N — Not Truncated" },
-    { value: "U", label: "U — Unknown" }
+    {
+      value: "T",
+      label: "T — Truncated",
+      description: "The name was cut to fit the field length."
+    },
+    { value: "N", label: "N — Not truncated", description: "The full name is in the barcode." },
+    { value: "U", label: "U — Unknown", description: "Truncation status was not recorded." }
   ],
   DDA: [
-    { value: "F", label: "F — Fully Compliant" },
-    { value: "N", label: "N — Non-Compliant" }
+    {
+      value: "F",
+      label: "F — REAL ID",
+      description:
+        "Fully Compliant. This card meets the REAL ID Act. TSA and federal facilities accept it for domestic air travel and building access."
+    },
+    {
+      value: "N",
+      label: "N — Federal limits apply",
+      description:
+        "Non-Compliant. Not a REAL ID. Valid as a state DL/ID, but not accepted at TSA checkpoints or federal buildings after enforcement. The face is typically marked FEDERAL LIMITS APPLY."
+    }
   ],
   DDK: [
-    { value: "1", label: "1 — Donor" },
-    { value: "0", label: "0 — Not a Donor" }
+    {
+      value: "1",
+      label: "1 — Donor",
+      description: "Organ donor. Encode 1 or 0; do not write the word."
+    },
+    { value: "0", label: "0 — Not a donor", description: "Not an organ donor." }
   ],
   DDL: [
-    { value: "1", label: "1 — Veteran" },
-    { value: "0", label: "0 — Not a Veteran" }
+    {
+      value: "1",
+      label: "1 — Veteran",
+      description: "Veteran. Encode 1 or 0; do not write the word."
+    },
+    { value: "0", label: "0 — Not a veteran", description: "Not a veteran." }
   ],
   DDD: [
-    { value: "1", label: "1 — Limited Duration" },
-    { value: "0", label: "0 — Not Limited Duration" }
+    {
+      value: "1",
+      label: "1 — Limited duration",
+      description: "Temporary / limited-duration document (for example a non-citizen term)."
+    },
+    { value: "0", label: "0 — Not limited duration", description: "Full-term credential." }
   ],
   DCL: [
-    { value: "AI", label: "AI — Alaskan/American Indian" },
-    { value: "AP", label: "AP — Asian/Pacific Islander" },
-    { value: "BK", label: "BK — Black" },
-    { value: "H", label: "H — Hispanic Origin" },
-    { value: "O", label: "O — Non-Hispanic" },
-    { value: "U", label: "U — Unknown" },
-    { value: "W", label: "W — White" }
+    {
+      value: "AI",
+      label: "AI — Alaskan/American Indian",
+      description:
+        "AAMVA race/ethnicity: Alaskan or American Indian. Many states omit this field entirely."
+    },
+    {
+      value: "AP",
+      label: "AP — Asian/Pacific Islander",
+      description: "AAMVA race/ethnicity: Asian or Pacific Islander."
+    },
+    {
+      value: "BK",
+      label: "BK — Black",
+      description: "AAMVA race/ethnicity: Black."
+    },
+    {
+      value: "H",
+      label: "H — Hispanic origin",
+      description: "AAMVA race/ethnicity: Hispanic origin."
+    },
+    {
+      value: "O",
+      label: "O — Non-Hispanic",
+      description: "AAMVA race/ethnicity: Non-Hispanic."
+    },
+    {
+      value: "U",
+      label: "U — Unknown",
+      description: "AAMVA race/ethnicity was not recorded."
+    },
+    {
+      value: "W",
+      label: "W — White",
+      description: "AAMVA race/ethnicity: White."
+    }
   ],
   // CDS 2025 document-type indicators. Each is, in the standard's words,
   // "either absent or has the following value" — so there is one option and
   // omitting the element is the other state.
-  DDM: [{ value: "1", label: "1 — CDL or CLP" }],
-  DDN: [{ value: "1", label: "1 — Non-domiciled" }],
-  DDO: [{ value: "1", label: "1 — Enhanced credential" }],
-  DDP: [{ value: "1", label: "1 — Permit" }]
+  DDM: [
+    {
+      value: "1",
+      label: "1 — CDL or CLP",
+      description:
+        "Commercial Driver's License or Commercial Learner's Permit. FMCSA-required. Omit when it is neither."
+    }
+  ],
+  DDN: [
+    {
+      value: "1",
+      label: "1 — Non-domiciled",
+      description:
+        "The CDL/CLP holder is not domiciled in the issuing jurisdiction. Only valid alongside DDM."
+    }
+  ],
+  DDO: [
+    {
+      value: "1",
+      label: "1 — Enhanced credential",
+      description: "Enhanced Driver License or Enhanced Identification Card."
+    }
+  ],
+  DDP: [
+    {
+      value: "1",
+      label: "1 — Permit",
+      description: "The credential is a permit (original, motorcycle, commercial, and so on)."
+    }
+  ]
 };
 
 export const AAMVA_FIELD_LIMITS: Record<string, number> = {
@@ -358,7 +573,7 @@ const V04_FIELDS: AAMVAField[] = [
   { code: "DAW", label: "Weight (pounds)", type: "string" },
   { code: "DAZ", label: "Hair Color", type: "string" },
   { code: "DCL", label: "Race/Ethnicity", type: "string" },
-  { code: "DDA", label: "Compliance Type", type: "string" },
+  { code: "DDA", label: "REAL ID / Compliance Type", type: "string" },
   { code: "DDB", label: "Card Revision Date", type: "date" }
 ];
 
@@ -452,8 +667,17 @@ export const AAMVA_VERSIONS: Record<string, AAMVAVersionDef> = {
         type: "char",
         required: true,
         options: [
-          { value: "M", label: "M — Male" },
-          { value: "F", label: "F — Female" }
+          {
+            value: "M",
+            label: "M — Male",
+            description: "AAMVA DL/ID-2000 sex of record: male. Later versions use 1 instead of M."
+          },
+          {
+            value: "F",
+            label: "F — Female",
+            description:
+              "AAMVA DL/ID-2000 sex of record: female. Later versions use 2 instead of F."
+          }
         ]
       },
       { code: "DBD", label: "Document Issue Date", type: "date", dateFormat: "YYYYMMDD" },
@@ -568,7 +792,7 @@ export const AAMVA_VERSIONS: Record<string, AAMVAVersionDef> = {
       { code: "DAW", label: "Weight (pounds)", type: "string" },
       { code: "DAZ", label: "Hair Color", type: "string" },
       { code: "DCL", label: "Race/Ethnicity", type: "string" },
-      { code: "DDA", label: "Compliance Type", type: "string" },
+      { code: "DDA", label: "REAL ID / Compliance Type", type: "string" },
       { code: "DDB", label: "Card Revision Date", type: "date" },
       { code: "DDK", label: "Organ Donor Indicator", type: "string" },
       { code: "DDL", label: "Veteran Indicator", type: "string" },
@@ -606,7 +830,7 @@ export const AAMVA_VERSIONS: Record<string, AAMVAVersionDef> = {
       { code: "DAW", label: "Weight (pounds)", type: "string" },
       { code: "DAZ", label: "Hair Color", type: "string" },
       { code: "DCL", label: "Race/Ethnicity", type: "string" },
-      { code: "DDA", label: "Compliance Type", type: "string" },
+      { code: "DDA", label: "REAL ID / Compliance Type", type: "string" },
       { code: "DDB", label: "Card Revision Date", type: "date" },
       { code: "DDK", label: "Organ Donor Indicator", type: "string" },
       { code: "DDL", label: "Veteran Indicator", type: "string" },
@@ -644,7 +868,7 @@ export const AAMVA_VERSIONS: Record<string, AAMVAVersionDef> = {
       { code: "DAW", label: "Weight (pounds)", type: "string" },
       { code: "DAZ", label: "Hair Color", type: "string" },
       { code: "DCL", label: "Race/Ethnicity", type: "string" },
-      { code: "DDA", label: "Compliance Type", type: "string" },
+      { code: "DDA", label: "REAL ID / Compliance Type", type: "string" },
       { code: "DDB", label: "Card Revision Date", type: "date" },
       { code: "DDK", label: "Organ Donor Indicator", type: "string" },
       { code: "DDL", label: "Veteran Indicator", type: "string" },
@@ -660,10 +884,11 @@ export const AAMVA_VERSIONS: Record<string, AAMVAVersionDef> = {
 /**
  * Version tokens in ascending order.
  *
- * `Object.keys(AAMVA_VERSIONS)` cannot be used for display: "10" is a canonical
- * integer-like key, so JavaScript hoists it ahead of the zero-padded string keys
- * "01".."09" and every dropdown built from it listed version 10 first. The keys
- * are all two-digit and zero-padded, so a plain lexicographic sort is correct.
+ * `Object.keys(AAMVA_VERSIONS)` cannot be used for display: "10" and "11" are
+ * canonical integer-like keys, so JavaScript hoists them ahead of the
+ * zero-padded string keys "01".."09" and every dropdown built from it listed
+ * version 10 first. The keys are all two-digit and zero-padded, so a plain
+ * lexicographic sort is correct.
  */
 export const AAMVA_VERSION_KEYS: readonly string[] = Object.keys(AAMVA_VERSIONS).sort();
 
@@ -695,7 +920,7 @@ const _EXCLUDED_SETS: Readonly<Record<string, ReadonlySet<string>>> = Object.fro
 );
 
 // Memoization cache for getFieldsForStateAndVersion — the set of (state, version) combos
-// is small and fixed at runtime, so this Map grows to at most ~54×10 = 540 entries.
+// is small and fixed at runtime, so this Map grows to at most ~54×11 = 594 entries.
 const _stateVersionFieldCache = new Map<string, AAMVAField[]>();
 
 export function getFieldsForStateAndVersion(stateCode: string, v: string): AAMVAField[] {

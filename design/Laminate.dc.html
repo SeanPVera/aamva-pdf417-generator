@@ -1,0 +1,255 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Courier+Prime:wght@400;700&display=swap">
+  <style>
+    body { margin: 0; font-family: "Archivo", "Helvetica Neue", system-ui, sans-serif; }
+    a { color: #0E4C8A; } a:hover { color: #08325C; }
+    .type { font-family: "Courier Prime", "Courier New", monospace; }
+    .guilloche {
+      background-image:
+        repeating-radial-gradient(circle at 20% 50%, rgba(0,58,112,0.09) 0 1px, transparent 1px 9px),
+        repeating-radial-gradient(circle at 78% 30%, rgba(242,169,0,0.10) 0 1px, transparent 1px 11px),
+        repeating-linear-gradient(58deg, rgba(0,38,74,0.05) 0 1px, transparent 1px 7px);
+    }
+    .box-label {
+      position: absolute; top: -7px; left: 9px; background: #FBFAF6; padding: 0 5px;
+      font-size: 9.5px; font-weight: 700; letter-spacing: 0.11em; color: #5A6674;
+    }
+  </style>
+</helmet>
+
+<div class="guilloche" style="width: 1440px; height: 900px; display: flex; flex-direction: column; background: #FBFAF6; color: #171C22; overflow: hidden;">
+
+  <!-- Security-print masthead, the way a real application form announces itself -->
+  <div style="background: #00264A; padding: 0; flex-shrink: 0; position: relative; overflow: hidden;">
+    <div style="position: absolute; inset: 0; background: linear-gradient(104deg, transparent 0 34%, rgba(255,255,255,0.07) 42%, rgba(242,169,0,0.16) 50%, rgba(255,255,255,0.06) 58%, transparent 66% 100%); pointer-events: none;"></div>
+    <div style="position: relative; display: flex; align-items: center; justify-content: space-between; padding: 13px 26px;">
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <span style="width: 38px; height: 38px; border-radius: 50%; border: 2px solid #F2A900; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F2A900" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 5 6v5.5c0 4 2.8 7.6 7 9 4.2-1.4 7-5 7-9V6z"></path><path d="m9.2 12 2 2 3.6-3.8"></path></svg></span>
+        <div style="display: flex; flex-direction: column; gap: 2px;">
+          <span style="color: #ffffff; font-size: 17px; font-weight: 700; letter-spacing: 0.02em;">AAMVA PDF417 GENERATOR</span>
+          <span class="type" style="color: #93AECB; font-size: 11px; letter-spacing: 0.05em;">FORM DL&#8209;417 &middot; REV. 09/2026 &middot; DL/ID&#8209;2020</span>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 20px;">
+        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 2px;">
+          <span class="type" style="color: #93AECB; font-size: 10px; letter-spacing: 0.13em;">ISSUING AUTHORITY</span>
+          <span style="color: #ffffff; font-size: 15px; font-weight: 700; letter-spacing: 0.03em;">CALIFORNIA &middot; 636014</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 7px;">
+          <span class="type" style="color: #00264A; background: #F2A900; font-size: 11px; font-weight: 700; padding: 5px 10px; letter-spacing: 0.07em;">v10</span>
+          <span class="type" style="color: #F2A900; border: 1px solid #3B5B7B; font-size: 11px; padding: 5px 10px; letter-spacing: 0.07em;">STRICT</span>
+        </div>
+      </div>
+    </div>
+    <div style="display: flex; height: 5px;">
+      <span style="flex-grow: 1; background: #F2A900;"></span>
+      <span style="flex-grow: 1; background: #00264A;"></span>
+      <span style="flex-grow: 1; background: #F2A900;"></span>
+      <span style="flex-grow: 1; background: #00264A;"></span>
+      <span style="flex-grow: 1; background: #F2A900;"></span>
+    </div>
+  </div>
+
+  <!-- Counter strip: the actions, styled as a service window -->
+  <div style="background: #EFEBE1; border-bottom: 1px solid #D3CBBB; display: flex; align-items: center; justify-content: space-between; padding: 0 26px; height: 40px; flex-shrink: 0;">
+    <div style="display: flex; align-items: center; gap: 22px;">
+      <span class="type" style="font-size: 11.5px; letter-spacing: 0.05em; color: #4A5461;">UNDO</span>
+      <span class="type" style="font-size: 11.5px; letter-spacing: 0.05em; color: #A69B89;">REDO</span>
+      <span style="width: 1px; height: 16px; background: #D3CBBB;"></span>
+      <span class="type" style="font-size: 11.5px; letter-spacing: 0.05em; color: #4A5461;">PRESETS</span>
+      <span class="type" style="font-size: 11.5px; letter-spacing: 0.05em; color: #4A5461;">BATCH</span>
+      <span class="type" style="font-size: 11.5px; letter-spacing: 0.05em; color: #4A5461;">COMPARE</span>
+      <span style="width: 1px; height: 16px; background: #D3CBBB;"></span>
+      <span class="type" style="font-size: 11.5px; letter-spacing: 0.05em; color: #4A5461;">SCAN</span>
+      <span class="type" style="font-size: 11.5px; letter-spacing: 0.05em; color: #4A5461;">IMPORT</span>
+      <span class="type" style="font-size: 11.5px; letter-spacing: 0.05em; color: #4A5461;">EXPORT</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <span class="type" style="font-size: 11.5px; letter-spacing: 0.05em; color: #4A5461;">NOW SERVING <strong style="font-weight: 700; color: #171C22;">A&#8209;047</strong></span>
+      <span class="type" style="font-size: 11.5px; letter-spacing: 0.06em; color: #92311F; border: 1px solid #C9A199; padding: 4px 9px;">CLEAR PII</span>
+    </div>
+  </div>
+
+  <div style="flex: 1; display: flex; gap: 0; min-height: 0;">
+
+    <!-- Application body: numbered boxes, the way a paper form is set -->
+    <div style="flex-grow: 1; min-width: 0; padding: 20px 24px; display: flex; flex-direction: column; gap: 16px;">
+
+      <div style="display: flex; align-items: baseline; justify-content: space-between; border-bottom: 1.5px solid #171C22; padding-bottom: 7px;">
+        <span style="font-size: 15px; font-weight: 800; letter-spacing: 0.05em;">SECTION A &mdash; CARDHOLDER PARTICULARS</span>
+        <span class="type" style="font-size: 11px; color: #5A6674;">PRINT CLEARLY IN CAPITALS</span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 15px;">
+        <div style="position: relative; border: 1.5px solid #9EA9B6; background: #ffffff; padding: 11px 11px 9px;">
+          <span class="box-label">1. DCS &middot; FAMILY NAME</span>
+          <span class="type" style="font-size: 17px; font-weight: 700; letter-spacing: 0.06em;">PUBLIC</span>
+        </div>
+        <div style="position: relative; border: 1.5px solid #9EA9B6; background: #ffffff; padding: 11px 11px 9px;">
+          <span class="box-label">2. DAC &middot; FIRST NAME</span>
+          <span class="type" style="font-size: 17px; font-weight: 700; letter-spacing: 0.06em;">JANE</span>
+        </div>
+        <div style="position: relative; border: 1.5px solid #9EA9B6; background: #ffffff; padding: 11px 11px 9px;">
+          <span class="box-label">3. DAD &middot; MIDDLE NAME</span>
+          <span class="type" style="font-size: 17px; font-weight: 700; letter-spacing: 0.06em;">QUINCY</span>
+        </div>
+        <div style="position: relative; border: 1.5px solid #9EA9B6; background: #ffffff; padding: 11px 11px 9px;">
+          <span class="box-label">4. DBB &middot; DATE OF BIRTH</span>
+          <span class="type" style="font-size: 17px; font-weight: 700; letter-spacing: 0.14em;">08 11 1990</span>
+        </div>
+        <div style="position: relative; border: 1.5px solid #9EA9B6; background: #ffffff; padding: 11px 11px 9px;">
+          <span class="box-label">5. DBC &middot; SEX</span>
+          <span class="type" style="font-size: 17px; font-weight: 700; letter-spacing: 0.06em;">2 &mdash; FEMALE</span>
+        </div>
+        <div style="position: relative; border: 1.5px solid #9EA9B6; background: #ffffff; padding: 11px 11px 9px;">
+          <span class="box-label">6. DDE &middot; NAME TRUNCATED</span>
+          <span class="type" style="font-size: 17px; font-weight: 700; letter-spacing: 0.06em;">N &mdash; NO</span>
+        </div>
+      </div>
+
+      <div style="display: flex; align-items: baseline; justify-content: space-between; border-bottom: 1.5px solid #171C22; padding-bottom: 7px; margin-top: 4px;">
+        <span style="font-size: 15px; font-weight: 800; letter-spacing: 0.05em;">SECTION B &mdash; RESIDENCE</span>
+        <span class="type" style="font-size: 11px; color: #5A6674;">AS SHOWN ON THE CREDENTIAL</span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 2fr 1.2fr 1fr; gap: 15px;">
+        <div style="position: relative; border: 1.5px solid #9EA9B6; background: #ffffff; padding: 11px 11px 9px;">
+          <span class="box-label">7. DAG &middot; STREET ADDRESS</span>
+          <span class="type" style="font-size: 17px; font-weight: 700; letter-spacing: 0.05em;">100 EXAMPLE AVE</span>
+        </div>
+        <div style="position: relative; border: 1.5px solid #9EA9B6; background: #ffffff; padding: 11px 11px 9px;">
+          <span class="box-label">8. DAI &middot; CITY</span>
+          <span class="type" style="font-size: 17px; font-weight: 700; letter-spacing: 0.05em;">LOS ANGELES</span>
+        </div>
+        <div style="position: relative; border: 1.5px solid #9EA9B6; background: #ffffff; padding: 11px 11px 9px;">
+          <span class="box-label">9. DAK &middot; POSTAL</span>
+          <span class="type" style="font-size: 17px; font-weight: 700; letter-spacing: 0.09em;">90049 1234</span>
+        </div>
+      </div>
+
+      <div style="display: flex; align-items: baseline; justify-content: space-between; border-bottom: 1.5px solid #171C22; padding-bottom: 7px; margin-top: 4px;">
+        <span style="font-size: 15px; font-weight: 800; letter-spacing: 0.05em;">SECTION C &mdash; DRIVING PRIVILEGES</span>
+        <span class="type" style="font-size: 11px; color: #92311F;">1 ITEM REQUIRES ATTENTION</span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 15px;">
+        <div style="position: relative; border: 1.5px solid #9EA9B6; background: #ffffff; padding: 11px 11px 9px;">
+          <span class="box-label">10. DCA &middot; VEHICLE CLASS</span>
+          <span class="type" style="font-size: 17px; font-weight: 700; letter-spacing: 0.06em;">C</span>
+        </div>
+        <div style="position: relative; border: 1.5px solid #C08A2E; background: #FFFBF0; padding: 11px 11px 9px;">
+          <span class="box-label" style="background: #FFFBF0; color: #8A5A00;">11. DCB &middot; RESTRICTIONS</span>
+          <span class="type" style="font-size: 17px; font-weight: 700; letter-spacing: 0.06em; color: #C0A574;">&mdash; &mdash; &mdash;</span>
+          <span class="type" style="display: block; font-size: 10.5px; color: #8A5A00; padding-top: 4px;">CA WRITES &ldquo;NONE&rdquo;</span>
+        </div>
+        <div style="position: relative; border: 1.5px solid #9EA9B6; background: #ffffff; padding: 11px 11px 9px;">
+          <span class="box-label">12. DCD &middot; ENDORSEMENTS</span>
+          <span class="type" style="font-size: 17px; font-weight: 700; letter-spacing: 0.06em;">NONE</span>
+        </div>
+      </div>
+
+      <div style="margin-top: auto; display: flex; align-items: center; justify-content: space-between; border-top: 1px dashed #B8AF9D; padding-top: 11px;">
+        <span class="type" style="font-size: 10.5px; color: #6C7684; letter-spacing: 0.04em;">FIELD VALUES ARE HELD IN MEMORY AND NEVER WRITTEN TO DISK.</span>
+        <span class="type" style="font-size: 10.5px; color: #6C7684; letter-spacing: 0.04em;">14 / 21 REQUIRED &middot; 32 ELEMENTS</span>
+      </div>
+    </div>
+
+    <!-- The specimen card. This is the whole point of the direction. -->
+    <div style="width: 384px; flex-shrink: 0; background: #EFEBE1; border-left: 1px solid #D3CBBB; padding: 20px; display: flex; flex-direction: column; gap: 15px;">
+
+      <div style="display: flex; align-items: baseline; justify-content: space-between;">
+        <span style="font-size: 14px; font-weight: 800; letter-spacing: 0.06em;">SPECIMEN</span>
+        <span class="type" style="font-size: 10.5px; color: #5A6674;">NOT A GOVERNMENT DOCUMENT</span>
+      </div>
+
+      <!-- Card front -->
+      <div style="position: relative; border-radius: 11px; overflow: hidden; background: #E8EEF4; border: 1px solid #B6C3D1; box-shadow: 0 6px 16px rgba(0,38,74,0.18);">
+        <div style="position: absolute; inset: 0; background-image: repeating-radial-gradient(circle at 30% 40%, rgba(0,58,112,0.13) 0 1px, transparent 1px 8px), repeating-radial-gradient(circle at 82% 66%, rgba(242,169,0,0.15) 0 1px, transparent 1px 10px); pointer-events: none;"></div>
+        <div style="position: absolute; inset: 0; background: linear-gradient(112deg, transparent 0 30%, rgba(255,255,255,0.55) 44%, rgba(242,169,0,0.20) 52%, rgba(255,255,255,0.40) 60%, transparent 74% 100%); pointer-events: none;"></div>
+
+        <div style="position: relative; padding: 11px 13px; display: flex; flex-direction: column; gap: 9px;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-size: 12px; font-weight: 800; letter-spacing: 0.11em; color: #00264A;">CALIFORNIA</span>
+            <span class="type" style="font-size: 9.5px; letter-spacing: 0.08em; color: #2C4A68;">DRIVER LICENSE</span>
+          </div>
+          <div style="display: flex; gap: 11px;">
+            <div style="width: 62px; height: 78px; border-radius: 4px; background: linear-gradient(160deg, #B9C7D6, #93A7BC); flex-shrink: 0; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 7px;">
+              <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#5D7794" stroke-width="1.5"><circle cx="12" cy="8.5" r="3.6"></circle><path d="M4.6 21a7.4 7.4 0 0 1 14.8 0"></path></svg>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 5px; min-width: 0;">
+              <div style="display: flex; flex-direction: column;">
+                <span class="type" style="font-size: 8px; color: #4A6480; letter-spacing: 0.09em;">DL</span>
+                <span class="type" style="font-size: 13px; font-weight: 700; color: #14263A; letter-spacing: 0.07em;">Y1234567</span>
+              </div>
+              <div style="display: flex; flex-direction: column;">
+                <span class="type" style="font-size: 8px; color: #4A6480; letter-spacing: 0.09em;">LN &middot; FN</span>
+                <span style="font-size: 13px; font-weight: 700; color: #14263A;">PUBLIC, JANE Q</span>
+              </div>
+              <div style="display: flex; gap: 14px;">
+                <div style="display: flex; flex-direction: column;">
+                  <span class="type" style="font-size: 8px; color: #4A6480; letter-spacing: 0.09em;">DOB</span>
+                  <span class="type" style="font-size: 11.5px; font-weight: 700; color: #14263A;">08/11/1990</span>
+                </div>
+                <div style="display: flex; flex-direction: column;">
+                  <span class="type" style="font-size: 8px; color: #4A6480; letter-spacing: 0.09em;">EXP</span>
+                  <span class="type" style="font-size: 11.5px; font-weight: 700; color: #14263A;">08/11/2029</span>
+                </div>
+                <div style="display: flex; flex-direction: column;">
+                  <span class="type" style="font-size: 8px; color: #4A6480; letter-spacing: 0.09em;">CLASS</span>
+                  <span class="type" style="font-size: 11.5px; font-weight: 700; color: #14263A;">C</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- The barcode, where it actually lives on a card: the back, full bleed -->
+        <div style="position: relative; background: #ffffff; border-top: 1px solid #C6D2DE; padding: 9px 13px; display: flex; flex-direction: column; gap: 2.5px;">
+          <span style="display: block; height: 4.5px; background: repeating-linear-gradient(to right, #000 0 2px, transparent 2px 5px, #000 5px 9px, transparent 9px 11px, #000 11px 13px, transparent 13px 18px);"></span>
+          <span style="display: block; height: 4.5px; background: repeating-linear-gradient(to right, #000 0 4px, transparent 4px 6px, #000 6px 8px, transparent 8px 13px, #000 13px 16px, transparent 16px 19px);"></span>
+          <span style="display: block; height: 4.5px; background: repeating-linear-gradient(to right, #000 0 2px, transparent 2px 7px, #000 7px 12px, transparent 12px 14px, #000 14px 17px, transparent 17px 20px);"></span>
+          <span style="display: block; height: 4.5px; background: repeating-linear-gradient(to right, #000 0 6px, transparent 6px 8px, #000 8px 10px, transparent 10px 15px, #000 15px 17px, transparent 17px 21px);"></span>
+          <span style="display: block; height: 4.5px; background: repeating-linear-gradient(to right, #000 0 3px, transparent 3px 5px, #000 5px 11px, transparent 11px 13px, #000 13px 15px, transparent 15px 18px);"></span>
+          <span style="display: block; height: 4.5px; background: repeating-linear-gradient(to right, #000 0 2px, transparent 2px 4px, #000 4px 9px, transparent 9px 14px, #000 14px 18px, transparent 18px 20px);"></span>
+          <span style="display: block; height: 4.5px; background: repeating-linear-gradient(to right, #000 0 5px, transparent 5px 7px, #000 7px 9px, transparent 9px 12px, #000 12px 16px, transparent 16px 19px);"></span>
+          <span style="display: block; height: 4.5px; background: repeating-linear-gradient(to right, #000 0 2px, transparent 2px 6px, #000 6px 8px, transparent 8px 11px, #000 11px 16px, transparent 16px 18px);"></span>
+          <span style="display: block; height: 4.5px; background: repeating-linear-gradient(to right, #000 0 4px, transparent 4px 9px, #000 9px 11px, transparent 11px 13px, #000 13px 18px, transparent 18px 22px);"></span>
+          <span style="display: block; height: 4.5px; background: repeating-linear-gradient(to right, #000 0 3px, transparent 3px 5px, #000 5px 7px, transparent 7px 12px, #000 12px 15px, transparent 15px 17px);"></span>
+        </div>
+      </div>
+
+      <div style="display: flex; align-items: center; justify-content: space-between;">
+        <span class="type" style="font-size: 10.5px; color: #5A6674;">288 B &middot; 3.125&Prime; &times; 1&Prime; &middot; 300 DPI</span>
+        <span style="display: inline-flex; align-items: center; gap: 6px; border: 2px solid #2E6B3E; color: #2E6B3E; padding: 3px 9px; transform: rotate(-3deg);"><span class="type" style="font-size: 11px; font-weight: 700; letter-spacing: 0.14em;">ENCODES</span></span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 7px;">
+        <span class="type" style="text-align: center; padding: 8px 0; background: #00264A; color: #ffffff; font-size: 11.5px; font-weight: 700; letter-spacing: 0.06em;">PNG</span>
+        <span class="type" style="text-align: center; padding: 8px 0; border: 1.5px solid #9EA9B6; background: #FBFAF6; font-size: 11.5px; font-weight: 700; letter-spacing: 0.06em; color: #2C3A48;">SVG</span>
+        <span class="type" style="text-align: center; padding: 8px 0; border: 1.5px solid #9EA9B6; background: #FBFAF6; font-size: 11.5px; font-weight: 700; letter-spacing: 0.06em; color: #2C3A48;">PDF</span>
+        <span class="type" style="text-align: center; padding: 8px 0; border: 1.5px solid #9EA9B6; background: #FBFAF6; font-size: 11.5px; font-weight: 700; letter-spacing: 0.06em; color: #2C3A48;">PRINT</span>
+      </div>
+
+      <div style="background: #FBFAF6; border: 1px solid #D3CBBB; padding: 11px; display: flex; flex-direction: column; gap: 6px;">
+        <span class="type" style="font-size: 9.5px; letter-spacing: 0.12em; color: #5A6674;">RAW PAYLOAD</span>
+        <span class="type" style="font-size: 10px; line-height: 1.65; color: #3E4855; word-break: break-all; height: 74px; overflow: hidden;">@\n\rANSI 636014100002DL00410288ZC03290053DLDAQY1234567\nDCSPUBLIC\nDACJANE\nDADQUINCY\nDBD08112024\nDBB08111990</span>
+      </div>
+
+      <div style="margin-top: auto; display: flex; align-items: center; gap: 9px; border-top: 1px dashed #B8AF9D; padding-top: 10px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2E6B3E" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="m5 13 4 4L19 7"></path></svg>
+        <span class="type" style="font-size: 10.5px; color: #4A5461; letter-spacing: 0.03em;">HEADER, DIRECTORY AND OFFSETS BALANCE.</span>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

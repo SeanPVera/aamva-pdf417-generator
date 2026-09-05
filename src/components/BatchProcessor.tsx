@@ -380,7 +380,7 @@ export const BatchProcessor: React.FC<BatchProcessorProps> = ({ open, onClose })
             onClick={onClose}
             disabled={processing}
             aria-label="Close batch processing"
-            className="p-1 rounded hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-600 dark:text-gray-300 disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            className="inline-flex h-k-touch w-k-touch items-center justify-center rounded-k hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-600 dark:text-gray-300 disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           >
             <X size={16} />
           </button>
@@ -398,7 +398,7 @@ export const BatchProcessor: React.FC<BatchProcessorProps> = ({ open, onClose })
             <button
               type="button"
               onClick={() => handleDownloadTemplate("json")}
-              className="inline-flex items-center gap-1.5 text-xs font-medium text-blue-700 dark:text-blue-300 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded"
+              className="inline-flex min-h-k-touch items-center gap-1.5 rounded-k text-k-help font-medium text-blue-700 dark:text-blue-300 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
             >
               <FileDown size={13} />
               template.json
@@ -406,7 +406,7 @@ export const BatchProcessor: React.FC<BatchProcessorProps> = ({ open, onClose })
             <button
               type="button"
               onClick={() => handleDownloadTemplate("csv")}
-              className="inline-flex items-center gap-1.5 text-xs font-medium text-blue-700 dark:text-blue-300 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded"
+              className="inline-flex min-h-k-touch items-center gap-1.5 rounded-k text-k-help font-medium text-blue-700 dark:text-blue-300 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
             >
               <FileSpreadsheet size={13} />
               template.csv
@@ -415,7 +415,7 @@ export const BatchProcessor: React.FC<BatchProcessorProps> = ({ open, onClose })
               type="button"
               onClick={() => setShowExample((v) => !v)}
               aria-expanded={showExample}
-              className="inline-flex items-center gap-1 text-xs font-medium text-gray-600 dark:text-gray-300 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded"
+              className="inline-flex min-h-k-touch items-center gap-1 rounded-k text-k-help font-medium text-gray-600 dark:text-gray-300 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
             >
               {showExample ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
               {showExample ? "Hide example" : "Show example"}
@@ -440,7 +440,7 @@ export const BatchProcessor: React.FC<BatchProcessorProps> = ({ open, onClose })
             <button
               onClick={() => fileInputRef.current?.click()}
               disabled={processing}
-              className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-100 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded text-sm transition font-medium disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+              className="inline-flex h-k-touch min-h-k-touch items-center gap-2 rounded-k border border-gray-300 dark:border-gray-600 bg-gray-100 px-4 text-k-help font-medium text-gray-800 transition hover:bg-gray-200 disabled:opacity-50 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
               aria-label="Select JSON or CSV file for batch processing"
             >
               <Upload size={16} />
@@ -512,7 +512,7 @@ export const BatchProcessor: React.FC<BatchProcessorProps> = ({ open, onClose })
             <button
               onClick={processBatch}
               disabled={!entries || entries.length === 0 || processing}
-              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 dark:disabled:bg-blue-900 text-white px-6 py-2 rounded text-sm transition shadow font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+              className="inline-flex h-k-touch min-h-k-touch items-center gap-2 rounded-k bg-blue-600 px-6 text-k-help font-medium text-white shadow transition hover:bg-blue-700 disabled:bg-blue-300 dark:disabled:bg-blue-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
               aria-busy={processing}
             >
               <Download size={16} />
@@ -525,7 +525,7 @@ export const BatchProcessor: React.FC<BatchProcessorProps> = ({ open, onClose })
               </span>
             </button>
 
-            <label className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-700 dark:text-gray-200 cursor-pointer select-none has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-brand-500 rounded px-1 py-0.5">
+            <label className="inline-flex min-h-k-touch items-center gap-1.5 rounded-k px-1 text-k-help font-medium text-gray-700 dark:text-gray-200 cursor-pointer select-none has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-brand-500">
               <input
                 type="checkbox"
                 checked={strict}
@@ -596,7 +596,7 @@ export const BatchProcessor: React.FC<BatchProcessorProps> = ({ open, onClose })
                   <button
                     type="button"
                     onClick={handleDownloadErrorReport}
-                    className="inline-flex items-center gap-1.5 px-2 py-1 rounded border border-red-300 dark:border-red-700 bg-white dark:bg-dark-surface text-xs font-medium text-red-700 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-900/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                    className="inline-flex h-k-touch min-h-k-touch items-center gap-1.5 rounded-k border border-red-300 dark:border-red-700 bg-white dark:bg-dark-surface px-3 text-k-help font-medium text-red-700 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-900/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                   >
                     <FileSpreadsheet size={13} />
                     Download error report (CSV)
@@ -606,7 +606,7 @@ export const BatchProcessor: React.FC<BatchProcessorProps> = ({ open, onClose })
                   <button
                     type="button"
                     onClick={handleDownloadZip}
-                    className="inline-flex items-center gap-1.5 px-2 py-1 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-dark-surface text-xs font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-dark-surface2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                    className="inline-flex h-k-touch min-h-k-touch items-center gap-1.5 rounded-k border border-gray-300 dark:border-gray-600 bg-white dark:bg-dark-surface px-3 text-k-help font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-dark-surface2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                   >
                     <Archive size={13} />
                     Download {successCount} PNG{successCount === 1 ? "" : "s"} (ZIP)

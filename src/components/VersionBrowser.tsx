@@ -29,7 +29,7 @@ export const VersionBrowser: React.FC = () => {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="w-full flex items-center justify-between px-3 py-2 bg-gray-50 dark:bg-dark-surface2 hover:bg-gray-100 dark:hover:bg-[#383838] transition text-sm font-semibold text-gray-700 dark:text-gray-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-500"
+        className="flex min-h-k-touch w-full items-center justify-between bg-gray-50 px-3 text-k-label font-semibold text-gray-800 transition hover:bg-gray-100 dark:bg-dark-surface2 dark:text-gray-200 dark:hover:bg-[#383838] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-500"
         aria-expanded={open}
         aria-controls="version-browser-panel"
       >
@@ -55,7 +55,7 @@ export const VersionBrowser: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setStateVersion(state, browsedVersion)}
-                  className="inline-flex items-center gap-1 text-[11px] font-medium text-brand-600 dark:text-brand-400 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded"
+                  className="inline-flex min-h-k-touch items-center gap-1 rounded-k text-k-help font-medium text-brand-600 dark:text-brand-400 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                 >
                   <Check size={11} aria-hidden />
                   Set v{browsedVersion} as active
@@ -66,7 +66,7 @@ export const VersionBrowser: React.FC = () => {
               id="vb-version-select"
               value={browsedVersion}
               onChange={(e) => setBrowsedVersion(e.target.value)}
-              className="w-full text-xs border border-gray-300 dark:border-gray-600 rounded p-1.5 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+              className="h-k-control w-full rounded-k border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 text-k-value text-gray-800 dark:text-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
             >
               {AAMVA_VERSION_KEYS.map((v) => {
                 const versionDef = AAMVA_VERSIONS[v];
@@ -105,8 +105,8 @@ export const VersionBrowser: React.FC = () => {
               {/* Field filter input */}
               <div className="relative">
                 <Search
-                  size={12}
-                  className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+                  size={16}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
                   aria-hidden="true"
                 />
                 <input
@@ -115,16 +115,16 @@ export const VersionBrowser: React.FC = () => {
                   onChange={(e) => setFilterQuery(e.target.value)}
                   placeholder="Filter fields by code or label..."
                   aria-label="Filter fields in version browser"
-                  className="w-full pl-7 pr-7 py-1 text-xs rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-dark-surface2 text-gray-800 dark:text-gray-100 placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                  className="h-k-touch w-full rounded-k border border-gray-300 dark:border-gray-600 bg-white dark:bg-dark-surface2 pl-9 pr-10 text-k-label text-gray-800 dark:text-gray-100 placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                 />
                 {filterQuery && (
                   <button
                     type="button"
                     onClick={() => setFilterQuery("")}
                     aria-label="Clear version browser filter"
-                    className="absolute right-1.5 top-1/2 -translate-y-1/2 p-0.5 rounded text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                    className="absolute right-0 top-1/2 inline-flex h-k-touch w-k-touch -translate-y-1/2 items-center justify-center rounded-k text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                   >
-                    <XIcon size={12} />
+                    <XIcon size={16} />
                   </button>
                 )}
               </div>
