@@ -1,7 +1,7 @@
 import React from "react";
 import { Copy, Check, X as XIcon, HelpCircle, Wand2 } from "lucide-react";
 import type { AAMVAField } from "../core/schema";
-import { AAMVA_FIELD_LIMITS, AAMVA_FIELD_OPTIONS } from "../core/schema";
+import { AAMVA_FIELD_OPTIONS, getEffectiveMaxLength } from "../core/schema";
 import { evaluateFieldValue } from "../core/validation";
 import { getCanonicalRewrite, getQuickFix } from "../core/quickFix";
 import {
@@ -182,7 +182,10 @@ export const FieldInput: React.FC<FieldInputProps> = ({
   const isResettable = !derivedFrom;
   const allowedValues = hasError ? parseAllowedValues(evalResult.message) : [];
   const options = field.options?.length ? field.options : AAMVA_FIELD_OPTIONS[field.code];
-  const maxLen = field.maxLength ?? AAMVA_FIELD_LIMITS[field.code];
+  // Both sides had reached the same rule independently — a field's own
+  // maxLength over the shared table. `getEffectiveMaxLength` is the one
+  // definition the validator also uses.
+  const maxLen = getEffectiveMaxLength(field);
 
   const dateFormat: AamvaDateFormat = field.dateFormat === "YYYYMMDD" ? "YYYYMMDD" : "MMDDYYYY";
   const isDate = field.type === "date";
