@@ -81,7 +81,8 @@ export const ShortcutsModal: React.FC<ShortcutsModalProps> = ({ open, onClose, o
             className="flex items-center gap-2 text-base font-semibold text-gray-800 dark:text-gray-100"
           >
             <Keyboard size={16} />
-            Keyboard Shortcuts
+            <span>Keyboard Shortcuts</span>
+            <Key>?</Key>
           </h2>
           <button
             data-autofocus
