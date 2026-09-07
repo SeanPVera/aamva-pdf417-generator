@@ -22,7 +22,7 @@ describe("VersionBrowser component", () => {
     expect(screen.getByLabelText(/Filter fields in version browser/i)).toBeInTheDocument();
   });
 
-  it("filters fields by search query and allows clearing", () => {
+  it("filters fields by search query, updates count summary, and announces empty status", () => {
     render(<VersionBrowser />);
     fireEvent.click(screen.getByRole("button", { name: /Version Browser/i }));
 
@@ -33,6 +33,24 @@ describe("VersionBrowser component", () => {
     fireEvent.change(searchInput, { target: { value: "DCA" } });
     expect(screen.getByText("DCA")).toBeInTheDocument();
     expect(screen.queryByText("DCF")).not.toBeInTheDocument();
+    expect(
+      screen.getByText(
+        (_, el) =>
+          el?.tagName.toLowerCase() === "span" && /1 of \d+ fields shown/.test(el.textContent || "")
+      )
+    ).toBeInTheDocument();
+
+    // Type a non-existent search query
+    fireEvent.change(searchInput, { target: { value: "NONEXISTENT_QUERY" } });
+    const emptyCell = screen.getByRole("status");
+    expect(emptyCell).toBeInTheDocument();
+    expect(emptyCell).toHaveTextContent("No fields matching “NONEXISTENT_QUERY”");
+    expect(
+      screen.getByText(
+        (_, el) =>
+          el?.tagName.toLowerCase() === "span" && /0 of \d+ fields shown/.test(el.textContent || "")
+      )
+    ).toBeInTheDocument();
 
     // Clear filter
     const clearBtn = screen.getByRole("button", { name: /Clear version browser filter/i });
