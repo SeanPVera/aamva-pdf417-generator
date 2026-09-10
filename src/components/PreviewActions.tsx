@@ -60,6 +60,11 @@ export const PreviewActions: React.FC<PreviewActionsProps> = ({
           onClick={handleExportPNG}
           disabled={!canExport}
           aria-label="Export barcode as PNG"
+          title={
+            canExport
+              ? "Export barcode as PNG"
+              : "Barcode export unavailable — required fields are missing or payload is invalid"
+          }
           className="inline-flex h-k-touch flex-1 items-center justify-center gap-1.5 rounded-k bg-brand-700 text-k-help font-semibold text-white shadow-google transition hover:bg-brand-800 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
         >
           <FileImage size={14} />
@@ -69,6 +74,11 @@ export const PreviewActions: React.FC<PreviewActionsProps> = ({
           onClick={handleExportSVG}
           disabled={!canExport}
           aria-label="Export barcode as SVG"
+          title={
+            canExport
+              ? "Export barcode as SVG"
+              : "Barcode export unavailable — required fields are missing or payload is invalid"
+          }
           className="inline-flex h-k-touch flex-1 items-center justify-center gap-1.5 rounded-k bg-gray-800 text-k-help font-semibold text-white shadow-google transition hover:bg-gray-900 disabled:cursor-not-allowed disabled:opacity-40 dark:bg-dark-surface2 dark:hover:bg-[#383838] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
         >
           <FileCode2 size={14} />
@@ -81,7 +91,11 @@ export const PreviewActions: React.FC<PreviewActionsProps> = ({
           onClick={handleExportPDF}
           disabled={!canExport}
           aria-label="Export barcode as PDF"
-          title="Export a print-ready PDF at the credential's physical size"
+          title={
+            canExport
+              ? "Export a print-ready PDF at the credential's physical size"
+              : "Barcode export unavailable — required fields are missing or payload is invalid"
+          }
           className="inline-flex h-k-touch flex-1 items-center justify-center gap-1.5 rounded-k bg-gray-800 text-k-help font-semibold text-white shadow-google transition hover:bg-gray-900 disabled:cursor-not-allowed disabled:opacity-40 dark:bg-dark-surface2 dark:hover:bg-[#383838] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
         >
           <FileText size={14} />
@@ -91,7 +105,11 @@ export const PreviewActions: React.FC<PreviewActionsProps> = ({
           onClick={handlePrint}
           disabled={!canExport}
           aria-label="Print barcode"
-          title="Open the print dialog with just the barcode visible"
+          title={
+            canExport
+              ? "Open the print dialog with just the barcode visible"
+              : "Barcode printing unavailable — required fields are missing or payload is invalid"
+          }
           className="inline-flex h-k-touch flex-1 items-center justify-center gap-1.5 rounded-k bg-gray-100 text-k-help font-semibold text-gray-800 shadow-google transition hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-40 dark:bg-dark-surface2 dark:text-gray-100 dark:hover:bg-[#383838] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
         >
           <Printer size={14} />
@@ -125,7 +143,11 @@ export const PreviewActions: React.FC<PreviewActionsProps> = ({
             onClick={handleCopyImage}
             disabled={!canExport}
             aria-label="Copy barcode image to clipboard"
-            title="Copy the barcode PNG to the clipboard"
+            title={
+              canExport
+                ? "Copy the barcode PNG to the clipboard"
+                : "Image copy unavailable — barcode preview cannot be generated"
+            }
             className="inline-flex h-k-touch flex-1 items-center justify-center gap-1.5 rounded-k bg-gray-100 text-k-help font-semibold text-gray-800 transition hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-40 dark:bg-dark-surface2 dark:text-gray-200 dark:hover:bg-[#383838] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           >
             {imgCopied ? <Check size={13} className="text-green-500" /> : <Clipboard size={13} />}
@@ -136,7 +158,13 @@ export const PreviewActions: React.FC<PreviewActionsProps> = ({
           onClick={handleCopyJson}
           disabled={!decoded?.json || stale}
           aria-label="Copy decoded payload as JSON"
-          title="Copy the decoded payload as structured JSON"
+          title={
+            !decoded?.json
+              ? "JSON copy unavailable — no payload decoded"
+              : stale
+                ? "JSON copy unavailable — form changes pending barcode update"
+                : "Copy the decoded payload as structured JSON"
+          }
           className="inline-flex h-k-touch flex-1 items-center justify-center gap-1.5 rounded-k bg-gray-100 text-k-help font-semibold text-gray-800 transition hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-40 dark:bg-dark-surface2 dark:text-gray-200 dark:hover:bg-[#383838] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
         >
           {jsonCopied ? <Check size={13} className="text-green-500" /> : <Braces size={13} />}
