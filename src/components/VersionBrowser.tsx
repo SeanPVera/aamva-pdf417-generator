@@ -83,23 +83,37 @@ export const VersionBrowser: React.FC = () => {
 
           {versionDef && (
             <>
-              <div className="flex gap-3 text-xs text-gray-500 dark:text-gray-400">
-                <span>
-                  <strong className="text-gray-700 dark:text-gray-200">
-                    {versionDef.fields.length}
-                  </strong>{" "}
-                  fields
-                </span>
-                <span>
-                  <strong className="text-red-600 dark:text-red-400">{requiredCount}</strong>{" "}
-                  required
-                </span>
-                <span>
-                  <strong className="text-gray-700 dark:text-gray-200">
-                    {versionDef.fields.length - requiredCount}
-                  </strong>{" "}
-                  optional
-                </span>
+              <div
+                className="flex gap-3 text-xs text-gray-500 dark:text-gray-400"
+                aria-live="polite"
+              >
+                {filterQuery.trim() ? (
+                  <span>
+                    <strong className="text-gray-700 dark:text-gray-200">
+                      {filteredFields.length} of {versionDef.fields.length}
+                    </strong>{" "}
+                    fields shown
+                  </span>
+                ) : (
+                  <>
+                    <span>
+                      <strong className="text-gray-700 dark:text-gray-200">
+                        {versionDef.fields.length}
+                      </strong>{" "}
+                      fields
+                    </span>
+                    <span>
+                      <strong className="text-red-600 dark:text-red-400">{requiredCount}</strong>{" "}
+                      required
+                    </span>
+                    <span>
+                      <strong className="text-gray-700 dark:text-gray-200">
+                        {versionDef.fields.length - requiredCount}
+                      </strong>{" "}
+                      optional
+                    </span>
+                  </>
+                )}
               </div>
 
               {/* Field filter input */}
@@ -155,6 +169,7 @@ export const VersionBrowser: React.FC = () => {
                       <tr>
                         <td
                           colSpan={4}
+                          role="status"
                           className="py-3 px-2 text-center text-gray-500 dark:text-gray-400"
                         >
                           No fields matching &ldquo;{filterQuery}&rdquo;
