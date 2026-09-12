@@ -83,12 +83,17 @@ export const VersionBrowser: React.FC = () => {
 
           {versionDef && (
             <>
-              <div className="flex gap-3 text-xs text-gray-500 dark:text-gray-400">
+              <div
+                className="flex gap-3 text-xs text-gray-500 dark:text-gray-400"
+                aria-live="polite"
+              >
                 <span>
                   <strong className="text-gray-700 dark:text-gray-200">
-                    {versionDef.fields.length}
+                    {filterQuery.trim()
+                      ? `${filteredFields.length} of ${versionDef.fields.length}`
+                      : versionDef.fields.length}
                   </strong>{" "}
-                  fields
+                  {filterQuery.trim() ? "fields shown" : "fields"}
                 </span>
                 <span>
                   <strong className="text-red-600 dark:text-red-400">{requiredCount}</strong>{" "}
@@ -155,6 +160,7 @@ export const VersionBrowser: React.FC = () => {
                       <tr>
                         <td
                           colSpan={4}
+                          role="status"
                           className="py-3 px-2 text-center text-gray-500 dark:text-gray-400"
                         >
                           No fields matching &ldquo;{filterQuery}&rdquo;
