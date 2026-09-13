@@ -70,6 +70,36 @@ describe("PreviewActions", () => {
     fireEvent.click(screen.getByRole("button", { name: "Copy decoded payload as JSON" }));
     expect(handleCopyJson).toHaveBeenCalledTimes(1);
   });
+
+  test("disabled actions display explanatory tooltips when export is disabled or stale", () => {
+    renderActions({ canExport: false, decoded: null });
+
+    const pngBtn = screen.getByRole("button", { name: "Export barcode as PNG" });
+    expect(pngBtn).toBeDisabled();
+    expect(pngBtn).toHaveAttribute(
+      "title",
+      "Export unavailable — fix missing required fields or errors"
+    );
+
+    const copyJsonBtn = screen.getByRole("button", { name: "Copy decoded payload as JSON" });
+    expect(copyJsonBtn).toBeDisabled();
+    expect(copyJsonBtn).toHaveAttribute(
+      "title",
+      "Copy JSON unavailable — no valid payload decoded"
+    );
+  });
+
+  test("disabled actions display updating tooltip when payload is stale", () => {
+    renderActions({ canExport: false, stale: true });
+
+    const pngBtn = screen.getByRole("button", { name: "Export barcode as PNG" });
+    expect(pngBtn).toBeDisabled();
+    expect(pngBtn).toHaveAttribute("title", "Export unavailable while payload is updating");
+
+    const copyJsonBtn = screen.getByRole("button", { name: "Copy decoded payload as JSON" });
+    expect(copyJsonBtn).toBeDisabled();
+    expect(copyJsonBtn).toHaveAttribute("title", "Copy JSON unavailable while payload is updating");
+  });
 });
 
 // It is a command button that swaps commands, not a toggle: the visible text
