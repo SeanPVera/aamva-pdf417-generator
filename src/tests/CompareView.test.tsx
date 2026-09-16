@@ -90,3 +90,38 @@ describe("CompareView clear payload", () => {
     expect(onClose).not.toHaveBeenCalled();
   });
 });
+
+describe("CompareView diffsOnly filter", () => {
+  test("toggling 'Show differences only' hides matching fields and reveals differing fields", async () => {
+    renderCompareView();
+    await loadPayload("A", "a.json", { DCS: "SMITH", DAC: "JOHN", DBC: "1" });
+    await loadPayload("B", "b.json", { DCS: "SMITH", DAC: "JANE", DBC: "1" });
+
+    expect(screen.getByText("DCS")).toBeInTheDocument();
+    expect(screen.getByText("DAC")).toBeInTheDocument();
+    expect(screen.getByText("DBC")).toBeInTheDocument();
+
+    const checkbox = screen.getByRole("checkbox", { name: "Show differences only" });
+    fireEvent.click(checkbox);
+
+    expect(screen.queryByText("DCS")).not.toBeInTheDocument();
+    expect(screen.getByText("DAC")).toBeInTheDocument();
+    expect(screen.queryByText("DBC")).not.toBeInTheDocument();
+
+    fireEvent.click(checkbox);
+    expect(screen.getByText("DCS")).toBeInTheDocument();
+  });
+
+  test("shows empty message when 'Show differences only' is checked and all fields match", async () => {
+    renderCompareView();
+    await loadPayload("A", "a.json", { DCS: "SMITH", DAC: "JOHN" });
+    await loadPayload("B", "b.json", { DCS: "SMITH", DAC: "JOHN" });
+
+    const checkbox = screen.getByRole("checkbox", { name: "Show differences only" });
+    fireEvent.click(checkbox);
+
+    expect(
+      screen.getByText("No differences found between Payload A and Payload B.")
+    ).toBeInTheDocument();
+  });
+});

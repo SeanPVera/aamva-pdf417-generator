@@ -30,6 +30,7 @@ export const CompareView: React.FC<CompareViewProps> = ({ open, onClose }) => {
   const { fields, state, version } = useFormStore();
   const [left, setLeft] = useState<PayloadFile | null>(null);
   const [right, setRight] = useState<PayloadFile | null>(null);
+  const [diffsOnly, setDiffsOnly] = useState(false);
   const leftInputRef = useRef<HTMLInputElement>(null);
   const rightInputRef = useRef<HTMLInputElement>(null);
   const toast = useToast();
@@ -70,6 +71,15 @@ export const CompareView: React.FC<CompareViewProps> = ({ open, onClose }) => {
     if (right) Object.keys(right.data).forEach((k) => set.add(k));
     return Array.from(set).sort();
   }, [left, right]);
+
+  const displayedKeys = useMemo(() => {
+    if (!diffsOnly) return allKeys;
+    return allKeys.filter((k) => {
+      const l = left?.data[k];
+      const r = right?.data[k];
+      return l !== r;
+    });
+  }, [allKeys, diffsOnly, left, right]);
 
   const diffStats = useMemo(() => {
     let same = 0;
@@ -184,22 +194,35 @@ export const CompareView: React.FC<CompareViewProps> = ({ open, onClose }) => {
         </div>
 
         {(left || right) && (
-          <div className="flex flex-wrap gap-3 px-4 py-2 border-b border-gray-200 dark:border-dark-border text-xs">
-            <span className="px-2 py-0.5 rounded bg-gray-100 dark:bg-dark-surface2 text-gray-700 dark:text-gray-200">
-              {allKeys.length} fields
-            </span>
-            <span className="px-2 py-0.5 rounded bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300">
-              {diffStats.same} match
-            </span>
-            <span className="px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300">
-              {diffStats.different} differ
-            </span>
-            <span className="px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300">
-              {diffStats.onlyLeft} only in A
-            </span>
-            <span className="px-2 py-0.5 rounded bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300">
-              {diffStats.onlyRight} only in B
-            </span>
+          <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-2 border-b border-gray-200 dark:border-dark-border text-xs">
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="px-2 py-0.5 rounded bg-gray-100 dark:bg-dark-surface2 text-gray-700 dark:text-gray-200">
+                {allKeys.length} fields
+              </span>
+              <span className="px-2 py-0.5 rounded bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300">
+                {diffStats.same} match
+              </span>
+              <span className="px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300">
+                {diffStats.different} differ
+              </span>
+              <span className="px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300">
+                {diffStats.onlyLeft} only in A
+              </span>
+              <span className="px-2 py-0.5 rounded bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300">
+                {diffStats.onlyRight} only in B
+              </span>
+            </div>
+
+            <label className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-700 dark:text-gray-200 cursor-pointer select-none rounded px-1.5 py-0.5 hover:bg-gray-100 dark:hover:bg-dark-surface2 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-brand-500">
+              <input
+                type="checkbox"
+                checked={diffsOnly}
+                onChange={(e) => setDiffsOnly(e.target.checked)}
+                className="h-3.5 w-3.5 rounded text-brand-600 focus:ring-brand-500 border-gray-300 dark:border-[#555] dark:bg-dark-surface2 focus-visible:outline-none"
+                aria-label="Show differences only"
+              />
+              Show differences only
+            </label>
           </div>
         )}
 
@@ -207,6 +230,10 @@ export const CompareView: React.FC<CompareViewProps> = ({ open, onClose }) => {
           {!left && !right ? (
             <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-8">
               Load two JSON payloads to compare them side by side.
+            </p>
+          ) : diffsOnly && displayedKeys.length === 0 ? (
+            <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-8">
+              No differences found between Payload A and Payload B.
             </p>
           ) : (
             <table className="w-full text-xs border-collapse" aria-label="Payload field comparison">
@@ -218,7 +245,7 @@ export const CompareView: React.FC<CompareViewProps> = ({ open, onClose }) => {
                 </tr>
               </thead>
               <tbody>
-                {allKeys.map((k) => {
+                {displayedKeys.map((k) => {
                   const l = left?.data[k];
                   const r = right?.data[k];
                   const both = l !== undefined && r !== undefined;
