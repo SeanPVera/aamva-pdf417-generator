@@ -7,10 +7,23 @@ This project is designed for **local, offline-oriented use** and runs as a React
 > [!WARNING]
 > This project is for educational, testing, and research use. Do not use it to create fraudulent IDs or documents. You are responsible for complying with all laws and policies in your jurisdiction.
 
+## 🌐 Try it now — no install required
+
+The app is published as a static site straight from this repo, so you can use it
+in a browser with nothing to clone or run:
+
+**<https://seanpvera.github.io/aamva-pdf417-generator/>**
+
+It is a fully offline-capable PWA (installable to your phone's Home Screen, see
+[iPhone setup guide](#iphone-setup-guide)) built and deployed automatically by
+[`.github/workflows/pages.yml`](.github/workflows/pages.yml) on every push to
+`main`. No data leaves your device — see [Capabilities](#capabilities).
+
 ---
 
 ## Table of Contents
 
+- [Try it now — no install required](#-try-it-now--no-install-required)
 - [What this project does](#what-this-project-does)
 - [Capabilities](#capabilities)
 - [Known limitations](#known-limitations)
