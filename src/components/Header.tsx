@@ -581,6 +581,7 @@ export const Header: React.FC<HeaderActionProps> = ({
                     bumpThemeToggles();
                   }}
                   title={`${meta.label} theme — ${meta.description}`}
+                  aria-label={`${meta.label} theme`}
                   aria-pressed={theme === t}
                   className={`flex h-k-touch items-center gap-1.5 px-3 text-k-help transition focus:outline-none ${
                     theme === t
