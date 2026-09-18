@@ -32,6 +32,16 @@ describe("CompareView clear payload", () => {
     expect(screen.getAllByText("No file selected")).toHaveLength(2);
   });
 
+  test("close button and clear buttons have title tooltips matching aria-labels", async () => {
+    renderCompareView();
+    const closeBtn = screen.getByRole("button", { name: "Close compare view" });
+    expect(closeBtn).toHaveAttribute("title", "Close compare view");
+
+    await loadPayload("A", "a.json", { DCS: "SMITH" });
+    const clearABtn = screen.getByRole("button", { name: "Clear payload A" });
+    expect(clearABtn).toHaveAttribute("title", "Clear payload A");
+  });
+
   test("clearing side A leaves side B loaded", async () => {
     renderCompareView();
     await loadPayload("A", "a.json", { DCS: "SMITH" });
