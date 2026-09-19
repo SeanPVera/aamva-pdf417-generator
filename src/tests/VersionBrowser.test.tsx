@@ -33,6 +33,12 @@ describe("VersionBrowser component", () => {
     fireEvent.change(searchInput, { target: { value: "DCA" } });
     expect(screen.getByText("DCA")).toBeInTheDocument();
     expect(screen.queryByText("DCF")).not.toBeInTheDocument();
+    expect(screen.getByText(/1 of \d+ fields shown/i)).toBeInTheDocument();
+
+    // Type non-matching search term
+    fireEvent.change(searchInput, { target: { value: "NONEXISTENT" } });
+    const emptyCell = screen.getByRole("status");
+    expect(emptyCell).toHaveTextContent("No fields matching “NONEXISTENT”");
 
     // Clear filter
     const clearBtn = screen.getByRole("button", { name: /Clear version browser filter/i });

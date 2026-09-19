@@ -103,29 +103,36 @@ export const VersionBrowser: React.FC = () => {
               </div>
 
               {/* Field filter input */}
-              <div className="relative">
-                <Search
-                  size={16}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
-                  aria-hidden="true"
-                />
-                <input
-                  type="search"
-                  value={filterQuery}
-                  onChange={(e) => setFilterQuery(e.target.value)}
-                  placeholder="Filter fields by code or label..."
-                  aria-label="Filter fields in version browser"
-                  className="h-k-touch w-full rounded-k border border-gray-300 dark:border-gray-600 bg-white dark:bg-dark-surface2 pl-9 pr-10 text-k-label text-gray-800 dark:text-gray-100 placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-                />
-                {filterQuery && (
-                  <button
-                    type="button"
-                    onClick={() => setFilterQuery("")}
-                    aria-label="Clear version browser filter"
-                    className="absolute right-0 top-1/2 inline-flex h-k-touch w-k-touch -translate-y-1/2 items-center justify-center rounded-k text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-                  >
-                    <XIcon size={16} />
-                  </button>
+              <div className="space-y-1">
+                <div className="relative">
+                  <Search
+                    size={16}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+                    aria-hidden="true"
+                  />
+                  <input
+                    type="search"
+                    value={filterQuery}
+                    onChange={(e) => setFilterQuery(e.target.value)}
+                    placeholder="Filter fields by code or label..."
+                    aria-label="Filter fields in version browser"
+                    className="h-k-touch w-full rounded-k border border-gray-300 dark:border-gray-600 bg-white dark:bg-dark-surface2 pl-9 pr-10 text-k-label text-gray-800 dark:text-gray-100 placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                  />
+                  {filterQuery && (
+                    <button
+                      type="button"
+                      onClick={() => setFilterQuery("")}
+                      aria-label="Clear version browser filter"
+                      className="absolute right-0 top-1/2 inline-flex h-k-touch w-k-touch -translate-y-1/2 items-center justify-center rounded-k text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                    >
+                      <XIcon size={16} />
+                    </button>
+                  )}
+                </div>
+                {filterQuery.trim() && (
+                  <div aria-live="polite" className="text-[11px] text-gray-500 dark:text-gray-400">
+                    {filteredFields.length} of {versionDef.fields.length} fields shown
+                  </div>
                 )}
               </div>
 
@@ -155,6 +162,7 @@ export const VersionBrowser: React.FC = () => {
                       <tr>
                         <td
                           colSpan={4}
+                          role="status"
                           className="py-3 px-2 text-center text-gray-500 dark:text-gray-400"
                         >
                           No fields matching &ldquo;{filterQuery}&rdquo;
