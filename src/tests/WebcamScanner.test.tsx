@@ -212,6 +212,38 @@ describe("WebcamScanner", () => {
     expect(stop).toHaveBeenCalledTimes(1);
   });
 
+  it("does not restart the camera when the parent re-renders with a new onClose", async () => {
+    // `onClose` comes from an inline arrow function in App.tsx and gets a new
+    // identity on every render of a parent that subscribes to the whole form
+    // store — i.e. on unrelated state changes happening anywhere in the app
+    // while the scanner is open. If the scanner-start effect depended on it
+    // (directly, or transitively through applyDecodedPayload), each of those
+    // renders tore down and restarted decodeFromVideoDevice, so the camera
+    // never ran long enough for ZXing to lock onto a frame and decode.
+    const decodeFromVideoDeviceMock = vi.fn().mockResolvedValue({ stop: vi.fn() });
+    (BrowserPDF417Reader as any).listVideoInputDevices = vi
+      .fn()
+      .mockResolvedValue([{ deviceId: "cam1", label: "Cam 1" }]);
+    (BrowserPDF417Reader as any).mockImplementation(function () {
+      return { decodeFromVideoDevice: decodeFromVideoDeviceMock, decodeFromImageUrl: vi.fn() };
+    });
+
+    let rerender!: (ui: React.ReactElement) => void;
+    await act(async () => {
+      ({ rerender } = renderWithToast(<WebcamScanner onClose={mockOnClose} />));
+    });
+
+    await waitFor(() => {
+      expect(decodeFromVideoDeviceMock).toHaveBeenCalledTimes(1);
+    });
+
+    await act(async () => {
+      rerender(<ToastProvider>{<WebcamScanner onClose={() => mockOnClose()} />}</ToastProvider>);
+    });
+
+    expect(decodeFromVideoDeviceMock).toHaveBeenCalledTimes(1);
+  });
+
   it("displays an error when image scanning fails", async () => {
     (BrowserPDF417Reader as any).listVideoInputDevices = vi.fn().mockResolvedValue([]);
     const decodeFromImageUrlMock = vi.fn().mockRejectedValue(new Error("No barcode"));

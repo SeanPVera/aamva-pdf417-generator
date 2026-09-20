@@ -115,6 +115,19 @@ export function WebcamScanner({ onClose }: WebcamScannerProps) {
       });
   }, [storedCameraId]);
 
+  // `applyDecodedPayload` closes over `onClose` and `toast`, both of which are
+  // re-created on every render of a parent that re-renders for any reason —
+  // `App` subscribes to the whole form store, so a keystroke or badge update
+  // anywhere in the app produced a new reference. Depending on it directly
+  // from the scanner-start effect below tore down and restarted the live
+  // camera stream on every such render, which starved ZXing of the run of
+  // stable frames a PDF417 symbol needs to decode. Route through a ref
+  // instead, the same fix `pasteStateRef` applies to the clipboard listener.
+  const applyDecodedPayloadRef = useRef(applyDecodedPayload);
+  useEffect(() => {
+    applyDecodedPayloadRef.current = applyDecodedPayload;
+  }, [applyDecodedPayload]);
+
   // Start/restart scanner whenever selectedDeviceId changes
   useEffect(() => {
     if (!selectedDeviceId) return;
@@ -130,7 +143,7 @@ export function WebcamScanner({ onClose }: WebcamScannerProps) {
     ) => {
       if (result) {
         scannerControls.stop();
-        applyDecodedPayload(result.getText());
+        applyDecodedPayloadRef.current(result.getText());
       }
     };
 
@@ -184,7 +197,7 @@ export function WebcamScanner({ onClose }: WebcamScannerProps) {
       controls?.stop();
       trackRef.current = null;
     };
-  }, [selectedDeviceId, applyDecodedPayload, setCameraDeviceId]);
+  }, [selectedDeviceId, setCameraDeviceId]);
 
   const handleFlipCamera = () => {
     if (devices.length < 2) return;
