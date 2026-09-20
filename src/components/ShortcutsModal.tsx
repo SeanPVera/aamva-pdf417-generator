@@ -88,7 +88,8 @@ export const ShortcutsModal: React.FC<ShortcutsModalProps> = ({ open, onClose, o
             type="button"
             onClick={onClose}
             aria-label="Close shortcuts"
-            className="p-1 rounded hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-600 dark:text-gray-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            title="Close shortcuts"
+            className="inline-flex h-k-touch w-k-touch items-center justify-center rounded-k hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-600 dark:text-gray-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           >
             <X size={16} />
           </button>

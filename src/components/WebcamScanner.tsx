@@ -253,6 +253,7 @@ export function WebcamScanner({ onClose }: WebcamScannerProps) {
           data-autofocus
           onClick={onClose}
           aria-label="Close scanner"
+          title="Close scanner"
           className="absolute top-4 right-4 inline-flex h-k-touch w-k-touch items-center justify-center rounded-k text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
         >
           <X className="w-6 h-6" />
