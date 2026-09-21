@@ -190,7 +190,7 @@ export function generateAAMVAPayload(
     }
   }
 
-  const mandatoryFields = getMandatoryFields(stateCode, version);
+  const mandatoryFields = getMandatoryFields(stateCode, version, subfileType);
   const missing = mandatoryFields
     .filter((f) => !dataObj[f.code])
     .map((f) => `${f.label} (${f.code})`);

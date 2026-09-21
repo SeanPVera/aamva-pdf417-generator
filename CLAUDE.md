@@ -122,10 +122,10 @@ Named exports:
 | `AAMVA_VERSIONS` | Object keyed by `"01"`–`"10"`: `{ name, fields: AAMVAField[] }` |
 | `AAMVA_FIELD_OPTIONS` | Enumerated values for sex, eye color, hair color, race/ethnicity, etc. |
 | `AAMVA_FIELD_LIMITS` | Max character lengths per field code |
-| `AAMVA_STATE_EXCLUDED_FIELDS` | Fields excluded per jurisdiction (e.g., NY excludes `DAW`, `DAX`, `DAZ`, `DCL`) |
+| `AAMVA_STATE_EXCLUDED_FIELDS` | Fields excluded per jurisdiction (e.g., NY excludes `DAW`, `DAX`, `DAZ`, `DCL`). Exclusions are claims about an issuer and a decoded card overrules one: Maine listed `DAW` until an issued card turned up carrying it |
 | `getFieldsForVersion(v)` | Returns full field array for a version |
 | `getFieldsForStateAndVersion(stateCode, v)` | Filters by state exclusions |
-| `getMandatoryFields(stateCode, version)` | Mandatory fields only, derived from `getFieldsForStateAndVersion` so it can never drift from the rendered form |
+| `getMandatoryFields(stateCode, version, subfileType?)` | Mandatory fields only, derived from `getFieldsForStateAndVersion` so it can never drift from the rendered form. `subfileType` defaults to `"DL"`; for `"ID"` it drops `DCA`/`DCB`/`DCD`, which exist only to carry driving privileges an ID card does not confer |
 | `AAMVA_VERSION_KEYS` | Version tokens in ascending order — use this for pickers, never `Object.keys(AAMVA_VERSIONS)` (see note below) |
 | `isSupportedVersion(v)` | Whether this build has a field table for `v` |
 | `describeVersion(v)` | Human-readable version summary |
@@ -455,8 +455,8 @@ subtly wrong:
   holds a value, so the common single-subfile output is byte-identical to what
   this app produced before multi-subfile support existed.
 
-Two jurisdictions have profiles, both read off decoded cards: Connecticut
-(`ZC`) and New York (`ZN`). Their elements are surfaced in the form through
+Three jurisdictions have profiles, all read off decoded cards: Connecticut
+(`ZC`), New York (`ZN`) and Maine (`ZM`). Their elements are surfaced in the form through
 `getFieldsForStateAndVersion`, which appends them per jurisdiction, and they are
 tagged `subfile: "jurisdiction"` so nothing else has to special-case them.
 

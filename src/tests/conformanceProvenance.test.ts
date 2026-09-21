@@ -20,7 +20,7 @@ import {
  * only that the encoder has not changed. Keeping the number here rather than
  * inferring it from the directory is what makes that gap visible.
  */
-const MIN_REAL_WORLD_JURISDICTIONS = 2;
+const MIN_REAL_WORLD_JURISDICTIONS = 3;
 
 describe("conformance vector provenance", () => {
   const vectors = loadVectors();

@@ -480,7 +480,70 @@ export const JURISDICTION_RULE_PACKS: Record<string, JurisdictionRulePack> = {
       }
     ],
     dateRules: { maxValidityYears: 6, minIssuanceAge: 16 },
-    classMinimumAges: { ...COMMON_CDL_MIN_AGES, C: 16, M: 16 }
+    classMinimumAges: { ...COMMON_CDL_MIN_AGES, C: 16, M: 16 },
+    // Read off an issued Maine identification card (AAMVA v09, IIN 636041).
+    // Its jurisdiction version is "00" — this app's default — so nothing is
+    // recorded for it: the default is confirmed for Maine rather than assumed.
+    //
+    // The element order is Connecticut's, exactly, once the three vehicle-class
+    // elements and Maine's own DAZ/DAW are set aside. Two issuers arriving at
+    // the same non-default order is the useful part: it says these orders are
+    // not per-state inventions but come with a card-production system, and it
+    // is the first evidence here pointing that way.
+    encoding: {
+      source: "Decoded Maine ID card barcode (AAMVA v09, IIN 636041), captured 2026-09-21",
+      padPostalCode: false,
+      // The card closes its last element with the segment terminator alone,
+      // saving the byte Connecticut spends on a trailing separator. Same order,
+      // different framing — which is why this is its own profile and not a
+      // reference to CT's.
+      omitFinalSeparator: true,
+      // DCA, DCB and DCD were ABSENT from the source, which is an ID card and
+      // carries no driving privileges. Their positions here are taken from the
+      // Connecticut order this one otherwise matches element for element —
+      // inferred, not observed. Every other position came off the card. If a
+      // Maine DL is ever decoded, that is the entry to correct; leaving the
+      // three out instead would sort them after DDB on DL output, which is
+      // certainly wrong, where this is merely unverified.
+      elementOrder: [
+        "DAQ",
+        "DCS",
+        "DDE",
+        "DAC",
+        "DDF",
+        "DAD",
+        "DDG",
+        "DCA",
+        "DCB",
+        "DCD",
+        "DBD",
+        "DBB",
+        "DBA",
+        "DBC",
+        "DAU",
+        "DAY",
+        "DAG",
+        "DAI",
+        "DAJ",
+        "DAK",
+        "DCF",
+        "DCG",
+        "DCK",
+        "DAZ",
+        "DAW",
+        "DDA",
+        "DDB"
+      ],
+      jurisdictionSubfile: {
+        type: "ZM",
+        source: "Decoded Maine ID card barcode (AAMVA v09, IIN 636041), captured 2026-09-21",
+        // On the card ZM is six bytes: the type, the bare code `ZMA`, and the
+        // terminator — the element is present with no value. Nothing is
+        // published about what it holds when populated, so this width is a
+        // ceiling rather than an observation.
+        elements: [{ code: "ZMA", label: "ME Optional Field A", maxLength: 50 }]
+      }
+    }
   },
   MD: {
     state: "MD",

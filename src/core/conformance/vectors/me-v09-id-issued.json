@@ -1,0 +1,43 @@
+{
+  "id": "me-v09-id-issued",
+  "state": "ME",
+  "version": "09",
+  "subfileType": "ID",
+  "description": "Maine ID card, structure taken from an issued credential. PII replaced.",
+  "provenance": {
+    "tier": "issued",
+    "source": "PDF417 barcode decoded from an issued Maine identification card (AAMVA v09, IIN 636041)",
+    "capturedAt": "2026-09-21",
+    "verifiedBy": "SeanPVera",
+    "anonymization": "Every identifying value was replaced with a placeholder of the same byte length and character class, so the ID subfile's byte layout is unchanged at 256 bytes across 24 elements: DCS/DAC/DAD (names), DAQ (customer ID), DAG/DAI/DAK (address, Maine ZIP prefix 04 kept), DCF (document discriminator) and DCK (inventory control number), DBB/DBD/DBA (dates, shifted), and DAY/DAZ/DAW (eye colour, hair colour, weight). DAU is a height and was kept because its 'NNN IN' shape is the encoding fact being pinned. DBC, DCG, DAJ, DDE/DDF/DDG and DDA are structural, and DDB (card revision date) describes the card stock rather than the holder; all are unchanged.",
+    "notes": "Pins what came off the card rather than from us: a two-entry directory whose first subfile therefore starts at 41, the element order (DAQ first, the truncation flags interleaved with the names, DCK followed by DAZ/DAW), values written with no space fill at all, a final element closed by the segment terminator alone with no trailing separator, a jurisdiction-defined ZM subfile after the ID subfile, and a jurisdiction version of 00 — the app default, here confirmed for Maine rather than assumed. The element order is Connecticut's exactly once the three vehicle-class elements and Maine's DAZ/DAW are set aside, which is the first evidence in this corpus that these orders travel with a card-production system rather than being invented per state. Two deviations from the card's raw bytes: (1) the card emits ZMA with an empty value, giving a six-byte ZM subfile and a 303-byte payload, and this generator never writes an element it has no value for, so ZMA carries a placeholder here and ZM is 16 bytes against a 313-byte total — the ID subfile and the ZM offset of 297 are unaffected; (2) DCA, DCB and DCD are absent from the card because an ID card conveys no driving privileges, and their positions in Maine's recorded element order are taken from the matching Connecticut order rather than observed, since no Maine DL has been decoded. This vector also required two corrections the card proved necessary: DCA/DCB/DCD were mandatory for every subfile type, which rejected this payload outright, and Maine was listed as excluding DAW when the card carries it."
+  },
+  "input": {
+    "DAQ": "1234567",
+    "DCS": "SAMPLE",
+    "DDE": "N",
+    "DAC": "AVERY",
+    "DDF": "N",
+    "DAD": "X",
+    "DDG": "N",
+    "DBD": "01012024",
+    "DBB": "01011990",
+    "DBA": "01012030",
+    "DBC": "1",
+    "DAU": "072 IN",
+    "DAY": "BRO",
+    "DAG": "100 EXAMPLE STREET",
+    "DAI": "TESTVILLETOWN",
+    "DAJ": "ME",
+    "DAK": "040000000",
+    "DCF": "0000000000000000012345678",
+    "DCG": "USA",
+    "DCK": "F1234567890123456",
+    "DAZ": "BLK",
+    "DAW": "180",
+    "DDA": "N",
+    "DDB": "01042019",
+    "ZMA": "0000000000"
+  },
+  "expectedBytes": "@\n\u001e\rANSI 636041090002ID00410256ZM02970016IDDAQ1234567\nDCSSAMPLE\nDDEN\nDACAVERY\nDDFN\nDADX\nDDGN\nDBD01012024\nDBB01011990\nDBA01012030\nDBC1\nDAU072 IN\nDAYBRO\nDAG100 EXAMPLE STREET\nDAITESTVILLETOWN\nDAJME\nDAK040000000\nDCF0000000000000000012345678\nDCGUSA\nDCKF1234567890123456\nDAZBLK\nDAW180\nDDAN\nDDB01042019\rZMZMA0000000000\r"
+}

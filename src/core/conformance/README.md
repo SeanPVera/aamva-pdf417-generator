@@ -23,7 +23,7 @@ Only `published` and `issued` count as evidence about the outside world. The
 schema and the rules below are enforced by
 `src/tests/conformanceProvenance.test.ts`.
 
-Two jurisdictions carry real-world evidence. Connecticut
+Three jurisdictions carry real-world evidence. Connecticut
 (`ct-v09-dl-issued.json`), decoded from an issued credential. It is the vector
 that established that a payload can hold more than one subfile, that DAK is not
 always space-filled, and that element order varies by issuer — three things
@@ -37,6 +37,22 @@ could — 100 bytes of space fill at widths that are mostly New York's own, and
 one byte per subfile saved by closing the final element with the segment
 terminator alone. Both are now in NY's encoding profile, and the vector
 reproduces the card's directory exactly.
+
+Maine came third (`me-v09-id-issued.json`), and is the first `ID` card here
+rather than a DL. It earned its place by breaking two things at once. The
+generator rejected it outright, because `DCA`, `DCB` and `DCD` were mandatory
+for every subfile type — but an ID card conveys no driving privileges and this
+one omits all three, so the requirement is now scoped to `DL`. And `DAW` came
+out seven bytes short, because Maine was listed as excluding it when the issued
+card plainly carries it. Neither bug was reachable from a synthetic vector:
+`il-v09-id-baseline.json` is also an `ID` card, and it carries `DCA`/`DCB`/`DCD`
+precisely because our own encoder demanded them. A baseline cannot disagree
+with the encoder that wrote it.
+
+Maine's element order is also Connecticut's, element for element, once the
+three vehicle-class codes and Maine's own `DAZ`/`DAW` are set aside — the first
+sign in this corpus that element order travels with a card-production system
+rather than being invented per jurisdiction.
 
 Current coverage — run any time, and printed in CI:
 

@@ -489,7 +489,9 @@ export const AAMVA_STATE_EXCLUDED_FIELDS: Record<string, string[]> = {
   NY: ["DAW", "DAX", "DAZ", "DCL"],
   CT: ["DAW", "DAX", "DCL"],
   VT: ["DAW", "DAX", "DCL"],
-  ME: ["DAW", "DAX", "DCL"],
+  // DAW is NOT excluded: an issued Maine ID card carries it. DAX (weight
+  // in kilograms) and DCL remain unobserved on Maine cards.
+  ME: ["DAX", "DCL"],
   NH: ["DAW", "DAX", "DCL"],
   AL: ["DAX", "DCL"],
   AK: ["DAX", "DCL"],
@@ -967,8 +969,22 @@ export function getFieldsForStateAndVersion(stateCode: string, v: string): AAMVA
 // generator demands can never drift from the set the user was shown. Reading
 // the version table directly (and ignoring `stateCode`, as this used to) only
 // happened to agree because the exclusion filter above keeps required fields.
-export function getMandatoryFields(stateCode: string, version: string): AAMVAField[] {
-  return getFieldsForStateAndVersion(stateCode, version).filter((f) => f.required);
+/**
+ * Codes that exist only because a credential conveys driving privileges.
+ * An identification card conveys none, and an issued Maine ID card omits all
+ * three — so requiring them of an `ID` subfile rejects a payload a DMV really
+ * writes. AAMVA marks them mandatory for the DL subfile, not for every one.
+ */
+const DRIVING_PRIVILEGE_CODES = new Set(["DCA", "DCB", "DCD"]);
+
+export function getMandatoryFields(
+  stateCode: string,
+  version: string,
+  subfileType: "DL" | "ID" = "DL"
+): AAMVAField[] {
+  return getFieldsForStateAndVersion(stateCode, version).filter(
+    (f) => f.required && !(subfileType === "ID" && DRIVING_PRIVILEGE_CODES.has(f.code))
+  );
 }
 
 export function describeVersion(v: string): string {

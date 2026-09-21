@@ -165,6 +165,34 @@ describe("AAMVA version coverage", () => {
   });
 });
 
+// Placeholder values only; lengths match an issued Maine ID card.
+const MAINE_ID: Record<string, string> = {
+  DAQ: "1234567",
+  DCS: "SAMPLE",
+  DDE: "N",
+  DAC: "AVERY",
+  DDF: "N",
+  DAD: "X",
+  DDG: "N",
+  DBD: "01012024",
+  DBB: "01011990",
+  DBA: "01012030",
+  DBC: "1",
+  DAU: "072 IN",
+  DAY: "BRO",
+  DAG: "100 EXAMPLE STREET",
+  DAI: "TESTVILLETOWN",
+  DAJ: "ME",
+  DAK: "040000000",
+  DCF: "0000000000000000012345678",
+  DCG: "USA",
+  DCK: "F1234567890123456",
+  DAZ: "BLK",
+  DAW: "180",
+  DDA: "N",
+  DDB: "01042019"
+};
+
 describe("getMandatoryFields honours the jurisdiction", () => {
   it("returns exactly the required fields the form renders", () => {
     // It ignored `stateCode` entirely and read the version table directly. That
@@ -175,6 +203,54 @@ describe("getMandatoryFields honours the jurisdiction", () => {
         expect(getMandatoryFields(state, version), `${state} v${version}`).toEqual(shown);
       }
     }
+  });
+});
+
+describe("an ID card is not required to carry driving privileges", () => {
+  // An issued Maine ID card omits DCA, DCB and DCD outright — an ID conveys no
+  // driving privileges — and the generator rejected it as missing mandatory
+  // fields. The requirement belongs to the DL subfile, not to every subfile.
+  const DRIVING = ["DCA", "DCB", "DCD"];
+
+  it("drops the driving-privilege codes for an ID subfile only", () => {
+    for (const state of ["ME", "IL", "CA"]) {
+      const dl = getMandatoryFields(state, "09").map((f) => f.code);
+      const id = getMandatoryFields(state, "09", "ID").map((f) => f.code);
+      for (const code of DRIVING) {
+        expect(dl, `${state} DL keeps ${code}`).toContain(code);
+        expect(id, `${state} ID drops ${code}`).not.toContain(code);
+      }
+      // Nothing else moves.
+      expect(id).toEqual(dl.filter((c) => !DRIVING.includes(c)));
+    }
+  });
+
+  it("defaults to DL so existing callers are unaffected", () => {
+    expect(getMandatoryFields("CA", "09")).toEqual(getMandatoryFields("CA", "09", "DL"));
+  });
+
+  it("builds a Maine ID payload that omits all three", () => {
+    const fields = getFieldsForStateAndVersion("ME", "09");
+    const out = generateAAMVAPayload("ME", "09", fields, MAINE_ID, { subfileType: "ID" });
+    const payload = typeof out === "string" ? out : (out as { payload: string }).payload;
+    for (const code of DRIVING) expect(payload).not.toContain(code);
+    expect(payload).toContain("IDDAQ");
+  });
+});
+
+describe("Maine carries DAW", () => {
+  // ME was listed in AAMVA_STATE_EXCLUDED_FIELDS as excluding DAW. An issued
+  // Maine ID card carries DAW, and dropping it left the ID subfile seven bytes
+  // short of the card's 256 — the element, its value and its separator.
+  it("includes DAW in the Maine field list", () => {
+    expect(getFieldsForStateAndVersion("ME", "09").map((f) => f.code)).toContain("DAW");
+  });
+
+  it("emits DAW in a generated Maine payload", () => {
+    const fields = getFieldsForStateAndVersion("ME", "09");
+    const out = generateAAMVAPayload("ME", "09", fields, MAINE_ID, { subfileType: "ID" });
+    const payload = typeof out === "string" ? out : (out as { payload: string }).payload;
+    expect(payload).toContain("DAW180");
   });
 });
 
