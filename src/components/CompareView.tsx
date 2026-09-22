@@ -115,6 +115,7 @@ export const CompareView: React.FC<CompareViewProps> = ({ open, onClose }) => {
             type="button"
             onClick={onClose}
             aria-label="Close compare view"
+            title="Close compare view"
             className="inline-flex h-k-touch w-k-touch items-center justify-center rounded-k hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-600 dark:text-gray-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           >
             <X size={16} />
@@ -173,6 +174,7 @@ export const CompareView: React.FC<CompareViewProps> = ({ open, onClose }) => {
                       toast.info(`Cleared payload ${side}`);
                     }}
                     aria-label={`Clear payload ${side}`}
+                    title={`Clear payload ${side}`}
                     className="inline-flex h-k-touch w-k-touch shrink-0 items-center justify-center rounded-k text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-dark-surface2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                   >
                     <X size={12} />

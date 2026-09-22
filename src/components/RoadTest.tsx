@@ -296,6 +296,7 @@ export const RoadTest: React.FC<RoadTestProps> = ({ open, onClose, onPassed }) =
             type="button"
             onClick={onClose}
             aria-label="Leave the examination"
+            title="Leave the examination"
             className="rounded p-1 text-gray-600 hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 dark:text-gray-300 dark:hover:bg-dark-surface2"
           >
             <X size={16} />

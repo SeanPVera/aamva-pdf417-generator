@@ -122,6 +122,7 @@ export const VersionBrowser: React.FC = () => {
                     type="button"
                     onClick={() => setFilterQuery("")}
                     aria-label="Clear version browser filter"
+                    title="Clear version browser filter"
                     className="absolute right-0 top-1/2 inline-flex h-k-touch w-k-touch -translate-y-1/2 items-center justify-center rounded-k text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                   >
                     <XIcon size={16} />

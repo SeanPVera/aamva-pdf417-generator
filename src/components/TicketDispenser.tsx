@@ -43,6 +43,7 @@ export const TicketDispenser: React.FC<TicketDispenserProps> = ({
         type="button"
         className="ticket-dismiss"
         aria-label="Hide the queue ticket"
+        title="Hide the queue ticket"
         onClick={() => setDismissed(true)}
       >
         <span aria-hidden>×</span>
