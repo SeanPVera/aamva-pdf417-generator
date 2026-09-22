@@ -159,8 +159,8 @@ function App() {
   const playClack = useClickClack(soundOn && whimsy);
   const copyTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const schemaFields = React.useMemo(
-    () => getFieldsForStateAndVersion(state, version),
-    [state, version]
+    () => getFieldsForStateAndVersion(state, version, subfileType),
+    [state, version, subfileType]
   );
   const toast = useToast();
 

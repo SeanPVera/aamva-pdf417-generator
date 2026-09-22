@@ -345,7 +345,7 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
     : [];
 
   // Validation report
-  const schemaFields = getFieldsForStateAndVersion(state, version);
+  const schemaFields = getFieldsForStateAndVersion(state, version, subfileType);
   const issues = getValidationIssues(schemaFields, { ...fields, DAJ: state }, state, strictMode);
   const issueCount = issues.length;
 

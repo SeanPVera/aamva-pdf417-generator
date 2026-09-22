@@ -54,7 +54,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileHidden = false, children
     setStateVersion(state, e.target.value);
   };
 
-  const fields = getFieldsForStateAndVersion(state, version);
+  const fields = getFieldsForStateAndVersion(state, version, subfileType);
   const defaultVersion = AAMVA_STATES[state]?.aamvaVersion;
 
   // Only list exclusions the active version actually defines — a field the

@@ -72,7 +72,7 @@ export function usePayload(): PayloadResult {
   React.useEffect(() => {
     const id = window.setTimeout(() => {
       try {
-        const schemaFields = getFieldsForStateAndVersion(state, version);
+        const schemaFields = getFieldsForStateAndVersion(state, version, subfileType);
         const present = new Set(schemaFields.map((f) => f.code));
         const auto = autoRef.current;
         const data: Record<string, string> = { ...fields, DAJ: state };

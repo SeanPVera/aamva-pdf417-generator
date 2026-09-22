@@ -229,6 +229,31 @@ describe("an ID card is not required to carry driving privileges", () => {
     expect(getMandatoryFields("CA", "09")).toEqual(getMandatoryFields("CA", "09", "DL"));
   });
 
+  it("says the same thing to validation and to the readiness counts", () => {
+    // Scoping requiredness inside the generator alone was not enough: every
+    // other surface reads `required` straight off the field list, so a valid ID
+    // generated fine while the report called it three errors and the mobile
+    // export stayed disabled. The list itself now carries the answer.
+    const idFields = getFieldsForStateAndVersion("ME", "09", "ID");
+
+    const out = generateAAMVAPayload("ME", "09", idFields, MAINE_ID, { subfileType: "ID" });
+    const payload = typeof out === "string" ? out : (out as { payload: string }).payload;
+    expect(payload).toContain("IDDAQ");
+
+    // What getValidationIssues reports.
+    const issues = getValidationIssues(idFields, MAINE_ID, "ME", false);
+    expect(issues.filter((i) => DRIVING.includes(i.code))).toEqual([]);
+
+    // What BarcodePreview, Sidebar and StepRail count as outstanding.
+    expect(idFields.filter((f) => f.required && !(MAINE_ID[f.code] ?? "").trim())).toEqual([]);
+
+    // And a DL asks for all three exactly as before.
+    const dlFields = getFieldsForStateAndVersion("ME", "09", "DL");
+    for (const code of DRIVING) {
+      expect(dlFields.find((f) => f.code === code)?.required, code).toBe(true);
+    }
+  });
+
   it("builds a Maine ID payload that omits all three", () => {
     const fields = getFieldsForStateAndVersion("ME", "09");
     const out = generateAAMVAPayload("ME", "09", fields, MAINE_ID, { subfileType: "ID" });

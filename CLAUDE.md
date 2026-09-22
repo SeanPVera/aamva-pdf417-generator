@@ -124,8 +124,8 @@ Named exports:
 | `AAMVA_FIELD_LIMITS` | Max character lengths per field code |
 | `AAMVA_STATE_EXCLUDED_FIELDS` | Fields excluded per jurisdiction (e.g., NY excludes `DAW`, `DAX`, `DAZ`, `DCL`). Exclusions are claims about an issuer and a decoded card overrules one: Maine listed `DAW` until an issued card turned up carrying it |
 | `getFieldsForVersion(v)` | Returns full field array for a version |
-| `getFieldsForStateAndVersion(stateCode, v)` | Filters by state exclusions |
-| `getMandatoryFields(stateCode, version, subfileType?)` | Mandatory fields only, derived from `getFieldsForStateAndVersion` so it can never drift from the rendered form. `subfileType` defaults to `"DL"`; for `"ID"` it drops `DCA`/`DCB`/`DCD`, which exist only to carry driving privileges an ID card does not confer |
+| `getFieldsForStateAndVersion(stateCode, v, subfileType?)` | Filters by state exclusions. `subfileType` defaults to `"DL"`; for `"ID"` it clears `required` on `DCA`/`DCB`/`DCD`, which exist only to carry driving privileges an ID card does not confer. Requiredness belongs here rather than in the generator because validation, the readiness counts and the progress bar all read it off this list — scoping it anywhere narrower makes them disagree |
+| `getMandatoryFields(stateCode, version, subfileType?)` | Mandatory fields only, derived from `getFieldsForStateAndVersion` so it can never drift from the rendered form — including its `subfileType` handling |
 | `AAMVA_VERSION_KEYS` | Version tokens in ascending order — use this for pickers, never `Object.keys(AAMVA_VERSIONS)` (see note below) |
 | `isSupportedVersion(v)` | Whether this build has a field table for `v` |
 | `describeVersion(v)` | Human-readable version summary |

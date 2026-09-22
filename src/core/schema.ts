@@ -925,8 +925,20 @@ const _EXCLUDED_SETS: Readonly<Record<string, ReadonlySet<string>>> = Object.fro
 // is small and fixed at runtime, so this Map grows to at most ~54×11 = 594 entries.
 const _stateVersionFieldCache = new Map<string, AAMVAField[]>();
 
-export function getFieldsForStateAndVersion(stateCode: string, v: string): AAMVAField[] {
-  const cacheKey = `${stateCode}:${v}`;
+/**
+ * Codes that exist only because a credential conveys driving privileges.
+ * An identification card conveys none, and an issued Maine ID card omits all
+ * three — so requiring them of an `ID` subfile rejects a payload a DMV really
+ * writes. AAMVA marks them mandatory for the DL subfile, not for every one.
+ */
+const DRIVING_PRIVILEGE_CODES = new Set(["DCA", "DCB", "DCD"]);
+
+export function getFieldsForStateAndVersion(
+  stateCode: string,
+  v: string,
+  subfileType: "DL" | "ID" = "DL"
+): AAMVAField[] {
+  const cacheKey = `${stateCode}:${v}:${subfileType}`;
   const cached = _stateVersionFieldCache.get(cacheKey);
   if (cached) return cached;
 
@@ -961,6 +973,17 @@ export function getFieldsForStateAndVersion(stateCode: string, v: string): AAMVA
     );
   }
 
+  // Applied after the exclusion filter above, which keeps a field when it is
+  // required — flipping the flag earlier would let a jurisdiction that excludes
+  // one of these drop it from an ID form entirely. Requiredness lives on the
+  // list every consumer reads, so validation, the readiness counts and the
+  // generator cannot disagree about whether an ID card owes a vehicle class.
+  if (subfileType === "ID") {
+    result = result.map((f) =>
+      f.required && DRIVING_PRIVILEGE_CODES.has(f.code) ? { ...f, required: false } : f
+    );
+  }
+
   _stateVersionFieldCache.set(cacheKey, result);
   return result;
 }
@@ -969,22 +992,12 @@ export function getFieldsForStateAndVersion(stateCode: string, v: string): AAMVA
 // generator demands can never drift from the set the user was shown. Reading
 // the version table directly (and ignoring `stateCode`, as this used to) only
 // happened to agree because the exclusion filter above keeps required fields.
-/**
- * Codes that exist only because a credential conveys driving privileges.
- * An identification card conveys none, and an issued Maine ID card omits all
- * three — so requiring them of an `ID` subfile rejects a payload a DMV really
- * writes. AAMVA marks them mandatory for the DL subfile, not for every one.
- */
-const DRIVING_PRIVILEGE_CODES = new Set(["DCA", "DCB", "DCD"]);
-
 export function getMandatoryFields(
   stateCode: string,
   version: string,
   subfileType: "DL" | "ID" = "DL"
 ): AAMVAField[] {
-  return getFieldsForStateAndVersion(stateCode, version).filter(
-    (f) => f.required && !(subfileType === "ID" && DRIVING_PRIVILEGE_CODES.has(f.code))
-  );
+  return getFieldsForStateAndVersion(stateCode, version, subfileType).filter((f) => f.required);
 }
 
 export function describeVersion(v: string): string {
