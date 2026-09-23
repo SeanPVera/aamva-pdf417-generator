@@ -94,7 +94,7 @@ export const FieldFilters: React.FC<FieldFiltersProps> = ({
             onKeyDown={handleSearchKeyDown}
             placeholder={`Search fields (${formatShortcut(["mod", "K"])})`}
             aria-label="Search fields"
-            aria-describedby="field-search-hint"
+            aria-describedby={filtered ? "field-search-hint" : undefined}
             className="h-k-touch w-full rounded-k border border-gray-300 bg-gray-100 pl-9 pr-10 text-k-label text-gray-900 placeholder:text-gray-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 dark:border-[#4A4A4A] dark:bg-[#2C2C2C] dark:text-gray-100 dark:placeholder:text-gray-500"
           />
           {query && (

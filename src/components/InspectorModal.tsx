@@ -32,6 +32,7 @@ export const InspectorModal: React.FC<{ onClose: () => void; children: React.Rea
             type="button"
             onClick={onClose}
             aria-label="Close inspector"
+            title="Close inspector"
             className="inline-flex h-k-touch w-k-touch items-center justify-center rounded-k hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-600 dark:text-gray-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           >
             <X size={16} />
