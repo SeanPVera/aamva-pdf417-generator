@@ -38,754 +38,1013 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ─── Kiosk scale ────────────────────────────────────────────────────────── */
-/* Direction D sizes controls for a thumb and type for arm's length. 56px is
-   the primary control; 44px is the floor every other interactive box has to
-   clear. Kept as custom properties so the stylesheet's own rules and the
-   Tailwind utilities in `tailwind.config.js` cannot drift apart. */
+/* Record workbench tokens. Semantic roles stay stable in both appearances. */
 :root {
-  --k-control-h: 3.5rem;
-  --k-control-h-sm: 2.75rem;
-  --k-radius: 0.625rem;
-  --k-radius-lg: 0.875rem;
-  --k-gap: 1.25rem;
+  color-scheme: light;
+  --paper: #f5f4ee;
+  --surface: #fffef9;
+  --surface-alt: #eeeee6;
+  --ink: #232a25;
+  --secondary: #4e594f;
+  --muted: #606c60;
+  --rule: #d3d6cb;
+  --control-border: #818b7d;
+  --accent: #9c371c;
+  --accent-soft: #fae9df;
+  --success: #316644;
+  --warning: #89500d;
+  --error: #a32929;
+  --selection: #ead2bc;
+  --focus: #a34022;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --radius-control: 3px;
+  --radius-overlay: 6px;
+  --control-height: 2.75rem;
+  --text-small: 0.8125rem;
+  --text-body: 0.9375rem;
+  --text-title: 1.375rem;
+  --motion: 120ms;
+  --overlay-shadow: 0 8px 28px #17201424;
+  --k-control-h: var(--control-height);
+  --k-control-h-sm: var(--control-height);
+  --k-radius: var(--radius-control);
+  --k-radius-lg: var(--radius-overlay);
+  --k-gap: var(--space-4);
 }
-
-:root {
-  /* Core runtime theme (main branch system) */
-  --state-primary: #1a73e8;
-  --state-primary-dark: #1967d2;
-  --state-accent: #fbbc04;
-  --state-on-primary: #ffffff;
-  --state-on-accent: #1a1a1a;
-  --state-tint: #e8f0fe;
-
-  /* Extended jurisdiction package: layout, controls, depth, and motifs */
-  --state-secondary: #dce6f0;
-  --state-background: #edf1f6;
-  --state-surface: #ffffff;
-  --state-surface-alt: #f4f8ff;
-  --state-border: #c8d7ef;
-  --state-input: #f3f7ff;
-  --state-ring: #5b8ff0;
-  --state-shadow: 0 22px 50px #1a73e822;
-  --state-gradient: linear-gradient(135deg, #1967d2 0%, #1a73e8 50%, #fbbc04 100%);
-  --state-motif-color: #1a73e818;
-  --state-badge: #14295a;
+html.dark {
+  color-scheme: dark;
+  --paper: #181c19;
+  --surface: #202621;
+  --surface-alt: #2a312b;
+  --ink: #edf0e7;
+  --secondary: #c1c9bc;
+  --muted: #a9b3a3;
+  --rule: #424c42;
+  --control-border: #798775;
+  --accent: #f0a27f;
+  --accent-soft: #422c22;
+  --focus: #f0a27f;
+  --success: #98caa5;
+  --warning: #ebbf76;
+  --error: #f3a0a0;
+  --selection: #674433;
+  --overlay-shadow: 0 8px 28px #0007;
 }
-
-/* ─── State-themed header & accents ──────────────────────────────────────── */
-/* The header always reflects the selected jurisdiction's flag colors. */
-header.state-themed .header-identity {
-  background-color: var(--state-primary) !important;
-  color: var(--state-on-primary) !important;
-}
-header.state-themed h1,
-header.state-themed .state-brand-text {
-  color: var(--state-on-primary);
-}
-header.state-themed .state-brand-icon {
-  color: var(--state-accent);
-}
-header.state-themed .state-badge {
-  background-color: var(--state-accent) !important;
-  color: var(--state-on-accent) !important;
-  border-color: var(--state-accent) !important;
-}
-/* Opt-in, via .header-ctrl — never a bare `button`. These are descendant
-   selectors, and a popover anchored to the identity row is not *on* it: it
-   paints its own white (or dark-surface) panel. While `button` was in this
-   list, every item in the "More actions" menu was repainted
-   --state-on-primary, which for California is #ffffff on #ffffff. The whole
-   menu measured 1.00:1 — five controls rendering as blank rows on every
-   phone. The identity row's own controls set their colour inline; anything
-   else that lands there gets .header-ctrl. */
-header.state-themed .header-identity .header-ctrl {
-  color: var(--state-on-primary);
-}
-header.state-themed .header-identity .header-ctrl:hover:not(:disabled) {
-  background-color: color-mix(in srgb, var(--state-on-primary) 18%, transparent);
-}
-header.state-themed .header-identity .state-toggle-group {
-  border-color: color-mix(in srgb, var(--state-on-primary) 30%, transparent);
-}
-/* Not scoped to the identity row: the group sits on the light action bar, and
-   accent-fill with --state-on-accent is legible on either surface. */
-header.state-themed .state-toggle-group button[aria-pressed="true"] {
-  background-color: var(--state-accent) !important;
-  color: var(--state-on-accent) !important;
-}
-header.state-themed .header-identity .state-divider {
-  background-color: color-mix(in srgb, var(--state-on-primary) 25%, transparent);
-}
-
-.state-themed-sidebar {
-  border-top-color: var(--state-primary) !important;
-  border-top-width: 3px !important;
-  border-top-style: solid !important;
-}
-
-/* ─── DMV Blue theme ─────────────────────────────────────────────────────── */
-html[data-theme="dmv"] body {
-  background-color: var(--state-background);
-}
-html[data-theme="dmv"] header {
-  background-color: var(--state-primary) !important;
-}
-html[data-theme="dmv"] .dmv-sidebar {
-  background-color: color-mix(in srgb, var(--state-secondary) 80%, white) !important;
-  border-color: color-mix(in srgb, var(--state-primary) 25%, white) !important;
-}
-html[data-theme="dmv"] .dmv-main {
-  background-color: var(--state-surface) !important;
-  border-color: color-mix(in srgb, var(--state-primary) 20%, white) !important;
-}
-html[data-theme="dmv"] .dmv-preview {
-  background-color: color-mix(in srgb, var(--state-secondary) 75%, white) !important;
-  border-color: color-mix(in srgb, var(--state-primary) 25%, white) !important;
-}
-html[data-theme="dmv"] .dmv-badge {
-  background-color: var(--state-badge) !important;
-  border-color: color-mix(in srgb, var(--state-primary) 30%, black) !important;
-  color: white !important;
-}
-
-html[data-state-theme] .state-primary-bg {
-  background-color: var(--state-primary) !important;
-}
-
-/* ─── Full jurisdiction package surfaces ─────────────────────────────────── */
-/* Every palette in stateThemes.ts is built from light tints — `surface` is
-   literally #ffffff and `input` is a near-white mix. `data-state-theme` is set
-   on <html> for every jurisdiction, dark mode included, so these rules used to
-   paint white panels and near-white inputs underneath the near-white text that
-   `html.dark` had already chosen: a text box at roughly 1.05:1 contrast. The
-   light surfaces are therefore scoped to `:not(.dark)`, and dark mode gets its
-   own set below that tints the dark surfaces with the state color instead of
-   replacing them. */
-html[data-state-theme]:not(.dark) .app-shell {
-  background:
-    radial-gradient(circle at 18% 12%, var(--state-motif-color) 0 13rem, transparent 13.2rem),
-    radial-gradient(
-      circle at 86% 0%,
-      color-mix(in srgb, var(--state-accent) 14%, transparent) 0 16rem,
-      transparent 16.2rem
-    ),
-    linear-gradient(
-      180deg,
-      var(--state-background) 0%,
-      color-mix(in srgb, var(--state-background) 68%, white) 100%
-    ) !important;
-}
-html[data-state-theme].dark .app-shell {
-  background:
-    radial-gradient(circle at 18% 12%, var(--state-motif-color) 0 13rem, transparent 13.2rem),
-    radial-gradient(
-      circle at 86% 0%,
-      color-mix(in srgb, var(--state-accent) 10%, transparent) 0 16rem,
-      transparent 16.2rem
-    ),
-    #121212 !important;
-}
-html[data-state-theme] .app-shell::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0.55;
-  background-image:
-    linear-gradient(
-      135deg,
-      var(--state-motif-color) 8%,
-      transparent 8%,
-      transparent 50%,
-      var(--state-motif-color) 50%,
-      var(--state-motif-color) 58%,
-      transparent 58%
-    ),
-    radial-gradient(circle at 24px 24px, var(--state-motif-color) 0 2px, transparent 2.5px);
-  background-size:
-    56px 56px,
-    42px 42px;
-  mask-image: linear-gradient(180deg, black, transparent 70%);
-}
-/* Solid, not a gradient. `--state-gradient` runs from the jurisdiction's
-   primary to its ACCENT — a light hue by design — and the toolbar painted
-   `--state-on-primary` (white) across the whole width. On California that put
-   Export JSON, Import JSON and Clear PII on #F2A900 at 2.0:1, against AA's
-   4.5:1. The accent still appears, as a rule under the bar where nothing has
-   to be legible on top of it. */
-html[data-state-theme] header.state-themed {
-  box-shadow: var(--state-shadow);
-}
-/* The accent lands between the identity row and the action bar, where it is a
-   rule rather than a background — nothing has to stay legible on top of it. */
-html[data-state-theme] header.state-themed .header-identity {
-  border-bottom: 3px solid var(--state-accent) !important;
-}
-html[data-state-theme] .dmv-sidebar,
-html[data-state-theme] .dmv-main,
-html[data-state-theme] .dmv-preview {
-  position: relative;
-  z-index: 1;
-  box-shadow: var(--state-shadow) !important;
-}
-html[data-state-theme]:not(.dark) .dmv-sidebar,
-html[data-state-theme]:not(.dark) .dmv-main,
-html[data-state-theme]:not(.dark) .dmv-preview {
-  border-color: var(--state-border) !important;
-}
-html[data-state-theme]:not(.dark) .dmv-main {
-  background:
-    linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--state-surface) 94%, var(--state-tint)) 0%,
-      var(--state-surface) 52%
-    ),
-    var(--state-surface) !important;
-}
-html[data-state-theme]:not(.dark) .dmv-sidebar,
-html[data-state-theme]:not(.dark) .dmv-preview {
-  background: linear-gradient(
-    180deg,
-    var(--state-surface-alt) 0%,
-    color-mix(in srgb, var(--state-secondary) 62%, white) 100%
-  ) !important;
-}
-html[data-state-theme]:not(.dark) .dmv-main > div:first-child {
-  background: linear-gradient(90deg, color-mix(in srgb, var(--state-tint) 72%, white), transparent);
-  border-color: var(--state-border) !important;
-}
-
-/* Dark counterparts: the jurisdiction hue is mixed *into* the dark surface so
-   the panels still read as themed without lightening the page under the text. */
-html[data-state-theme].dark .dmv-main {
-  background:
-    linear-gradient(180deg, color-mix(in srgb, var(--state-primary) 12%, #1e1e1e) 0%, #1e1e1e 52%),
-    #1e1e1e !important;
-}
-html[data-state-theme].dark .dmv-sidebar,
-html[data-state-theme].dark .dmv-preview {
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--state-primary) 16%, #1e1e1e) 0%,
-    #1a1a1a 100%
-  ) !important;
-}
-html[data-state-theme].dark .dmv-main > div:first-child {
-  background: linear-gradient(
-    90deg,
-    color-mix(in srgb, var(--state-primary) 18%, transparent),
-    transparent
-  );
-  border-color: color-mix(in srgb, var(--state-primary) 35%, #333333) !important;
-}
-html[data-state-theme].dark .dmv-sidebar,
-html[data-state-theme].dark .dmv-main,
-html[data-state-theme].dark .dmv-preview {
-  border-color: color-mix(in srgb, var(--state-primary) 35%, #333333) !important;
-}
-/* Same reasoning as the header: these all print --state-on-primary on top. */
-html[data-state-theme] .state-themed-tab[aria-current="true"],
-html[data-state-theme] .state-primary-bg,
-html[data-state-theme] .state-action-primary {
-  background: var(--state-primary) !important;
-  color: var(--state-on-primary) !important;
-  box-shadow: 0 10px 24px color-mix(in srgb, var(--state-primary) 28%, transparent);
-}
-/* Text boxes. `--state-input` is a near-white tint, so it is light-mode only —
-   in dark mode the same hue is mixed into the elevated dark surface instead,
-   which keeps the jurisdiction flavor while leaving the field's own light text
-   readable. Only the fill is themed here: the form fields carry their
-   validation state in the bottom border, and an `!important` border-color was
-   repainting every red and amber edge in the jurisdiction's own color. */
-html[data-state-theme]:not(.dark) .dmv-main input:not([type="checkbox"]),
-html[data-state-theme]:not(.dark) .dmv-main select,
-html[data-state-theme]:not(.dark) .dmv-main textarea {
-  background-color: var(--state-input) !important;
-}
-html[data-state-theme].dark .dmv-main input:not([type="checkbox"]),
-html[data-state-theme].dark .dmv-main select,
-html[data-state-theme].dark .dmv-main textarea {
-  background-color: color-mix(in srgb, var(--state-primary) 14%, #2c2c2c) !important;
-}
-html[data-state-theme]:not(.dark) .dmv-sidebar select,
-html[data-state-theme]:not(.dark) .dmv-sidebar input:not([type="checkbox"]),
-html[data-state-theme]:not(.dark) .dmv-sidebar textarea {
-  background-color: var(--state-input) !important;
-  border-color: var(--state-border) !important;
-}
-html[data-state-theme].dark .dmv-sidebar select,
-html[data-state-theme].dark .dmv-sidebar input:not([type="checkbox"]),
-html[data-state-theme].dark .dmv-sidebar textarea {
-  background-color: color-mix(in srgb, var(--state-primary) 14%, #2c2c2c) !important;
-  border-color: color-mix(in srgb, var(--state-primary) 40%, #555555) !important;
-}
-html[data-state-theme] .dmv-sidebar select:focus,
-html[data-state-theme] .dmv-sidebar input:focus,
-html[data-state-theme] .dmv-sidebar textarea:focus {
-  border-color: var(--state-ring) !important;
-  --tw-ring-color: var(--state-ring) !important;
-}
-/* Focused form fields keep the jurisdiction's ring color, but not its border:
-   a focused field that fails validation has to stay red. */
-html[data-state-theme] .dmv-main input:focus,
-html[data-state-theme] .dmv-main select:focus,
-html[data-state-theme] .dmv-main textarea:focus {
-  --tw-ring-color: var(--state-ring) !important;
-}
-html[data-state-theme] .dmv-preview canvas {
-  filter: drop-shadow(0 10px 18px color-mix(in srgb, var(--state-primary) 20%, transparent));
-}
-html[data-state-theme] .jurisdiction-plate {
-  background: var(--state-accent);
-  color: var(--state-on-accent);
-  border-color: color-mix(in srgb, var(--state-accent) 70%, black);
-}
-
-/* ─── Scrollbar polish ───────────────────────────────────────────────────── */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+html {
+  background: var(--paper);
+  accent-color: var(--accent);
 }
 body {
-  @apply font-sans antialiased bg-gray-50 text-gray-900;
+  margin: 0;
+  color: var(--ink);
+  font-family: "Atkinson Hyperlegible Next", system-ui, sans-serif;
+  font-size: var(--text-body);
 }
-
-html.dark body {
-  @apply bg-[#121212] text-gray-200;
+::selection {
+  background: var(--selection);
+  color: var(--ink);
 }
-
+button,
 input,
 select,
+textarea,
+summary {
+  -webkit-tap-highlight-color: transparent;
+}
+button {
+  touch-action: manipulation;
+}
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+input,
 textarea {
-  @apply transition-colors duration-200;
+  caret-color: var(--accent);
 }
-
-/* The floating-label rules that lived here are gone with the label itself.
-   Floating it inside the control is what forced `truncate w-[85%]`, and at a
-   230px column that clipped "Family Name Truncation Indicator" down to
-   "Family Name Trun…". The label now sits above the input, at full width. */
-
-html.dark ::-webkit-scrollbar-thumb {
-  background: #333333;
+input[type="checkbox"] {
+  width: 1.1rem;
+  height: 1.1rem;
+  flex-shrink: 0;
 }
-html.dark ::-webkit-scrollbar-thumb:hover {
-  background: #555555;
+summary {
+  cursor: pointer;
 }
-html.dark ::-webkit-scrollbar-track {
-  background: #121212;
+.app-shell {
+  min-height: 100dvh;
+  background: var(--paper);
+  color: var(--ink);
 }
-
-body,
-header,
-aside,
-main,
-div {
-  @apply transition-colors duration-300 ease-in-out;
+.skip-link {
+  position: fixed;
+  top: -5rem;
+  left: 1rem;
+  z-index: 100;
+  padding: 12px;
+  background: var(--ink);
+  color: var(--surface);
 }
-
-.header-toolbar {
-  scrollbar-width: none;
+.skip-link:focus {
+  top: 0.5rem;
 }
-.header-toolbar::-webkit-scrollbar {
+.workbench-header {
+  min-height: 84px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-6);
+  padding: var(--space-4) var(--space-8);
+  border-bottom: 1px solid var(--rule);
+  background: var(--surface);
+}
+.product-wordmark {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-shrink: 0;
+}
+.product-wordmark h1 {
+  font-size: 1.0625rem;
+  font-weight: 750;
+  line-height: 1.2;
+  letter-spacing: 0.035em;
+}
+.product-caption {
+  display: block;
+  color: var(--muted);
+  font-size: var(--text-small);
+  margin-top: 3px;
+}
+.wordmark-divider {
+  color: var(--accent);
+  font-weight: 400;
+}
+.barcode-mark {
+  display: block;
+  width: 28px;
+  height: 32px;
+  background: repeating-linear-gradient(0deg, var(--ink) 0 3px, transparent 3px 5px);
+  border-left: 4px solid var(--ink);
+  border-right: 2px solid var(--ink);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 0 63%, 60% 63%, 60% 52%, 0 52%);
+}
+.header-actions,
+.history-actions,
+.dialog-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.history-actions {
+  padding-right: var(--space-3);
+  margin-right: var(--space-2);
+  border-right: 1px solid var(--rule);
+  gap: 0;
+}
+.wb-button {
+  min-height: var(--control-height);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: 0 var(--space-4);
+  border: 1px solid var(--control-border);
+  border-radius: var(--radius-control);
+  font-size: var(--text-small);
+  font-weight: 650;
+  background: var(--surface);
+  color: var(--ink);
+  white-space: nowrap;
+}
+.wb-button:hover:not(:disabled) {
+  background: var(--surface-alt);
+}
+.wb-button.primary,
+.wb-button.danger {
+  background: #9c371c;
+  border-color: #9c371c;
+  color: white;
+}
+.wb-button.primary:hover:not(:disabled),
+.wb-button.danger:hover:not(:disabled) {
+  background: #812c17;
+}
+.wb-button.icon-button {
+  width: var(--control-height);
+  padding: 0;
+  border-color: transparent;
+}
+.text-button {
+  min-height: var(--control-height);
+  padding: 0 var(--space-2);
+  color: var(--accent);
+  font-weight: 600;
+  font-size: var(--text-small);
+}
+.text-button:hover {
+  text-decoration: underline;
+}
+.tools-menu,
+.field-tools {
+  position: relative;
+}
+.tool-popover {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  z-index: 45;
+  min-width: 260px;
+  max-width: calc(100vw - 24px);
+  background: var(--surface);
+  color: var(--ink);
+  padding: var(--space-2);
+  border: 1px solid var(--control-border);
+  border-radius: var(--radius-overlay);
+  box-shadow: var(--overlay-shadow);
+}
+.tool-popover > button,
+.sample-menu button {
+  display: block;
+  min-height: var(--control-height);
+  text-align: left;
+  padding: var(--space-2) var(--space-3);
+  width: 100%;
+  font-size: var(--text-body);
+  border-radius: var(--radius-control);
+}
+.tool-popover button:hover {
+  background: var(--surface-alt);
+}
+.menu-setting {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  border-block: 1px solid var(--rule);
+  margin-block: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+}
+.menu-setting select {
+  min-height: var(--control-height);
+  background: var(--surface);
+  border: 1px solid var(--control-border);
+  border-radius: var(--radius-control);
+  padding-inline: 8px;
+}
+.sample-menu summary {
+  padding: var(--space-3);
+  min-height: var(--control-height);
+}
+.danger-text {
+  color: var(--error);
+}
+.wb-label {
+  display: block;
+  font-size: var(--text-small);
+  font-weight: 600;
+  color: var(--secondary);
+  margin-bottom: var(--space-2);
+}
+.wb-select {
+  display: block;
+  width: 100%;
+  min-height: var(--control-height);
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--control-border);
+  border-radius: var(--radius-control);
+  padding: 0 var(--space-3);
+  font-size: var(--text-body);
+}
+.record-context {
+  padding: var(--space-5) var(--space-8) 0;
+  border-bottom: 1px solid var(--rule);
+}
+.context-fields {
+  display: grid;
+  grid-template-columns: minmax(220px, 1.35fr) minmax(180px, 1fr) minmax(175px, 0.9fr) auto;
+  gap: var(--space-6);
+  align-items: end;
+  max-width: 1400px;
+}
+.context-issuer input {
+  background: var(--surface);
+  border: 1px solid var(--control-border);
+  color: var(--ink);
+  font-size: var(--text-body);
+  box-shadow: none;
+}
+.strict-control {
+  display: flex;
+  align-items: center;
+  min-height: var(--control-height);
+  gap: var(--space-3);
+  padding-block: var(--space-1);
+}
+.strict-control small {
+  display: block;
+  color: var(--muted);
+  font-size: 0.75rem;
+  margin-top: 3px;
+}
+.schema-details {
+  font-size: var(--text-small);
+  color: var(--secondary);
+}
+.schema-details > summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+}
+.schema-details > summary::before {
+  content: "+";
+  font-family: "JetBrains Mono", monospace;
+}
+.schema-details[open] > summary::before {
+  content: "−";
+}
+.schema-detail-content {
+  padding-block: var(--space-2) var(--space-4);
+  max-width: 850px;
+  display: grid;
+  gap: 8px;
+}
+.workspace-grid {
+  display: flex;
+  align-items: stretch;
+  max-width: 1800px;
+  margin-inline: auto;
+}
+.record-editor {
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  background: var(--surface);
+}
+.section-index {
+  padding-inline: var(--space-8);
+  border-bottom: 1px solid var(--rule);
+}
+.record-sections ol {
+  display: flex;
+  position: relative;
+  overflow-x: auto;
+  gap: var(--space-5);
+  scrollbar-width: thin;
+}
+.record-sections li {
+  position: relative;
+}
+.record-sections button {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  white-space: nowrap;
+  min-height: 58px;
+  border-bottom: 2px solid transparent;
+  font-size: var(--text-small);
+  color: var(--secondary);
+}
+.record-sections button.active {
+  border-bottom-color: var(--accent);
+  color: var(--ink);
+  font-weight: 700;
+}
+.section-number {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.6875rem;
+  color: var(--muted);
+}
+.active .section-number {
+  color: var(--accent);
+}
+.section-error {
+  color: var(--error);
+  font-weight: 700;
+}
+.section-heading {
+  padding: var(--space-6) var(--space-8) var(--space-4);
+}
+.section-heading .text-k-eyebrow {
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+}
+.section-heading h2 {
+  margin-top: 4px;
+  color: var(--ink);
+}
+.section-heading p {
+  max-width: 60ch;
+  color: var(--secondary);
+}
+.field-filters {
+  padding: 0 var(--space-8) var(--space-3);
+  border-bottom: 1px solid var(--rule);
+}
+.filter-search {
+  display: flex;
+  gap: 8px;
+}
+.filter-search input {
+  width: 100%;
+  min-width: 0;
+  height: var(--control-height);
+  border: 1px solid var(--control-border);
+  border-radius: var(--radius-control);
+  padding: 0 var(--space-3);
+  background: var(--surface);
+  color: var(--ink);
+  font-size: var(--text-small);
+}
+.filter-search input::placeholder {
+  color: var(--muted);
+}
+.filter-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-top: 4px;
+  font-size: var(--text-small);
+}
+.filter-controls > label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: var(--control-height);
+}
+.completion-count {
+  margin-left: auto;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.field-tools summary {
+  display: flex;
+  align-items: center;
+  min-height: var(--control-height);
+  color: var(--secondary);
+  padding-inline: 8px;
+}
+.field-tools summary::after {
+  content: "+";
+  padding-left: 6px;
+}
+.filter-result {
+  color: var(--secondary);
+  font-size: var(--text-small);
+}
+.record-fields {
+  padding: var(--space-5) var(--space-8) var(--space-8);
+}
+.field-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4) var(--space-6);
+}
+.record-field {
+  min-width: 0;
+}
+.record-field > .field-label-row {
+  min-height: 44px;
+}
+.record-field input,
+.record-field select {
+  background: var(--surface);
+  color: var(--ink);
+  padding-left: var(--space-3);
+}
+.record-field .field-label {
+  font-size: var(--text-body);
+}
+.field-code {
+  color: var(--muted);
+  margin-right: 6px;
+}
+.field-label-row button {
+  min-height: 44px;
+  height: 36px;
+  width: 36px;
+}
+.field-suggestions {
+  margin-top: var(--space-1);
+}
+.field-suggestions summary {
+  min-height: var(--control-height);
+  color: var(--secondary);
+  display: flex;
+  align-items: center;
+  font-size: var(--text-small);
+}
+.field-suggestions summary::before {
+  content: "+";
+  margin-right: 6px;
+}
+.field-suggestions[open] summary::before {
+  content: "−";
+}
+.section-footer {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: var(--space-4) var(--space-8);
+  border-top: 1px solid var(--rule);
+}
+.section-footer button {
+  font-size: var(--text-small);
+}
+.panel-divider {
+  width: 5px;
+  flex-shrink: 0;
+  cursor: col-resize;
+  background: var(--rule);
+  touch-action: none;
+}
+.panel-divider:hover,
+.panel-divider:focus-visible {
+  background: var(--accent);
+}
+.output-panel {
+  width: min(var(--inspector-width, 440px), 42vw);
+  max-width: 720px;
+  flex-shrink: 0;
+  flex-direction: column;
+  gap: var(--space-3);
+  background: var(--paper);
+  padding: var(--space-5) var(--space-5) var(--space-6);
+}
+.output-panel > * {
+  flex-shrink: 0;
+}
+.output-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+.output-heading h2 {
+  font-weight: 700;
+  font-size: 1rem;
+}
+.output-heading .validation-mode {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+.barcode-proof {
+  border: 1px solid var(--rule);
+  background: #fff;
+}
+.proof-caption {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-bottom: 1px solid #e0e2db;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.6875rem;
+  color: #4e594f;
+  letter-spacing: 0.06em;
+}
+.printable-barcode {
+  min-height: 170px;
+  padding: 18px 12px;
+  display: flex;
+  align-items: center;
+  overflow: auto;
+  background: #fff;
+  position: relative;
+}
+.printable-barcode canvas {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: auto;
+  image-rendering: pixelated;
+}
+.proof-empty {
+  text-align: center;
+  padding: 20px;
+  width: 100%;
+  color: #545e50;
+}
+.proof-empty strong {
+  display: block;
+  color: #303930;
+  font-size: 1rem;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+.proof-empty p {
+  font-size: var(--text-small);
+  max-width: 28ch;
+  margin: auto;
+}
+.proof-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: var(--text-small);
+  color: var(--secondary);
+}
+.proof-status-controls {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+.proof-status-controls button {
+  width: 44px;
+  height: 44px;
+}
+.proof-note {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+.field-error {
+  color: var(--error);
+  font-size: var(--text-small);
+  line-height: 1.5;
+}
+.export-buttons {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+.export-buttons .wb-button {
+  padding-inline: 8px;
+}
+.export-details {
+  font-size: var(--text-small);
+  color: var(--secondary);
+}
+.export-details summary {
+  min-height: 44px;
+  padding-block: 8px;
+}
+.export-details label {
+  display: flex;
+  align-items: start;
+  gap: 8px;
+  padding-block: 12px;
+}
+.export-details code {
+  display: block;
+  overflow-wrap: anywhere;
+  font-size: 0.6875rem;
+  margin-block: 4px 8px;
+}
+.copy-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.copy-actions .wb-button {
+  flex: 1;
+}
+.inspector-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--control-border);
+  overflow-x: auto;
+  gap: var(--space-3);
+}
+.inspector-tabs button {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: var(--text-small);
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  color: var(--secondary);
+}
+.inspector-tabs button[aria-selected="true"] {
+  color: var(--ink);
+  border-bottom-color: var(--accent);
+  font-weight: 700;
+}
+.inspector-view {
+  max-height: 360px;
+  overflow: auto;
+  padding-block: var(--space-2);
+  scrollbar-width: thin;
+}
+.inspector-view[hidden] {
   display: none;
 }
-
-/* ─── iOS safe areas ─────────────────────────────────────────────────────────
-   index.html sets viewport-fit=cover, so these insets report real values on
-   notched iPhones (and 0 everywhere else). The status bar is declared
-   black-translucent, which means the page starts at y=0 underneath it — the
-   header pads itself down so its state-colored bar fills that strip instead
-   of hiding controls behind the Dynamic Island. */
-.app-shell {
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-  padding-left: env(safe-area-inset-left, 0px);
-  padding-right: env(safe-area-inset-right, 0px);
+.inspector-view textarea {
+  background: var(--surface);
+  color: var(--ink);
+  border-color: var(--control-border);
+  height: 172px;
+  resize: vertical;
+  line-height: 1.65;
 }
-
-.header-safe-top {
-  padding-top: calc(0.625rem + env(safe-area-inset-top, 0px));
+.inspector-view table {
+  font-variant-numeric: tabular-nums;
 }
-
-.pb-safe {
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-}
-
-/* Mobile status/action strip. Pinned above the home indicator so the export
-   button never sits under it, and only ever rendered below the lg breakpoint. */
-.mobile-action-bar {
+.inspector-view th {
   position: sticky;
-  bottom: 0;
-  z-index: 30;
-  background: rgb(255 255 255 / 0.95);
-  backdrop-filter: blur(6px);
-  border-top: 1px solid #e5e7eb;
-  padding-bottom: env(safe-area-inset-bottom, 0px);
+  top: 0;
+  background: var(--paper);
+  z-index: 1;
 }
-
-.dark .mobile-action-bar {
-  background: rgb(30 30 30 / 0.95);
-  border-top-color: #333333;
+.inspector-summary {
+  font-size: var(--text-small);
+  color: var(--secondary);
+  margin-bottom: var(--space-3);
 }
-
-/* Search term hit inside a field label. Deliberately not the browser default
-   yellow, which is unreadable on the dark surface. */
-.search-hit {
-  background: rgb(37 99 235 / 0.18);
-  color: inherit;
-  border-radius: 2px;
-  padding: 0 1px;
-}
-
-.dark .search-hit {
-  background: rgb(96 165 250 / 0.28);
-}
-
-/* Toast slide-in */
-@keyframes toast-in {
-  from {
-    opacity: 0;
-    transform: translateY(-8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-.animate-toast-in {
-  animation: toast-in 180ms ease-out both;
-}
-
-/* Field hover-action visibility */
-.field-hover-action {
-  opacity: 0;
-  transition: opacity 150ms ease-in-out;
-}
-.group:hover .field-hover-action,
-.group:focus-within .field-hover-action {
-  opacity: 1;
-}
-
-/* Pinch-zoomable barcode preview — the browser handles the gesture; we just
-   declare that the surface accepts it. `touch-pan-x/y` keeps single-finger
-   drags as pans once the user is zoomed in. */
-.barcode-zoom {
-  touch-action: pinch-zoom pan-x pan-y;
-}
-
-/* Field flash — used when a validation issue is clicked to jump to a field. */
-@keyframes field-flash {
-  0% {
-    box-shadow: 0 0 0 0 rgba(26, 115, 232, 0.6);
-  }
-  50% {
-    box-shadow: 0 0 0 4px rgba(26, 115, 232, 0.5);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(26, 115, 232, 0);
-  }
-}
-.field-flash {
-  animation: field-flash 1100ms ease-out 1;
-  border-radius: 6px;
-}
-
-/* Field diff-flash — used when a bulk load (import / scan / preset) changes a
-   field, so the user can see exactly what landed. Amber to distinguish it from
-   the blue jump-to-field flash. */
-@keyframes field-diff-flash {
-  0% {
-    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.65);
-    background-color: rgba(245, 158, 11, 0.12);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0);
-    background-color: transparent;
-  }
-}
-.field-diff-flash {
-  animation: field-diff-flash 1500ms ease-out 1;
-  border-radius: 6px;
-}
-
-/* ─── Whimsy: holographic shimmer over the barcode ───────────────────────── */
-.holo-shimmer {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 6;
-  border-radius: 6px;
-  overflow: hidden;
-  mix-blend-mode: screen;
-  opacity: 0.5;
-  --holo-x: 50%;
-  --holo-y: 40%;
-  background:
-    radial-gradient(
-      120% 120% at var(--holo-x) var(--holo-y),
-      color-mix(in srgb, var(--holo-accent, #fbbc04) 65%, transparent) 0%,
-      color-mix(in srgb, var(--holo-primary, #1a73e8) 45%, transparent) 30%,
-      transparent 58%
-    ),
-    repeating-linear-gradient(
-      115deg,
-      rgba(255, 0, 128, 0.1) 0 8px,
-      rgba(0, 255, 200, 0.1) 8px 16px,
-      rgba(120, 80, 255, 0.1) 16px 24px
-    );
-}
-.holo-shimmer::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image: repeating-radial-gradient(
-    circle at var(--holo-x) var(--holo-y),
-    transparent 0 6px,
-    color-mix(in srgb, var(--holo-primary, #1a73e8) 22%, transparent) 6px 7px
-  );
-  opacity: 0.35;
-}
-.holo-microtext {
-  position: absolute;
-  inset: 0;
+.workspace-footer {
   display: flex;
   align-items: center;
-  justify-content: center;
-  font-size: 0.6rem;
-  letter-spacing: 0.5em;
-  font-weight: 700;
-  text-transform: uppercase;
-  color: color-mix(in srgb, var(--holo-primary, #1a73e8) 55%, white);
-  opacity: 0.4;
+  justify-content: space-between;
+  gap: var(--space-4);
+  border-top: 1px solid var(--rule);
+  color: var(--muted);
+  padding: var(--space-3) var(--space-8);
+  font-size: 0.75rem;
 }
-
-/* ─── Whimsy: state-animal confetti ──────────────────────────────────────── */
-.critter-confetti {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  overflow: hidden;
-  z-index: 20;
-}
-.critter-piece {
-  position: absolute;
-  top: -12%;
-  font-size: 1.25rem;
-  will-change: transform, opacity;
-  animation-name: critter-fall;
-  animation-timing-function: cubic-bezier(0.3, 0.7, 0.4, 1);
-  animation-fill-mode: forwards;
-}
-@keyframes critter-fall {
-  0% {
-    transform: translateY(-20%) translateX(0) rotate(0);
-    opacity: 0;
-  }
-  12% {
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(180%) translateX(var(--drift, 0)) rotate(var(--rot, 360deg));
-    opacity: 0;
-  }
-}
-
-/* ─── Whimsy: APPROVED rubber stamp ──────────────────────────────────────── */
-.approval-stamp {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  pointer-events: none;
-  z-index: 15;
-}
-.approval-stamp-ink {
-  font-family: "Roboto", system-ui, sans-serif;
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  font-size: clamp(1.1rem, 6vw, 1.9rem);
-  text-transform: uppercase;
-  color: #c0392b;
-  border: 3px solid #c0392b;
-  border-radius: 8px;
-  padding: 0.25em 0.6em;
-  transform: rotate(-14deg) scale(2.4);
-  opacity: 0;
-  mix-blend-mode: multiply;
-  box-shadow: inset 0 0 0 2px rgba(192, 57, 43, 0.35);
-  animation: stamp-thunk 1500ms ease-out forwards;
-}
-@keyframes stamp-thunk {
-  0% {
-    opacity: 0;
-    transform: rotate(-14deg) scale(2.4);
-  }
-  18% {
-    opacity: 0.92;
-    transform: rotate(-14deg) scale(0.95);
-  }
-  26% {
-    transform: rotate(-14deg) scale(1.04);
-  }
-  34% {
-    transform: rotate(-14deg) scale(1);
-  }
-  78% {
-    opacity: 0.88;
-  }
-  100% {
-    opacity: 0;
-    transform: rotate(-14deg) scale(1);
-  }
-}
-
-/* ─── Whimsy: the desk mascots' shared corner ────────────────────────────── */
-/* Gus and the queue ticket are opt-in together (Playful extras → Desk
-   mascots). One fixed column owns the corner so their heights stack instead of
-   overlapping; the wrapper itself is click-through so it never swallows a
-   click meant for the form underneath. */
-.desk-mascots {
+.modal-backdrop {
   position: fixed;
-  left: calc(12px + env(safe-area-inset-left, 0px));
-  bottom: calc(12px + env(safe-area-inset-bottom, 0px));
-  z-index: 40;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 10px;
-  max-width: min(78vw, 340px);
-  pointer-events: none;
-}
-.desk-mascots > * {
-  pointer-events: auto;
-}
-
-/* ─── Whimsy: Gus the clerk mascot ───────────────────────────────────────── */
-.clerk-mascot {
-  position: relative;
-  display: flex;
-  align-items: flex-end;
-  gap: 6px;
-  max-width: min(78vw, 320px);
-}
-.clerk-face {
-  font-size: 1.9rem;
-  line-height: 1;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.25));
-  user-select: none;
-}
-.clerk-happy {
-  animation: clerk-bounce 1.4s ease-in-out infinite;
-}
-.clerk-error {
-  animation: clerk-shake 0.5s ease-in-out;
-}
-.clerk-asleep {
-  opacity: 0.7;
-}
-@keyframes clerk-bounce {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-4px);
-  }
-}
-@keyframes clerk-shake {
-  0%,
-  100% {
-    transform: translateX(0) rotate(0);
-  }
-  25% {
-    transform: translateX(-2px) rotate(-4deg);
-  }
-  75% {
-    transform: translateX(2px) rotate(4deg);
-  }
-}
-.clerk-bubble {
-  position: relative;
-  background: white;
-  color: #1f2937;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 7px 10px;
-  font-size: 0.72rem;
-  line-height: 1.25;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.14);
-  max-width: 240px;
-}
-html.dark .clerk-bubble {
-  background: #1f1f1f;
-  color: #e5e7eb;
-  border-color: #333;
-}
-.clerk-dismiss {
-  position: absolute;
-  top: -6px;
-  right: -6px;
-  background: #6b7280;
-  color: white;
-  border-radius: 9999px;
-  width: 16px;
-  height: 16px;
+  inset: 0;
+  z-index: 60;
+  background: #151b1770;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  padding: 20px;
 }
-.clerk-dismiss:hover {
-  background: #ef4444;
+.wb-dialog {
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--control-border);
+  border-radius: var(--radius-overlay);
+  box-shadow: var(--overlay-shadow);
+  padding: var(--space-6);
+  width: 680px;
+  max-width: 100%;
+  max-height: 90dvh;
+  overflow: auto;
 }
-
-/* ─── Whimsy: Konami "DMV disco" party mode ──────────────────────────────── */
-@keyframes party-hue {
-  to {
-    filter: hue-rotate(360deg);
+.compact-dialog {
+  max-width: 440px;
+}
+.wb-dialog h2 {
+  font-weight: 700;
+  font-size: var(--text-title);
+}
+.wb-dialog p {
+  color: var(--secondary);
+  line-height: 1.5;
+  margin-block: var(--space-4);
+}
+.dialog-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 12px;
+}
+.eyebrow {
+  display: block;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  margin-bottom: 6px;
+}
+.import-text {
+  display: block;
+  width: 100%;
+  height: 240px;
+  font:
+    0.8125rem/1.6 "JetBrains Mono",
+    monospace;
+  background: var(--paper);
+  border: 1px solid var(--control-border);
+  border-radius: var(--radius-control);
+  padding: var(--space-3);
+  resize: vertical;
+}
+.dialog-actions {
+  justify-content: space-between;
+  margin-top: var(--space-5);
+  flex-wrap: wrap;
+}
+.file-picker {
+  position: relative;
+  overflow: hidden;
+}
+.file-picker input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  width: 100%;
+  cursor: pointer;
+}
+.file-picker:focus-within {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+.search-hit {
+  background: var(--selection);
+  color: var(--ink);
+}
+.field-flash,
+.field-diff-flash {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+@media (max-width: 1100px) {
+  .context-fields {
+    gap: 16px;
+    grid-template-columns: minmax(180px, 1.2fr) minmax(150px, 1fr) minmax(155px, 1fr);
+  }
+  .strict-control {
+    grid-column: 1/-1;
+  }
+  .strict-control small {
+    display: inline;
+    margin-left: 8px;
   }
 }
-.party-mode header.state-themed,
-.party-mode .state-primary-bg,
-.party-mode .holo-shimmer {
-  animation: party-hue 3s linear infinite;
-}
-.party-mode .clerk-face {
-  animation: clerk-bounce 0.5s ease-in-out infinite;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .holo-shimmer,
-  .critter-confetti {
+@media (max-width: 1023px) {
+  .workbench-header {
+    padding: 12px 16px;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .product-wordmark {
+    flex: 1;
+  }
+  .product-wordmark h1 {
+    font-size: 0.9375rem;
+  }
+  .header-actions {
+    gap: 6px;
+  }
+  .history-actions {
     display: none;
   }
-  .approval-stamp-ink,
-  .clerk-happy,
-  .clerk-error,
-  .party-mode header.state-themed,
-  .party-mode .state-primary-bg {
-    animation: none;
+  .wb-button {
+    padding-inline: 12px;
   }
-  .field-diff-flash {
-    animation: none;
+  .record-context {
+    padding: 16px 16px 0;
+  }
+  .context-mobile-hidden {
+    display: none;
+  }
+  .context-fields {
+    grid-template-columns: 1fr 1fr;
+  }
+  .context-issuer {
+    grid-column: 1/-1;
+  }
+  .strict-control {
+    grid-column: 1/-1;
+  }
+  .workspace-grid {
+    display: block;
+  }
+  .section-index {
+    padding-inline: 16px;
+  }
+  .record-sections ol {
+    gap: 20px;
+  }
+  .record-sections button {
+    min-height: 52px;
+  }
+  .section-heading {
+    padding: 20px 16px 12px;
+  }
+  .section-heading h2 {
+    font-size: 1.25rem;
+  }
+  .field-filters {
+    padding-inline: 16px;
+  }
+  .field-filters {
+    position: relative;
+  }
+  .field-tools {
+    position: static;
+  }
+  .field-tools .tool-popover {
+    top: 100%;
+    left: var(--space-4);
+    right: auto;
+  }
+  .record-fields {
+    padding: 16px 16px 24px;
+  }
+  .field-grid {
+    gap: 16px;
+  }
+  .section-footer {
+    padding: 16px;
+  }
+  .output-panel {
+    width: 100%;
+    max-width: none;
+    padding: 20px 16px;
+  }
+  .workspace-footer {
+    padding: 12px 16px;
+    flex-direction: column;
+    align-items: start;
+    gap: 4px;
   }
 }
-
-/* Print: when the user clicks "Print" we add `printing-barcode` to <html>,
-   then hide everything except the marked barcode container and center it. */
+@media (max-width: 540px) {
+  .workbench-header {
+    flex-wrap: wrap;
+  }
+  .product-caption,
+  .section-heading .section-progress,
+  .section-heading .section-description {
+    display: none;
+  }
+  .section-heading {
+    padding-block: var(--space-3);
+  }
+  .record-fields {
+    padding-top: var(--space-2);
+  }
+  .header-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .header-actions > .wb-button {
+    flex: 1;
+  }
+  .field-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .field-label-row button {
+    width: 44px;
+    height: 44px;
+  }
+  .completion-count {
+    margin-left: 0;
+  }
+  .filter-controls {
+    gap: 8px 12px;
+  }
+  .record-field .field-label {
+    font-size: 1rem;
+  }
+  .modal-backdrop {
+    padding: 12px;
+  }
+  .wb-dialog {
+    padding: 20px;
+  }
+  .context-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .strict-control small {
+    display: block;
+    margin-left: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+@media (forced-colors: active) {
+  .wb-button,
+  .record-field input,
+  .wb-select {
+    border: 1px solid ButtonText;
+  }
+  .record-sections button.active,
+  .inspector-tabs button[aria-selected="true"] {
+    border-bottom: 3px solid Highlight;
+  }
+  .barcode-proof,
+  .printable-barcode {
+    forced-color-adjust: none;
+  }
+}
 @media print {
   html.printing-barcode body * {
     visibility: hidden;
@@ -796,563 +1055,231 @@ html.dark .clerk-bubble {
   }
   html.printing-barcode .printable-barcode {
     position: fixed;
-    inset: 0;
-    margin: auto;
-    border: 0 !important;
-    background: white !important;
-    box-shadow: none !important;
-    padding: 0 !important;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    top: 0.5in;
+    left: 0.5in;
+    width: var(--print-width, 3in);
+    min-height: 0;
+    height: auto;
+    padding: 0;
+    overflow: visible;
+    display: block;
   }
   html.printing-barcode .printable-barcode canvas {
-    max-width: 90vw;
-    max-height: 90vh;
-    image-rendering: pixelated;
+    transform: none !important;
+    width: 100% !important;
+    max-width: none;
+    height: auto;
+    opacity: 1 !important;
   }
 }
-
-/* ─── Resizable inspector column ─────────────────────────────────────────── */
-/* The preview panel used to be pinned at 20rem while the form spread across
-   four columns — the panel a QA user reads most was the most cramped thing on
-   the page. Its width now comes from the store. */
-.dmv-preview {
-  width: 100%;
+.name-encoding {
+  margin-top: 20px;
+  border-top: 1px solid var(--rule);
 }
-
-@media (min-width: 1024px) {
-  .dmv-preview {
-    width: var(--inspector-width, 320px);
-  }
+.name-encoding > summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  min-height: 52px;
+  font-weight: 600;
+  font-size: var(--text-small);
 }
-
-.panel-divider {
-  flex: 0 0 6px;
-  cursor: col-resize;
-  background: transparent;
-  position: relative;
-  touch-action: none;
+.name-encoding > summary::before {
+  content: "+";
+  color: var(--accent);
 }
-
-.panel-divider::after {
-  content: "";
-  position: absolute;
-  inset: 12px 2px;
-  border-radius: 999px;
-  background: rgb(0 0 0 / 0.08);
-  transition: background 0.15s ease;
+.name-encoding[open] > summary::before {
+  content: "−";
 }
-
-html.dark .panel-divider::after {
-  background: rgb(255 255 255 / 0.1);
+.name-encoding > summary span {
+  font-weight: 400;
+  color: var(--muted);
 }
-
-.panel-divider:hover::after,
-.panel-divider:focus-visible::after {
-  background: var(--color-primary, #2563eb);
+.unmodeled-fields {
+  margin: 0 32px 24px;
+  border-block: 1px solid var(--rule);
+  padding-block: 12px;
+  font-size: var(--text-small);
 }
-
-.panel-divider:focus-visible {
-  outline: none;
+.unmodeled-fields > summary {
+  min-height: 44px;
 }
-
-/* Two-line validation advisories. Enumerated messages used to be clipped to
-   about six useful characters by a single truncated line. */
-.field-advisory {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  line-height: 1.25;
+.unmodeled-fields p {
+  color: var(--secondary);
+  margin-bottom: 12px;
 }
-
-/* ─── Whimsy: height silhouette next to DAU ──────────────────────────────── */
-.height-silhouette {
-  display: inline-flex;
-  align-items: flex-end;
-  gap: 3px;
-  opacity: 0;
-  transition: opacity 0.2s ease;
-}
-
-.group:focus-within .height-silhouette,
-.group:hover .height-silhouette {
-  opacity: 1;
-}
-
-.height-chart {
-  position: relative;
+.unmodeled-fields input {
   display: block;
-  width: 12px;
-  height: 28px;
-  border-left: 1px dashed currentColor;
-  color: rgb(148 163 184 / 0.8);
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid var(--control-border);
+  background: var(--surface);
+  padding: 8px;
 }
-
-.height-figure {
-  position: absolute;
+@media (min-width: 1024px) {
+  .app-shell {
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+  }
+  .workspace-grid {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+  }
+  .record-editor,
+  .output-panel {
+    overflow-y: auto;
+    scrollbar-width: thin;
+  }
+  .workbench-header,
+  .record-context,
+  .workspace-footer {
+    flex-shrink: 0;
+  }
+  .section-footer {
+    margin-top: 0;
+  }
+  .record-editor {
+    container-type: inline-size;
+  }
+  .field-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media print {
+  html.printing-barcode .printable-barcode {
+    min-height: 0;
+  }
+}
+.header-safe-top {
+  padding-top: calc(1rem + env(safe-area-inset-top));
+}
+.mobile-action-bar {
+  position: fixed;
   bottom: 0;
-  left: 3px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
-  transition: height 0.25s ease;
-}
-
-.height-head {
-  width: 4px;
-  height: 4px;
-  border-radius: 999px;
-  background: currentColor;
-  color: rgb(100 116 139);
-}
-
-.height-body {
-  flex: 1;
-  width: 2px;
-  background: currentColor;
-  color: rgb(100 116 139);
-}
-
-.height-readout {
-  font-size: 9px;
-  font-family: ui-monospace, monospace;
-  color: rgb(148 163 184);
-  line-height: 1;
-  padding-bottom: 1px;
-}
-
-/* ─── Whimsy: license plate frame ────────────────────────────────────────── */
-.plate-frame {
-  position: relative;
-  padding: 14px 12px 16px;
-  border-radius: 8px;
-  border: 2px solid var(--plate-ink, #1f2937);
-  background: linear-gradient(180deg, #fdfdfd 0%, #f1f2f4 100%);
-  box-shadow:
-    inset 0 0 0 2px rgb(255 255 255 / 0.7),
-    0 1px 3px rgb(0 0 0 / 0.18);
-}
-
-html.dark .plate-frame {
-  background: linear-gradient(180deg, #e8e8e8 0%, #d4d6d9 100%);
-}
-
-.plate-title {
-  text-align: center;
-  font-size: 8px;
-  font-weight: 700;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--plate-ink, #1f2937);
-  margin-bottom: 6px;
-}
-
-.plate-slogan {
-  text-align: center;
-  font-size: 7px;
-  font-style: italic;
-  letter-spacing: 0.08em;
-  color: var(--plate-accent, #475569);
-  margin-top: 6px;
-}
-
-.plate-window {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.plate-bolt {
-  position: absolute;
-  width: 5px;
-  height: 5px;
-  border-radius: 999px;
-  background: radial-gradient(circle at 30% 30%, #ffffff, #94a3b8 70%, #64748b);
-  box-shadow: 0 0 0 1px rgb(0 0 0 / 0.15);
-}
-
-.plate-bolt-tl {
-  top: 4px;
-  left: 4px;
-}
-.plate-bolt-tr {
-  top: 4px;
-  right: 4px;
-}
-.plate-bolt-bl {
-  bottom: 4px;
-  left: 4px;
-}
-.plate-bolt-br {
-  bottom: 4px;
-  right: 4px;
-}
-
-/* ─── Whimsy: laminator ──────────────────────────────────────────────────── */
-.laminator {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  overflow: hidden;
-  border-radius: 6px;
-  z-index: 15;
-}
-
-.laminator-roller {
-  position: absolute;
   left: 0;
   right: 0;
-  height: 10px;
-  background: linear-gradient(180deg, #64748b, #334155 60%, #1e293b);
-  box-shadow: 0 0 6px rgb(0 0 0 / 0.4);
-  animation: laminator-rollers 1.4s ease-in-out;
+  background: var(--surface);
+  border-top: 1px solid var(--control-border);
+  padding-bottom: env(safe-area-inset-bottom);
+  z-index: 35;
 }
-
-.laminator-roller-top {
-  top: 0;
-  transform: translateY(-100%);
+.filter-controls label:has(:focus-visible) {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
 }
-
-.laminator-roller-bottom {
-  bottom: 0;
-  transform: translateY(100%);
+.filter-controls input:focus-visible {
+  outline: none;
 }
-
-.laminator-sheen {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 45%;
-  background: linear-gradient(
-    100deg,
-    transparent 0%,
-    rgb(255 255 255 / 0.75) 45%,
-    rgb(255 255 255 / 0.9) 55%,
-    transparent 100%
-  );
-  animation: laminator-sheen 1.4s ease-in-out;
-}
-
-.laminator-heat {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(ellipse at center, rgb(251 191 36 / 0.18), transparent 70%);
-  animation: laminator-heat 1.4s ease-out;
-}
-
-@keyframes laminator-rollers {
-  0%,
-  100% {
-    opacity: 0;
-  }
-  15%,
-  70% {
-    opacity: 1;
-    transform: translateY(0);
+@media (max-width: 1023px) {
+  .app-shell {
+    padding-bottom: calc(76px + env(safe-area-inset-bottom));
   }
 }
 
-@keyframes laminator-sheen {
-  0% {
-    left: -50%;
-    opacity: 0;
-  }
-  20% {
-    opacity: 1;
-  }
-  80% {
-    opacity: 1;
-  }
-  100% {
-    left: 105%;
-    opacity: 0;
+.inspector-tabs button {
+  min-width: var(--control-height);
+}
+@media (max-width: 540px) {
+  .header-actions {
+    flex-wrap: wrap;
   }
 }
 
-@keyframes laminator-heat {
-  0%,
-  60% {
-    opacity: 0;
-  }
-  75% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-  }
+/* Controls share the same semantic surfaces in both appearances. */
+.app-shell .record-field input,
+.app-shell .record-field select,
+.app-shell .context-issuer input {
+  background: var(--surface);
+  color: var(--ink);
 }
-
-/* ─── Whimsy: stamp cursor ───────────────────────────────────────────────── */
-.stamp-surface {
-  position: absolute;
-  inset: 0;
-  z-index: 12;
-  cursor:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3E%3Crect x='9' y='3' width='12' height='9' rx='2' fill='%236b4423'/%3E%3Crect x='6' y='12' width='18' height='5' rx='1.5' fill='%238b5a2b'/%3E%3Crect x='4' y='17' width='22' height='6' rx='1' fill='%23b91c1c'/%3E%3C/svg%3E")
-      15 23,
-    crosshair;
+.app-shell .record-field [role="radio"] {
+  background: var(--surface);
+  color: var(--ink);
+  border-color: var(--control-border);
 }
-
-.stamp-impression {
-  position: absolute;
-  font-family: ui-monospace, monospace;
-  font-size: 13px;
-  font-weight: 800;
-  letter-spacing: 0.18em;
-  color: rgb(185 28 28 / 0.55);
-  border: 2px solid rgb(185 28 28 / 0.45);
-  border-radius: 3px;
-  padding: 2px 6px;
-  pointer-events: none;
-  text-shadow: 0 0 1px rgb(185 28 28 / 0.4);
-  animation: stamp-thunk 0.22s cubic-bezier(0.2, 1.4, 0.4, 1);
+.app-shell .record-field [role="radio"][aria-checked="true"] {
+  background: #9c371c;
+  border-color: #9c371c;
+  color: #fff;
 }
-
-@keyframes stamp-thunk {
-  0% {
-    opacity: 0;
-    scale: 2.2;
-  }
-  60% {
-    opacity: 1;
-    scale: 0.94;
-  }
-  100% {
-    opacity: 1;
-    scale: 1;
-  }
+.app-shell .field-code {
+  color: var(--muted);
 }
-
-/* ─── Whimsy: take-a-number ticket ───────────────────────────────────────── */
-/* Positioned by `.desk-mascots`; `relative` only so the dismiss button has a
-   containing block. */
-.ticket-dispenser {
-  position: relative;
+.app-shell .field-label-row button,
+.app-shell .section-heading p {
+  color: var(--secondary);
+}
+.record-field button {
+  min-height: var(--control-height);
+  min-width: var(--control-height);
+}
+.record-field .border-amber-500 {
+  border-color: var(--warning);
+}
+.record-field button.rounded-\[0\.5rem\] {
+  border-radius: var(--radius-control);
+}
+.modal-panel {
   display: flex;
-  align-items: stretch;
-  gap: 6px;
-  font-family: ui-monospace, monospace;
+  flex-direction: column;
+  width: 100%;
+  max-height: 90dvh;
+  overflow: auto;
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--control-border);
+  border-radius: var(--radius-overlay);
+  box-shadow: var(--overlay-shadow);
 }
-
-.ticket-dismiss {
-  position: absolute;
-  top: -6px;
-  right: -6px;
-  width: 16px;
-  height: 16px;
-  border-radius: 999px;
-  border: 1px solid rgb(0 0 0 / 0.2);
-  background: white;
-  color: #475569;
-  font-size: 11px;
-  line-height: 1;
-  z-index: 2;
+.modal-panel.wide {
+  max-width: 68rem;
 }
-
-.ticket-board {
-  background: #0f172a;
-  color: #fbbf24;
-  border-radius: 4px;
-  padding: 4px 8px;
-  border: 2px solid #1e293b;
-  text-align: center;
-  box-shadow: 0 2px 6px rgb(0 0 0 / 0.3);
+.modal-panel.medium {
+  max-width: 48rem;
 }
-
-.ticket-board-label {
-  font-size: 7px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  opacity: 0.75;
+.modal-panel.compact,
+.scanner-dialog {
+  max-width: 32rem;
 }
-
-.ticket-board-number {
-  font-size: 16px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  line-height: 1.1;
+.scanner-dialog p {
+  color: inherit;
 }
-
-.ticket-stub {
-  background: #fffbeb;
-  color: #78350f;
-  border: 1px dashed #d97706;
-  border-radius: 3px;
-  padding: 4px 8px;
-  text-align: center;
-  box-shadow: 0 2px 6px rgb(0 0 0 / 0.18);
+.scanner-dialog .proof-note {
+  color: var(--muted);
 }
-
-.ticket-stub-label {
-  font-size: 7px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  opacity: 0.7;
-}
-
-.ticket-stub-number {
-  font-size: 14px;
-  font-weight: 700;
-  line-height: 1.15;
-}
-
-.ticket-stub-note {
-  font-size: 7px;
-  opacity: 0.8;
-}
-
-.ticket-your-turn .ticket-board-number {
-  animation: ticket-blink 1.1s steps(2, start) infinite;
-}
-
-@keyframes ticket-blink {
-  50% {
-    opacity: 0.35;
-  }
-}
-
-/* ─── Whimsy: Gus's break sign ───────────────────────────────────────────── */
-.clerk-break-sign {
-  position: absolute;
-  top: -30px;
-  right: 0;
-  transform: rotate(-6deg);
-  background: #fffbeb;
-  color: #78350f;
-  border: 1px solid #d97706;
-  border-radius: 2px;
-  padding: 3px 7px;
-  font-size: 8px;
-  line-height: 1.25;
-  text-align: center;
-  font-family: "Bradley Hand", "Segoe Print", cursive;
-  box-shadow: 0 2px 5px rgb(0 0 0 / 0.2);
-}
-
-.clerk-break-sign strong {
-  display: block;
-  font-size: 10px;
-}
-
-/* ─── Whimsy: Employee of the Month plaque ───────────────────────────────── */
-.plaque {
+.comparison-summary {
   display: flex;
-  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--rule);
+  font-size: var(--text-small);
+  color: var(--secondary);
 }
-
-.plaque-frame {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  border-radius: 4px;
-  background: linear-gradient(135deg, #7c4a1e, #a9743d 45%, #6b3f19);
-  box-shadow:
-    inset 0 0 0 3px rgb(255 255 255 / 0.15),
-    inset 0 0 0 6px rgb(0 0 0 / 0.25),
-    0 4px 12px rgb(0 0 0 / 0.3);
+.comparison-summary strong {
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
 }
-
-.plaque-photo {
-  width: 48px;
-  height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 26px;
-  background: #f8fafc;
-  border: 2px solid #d4a259;
-  border-radius: 2px;
+.version-reference {
+  border-top: 1px solid var(--rule);
 }
-
-.plaque-plate {
-  background: linear-gradient(180deg, #f5d68a, #d4a259);
-  border-radius: 2px;
-  padding: 6px 10px;
-  max-width: 260px;
-  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.2);
+.version-reference > button,
+.version-reference #version-browser-panel,
+.version-reference thead,
+.version-reference input,
+.version-reference select {
+  background: var(--surface);
+  color: var(--ink);
 }
-
-.plaque-plate-title {
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: #3b2410;
+.version-reference input,
+.version-reference select {
+  border-color: var(--control-border);
 }
-
-.plaque-plate-sub {
-  font-size: 10px;
-  color: #4a2f16;
-  line-height: 1.3;
-}
-
-/* ─── Whimsy: DMV Bingo ──────────────────────────────────────────────────── */
-.bingo-cell {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  aspect-ratio: 1;
-  padding: 3px;
-  border-radius: 4px;
-  border: 1px solid rgb(148 163 184 / 0.5);
-  background: rgb(248 250 252);
-  font-size: 7.5px;
-  line-height: 1.15;
-  color: #334155;
-  overflow: hidden;
-}
-
-html.dark .bingo-cell {
-  background: rgb(30 30 30);
-  border-color: rgb(255 255 255 / 0.12);
-  color: #cbd5e1;
-}
-
-.bingo-cell-marked {
-  background: rgb(220 38 38 / 0.12);
-  border-color: rgb(220 38 38 / 0.5);
-  color: #991b1b;
-  font-weight: 600;
-}
-
-html.dark .bingo-cell-marked {
-  background: rgb(220 38 38 / 0.2);
-  color: #fca5a5;
-}
-
-.bingo-cell-marked::after {
-  content: "";
-  position: absolute;
-  inset: 8%;
-  border: 2px solid rgb(220 38 38 / 0.45);
-  border-radius: 999px;
-}
-
-.bingo-cell-winning {
-  box-shadow: 0 0 0 2px rgb(220 38 38 / 0.6);
-}
-
-.bingo-cell-free {
-  font-weight: 800;
-  letter-spacing: 0.04em;
-}
-
-/* Reduced motion: keep the information, drop the movement. */
-@media (prefers-reduced-motion: reduce) {
-  .laminator,
-  .ticket-your-turn .ticket-board-number {
-    animation: none;
-  }
-  .stamp-impression {
-    animation: none;
-  }
-  .height-figure {
-    transition: none;
-  }
+.version-reference td,
+.version-reference th,
+.version-reference [role="img"] {
+  color: var(--secondary);
 }

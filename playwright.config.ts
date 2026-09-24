@@ -1,6 +1,16 @@
 import { defineConfig, devices, type Project } from "@playwright/test";
 
 const PORT = 4173;
+// Optional local Chromium binary for environments without Playwright downloads.
+const localChromium = process.env["PW_CHROMIUM_EXECUTABLE"];
+const chromiumLaunch = localChromium
+  ? {
+      launchOptions: {
+        executablePath: localChromium,
+        args: ["--no-sandbox", "--disable-dev-shm-usage", "--no-zygote"]
+      }
+    }
+  : {};
 
 // Browser matrix: by default we only run Chromium so a fresh `npm run
 // test:e2e` doesn't require every browser to be installed locally. CI
@@ -10,7 +20,7 @@ const PORT = 4173;
 const ALL_PROJECTS: Record<string, Project> = {
   chromium: {
     name: "chromium",
-    use: { ...devices["Desktop Chrome"] }
+    use: { ...devices["Desktop Chrome"], ...chromiumLaunch }
   },
   firefox: {
     name: "firefox",
@@ -22,7 +32,7 @@ const ALL_PROJECTS: Record<string, Project> = {
   },
   "mobile-chrome": {
     name: "mobile-chrome",
-    use: { ...devices["Pixel 5"] }
+    use: { ...devices["Pixel 5"], ...chromiumLaunch }
   },
   "mobile-safari": {
     name: "mobile-safari",
@@ -35,9 +45,7 @@ const requested = (process.env["PW_BROWSERS"] || "chromium")
   .map((s) => s.trim())
   .filter(Boolean);
 const enabled = requested.includes("all") ? Object.keys(ALL_PROJECTS) : requested;
-const projects = enabled
-  .map((name) => ALL_PROJECTS[name])
-  .filter((p): p is Project => Boolean(p));
+const projects = enabled.map((name) => ALL_PROJECTS[name]).filter((p): p is Project => Boolean(p));
 
 export default defineConfig({
   testDir: "./e2e",
@@ -48,14 +56,14 @@ export default defineConfig({
   workers: process.env["CI"] ? 1 : undefined,
   reporter: process.env["CI"] ? [["github"], ["html", { open: "never" }]] : "list",
   use: {
-    baseURL: `http://localhost:${PORT}`,
+    baseURL: `http://127.0.0.1:${PORT}`,
     trace: "on-first-retry",
     screenshot: "only-on-failure"
   },
   projects: projects.length > 0 ? projects : [ALL_PROJECTS.chromium!],
   webServer: {
-    command: `npm run build && npm run serve -- --port ${PORT} --strictPort`,
-    url: `http://localhost:${PORT}`,
+    command: `npm run build && npm run serve -- --host 127.0.0.1 --port ${PORT} --strictPort`,
+    url: `http://127.0.0.1:${PORT}`,
     reuseExistingServer: !process.env["CI"],
     timeout: 120_000
   }

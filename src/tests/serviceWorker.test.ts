@@ -166,6 +166,14 @@ describe("service worker activate", () => {
 
     expect(sw.cacheNames()).toEqual([CACHE]);
   });
+
+  it("does not delete another application's cache on a shared origin", async () => {
+    const sw = loadServiceWorker();
+    sw.seed("unrelated-app-cache", "./other.js", "other app");
+    sw.seed("aamva-pdf417-oldbuild", "./index.html", "stale");
+    await sw.dispatchLifecycle("activate");
+    expect(sw.cacheNames()).toEqual(["unrelated-app-cache"]);
+  });
 });
 
 describe("service worker fetch routing", () => {

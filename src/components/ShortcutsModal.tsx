@@ -49,7 +49,7 @@ const SHORTCUTS: Array<{ category: string; entries: Shortcut[] }> = [
 
 function Key({ children }: { children: React.ReactNode }) {
   return (
-    <kbd className="inline-flex items-center px-1.5 py-0.5 rounded border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-[11px] font-mono font-semibold text-gray-700 dark:text-gray-200 shadow-sm">
+    <kbd className="inline-flex items-center px-1.5 py-0.5 rounded border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-k-help font-mono font-semibold text-gray-700 dark:text-gray-200 shadow-sm">
       {children}
     </kbd>
   );
@@ -63,16 +63,13 @@ export const ShortcutsModal: React.FC<ShortcutsModalProps> = ({ open, onClose, o
   if (!open) return null;
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-      onClick={onClose}
-    >
+    <div className="modal-backdrop" onClick={onClose}>
       <div
         ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="shortcuts-title"
-        className="w-full max-w-md bg-white dark:bg-dark-surface rounded-lg shadow-xl border border-gray-200 dark:border-dark-border max-h-[80vh] overflow-y-auto"
+        className="modal-panel compact"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-dark-border">
@@ -88,7 +85,7 @@ export const ShortcutsModal: React.FC<ShortcutsModalProps> = ({ open, onClose, o
             type="button"
             onClick={onClose}
             aria-label="Close shortcuts"
-            className="p-1 rounded hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-600 dark:text-gray-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            className="wb-button icon-button"
           >
             <X size={16} />
           </button>
@@ -126,14 +123,14 @@ export const ShortcutsModal: React.FC<ShortcutsModalProps> = ({ open, onClose, o
           ))}
         </div>
         <div className="px-4 pb-3 flex items-center justify-between gap-2">
-          <span className="text-[11px] text-gray-500 dark:text-gray-400">
+          <span className="text-k-help text-gray-500 dark:text-gray-400">
             Press <Key>Esc</Key> to close.
           </span>
           {onReplayTour && (
             <button
               type="button"
               onClick={onReplayTour}
-              className="text-[11px] font-medium text-brand-700 dark:text-brand-300 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded"
+              className="text-k-help font-medium text-brand-700 dark:text-brand-300 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded"
             >
               Replay welcome tour
             </button>

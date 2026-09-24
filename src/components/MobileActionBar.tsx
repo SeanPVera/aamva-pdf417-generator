@@ -63,7 +63,7 @@ export const MobileActionBar: React.FC<MobileActionBarProps> = ({
   ];
 
   return (
-    <div className="mobile-action-bar lg:hidden" role="region" aria-label="Kiosk navigation">
+    <div className="mobile-action-bar lg:hidden" role="region" aria-label="Workspace navigation">
       <div className="flex items-center gap-2 px-2 py-2">
         <nav aria-label="Mobile panels" className="grid min-w-0 flex-1 grid-cols-3 gap-1">
           {tabs.map((tab) => (
@@ -74,7 +74,7 @@ export const MobileActionBar: React.FC<MobileActionBarProps> = ({
               aria-current={panel === tab.key ? "page" : undefined}
               className={`relative inline-flex h-k-touch items-center justify-center gap-1 rounded-k px-1 text-k-help font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 ${
                 panel === tab.key
-                  ? "state-primary-bg text-white"
+                  ? "bg-brand-700 text-white"
                   : "bg-gray-100 text-gray-800 dark:bg-dark-surface2 dark:text-gray-100"
               }`}
             >

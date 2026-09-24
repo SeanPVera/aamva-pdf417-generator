@@ -16,8 +16,8 @@ stops a regression baseline from being mistaken for evidence.
 | Tier | Source | What a passing test proves |
 |---|---|---|
 | `synthetic` | `scripts/gen-vectors.mjs` — our own encoder | The encoder still produces what it produced before. Regression only. |
-| `published` | AAMVA- or jurisdiction-published test material | The encoder matches an authoritative reference. Real conformance. |
-| `issued` | A real credential, decoded and anonymised | The encoder matches what a DMV actually issues. Real conformance. |
+| `published` | AAMVA- or jurisdiction-published test material | The encoder matches that authoritative reference; scope is limited to the vector. |
+| `issued` | A real credential, decoded and anonymised | The encoder matches that observed layout; this does not certify an issuer or edition. |
 
 Only `published` and `issued` count as evidence about the outside world. The
 schema and the rules below are enforced by

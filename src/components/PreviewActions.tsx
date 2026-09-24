@@ -1,18 +1,6 @@
 import React from "react";
-import {
-  FileImage,
-  FileCode2,
-  FileText,
-  Printer,
-  Check,
-  Clipboard,
-  Braces,
-  Square,
-  Volume2
-} from "lucide-react";
-import { ClerkVoice, buildReadback } from "../hooks/useClerkVoice";
-import { DecodeResult } from "../core/decoder";
-
+import { buildReadback, type ClerkVoice } from "../hooks/useClerkVoice";
+import type { DecodeResult } from "../core/decoder";
 interface PreviewActionsProps {
   canExport: boolean;
   handleExportPNG: () => void;
@@ -33,143 +21,94 @@ interface PreviewActionsProps {
   voice: ClerkVoice;
 }
 
-export const PreviewActions: React.FC<PreviewActionsProps> = ({
-  canExport,
-  handleExportPNG,
-  handleExportSVG,
-  handleExportPDF,
-  handlePrint,
-  includeNameInExport,
-  setIncludeNameInExport,
-  exportBasename,
-  canCopyImage,
-  handleCopyImage,
-  imgCopied,
-  handleCopyJson,
-  jsonCopied,
-  decoded,
-  stale,
-  whimsy,
-  voice
-}) => {
-  return (
-    <>
-      {/* Export buttons */}
-      <div className="flex gap-2">
+export const PreviewActions: React.FC<PreviewActionsProps> = (p) => (
+  <>
+    <div className="export-buttons" role="group" aria-label="Export barcode">
+      <button
+        className="wb-button primary"
+        disabled={!p.canExport}
+        onClick={p.handleExportPNG}
+        aria-label="Export barcode as PNG"
+      >
+        PNG
+      </button>
+      <button
+        className="wb-button"
+        disabled={!p.canExport}
+        onClick={p.handleExportSVG}
+        aria-label="Export barcode as SVG"
+      >
+        SVG
+      </button>
+      <button
+        className="wb-button"
+        disabled={!p.canExport}
+        onClick={p.handleExportPDF}
+        aria-label="Export barcode as PDF"
+      >
+        PDF
+      </button>
+      <button
+        className="wb-button"
+        disabled={!p.canExport}
+        onClick={p.handlePrint}
+        aria-label="Print barcode"
+      >
+        Print
+      </button>
+    </div>
+    <div className="copy-actions">
+      {p.canCopyImage && (
         <button
-          onClick={handleExportPNG}
-          disabled={!canExport}
-          aria-label="Export barcode as PNG"
-          className="inline-flex h-k-touch flex-1 items-center justify-center gap-1.5 rounded-k bg-brand-700 text-k-help font-semibold text-white shadow-google transition hover:bg-brand-800 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          className="wb-button"
+          disabled={!p.canExport}
+          onClick={p.handleCopyImage}
+          aria-label="Copy barcode image to clipboard"
         >
-          <FileImage size={14} />
-          PNG
-        </button>
-        <button
-          onClick={handleExportSVG}
-          disabled={!canExport}
-          aria-label="Export barcode as SVG"
-          className="inline-flex h-k-touch flex-1 items-center justify-center gap-1.5 rounded-k bg-gray-800 text-k-help font-semibold text-white shadow-google transition hover:bg-gray-900 disabled:cursor-not-allowed disabled:opacity-40 dark:bg-dark-surface2 dark:hover:bg-[#383838] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
-        >
-          <FileCode2 size={14} />
-          SVG
-        </button>
-        {/* Sized to the credential's real barcode area, which is what a print
-            shop needs — the batch tool could already emit PDFs, the single
-            payload could not. */}
-        <button
-          onClick={handleExportPDF}
-          disabled={!canExport}
-          aria-label="Export barcode as PDF"
-          title="Export a print-ready PDF at the credential's physical size"
-          className="inline-flex h-k-touch flex-1 items-center justify-center gap-1.5 rounded-k bg-gray-800 text-k-help font-semibold text-white shadow-google transition hover:bg-gray-900 disabled:cursor-not-allowed disabled:opacity-40 dark:bg-dark-surface2 dark:hover:bg-[#383838] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
-        >
-          <FileText size={14} />
-          PDF
-        </button>
-        <button
-          onClick={handlePrint}
-          disabled={!canExport}
-          aria-label="Print barcode"
-          title="Open the print dialog with just the barcode visible"
-          className="inline-flex h-k-touch flex-1 items-center justify-center gap-1.5 rounded-k bg-gray-100 text-k-help font-semibold text-gray-800 shadow-google transition hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-40 dark:bg-dark-surface2 dark:text-gray-100 dark:hover:bg-[#383838] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-        >
-          <Printer size={14} />
-          Print
-        </button>
-      </div>
-
-      {/* Filename privacy control. Off by default: a download filename is the
-          one place a field value would leave the tab. */}
-      <label className="flex min-h-k-touch items-start gap-3 text-k-help text-gray-700 dark:text-gray-200 cursor-pointer select-none">
-        <input
-          type="checkbox"
-          checked={includeNameInExport}
-          onChange={(e) => setIncludeNameInExport(e.target.checked)}
-          aria-describedby="export-filename-preview"
-          className="mt-1 h-5 w-5 shrink-0 rounded text-brand-600 focus:ring-brand-500 border-gray-300 dark:border-[#555] dark:bg-dark-surface2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-        />
-        <span>
-          Put the cardholder&apos;s name in export filenames
-          <span id="export-filename-preview" className="block text-gray-500 dark:text-gray-400">
-            {includeNameInExport ? "On: " : "Off: "}
-            <span className="font-mono">{exportBasename("barcode")}.png</span>
-          </span>
-        </span>
-      </label>
-
-      {/* Secondary copy actions */}
-      <div className="-mt-1 flex gap-2">
-        {canCopyImage && (
-          <button
-            onClick={handleCopyImage}
-            disabled={!canExport}
-            aria-label="Copy barcode image to clipboard"
-            title="Copy the barcode PNG to the clipboard"
-            className="inline-flex h-k-touch flex-1 items-center justify-center gap-1.5 rounded-k bg-gray-100 text-k-help font-semibold text-gray-800 transition hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-40 dark:bg-dark-surface2 dark:text-gray-200 dark:hover:bg-[#383838] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-          >
-            {imgCopied ? <Check size={13} className="text-green-500" /> : <Clipboard size={13} />}
-            {imgCopied ? "Copied!" : "Copy image"}
-          </button>
-        )}
-        <button
-          onClick={handleCopyJson}
-          disabled={!decoded?.json || stale}
-          aria-label="Copy decoded payload as JSON"
-          title="Copy the decoded payload as structured JSON"
-          className="inline-flex h-k-touch flex-1 items-center justify-center gap-1.5 rounded-k bg-gray-100 text-k-help font-semibold text-gray-800 transition hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-40 dark:bg-dark-surface2 dark:text-gray-200 dark:hover:bg-[#383838] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-        >
-          {jsonCopied ? <Check size={13} className="text-green-500" /> : <Braces size={13} />}
-          {jsonCopied ? "Copied!" : "Copy JSON"}
-        </button>
-      </div>
-
-      {/* Read it back to me — proofreading by ear.
-
-          No aria-pressed and no aria-label here. The visible text already names
-          the action, so this is a command button that swaps commands, not a
-          toggle. Pairing a pressed state with a name that changes announces as
-          "Stop reading, pressed", which leaves it ambiguous whether reading or
-          stopping is the live state. An aria-label would have to repeat that
-          visible text anyway to satisfy Label in Name, so the longer
-          description lives in title. */}
-      {whimsy && voice.supported && decoded?.json && (
-        <button
-          type="button"
-          onClick={() =>
-            voice.speaking ? voice.stop() : voice.speak(buildReadback(decoded.json ?? {}))
-          }
-          className="inline-flex h-k-touch w-full items-center justify-center gap-1.5 rounded-k bg-gray-100 text-k-help font-semibold text-gray-800 transition hover:bg-gray-200 dark:bg-dark-surface2 dark:text-gray-200 dark:hover:bg-[#383838] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-          title={
-            voice.speaking
-              ? "Stop reading the payload aloud"
-              : "Have the clerk read the payload back to you"
-          }
-        >
-          {voice.speaking ? <Square size={13} /> : <Volume2 size={13} />}
-          {voice.speaking ? "Stop reading" : "Read it back to me"}
+          {p.imgCopied ? "Copied image" : "Copy image"}
         </button>
       )}
-    </>
-  );
-};
+      <button
+        className="wb-button"
+        disabled={!p.decoded?.json || p.stale}
+        onClick={p.handleCopyJson}
+        aria-label="Copy decoded payload as JSON"
+      >
+        {p.jsonCopied ? "Copied JSON" : "Copy JSON"}
+      </button>
+    </div>
+    <details className="export-details">
+      <summary>Filename & privacy</summary>
+      <label>
+        <input
+          type="checkbox"
+          aria-describedby="export-filename-preview"
+          checked={p.includeNameInExport}
+          onChange={(e) => p.setIncludeNameInExport(e.target.checked)}
+        />
+        Put the cardholder's name in export filenames
+      </label>
+      <span id="export-filename-preview">
+        {p.includeNameInExport ? "On: " : "Off: "}
+        <code>{p.exportBasename("barcode")}.png</code>
+      </span>
+      <p>Downloads and copied data contain the record. Filenames omit the name by default.</p>
+    </details>
+    {p.voice.supported && p.decoded?.json && (
+      <button
+        className="text-button"
+        disabled={p.stale}
+        onClick={() =>
+          p.voice.speaking ? p.voice.stop() : p.voice.speak(buildReadback(p.decoded?.json ?? {}))
+        }
+        title={
+          p.voice.speaking
+            ? "Stop reading the payload aloud"
+            : "Read the payload using a local voice"
+        }
+      >
+        {p.voice.speaking ? "Stop reading" : "Read it back to me"}
+      </button>
+    )}
+  </>
+);

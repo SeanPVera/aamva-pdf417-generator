@@ -31,7 +31,7 @@ describe("buildExportBasename", () => {
       expect(name).not.toMatch(/SMITH|JOHN/);
     });
 
-    it("appends a document-discriminator slice so sibling exports stay distinct", () => {
+    it("omits the document discriminator as identifying record data", () => {
       const a = buildExportBasename({
         state: "CA",
         version: "10",
@@ -42,8 +42,8 @@ describe("buildExportBasename", () => {
         version: "10",
         fields: { DCF: "ZZ9999999999" }
       });
-      expect(a).toBe("CA_DL_V10_AB123456");
-      expect(a).not.toBe(b);
+      expect(a).toBe("CA_DL_V10");
+      expect(a).toBe(b);
     });
 
     it("stays valid when no discriminator is present", () => {

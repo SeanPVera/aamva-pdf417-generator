@@ -10,7 +10,7 @@
 // once `evaluateFieldValue` agrees the rewrite actually passes — so a "Fix"
 // button can never leave a field still broken.
 
-import { AAMVA_FIELD_LIMITS, AAMVA_FIELD_OPTIONS, type AAMVAField } from "./schema";
+import { AAMVA_FIELD_OPTIONS, type AAMVAField } from "./schema";
 import { evaluateFieldValue } from "./validation";
 import { normalizeDateInput } from "./dateHelpers";
 
@@ -41,8 +41,27 @@ const VALUE_ALIASES: Record<string, Record<string, string>> = {
     UNSPECIFIED: "9",
     "NOT SPECIFIED": "9"
   },
-  DAY: { GREY: "GRY", HAZLE: "HAZ", AMBER: "BRO" },
-  DAZ: { GREY: "GRY", BLONDE: "BLN", AUBURN: "RED", GINGER: "RED", SILVER: "GRY" },
+  DAY: {
+    BROWN: "BRO",
+    BLACK: "BLK",
+    BLUE: "BLU",
+    GREEN: "GRN",
+    GRAY: "GRY",
+    GREY: "GRY",
+    HAZEL: "HAZ",
+    HAZLE: "HAZ"
+  },
+  DAZ: {
+    BROWN: "BRO",
+    BLACK: "BLK",
+    BLOND: "BLN",
+    BLONDE: "BLN",
+    GRAY: "GRY",
+    GREY: "GRY",
+    WHITE: "WHI",
+    RED: "RED",
+    BALD: "BAL"
+  },
   DCG: {
     US: "USA",
     "U.S.": "USA",
@@ -70,14 +89,9 @@ const VALUE_ALIASES: Record<string, Record<string, string>> = {
   DDG: { TRUNCATED: "T", NO: "N", NONE: "N", UNKNOWN: "U" }
 };
 
-/** Strips accents, control bytes, and non-ASCII, then collapses whitespace. */
+/** Boundary spaces only. Identity data must never be transliterated or deleted. */
 function sanitize(value: string): string {
-  return value
-    .normalize("NFKD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^\x20-\x7e]/g, "")
-    .replace(/\s+/g, " ")
-    .trim();
+  return value.trim();
 }
 
 /** Allowed values for a field, from its inline options or the global table. */
@@ -86,12 +100,7 @@ function allowedValues(field: AAMVAField): string[] {
   return (AAMVA_FIELD_OPTIONS[field.code] ?? []).map((o) => o.value);
 }
 
-/**
- * Maps a free-text value onto one of the field's allowed codes: exact alias,
- * then "the code is a prefix of what you typed" (BROWN→BRO), then the reverse
- * (BLN→BLOND is not a thing, but B→BAL would be too loose, so this only fires
- * on a unique match).
- */
+/** Only exact codes and explicit, unambiguous spelling aliases are repairable. */
 function matchAllowedValue(field: AAMVAField, value: string): string | null {
   const allowed = allowedValues(field);
   if (allowed.length === 0) return null;
@@ -100,12 +109,6 @@ function matchAllowedValue(field: AAMVAField, value: string): string | null {
 
   const alias = VALUE_ALIASES[field.code]?.[upper];
   if (alias && allowed.includes(alias)) return alias;
-
-  const prefixed = allowed.filter((code) => upper.startsWith(code));
-  if (prefixed.length === 1) return prefixed[0]!;
-
-  const contained = allowed.filter((code) => upper.replace(/[^A-Z0-9]/g, "").startsWith(code));
-  if (contained.length === 1) return contained[0]!;
 
   return null;
 }
@@ -140,6 +143,7 @@ function normalizeHeight(value: string): string | null {
 
   const feetInches = /^(\d)\s*(?:'|FT|FEET|-|\s)\s*(\d{1,2})\s*(?:"|''|IN|INCHES)?$/.exec(raw);
   if (feetInches) {
+    if (parseInt(feetInches[2]!, 10) > 11) return null;
     const total = parseInt(feetInches[1]!, 10) * 12 + parseInt(feetInches[2]!, 10);
     if (total >= 12 && total <= 999) return `${String(total).padStart(3, "0")} IN`;
   }
@@ -155,6 +159,7 @@ function normalizeHeight(value: string): string | null {
 
 /** Digits-only ZIP, keeping the 5 or 9 digit shapes AAMVA accepts. */
 function normalizeZip(value: string): string | null {
+  if (!/^[0-9 -]+$/.test(value)) return null;
   const digits = value.replace(/\D/g, "");
   if (digits.length === 5 || digits.length === 9) return digits;
   return null;
@@ -177,9 +182,10 @@ interface Candidate {
  * more specific; the first one that validates wins.
  */
 function buildCandidates(field: AAMVAField, value: string): Candidate[] {
+  if (field.subfile === "jurisdiction" || field.code.startsWith("Z") || /[^\x20-\x7e]/.test(value))
+    return [];
   const candidates: Candidate[] = [];
   const clean = sanitize(value);
-  const maxLen = AAMVA_FIELD_LIMITS[field.code];
 
   if (field.type === "date") {
     const normalized = normalizeDateInput(
@@ -231,38 +237,14 @@ function buildCandidates(field: AAMVAField, value: string): Candidate[] {
     }
   }
 
-  if (field.type === "char") {
-    const firstAlnum = /[A-Za-z0-9]/.exec(clean)?.[0];
-    if (firstAlnum) {
-      const single = firstAlnum.toUpperCase();
-      if (single !== value) {
-        candidates.push({
-          label: `Use ${single}`,
-          describe: (v) => `Keep the single character ${v}`,
-          value: single
-        });
-      }
-    }
-  }
-
   const upper = clean.toUpperCase();
   if (upper !== value && field.type !== "date") {
     candidates.push({
       label: clean === value ? "Uppercase" : "Clean up",
       describe: (v) => `Replace with ${v}`,
       value: upper,
-      // Uppercasing and accent-stripping is exactly what generateAAMVAPayload
-      // does on the way out, so the form is simply showing something the
-      // barcode will not contain.
+      // The printable-ASCII gate above makes case conversion lossless.
       canonical: true
-    });
-  }
-
-  if (maxLen && upper.length > maxLen) {
-    candidates.push({
-      label: `Trim to ${maxLen}`,
-      describe: (v) => `Truncate to the ${maxLen}-character limit: ${v}`,
-      value: upper.slice(0, maxLen)
     });
   }
 

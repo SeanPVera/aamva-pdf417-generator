@@ -627,25 +627,25 @@ test("decoder rejects malformed directory offset/length", () => {
   assert.ok(decoded.error, "Decoder should return an error for inconsistent directory length");
 });
 
-test("generateAAMVAPayload strips control characters from field values", () => {
+test("generateAAMVAPayload rejects control characters without altering identity input", () => {
   const { fields, dataObj } = makeTestData("CA", "10");
   fillV09TestData(dataObj);
   dataObj.DCS = "DOE\x0D";
-  dataObj.DAC = "JOHN";
-  // dataObj.DAQ = "D1234567"; // Set by helper
-  const payload = window.generateAAMVAPayload("CA", "10", fields, dataObj);
-  // Control chars should be stripped
-  assert.ok(!payload.includes("\x00"), "Should not contain null byte");
-  assert.ok(payload.includes("DCSDOE"), "Should contain sanitized last name");
+  assert.throws(
+    () => window.generateAAMVAPayload("CA", "10", fields, dataObj),
+    /character encoding/
+  );
+  assert.equal(dataObj.DCS, "DOE\x0D");
 });
-test("generateAAMVAPayload normalizes non-ascii characters for byte-safe directory lengths", () => {
+test("generateAAMVAPayload refuses unsupported text instead of silently transliterating", () => {
   const { fields, dataObj } = makeTestData("CA", "10");
   fillV09TestData(dataObj);
   dataObj.DCS = "GARCÍA";
-  dataObj.DAC = "JOSÉ";
-  const payload = window.generateAAMVAPayload("CA", "10", fields, dataObj);
-  assert.ok(payload.includes("DCSGARCIA"), "Should transliterate accented surname");
-  assert.ok(payload.includes("DACJOSE"), "Should transliterate accented given name");
+  assert.throws(
+    () => window.generateAAMVAPayload("CA", "10", fields, dataObj),
+    /character encoding/
+  );
+  assert.equal(dataObj.DCS, "GARCÍA");
 });
 
 test("generateDocumentDiscriminator returns uppercase alphanumeric token", () => {
@@ -1260,12 +1260,12 @@ test("generateAAMVAPayload enforces uppercase for string fields", () => {
   assert.ok(payload.includes("DACJANE"), "DAC should be uppercase");
 });
 
-test("generateAAMVAPayload enforces DAJ matches state", () => {
+test("generateAAMVAPayload preserves address jurisdiction independently of issuer", () => {
   const { fields, dataObj } = makeTestData("CA", "10");
   fillV09TestData(dataObj);
   dataObj.DAJ = "NY"; // mismatched state
   const payload = window.generateAAMVAPayload("CA", "10", fields, dataObj);
-  assert.ok(payload.includes("DAJCA"), "DAJ should be forced to match state (CA)");
+  assert.ok(payload.includes("DAJNY"), "Address jurisdiction is not the issuing jurisdiction");
 });
 /* ============================================================
    GENERATOR-LEVEL FIELD VALUE VALIDATION

@@ -19,10 +19,10 @@ const iconsDir = path.join(rootDir, "public", "icons");
 
 // ─── Geometry, in the 512×512 coordinate space of icon-512.svg ──────────────
 
-const NAVY = [0x0f, 0x17, 0x2a];
+const PLATE = [0x23, 0x2a, 0x25];
 const WHITE = [0xff, 0xff, 0xff];
-const INK = [0x11, 0x18, 0x27];
-const BLUE = [0x25, 0x63, 0xeb];
+const INK = [0x23, 0x2a, 0x25];
+const ACCENT = [0x9c, 0x37, 0x1c];
 
 // [x, width] pairs for the PDF417 bars; all share y=146, height=220.
 const BARS = [
@@ -56,7 +56,7 @@ function foreground() {
   return [
     roundRect(54, 112, 404, 288, 40, WHITE),
     ...BARS.map(([x, w]) => roundRect(x, 146, w, 220, 0, INK)),
-    circle(388, 100, 42, BLUE),
+    circle(388, 100, 42, ACCENT),
     capsule(372, 100, 404, 100, 8, WHITE),
     capsule(388, 84, 388, 116, 8, WHITE)
   ];
@@ -238,15 +238,23 @@ const TARGETS = [
     // square — a pre-rounded source would show a double-rounded corner.
     file: "apple-touch-icon.png",
     size: 180,
-    shapes: [roundRect(0, 0, 512, 512, 0, NAVY), ...scaleAbout(foreground(), 0.86)]
+    shapes: [roundRect(0, 0, 512, 512, 0, PLATE), ...scaleAbout(foreground(), 0.86)]
   },
-  { file: "icon-192.png", size: 192, shapes: [roundRect(0, 0, 512, 512, 96, NAVY), ...foreground()] },
-  { file: "icon-512.png", size: 512, shapes: [roundRect(0, 0, 512, 512, 96, NAVY), ...foreground()] },
+  {
+    file: "icon-192.png",
+    size: 192,
+    shapes: [roundRect(0, 0, 512, 512, 96, PLATE), ...foreground()]
+  },
+  {
+    file: "icon-512.png",
+    size: 512,
+    shapes: [roundRect(0, 0, 512, 512, 96, PLATE), ...foreground()]
+  },
   {
     // Android maskable: full-bleed plate, artwork inside the 80% safe zone.
     file: "icon-maskable-512.png",
     size: 512,
-    shapes: [roundRect(0, 0, 512, 512, 0, NAVY), ...scaleAbout(foreground(), 0.72)]
+    shapes: [roundRect(0, 0, 512, 512, 0, PLATE), ...scaleAbout(foreground(), 0.72)]
   }
 ];
 

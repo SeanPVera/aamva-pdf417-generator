@@ -4,7 +4,7 @@ import { usePayload } from "../hooks/usePayload";
 import { useFormStore } from "../hooks/useFormStore";
 import { decodeAAMVA } from "../core/decoder";
 
-/** A complete CA v10 form, minus the fields the app fills in for the user. */
+/** A complete, explicitly entered CA v10 form. */
 const CA_FORM: Record<string, string> = {
   DCA: "C",
   DCB: "NONE",
@@ -23,6 +23,7 @@ const CA_FORM: Record<string, string> = {
   DAJ: "CA",
   DAK: "94110",
   DAQ: "D1234567",
+  DCF: "EXPLICIT1234",
   DCG: "USA",
   DDE: "N",
   DDF: "N",
@@ -59,7 +60,7 @@ describe("usePayload", () => {
     return result.current;
   }
 
-  it("keeps the auto-generated discriminator stable across edits", async () => {
+  it("keeps an explicitly entered discriminator stable across edits", async () => {
     // The generator minted a new DCF on every debounced re-encode, so the
     // document discriminator inside the barcode changed on every keystroke and
     // two exports of an unchanged form disagreed.
@@ -75,6 +76,25 @@ describe("usePayload", () => {
 
     expect(decodeAAMVA(second.payload).json?.DCF).toBe(firstDcf);
     expect(second.payload).not.toBe(first.payload); // the city really did change
+  });
+
+  it("does not invent a discriminator hidden from the form and validation", async () => {
+    const fields = { ...CA_FORM };
+    delete fields.DCF;
+    setForm(fields);
+    const { result } = renderHook(() => usePayload());
+    const settled = await settle(result);
+    expect(settled.payload).toBe("");
+    expect(settled.error).toMatch(/\(DCF\)/);
+    expect(useFormStore.getState().fields).toEqual(fields);
+  });
+
+  it("does not invent an optional revision date absent from the form", async () => {
+    setForm({ ...CA_FORM });
+    const { result } = renderHook(() => usePayload());
+    const settled = await settle(result);
+    expect(settled.error).toBeNull();
+    expect(decodeAAMVA(settled.payload).json?.DDB).toBeUndefined();
   });
 
   it("never invents the customer ID number", async () => {

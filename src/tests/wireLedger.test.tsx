@@ -54,13 +54,12 @@ const ctPayload = (record: Record<string, string>): string =>
   });
 
 describe("Wire Ledger panel", () => {
-  test("reports a balanced payload without making the user open it", async () => {
+  test("reports byte balance in the dedicated byte inspector", async () => {
     renderInspector(ctPayload({ ...RECORD, ZCB: "0000000000" }));
 
-    const section = screen.getByRole("button", { name: /Wire Ledger/i });
-    expect(section).toHaveTextContent("Balanced");
-
+    const section = screen.getByRole("tab", { name: "Bytes" });
     await userEvent.click(section);
+    expect(screen.getByText(/Wire Ledger · Balanced/)).toBeVisible();
     expect(screen.getByLabelText("Subfile byte accounting")).toBeInTheDocument();
     expect(screen.getByText(/Every declared byte is accounted for/i)).toBeInTheDocument();
   });
@@ -68,7 +67,7 @@ describe("Wire Ledger panel", () => {
   test("shows a row per subfile with its declared and accounted bytes", async () => {
     const payload = ctPayload({ ...RECORD, ZCB: "0000000000" });
     renderInspector(payload);
-    await userEvent.click(screen.getByRole("button", { name: /Wire Ledger/i }));
+    await userEvent.click(screen.getByRole("tab", { name: "Bytes" }));
 
     const rows = screen.getByLabelText("Subfile byte accounting").querySelectorAll("tbody tr");
     expect(rows).toHaveLength(2);
@@ -87,10 +86,9 @@ describe("Wire Ledger panel", () => {
       base.substring(31);
 
     renderInspector(overstated);
-    const section = screen.getByRole("button", { name: /Wire Ledger/i });
-    expect(section).toHaveTextContent("Check");
-
+    const section = screen.getByRole("tab", { name: "Bytes" });
     await userEvent.click(section);
+    expect(screen.getByText(/Wire Ledger · Check/)).toBeVisible();
     expect(screen.getByText(/99 bytes declared but unaccounted for/i)).toBeInTheDocument();
   });
 
@@ -104,7 +102,7 @@ describe("Wire Ledger panel", () => {
     );
 
     renderInspector(ny);
-    await userEvent.click(screen.getByRole("button", { name: /Wire Ledger/i }));
+    await userEvent.click(screen.getByRole("tab", { name: "Bytes" }));
 
     expect(screen.getByText(/Space-filled on the wire/i)).toBeInTheDocument();
     expect(screen.getByText(/DAK — "10001" \+ 6 spaces/)).toBeInTheDocument();
@@ -122,7 +120,7 @@ describe("Wire Ledger panel", () => {
       ours.substring(31);
 
     renderInspector(ours, card);
-    await userEvent.click(screen.getByRole("button", { name: /Wire Ledger/i }));
+    await userEvent.click(screen.getByRole("tab", { name: "Bytes" }));
 
     expect(screen.getByText(/99 bytes declared but unaccounted for/i)).toBeInTheDocument();
   });
@@ -135,7 +133,7 @@ describe("Wire Ledger panel", () => {
       ours.substring(31);
 
     renderInspector(ours, card);
-    await userEvent.click(screen.getByRole("button", { name: /Wire Ledger/i }));
+    await userEvent.click(screen.getByRole("tab", { name: "Bytes" }));
 
     const scanned = screen.getByRole("button", { name: "Scanned card" });
     const generated = screen.getByRole("button", { name: "This app's output" });
@@ -149,7 +147,7 @@ describe("Wire Ledger panel", () => {
 
   test("offers no source toggle when nothing was scanned or pasted", async () => {
     renderInspector(ctPayload(RECORD));
-    await userEvent.click(screen.getByRole("button", { name: /Wire Ledger/i }));
+    await userEvent.click(screen.getByRole("tab", { name: "Bytes" }));
 
     expect(screen.queryByRole("button", { name: "Scanned card" })).not.toBeInTheDocument();
     // And it says why a balanced result is not evidence of anything.
@@ -158,7 +156,7 @@ describe("Wire Ledger panel", () => {
 
   test("says so plainly when there is no payload to inspect", async () => {
     renderInspector("");
-    await userEvent.click(screen.getByRole("button", { name: /Wire Ledger/i }));
+    await userEvent.click(screen.getByRole("tab", { name: "Bytes" }));
 
     expect(screen.getByText(/Empty or invalid input/i)).toBeInTheDocument();
   });

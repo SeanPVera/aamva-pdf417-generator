@@ -99,9 +99,10 @@ describe("parsePastedPayload", () => {
     expect(result.summary).toMatch(/version 99, which this build does not support/i);
   });
 
-  it("ignores an unknown jurisdiction rather than loading it", () => {
+  it("rejects an unknown issuer instead of silently changing the meaning of the record", () => {
     const result = parsePastedPayload(JSON.stringify({ state: "ZZ", DCS: "DOE" }));
-    expect(result.data).toEqual({ DCS: "DOE" });
+    expect(result.data).toBeNull();
+    expect(result.summary).toMatch(/jurisdiction/i);
   });
 
   it("accepts a lower-case state", () => {
@@ -112,10 +113,10 @@ describe("parsePastedPayload", () => {
 
   // Shape alone is not enough: FOO matches the three-character pattern, and
   // loading it would put a value in the form no schema renders.
-  it("drops keys shaped like field codes that no version defines", () => {
+  it("keeps unknown element codes for explicit inspection", () => {
     const result = parsePastedPayload(JSON.stringify({ DCS: "DOE", FOO: "bar", ZZ9: "x" }));
-    expect(result.data).toEqual({ DCS: "DOE" });
-    expect(result.fieldCount).toBe(1);
+    expect(result.data).toEqual({ DCS: "DOE", FOO: "bar", ZZ9: "x" });
+    expect(result.fieldCount).toBe(3);
   });
 
   it("explains itself when the paste carries no fields", () => {
@@ -139,9 +140,9 @@ describe("parsePastedPayload", () => {
   });
 
   it("refuses an oversized paste", () => {
-    const result = parsePastedPayload("@" + "x".repeat(20_001));
+    const result = parsePastedPayload("@" + "x".repeat(1_000_001));
     expect(result.data).toBeNull();
-    expect(result.summary).toMatch(/too large/i);
+    expect(result.summary).toMatch(/1 MB import limit/i);
   });
 
   it("handles an empty clipboard", () => {

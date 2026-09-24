@@ -7,7 +7,7 @@
 // and returns a field map, or an honest reason why it can't.
 
 import { decodePayload } from "./decoder";
-import { parseImportedPayload } from "./importPayload";
+import { MAX_IMPORT_BYTES, parseImportedPayload } from "./importPayload";
 import { AAMVA_STATES } from "./states";
 import { AAMVA_VERSIONS, isSupportedVersion, AAMVA_VERSION_KEYS } from "./schema";
 
@@ -32,18 +32,8 @@ export interface PasteImportResult {
   summary: string;
 }
 
-/**
- * Every field code any AAMVA version defines. Shape alone is not enough: `FOO`
- * matches the three-character pattern, so a shape-only check would load it into
- * the form as a value no schema renders and no payload carries — the opposite
- * of the documented promise that unknown keys are dropped.
- */
-const KNOWN_FIELD_CODES: ReadonlySet<string> = new Set(
-  Object.values(AAMVA_VERSIONS).flatMap((version) => version.fields.map((field) => field.code))
-);
-
 /** Longest paste worth parsing. A real payload is well under a kilobyte. */
-const MAX_PASTE_LENGTH = 20_000;
+const MAX_PASTE_LENGTH = MAX_IMPORT_BYTES;
 
 /** Byte offsets of the first subfile directory entry's type marker. */
 const DIRECTORY_TYPE_START = 21;
@@ -73,7 +63,7 @@ export function readSubfileType(payload: string): SubfileType | null {
   return marker === "DL" || marker === "ID" ? marker : null;
 }
 
-/** Keeps only known AAMVA codes plus the two control keys `loadJson` reads. */
+/** Keeps shaped element codes, including unknown extensions, plus record metadata. */
 function collectFields(source: Record<string, unknown>): {
   data: Record<string, string>;
   fieldCount: number;
@@ -97,7 +87,7 @@ function collectFields(source: Record<string, unknown>): {
       if (AAMVA_VERSIONS[value]) data.version = value;
       continue;
     }
-    if (!KNOWN_FIELD_CODES.has(key)) continue;
+    if (!/^[A-Z]{2}[A-Z0-9]$/.test(key)) continue;
     data[key] = value;
     fieldCount++;
   }
@@ -109,7 +99,7 @@ function collectFields(source: Record<string, unknown>): {
  * Parses pasted text into a loadable field map.
  *
  * Accepts a raw AAMVA payload string or a JSON object in the shape Export JSON
- * writes. Unknown keys are dropped rather than loaded, so pasting an unrelated
+ * writes. Non-element metadata is dropped rather than loaded, so pasting an unrelated
  * JSON blob can't stuff junk into the form.
  */
 export function parsePastedPayload(text: string): PasteImportResult {
@@ -117,7 +107,7 @@ export function parsePastedPayload(text: string): PasteImportResult {
 
   if (!trimmed) return fail("unknown", "Clipboard was empty.");
   if (trimmed.length > MAX_PASTE_LENGTH) {
-    return fail("unknown", "That paste is too large to be an AAMVA payload.");
+    return fail("unknown", "That record exceeds the 1 MB import limit.");
   }
 
   const kind = classifyPaste(trimmed);
@@ -137,7 +127,8 @@ export function parsePastedPayload(text: string): PasteImportResult {
       kind,
       data,
       fieldCount,
-      subfileType: null,
+      subfileType:
+        parsed.data.subfileType === "ID" ? "ID" : parsed.data.subfileType === "DL" ? "DL" : null,
       summary: describe(fieldCount, data.state)
     };
   }
@@ -152,6 +143,11 @@ export function parsePastedPayload(text: string): PasteImportResult {
   }
 
   const declaredVersion = decoded.data.version;
+  if (!decoded.data.state)
+    return fail(
+      kind,
+      "The issuer IIN is not in this app's registry. The record was not loaded under a different issuer."
+    );
   if (typeof declaredVersion === "string" && !isSupportedVersion(declaredVersion)) {
     return fail(
       kind,

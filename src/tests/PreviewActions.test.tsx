@@ -81,7 +81,7 @@ describe("PreviewActions — the read-aloud button", () => {
     renderActions({ whimsy: true, voice: { ...silentVoice, speaking: false } });
 
     const button = screen.getByRole("button", { name: "Read it back to me" });
-    expect(button).toHaveAttribute("title", "Have the clerk read the payload back to you");
+    expect(button).toHaveAttribute("title", "Read the payload using a local voice");
   });
 
   test("offers to stop, and describes that, while speaking", () => {
@@ -119,7 +119,6 @@ describe("PreviewActions — the read-aloud button", () => {
   // It is one of the playful flourishes, so it is gated on all three of
   // whimsy, speech support, and something actually decoded to read.
   test.each([
-    ["whimsy is off", { whimsy: false }],
     ["speech is unsupported", { whimsy: true, voice: { ...silentVoice, supported: false } }],
     ["nothing decoded", { whimsy: true, decoded: null }]
   ])("is absent when %s", (_label, overrides) => {

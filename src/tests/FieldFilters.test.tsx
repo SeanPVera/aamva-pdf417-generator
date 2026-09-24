@@ -21,54 +21,44 @@ describe("FieldFilters Component", () => {
     onGenerateAutoFields: vi.fn()
   };
 
-  // The ring lives on the label, not the checkbox: the badge is the visible
-  // target and the input inside it is 3.5 units square.
-  test("both filter badges ring on keyboard focus", () => {
+  test("filters have distinct accessible labels and state", () => {
     render(<FieldFilters {...defaultProps} />);
-
-    const requiredLabel = screen
-      .getByRole("checkbox", { name: "Show only required fields" })
-      .closest("label");
-    expect(requiredLabel).toHaveClass("has-[:focus-visible]:ring-2");
-
-    const issuesLabel = screen
-      .getByRole("checkbox", { name: "Show only fields with validation issues" })
-      .closest("label");
-    expect(issuesLabel).toHaveClass("has-[:focus-visible]:ring-2");
+    expect(screen.getByRole("checkbox", { name: "Show only required fields" })).not.toBeChecked();
+    expect(
+      screen.getByRole("checkbox", { name: "Show only fields with validation issues" })
+    ).toBeEnabled();
   });
-
-  // The issues badge is red when it has issues to show and gray when it does
-  // not, so a fixed brand ring would clash with it in one of those two states.
-  test("the issues badge rings red while it is showing issues", () => {
-    render(<FieldFilters {...defaultProps} issueCount={2} />);
-
-    const issuesLabel = screen
-      .getByRole("checkbox", { name: "Show only fields with validation issues" })
-      .closest("label");
-    expect(issuesLabel).toHaveClass("has-[:focus-visible]:ring-red-500");
-    expect(issuesLabel).not.toHaveClass("has-[:focus-visible]:ring-brand-500");
-  });
-
-  test("the issues badge rings brand once it is empty and disabled", () => {
+  test("an empty inactive issue filter is disabled", () => {
     render(<FieldFilters {...defaultProps} issueCount={0} />);
-
-    const issuesCheckbox = screen.getByRole("checkbox", {
-      name: "Show only fields with validation issues"
-    });
-    expect(issuesCheckbox).toBeDisabled();
-
-    const issuesLabel = issuesCheckbox.closest("label");
-    expect(issuesLabel).toHaveClass("has-[:focus-visible]:ring-brand-500");
-    expect(issuesLabel).not.toHaveClass("has-[:focus-visible]:ring-red-500");
+    expect(
+      screen.getByRole("checkbox", { name: "Show only fields with validation issues" })
+    ).toBeDisabled();
   });
-
-  // A ring on the label plus a ring on the input inside it draws twice.
-  test("the checkboxes do not draw a second ring inside the badge", () => {
-    render(<FieldFilters {...defaultProps} />);
-
-    for (const name of ["Show only required fields", "Show only fields with validation issues"]) {
-      expect(screen.getByRole("checkbox", { name })).not.toHaveClass("focus-visible:ring-2");
-    }
+  test("an active issue filter can be cleared after the final error is fixed", () => {
+    const clear = vi.fn();
+    render(<FieldFilters {...defaultProps} issueCount={0} issuesOnly onIssuesOnlyChange={clear} />);
+    fireEvent.click(
+      screen.getByRole("checkbox", { name: "Show only fields with validation issues" })
+    );
+    expect(clear).toHaveBeenCalledWith(false);
+  });
+  test("Escape clears every filter without losing record data", () => {
+    const query = vi.fn(),
+      required = vi.fn(),
+      issues = vi.fn();
+    render(
+      <FieldFilters
+        {...defaultProps}
+        query="name"
+        onQueryChange={query}
+        onRequiredOnlyChange={required}
+        onIssuesOnlyChange={issues}
+      />
+    );
+    fireEvent.keyDown(screen.getByRole("searchbox"), { key: "Escape" });
+    expect(query).toHaveBeenCalledWith("");
+    expect(required).toHaveBeenCalledWith(false);
+    expect(issues).toHaveBeenCalledWith(false);
   });
 
   test("triggers checkbox callbacks on toggle", () => {

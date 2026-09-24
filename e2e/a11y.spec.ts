@@ -11,17 +11,9 @@ test.describe("accessibility", () => {
       .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
       .analyze();
 
-    // Color-contrast violations on the dynamic state themes are tracked
-    // separately by stateThemes.contrast.test.ts; ignore them in the broad
-    // structural scan to keep this test focused on markup issues.
-    const structural = accessibilityScanResults.violations.filter(
-      (v) => v.id !== "color-contrast"
-    );
+    const structural = accessibilityScanResults.violations;
 
-    expect(
-      structural,
-      structural.map((v) => `${v.id}: ${v.description}`).join("\n")
-    ).toEqual([]);
+    expect(structural, structural.map((v) => `${v.id}: ${v.description}`).join("\n")).toEqual([]);
   });
 
   test("keyboard tab order reaches the state selector first", async ({ page }) => {
@@ -70,7 +62,9 @@ test.describe("accessibility", () => {
 
     // Surface the walk on failure — "expected true, received false" alone
     // says nothing about where the tab order actually went.
-    expect(reached, `tab order never reached the state selector; visited: ${walked.join(" -> ")}`)
-      .toBe(true);
+    expect(
+      reached,
+      `tab order never reached the state selector; visited: ${walked.join(" -> ")}`
+    ).toBe(true);
   });
 });

@@ -8,16 +8,13 @@ export const InspectorModal: React.FC<{ onClose: () => void; children: React.Rea
 }) => {
   const dialogRef = useModalShell<HTMLDivElement>({ open: true, onClose });
   return (
-    <div
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4"
-      onClick={onClose}
-    >
+    <div className="modal-backdrop" onClick={onClose}>
       <div
         ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="inspector-title"
-        className="w-full max-w-4xl bg-white dark:bg-dark-surface rounded-lg shadow-xl border border-gray-200 dark:border-dark-border max-h-[90vh] flex flex-col"
+        className="modal-panel wide"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-dark-border">

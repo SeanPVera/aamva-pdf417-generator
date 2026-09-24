@@ -281,6 +281,7 @@ describe("PreviewActions filename privacy toggle", () => {
     }
 
     render(<TestWrapper />);
+    fireEvent.click(screen.getByText("Filename & privacy"));
 
     const checkbox = screen.getByRole("checkbox", {
       name: /Put the cardholder's name in export filenames/i

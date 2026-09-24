@@ -146,7 +146,7 @@ describe("WebcamScanner", () => {
     // and re-encoding from the form would discard the padding and unrecognised
     // elements that are the whole reason to look at it.
     expect(mockLoadJson).toHaveBeenCalledWith({ state: "CA", version: "10" }, "valid_payload");
-    expect(mockSetStateVersion).toHaveBeenCalledWith("CA", "10");
+    expect(mockSetStateVersion).not.toHaveBeenCalled(); // one atomic load owns metadata
     expect(mockOnClose).toHaveBeenCalledTimes(1);
   });
 
@@ -242,6 +242,58 @@ describe("WebcamScanner", () => {
     });
 
     expect(decodeFromVideoDeviceMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("ignores an image result arriving after the scanner closes", async () => {
+    (BrowserPDF417Reader as any).listVideoInputDevices = vi.fn().mockResolvedValue([]);
+    let resolve!: (result: { getText: () => string }) => void;
+    const pending = new Promise<{ getText: () => string }>((done) => {
+      resolve = done;
+    });
+    (BrowserPDF417Reader as any).mockImplementationOnce(function () {
+      return { decodeFromImageUrl: vi.fn(() => pending), decodeFromVideoDevice: vi.fn() };
+    });
+    let unmount!: () => void;
+    await act(async () => {
+      ({ unmount } = renderWithToast(<WebcamScanner onClose={mockOnClose} />));
+    });
+    act(() =>
+      fireEvent.change(screen.getByLabelText("Select image for barcode scanning"), {
+        target: { files: [new File(["x"], "synthetic.png", { type: "image/png" })] }
+      })
+    );
+    unmount();
+    await act(async () => {
+      resolve({ getText: () => "valid_payload" });
+      await pending;
+    });
+    expect(mockLoadJson).not.toHaveBeenCalled();
+    expect(mockOnClose).not.toHaveBeenCalled();
+    expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:mock-url");
+  });
+
+  it("ignores a camera callback arriving after unmount", async () => {
+    (BrowserPDF417Reader as any).listVideoInputDevices = vi
+      .fn()
+      .mockResolvedValue([{ deviceId: "cam1", label: "Camera" }]);
+    let callback!: (result: { getText: () => string }) => void;
+    (BrowserPDF417Reader as any).mockImplementationOnce(function () {
+      return {
+        decodeFromImageUrl: vi.fn(),
+        decodeFromVideoDevice: vi.fn((_id, _video, next) => {
+          callback = next;
+          return Promise.resolve({ stop: vi.fn() });
+        })
+      };
+    });
+    let unmount!: () => void;
+    await act(async () => {
+      ({ unmount } = renderWithToast(<WebcamScanner onClose={mockOnClose} />));
+    });
+    unmount();
+    act(() => callback({ getText: () => "valid_payload" }));
+    expect(mockLoadJson).not.toHaveBeenCalled();
+    expect(mockOnClose).not.toHaveBeenCalled();
   });
 
   it("displays an error when image scanning fails", async () => {

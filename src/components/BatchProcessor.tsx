@@ -18,7 +18,9 @@ import { getFieldsForStateAndVersion } from "../core/schema";
 import { jsPDF } from "jspdf";
 import bwipjs from "bwip-js";
 import { PDF417_ENCODER_OPTIONS } from "../core/barcodeDimensions";
-import { parseBatchTable, toCsv } from "../core/csv";
+import { toSafeReportCsv, toCsv } from "../core/csv";
+import { parseBatchInput, MAX_BATCH_BYTES } from "../core/batchInput";
+import { validateImportedRecord } from "../core/importPayload";
 import { createZip, dataUrlToBytes } from "../core/zip";
 import { downloadBlob } from "../core/download";
 import { useModalShell } from "../hooks/useModalShell";
@@ -140,12 +142,19 @@ export const BatchProcessor: React.FC<BatchProcessorProps> = ({ open, onClose })
   const [rowResults, setRowResults] = useState<RowResult[] | null>(null);
   const [showExample, setShowExample] = useState(false);
 
+  const operationRef = useRef(0);
+  React.useEffect(
+    () => () => {
+      operationRef.current++;
+    },
+    []
+  );
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dialogRef = useModalShell<HTMLDivElement>({ open, onClose, closeOnEscape: !processing });
   const recordBadgeEvent = useFormStore((s) => s.recordBadgeEvent);
   const badgeStats = useFormStore((s) => s.badgeStats);
   const markBingo = useFormStore((s) => s.markBingo);
-  const whimsy = useFormStore((s) => s.whimsy);
+  const whimsy = false;
   const soundOn = useFormStore((s) => s.soundOn);
   const holdMusic = useHoldMusic(soundOn && whimsy);
 
@@ -172,6 +181,11 @@ export const BatchProcessor: React.FC<BatchProcessorProps> = ({ open, onClose })
     // Reset so re-selecting the same filename still fires onChange.
     e.target.value = "";
     if (!picked) return;
+    const token = ++operationRef.current;
+    if (picked.size > MAX_BATCH_BYTES) {
+      setParseError("Batch files are limited to 5 MB.");
+      return;
+    }
 
     setFile(picked);
     setRowResults(null);
@@ -181,27 +195,18 @@ export const BatchProcessor: React.FC<BatchProcessorProps> = ({ open, onClose })
 
     try {
       const text = await picked.text();
-      const isCsv = /\.(csv|tsv|txt)$/i.test(picked.name) || !text.trimStart().startsWith("[");
-
-      if (isCsv) {
-        const table = parseBatchTable(text);
-        if (table.rows.length === 0) {
-          throw new Error("No data rows found. The first line must be a header of field codes.");
-        }
-        setUnknownHeaders(table.unknownHeaders);
-        setEntries(table.rows as unknown as BatchEntry[]);
-      } else {
-        const raw: unknown = JSON.parse(text);
-        if (!Array.isArray(raw)) throw new Error("JSON file must contain an array of objects.");
-        setEntries(raw as BatchEntry[]);
-      }
+      if (token !== operationRef.current) return;
+      const table = parseBatchInput(text);
+      setUnknownHeaders(table.unknownHeaders);
+      setEntries(table.rows as unknown as BatchEntry[]);
     } catch (err) {
-      setParseError((err as Error).message);
+      if (token === operationRef.current) setParseError((err as Error).message);
     }
   };
 
   const processBatch = async () => {
     if (!entries) return;
+    const token = ++operationRef.current;
     setProcessing(true);
     setRowResults(null);
     setProgress(null);
@@ -224,6 +229,7 @@ export const BatchProcessor: React.FC<BatchProcessorProps> = ({ open, onClose })
       setProgress({ done: 0, total: entries.length });
 
       for (let i = 0; i < entries.length; i++) {
+        if (token !== operationRef.current) return;
         const row = entries[i];
         const meta = {
           row: i + 1,
@@ -236,7 +242,13 @@ export const BatchProcessor: React.FC<BatchProcessorProps> = ({ open, onClose })
             throw new Error("Missing 'state' or 'version'");
           }
 
-          const schemaFields = getFieldsForStateAndVersion(row.state, row.version);
+          const validated = validateImportedRecord(row);
+          if (!validated.ok) throw new Error(validated.error);
+          const schemaFields = getFieldsForStateAndVersion(
+            row.state,
+            row.version,
+            row.subfileType || "DL"
+          );
           const rowData = Object.fromEntries(
             Object.entries(row).map(([k, v]) => [k, v ?? ""])
           ) as Record<string, string>;
@@ -290,6 +302,7 @@ export const BatchProcessor: React.FC<BatchProcessorProps> = ({ open, onClose })
       }
 
       const succeeded = results.filter((r) => r.ok).length;
+      if (token !== operationRef.current) return;
       if (succeeded > 0) pdf.save("batch_export.pdf");
 
       setRowResults(results);
@@ -308,15 +321,17 @@ export const BatchProcessor: React.FC<BatchProcessorProps> = ({ open, onClose })
       ]);
     } finally {
       holdMusic.stop();
-      setProcessing(false);
-      setProgress(null);
+      if (token === operationRef.current) {
+        setProcessing(false);
+        setProgress(null);
+      }
     }
   };
 
   const handleDownloadErrorReport = () => {
     if (!rowResults) return;
     const failed = rowResults.filter((r) => !r.ok);
-    const csv = toCsv(
+    const csv = toSafeReportCsv(
       ["row", "state", "version", "subfileType", "error"],
       failed.map((r) => ({
         row: r.row,
@@ -354,16 +369,13 @@ export const BatchProcessor: React.FC<BatchProcessorProps> = ({ open, onClose })
     : [];
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-      onClick={processing ? undefined : onClose}
-    >
+    <div className="modal-backdrop" onClick={processing ? undefined : onClose}>
       <div
         ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="batch-title"
-        className="w-full max-w-3xl bg-white dark:bg-dark-surface rounded-lg shadow-xl border border-gray-200 dark:border-dark-border max-h-[90vh] flex flex-col"
+        className="modal-panel medium"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-dark-border">
@@ -423,7 +435,7 @@ export const BatchProcessor: React.FC<BatchProcessorProps> = ({ open, onClose })
           </div>
 
           {showExample && (
-            <pre className="mb-4 max-h-48 overflow-auto rounded border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 p-3 text-[11px] font-mono text-gray-700 dark:text-gray-300">
+            <pre className="mb-4 max-h-48 overflow-auto rounded border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 p-3 text-k-help font-mono text-gray-700 dark:text-gray-300">
               {JSON.stringify(SAMPLE_BATCH, null, 2)}
             </pre>
           )}
@@ -477,7 +489,7 @@ export const BatchProcessor: React.FC<BatchProcessorProps> = ({ open, onClose })
                 {Math.min(PREVIEW_ROWS, entries.length)} shown
               </div>
               <div className="overflow-auto rounded border border-gray-200 dark:border-gray-700 max-h-52">
-                <table className="w-full text-[11px] border-collapse" aria-label="Batch preview">
+                <table className="w-full text-k-help border-collapse" aria-label="Batch preview">
                   <thead className="sticky top-0 bg-gray-50 dark:bg-gray-800">
                     <tr className="text-left text-gray-500 dark:text-gray-400">
                       <th className="py-1 px-2 font-semibold">#</th>
@@ -565,7 +577,7 @@ export const BatchProcessor: React.FC<BatchProcessorProps> = ({ open, onClose })
                 />
               </div>
               {whimsy && soundOn && (
-                <p className="mt-1 text-[11px] italic text-gray-500 dark:text-gray-400">
+                <p className="mt-1 text-k-help italic text-gray-500 dark:text-gray-400">
                   {holdMusic.caption}
                 </p>
               )}

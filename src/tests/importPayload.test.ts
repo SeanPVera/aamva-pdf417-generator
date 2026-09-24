@@ -55,9 +55,9 @@ describe("parseImportedPayload", () => {
     expect(result.error).toMatch(/Failed to parse JSON file/);
   });
 
-  it("ignores a non-string version rather than crashing", () => {
+  it("rejects a non-string version before it can corrupt configuration", () => {
     // A hand-edited file could carry `"version": 10`. It is not a version token
     // we can act on, but it is not a reason to refuse the file either.
-    expect(parseImportedPayload('{"version":10}').ok).toBe(true);
+    expect(parseImportedPayload('{"version":10}').ok).toBe(false);
   });
 });

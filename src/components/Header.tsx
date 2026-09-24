@@ -1,788 +1,252 @@
 import React, { useEffect, useRef, useState } from "react";
-import {
-  ShieldCheck,
-  Camera,
-  Download,
-  Upload,
-  Trash2,
-  Undo2,
-  Redo2,
-  Sun,
-  Moon,
-  Building2,
-  Sparkles,
-  Keyboard,
-  GitCompare,
-  ChevronDown,
-  PartyPopper,
-  Volume2,
-  VolumeX,
-  MonitorCog,
-  Layers,
-  Tag,
-  Award,
-  Car,
-  MoreHorizontal
-} from "lucide-react";
-import { useFormStore, Theme } from "../hooks/useFormStore";
-import { InstallPrompt } from "./InstallPrompt";
+import { Undo2, Redo2, ChevronDown } from "lucide-react";
+import { useFormStore } from "../hooks/useFormStore";
 import { useToast } from "./Toast";
-import { loadQuickFillPresets, type QuickFillPreset } from "../core/presets";
-import { getStateTheme } from "../core/stateThemes";
-import { AAMVA_STATES } from "../core/states";
 import { buildExportBasename } from "../core/exportNaming";
-import { hasUserData, userEnteredCodes, seededFields } from "../core/derivedFields";
-import { getFieldsForStateAndVersion } from "../core/schema";
 import { downloadBlob } from "../core/download";
-import { parseImportedPayload } from "../core/importPayload";
-import { detectPlatform, formatShortcut } from "../core/modKey";
+import { ImportRecordDialog } from "./ImportRecordDialog";
+import { InstallPrompt } from "./InstallPrompt";
+import { loadQuickFillPresets, type QuickFillPreset } from "../core/presets";
 
 interface HeaderProps {
   onStartScan: () => void;
   onOpenShortcuts: () => void;
   onOpenCompare: () => void;
-}
-
-const THEME_LABELS: Record<
-  Theme,
-  { label: string; icon: React.ReactNode; description: string; swatch: string }
-> = {
-  system: {
-    label: "Auto",
-    icon: <MonitorCog size={13} />,
-    description: "Follows your operating system's light/dark setting",
-    swatch: "linear-gradient(135deg, #ffffff 50%, #1e1e1e 50%)"
-  },
-  light: {
-    label: "Light",
-    icon: <Sun size={13} />,
-    description: "Light surfaces and dark text",
-    swatch: "#ffffff"
-  },
-  dark: {
-    label: "Dark",
-    icon: <Moon size={13} />,
-    description: "Dark surfaces and light text",
-    swatch: "#1e1e1e"
-  },
-  dmv: {
-    label: "DMV",
-    icon: <Building2 size={13} />,
-    description: "Jurisdiction-themed accents from the selected state's palette",
-    swatch: "" // filled at render time from the current state palette
-  }
-};
-
-const THEMES: Theme[] = ["system", "light", "dark", "dmv"];
-
-function HeaderGroup({
-  label,
-  children,
-  className
-}: {
-  label: string;
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <div className={`flex min-w-0 flex-col gap-0.5 ${className ?? ""}`}>
-      <span className="px-1 text-k-eyebrow font-bold uppercase text-gray-500 dark:text-gray-400">
-        {label}
-      </span>
-      <div className="flex items-center gap-1">{children}</div>
-    </div>
-  );
-}
-
-interface HeaderActionProps extends HeaderProps {
   onOpenBatch: () => void;
-  onOpenBadges: () => void;
-  onOpenBingo: () => void;
-  onOpenRoadTest: () => void;
+  onOpenBadges?: () => void;
+  onOpenBingo?: () => void;
+  onOpenRoadTest?: () => void;
 }
 
-export const Header: React.FC<HeaderActionProps> = ({
+export const Header: React.FC<HeaderProps> = ({
   onStartScan,
   onOpenShortcuts,
   onOpenCompare,
-  onOpenBatch,
-  onOpenBadges,
-  onOpenBingo,
-  onOpenRoadTest
+  onOpenBatch
 }) => {
   const {
-    clearFields,
-    fields,
     state,
     version,
     subfileType,
-    loadJson,
+    fields,
     theme,
     setTheme,
+    clearFields,
+    loadJson,
     undo,
     redo,
-    canUndo,
-    canRedo,
-    whimsy,
-    setWhimsy,
-    soundOn,
-    setSoundOn,
-    mascots,
-    setMascots,
-    includeNameInExport,
-    restoreFields,
-    markBingo,
     _history,
-    _future
+    _future,
+    includeNameInExport
   } = useFormStore();
-
-  // What the app pre-filled. Passed to the dirty-state checks so an untouched
-  // seed is not reported as data the user entered.
-  const appSeeds = React.useMemo(() => seededFields(state, subfileType), [state, subfileType]);
-  const importRef = useRef<HTMLInputElement>(null);
-  const presetsRef = useRef<HTMLDivElement>(null);
-  const funRef = useRef<HTMLDivElement>(null);
-  const [presetsOpen, setPresetsOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
+  const [toolsOpen, setToolsOpen] = useState(false);
+  const [clearOpen, setClearOpen] = useState(false);
   const [presets, setPresets] = useState<QuickFillPreset[]>([]);
-  const [funOpen, setFunOpen] = useState(false);
-  const [moreOpen, setMoreOpen] = useState(false);
-  const moreRef = useRef<HTMLDivElement>(null);
-  const undoDepth = _history.length;
-  const redoDepth = _future.length;
+  const menuRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
   const toast = useToast();
-  const activeStateTheme = getStateTheme(state);
-  const activeStateName = AAMVA_STATES[state]?.name ?? state;
-  const platform = React.useMemo(() => detectPlatform(), []);
-  const undoLabel = formatShortcut(["mod", "Z"], platform);
-  const redoLabel = formatShortcut(["mod", "shift", "Z"], platform);
 
-  // Bingo: three theme flips in a session counts as fidgeting.
-  const themeToggleCountRef = useRef(0);
-  const bumpThemeToggles = () => {
-    themeToggleCountRef.current += 1;
-    if (themeToggleCountRef.current >= 3) markBingo("toggled-theme");
-  };
-
-  // Fetched on first open rather than at import: the records are a kilobyte of
-  // inert sample data behind a menu, and loading them eagerly put them in the
-  // first-paint bundle. `loadQuickFillPresets` memoises, so reopening is free.
   useEffect(() => {
-    if (!presetsOpen) return;
+    if (!toolsOpen) return;
     let live = true;
-    loadQuickFillPresets().then((loaded) => {
-      if (live) setPresets(loaded);
-    });
-    const onClick = (e: MouseEvent) => {
-      if (presetsRef.current && !presetsRef.current.contains(e.target as Node)) {
-        setPresetsOpen(false);
+    void loadQuickFillPresets()
+      .then((items) => {
+        if (live) setPresets(items);
+      })
+      .catch(() => {
+        if (live) toast.error("Sample records could not be loaded.");
+      });
+    const dismiss = (e: PointerEvent) => {
+      if (!menuRef.current?.contains(e.target as Node)) setToolsOpen(false);
+    };
+    const escape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setToolsOpen(false);
+        triggerRef.current?.focus();
       }
     };
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setPresetsOpen(false);
-    };
-    window.addEventListener("mousedown", onClick);
-    window.addEventListener("keydown", onKey);
+    document.addEventListener("pointerdown", dismiss);
+    document.addEventListener("keydown", escape);
     return () => {
       live = false;
-      window.removeEventListener("mousedown", onClick);
-      window.removeEventListener("keydown", onKey);
+      document.removeEventListener("pointerdown", dismiss);
+      document.removeEventListener("keydown", escape);
     };
-  }, [presetsOpen]);
+  }, [toolsOpen, toast]);
 
-  useEffect(() => {
-    if (!funOpen) return;
-    const onClick = (e: MouseEvent) => {
-      if (funRef.current && !funRef.current.contains(e.target as Node)) {
-        setFunOpen(false);
-      }
-    };
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setFunOpen(false);
-    };
-    window.addEventListener("mousedown", onClick);
-    window.addEventListener("keydown", onKey);
-    return () => {
-      window.removeEventListener("mousedown", onClick);
-      window.removeEventListener("keydown", onKey);
-    };
-  }, [funOpen]);
-
-  useEffect(() => {
-    if (!moreOpen) return;
-    const onClick = (e: MouseEvent) => {
-      if (moreRef.current && !moreRef.current.contains(e.target as Node)) {
-        setMoreOpen(false);
-      }
-    };
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setMoreOpen(false);
-    };
-    window.addEventListener("mousedown", onClick);
-    window.addEventListener("keydown", onKey);
-    return () => {
-      window.removeEventListener("mousedown", onClick);
-      window.removeEventListener("keydown", onKey);
-    };
-  }, [moreOpen]);
-
-  const handleExportJson = () => {
-    // Only export what the active jurisdiction + version actually encodes.
-    // `fields` is a single flat map that survives state/version switches, so it
-    // can hold values orphaned by an earlier schema — invisible in the form,
-    // absent from the payload, but previously written straight into the file.
-    const schemaCodes = new Set(getFieldsForStateAndVersion(state, version).map((f) => f.code));
-    const kept: Record<string, string> = {};
-    const dropped: string[] = [];
-    for (const [code, value] of Object.entries(fields)) {
-      if (!value) continue;
-      if (schemaCodes.has(code)) kept[code] = value;
-      else dropped.push(code);
-    }
-
-    const data = { state, version, ...kept };
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-    const filename =
+  const run = (fn: () => void) => {
+    setToolsOpen(false);
+    triggerRef.current?.focus();
+    fn();
+  };
+  const exportRecord = () => {
+    const text = JSON.stringify({ state, version, subfileType, ...fields }, null, 2);
+    downloadBlob(
+      new Blob([text], { type: "application/json" }),
       buildExportBasename({
         state,
         version,
-        fields,
         subfileType,
-        prefix: "aamva",
-        includeName: includeNameInExport
-      }) + ".json";
-    downloadBlob(blob, filename);
-
-    toast.success(`Exported ${filename}`);
-    if (dropped.length > 0) {
-      toast.info(
-        `${dropped.length} value${dropped.length === 1 ? "" : "s"} from another version ` +
-          `(${dropped.slice(0, 4).join(", ")}${dropped.length > 4 ? "…" : ""}) ` +
-          `${dropped.length === 1 ? "is" : "are"} not part of ${state} v${version} and ${
-            dropped.length === 1 ? "was" : "were"
-          } not exported.`
-      );
-    }
-  };
-
-  const handleImportJson = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    const snapshot = { ...fields };
-    const hadValues = hasUserData(fields, appSeeds);
-    reader.onload = (evt) => {
-      // Shared with the drag-and-drop overlay so both import paths agree on what
-      // is loadable — including the unsupported-version guard.
-      const result = parseImportedPayload(evt.target?.result as string, file.name);
-      if (!result.ok) {
-        toast.error(result.error, { persistent: true });
-        return;
-      }
-      loadJson(result.data);
-      toast.success(
-        `Imported ${file.name}`,
-        hadValues
-          ? { action: { label: "Undo", onClick: () => restoreFields(snapshot) } }
-          : undefined
-      );
-    };
-    reader.readAsText(file);
-    // reset so the same file can be re-imported
-    e.target.value = "";
-  };
-
-  // Both of these replace the whole form. Rather than gating them behind a
-  // blocking native confirm — which cannot be themed, is easy to click through,
-  // and renders as an OS modal in Electron — they act immediately and hand back
-  // a one-click Undo. `clearFields`/`loadJson` already snapshot the previous
-  // map, so the recovery is exact.
-  const handleClearData = () => {
-    const snapshot = { ...fields };
-    // DAJ is filled by the app, not the user — counting it would report
-    // "Cleared 1 field" on a form nobody has typed into.
-    const filledCount = userEnteredCodes(fields, appSeeds).length;
-    // PII lives only in memory — it is never persisted (see useFormStore), so
-    // clearing the in-memory fields is the complete and honest cleanup.
-    clearFields();
-    markBingo("cleared-all");
-    toast.success(
-      filledCount > 0
-        ? `Cleared ${filledCount} field${filledCount === 1 ? "" : "s"} from memory`
-        : "Form cleared",
-      filledCount > 0
-        ? { action: { label: "Undo", onClick: () => restoreFields(snapshot) } }
-        : undefined
-    );
-  };
-
-  const handleApplyPreset = (presetId: string) => {
-    const preset = presets.find((p) => p.id === presetId);
-    if (!preset) return;
-    const snapshot = { ...fields };
-    const hadValues = hasUserData(fields, appSeeds);
-    loadJson({ state: preset.state, version: preset.version, ...preset.fields });
-    setPresetsOpen(false);
-    markBingo("used-preset");
-    toast.success(
-      `Loaded preset: ${preset.label}`,
-      hadValues ? { action: { label: "Undo", onClick: () => restoreFields(snapshot) } } : undefined
+        fields,
+        includeName: includeNameInExport,
+        prefix: "record"
+      }) + ".json"
     );
   };
 
   return (
-    <header
-      className="state-themed sticky top-0 z-20 border-b border-gray-200 bg-white text-gray-900 shadow-sm dark:border-dark-border dark:bg-dark-surface dark:text-gray-100"
-      data-active-state={state}
-      data-state-motif={activeStateTheme.motif}
-    >
-      {/* Identity row. Nothing here competes for a click, which is the point:
-          the jurisdiction colour gets a surface to itself and every actual
-          control lives on the light bar below it, where dark-on-light is
-          legible regardless of which of the 54 palettes is loaded. */}
-      <div className="header-identity header-safe-top flex items-center justify-between gap-2 px-3 py-1.5 sm:px-4 sm:py-2">
-        <div className="flex items-center space-x-2 sm:space-x-3 shrink min-w-0">
-          <ShieldCheck className="state-brand-icon h-5 w-5 text-brand-600 dark:text-brand-400 shrink-0" />
-          <h1 className="state-brand-text text-base sm:text-lg font-bold tracking-wide whitespace-nowrap overflow-hidden text-ellipsis">
-            AAMVA PDF417
-          </h1>
-          <span
-            className="jurisdiction-plate inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] shadow-sm whitespace-nowrap"
-            title={`${activeStateName} theme package: ${activeStateTheme.motif}`}
-          >
-            {state} · v{version}
-          </span>
-        </div>
-        <div className="flex shrink-0 items-center gap-1">
-          <div className="hidden sm:block">
-            <InstallPrompt />
-          </div>
-          {/* Playful extras. This lives on the identity row rather than in the
-              action bar below, because that bar is `hidden lg:flex` — leaving it
-              there put the whimsy toggles, the badge case, DMV Bingo and the road
-              test out of reach on every phone. One trigger, every width. */}
-          <div className="relative" ref={funRef}>
-            <button
-              onClick={() => setFunOpen((v) => !v)}
-              title="Playful extras"
-              aria-haspopup="menu"
-              aria-expanded={funOpen}
-              aria-label="Toggle playful extras"
-              className="inline-flex h-k-touch w-k-touch items-center justify-center rounded-k text-[color:var(--state-on-primary)] transition hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
-            >
-              <PartyPopper size={15} />
-            </button>
-            {funOpen && (
-              <div
-                role="menu"
-                className="absolute right-0 mt-1 w-64 bg-white dark:bg-dark-surface border border-gray-200 dark:border-dark-border rounded-md shadow-lg z-30 overflow-hidden text-gray-800 dark:text-gray-100"
-              >
-                <div className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 border-b border-gray-100 dark:border-dark-border">
-                  Playful extras
-                </div>
-                <button
-                  type="button"
-                  role="menuitemcheckbox"
-                  aria-checked={whimsy}
-                  onClick={() => {
-                    setWhimsy(!whimsy);
-                    toast.info(whimsy ? "Whimsy off — all business." : "Whimsy on ✨");
-                  }}
-                  className="w-full flex items-center justify-between px-3 py-2 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-sm focus-visible:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-dark-surface2"
-                >
-                  <span className="flex items-center gap-2">
-                    <PartyPopper size={14} /> Whimsy effects
-                  </span>
-                  <span
-                    aria-hidden
-                    className={`text-xs font-semibold ${whimsy ? "text-green-600 dark:text-green-400" : "text-gray-400"}`}
-                  >
-                    {whimsy ? "ON" : "OFF"}
-                  </span>
-                </button>
-                <button
-                  type="button"
-                  role="menuitemcheckbox"
-                  aria-checked={mascots}
-                  disabled={!whimsy}
-                  onClick={() => {
-                    setMascots(!mascots);
-                    toast.info(mascots ? "Gus is off the clock." : "Gus is back at the window.");
-                  }}
-                  title="Gus the clerk and the take-a-number ticket, in the bottom corner"
-                  className="w-full flex items-center justify-between px-3 py-2 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-sm focus-visible:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-dark-surface2 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <span className="flex items-center gap-2">
-                    {/* Reuses an icon the toolbar already ships — a new lucide
-                      glyph here costs first-paint bytes for a menu row. */}
-                    <Sparkles size={14} /> Desk mascots
-                  </span>
-                  <span
-                    aria-hidden
-                    className={`text-xs font-semibold ${mascots && whimsy ? "text-green-600 dark:text-green-400" : "text-gray-500 dark:text-gray-400"}`}
-                  >
-                    {mascots ? "ON" : "OFF"}
-                  </span>
-                </button>
-                <button
-                  type="button"
-                  role="menuitemcheckbox"
-                  aria-checked={soundOn}
-                  onClick={() => {
-                    setSoundOn(!soundOn);
-                    toast.info(soundOn ? "Clerk sounds muted" : "Clerk sounds on 🔊");
-                  }}
-                  className="w-full flex items-center justify-between px-3 py-2 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-sm focus-visible:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-dark-surface2"
-                >
-                  <span className="flex items-center gap-2">
-                    {soundOn ? <Volume2 size={14} /> : <VolumeX size={14} />} Clerk sound FX
-                  </span>
-                  <span
-                    aria-hidden
-                    className={`text-xs font-semibold ${soundOn ? "text-green-600 dark:text-green-400" : "text-gray-400"}`}
-                  >
-                    {soundOn ? "ON" : "OFF"}
-                  </span>
-                </button>
-                <button
-                  type="button"
-                  role="menuitem"
-                  onClick={() => {
-                    setFunOpen(false);
-                    onOpenBadges();
-                  }}
-                  className="w-full flex items-center gap-2 px-3 py-2 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-sm focus-visible:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-dark-surface2"
-                >
-                  <Award size={14} /> Employee of the Month
-                </button>
-                <button
-                  type="button"
-                  role="menuitem"
-                  onClick={() => {
-                    setFunOpen(false);
-                    onOpenBingo();
-                  }}
-                  className="w-full flex items-center gap-2 px-3 py-2 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-sm focus-visible:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-dark-surface2"
-                >
-                  <Tag size={14} /> DMV Bingo
-                </button>
-                <button
-                  type="button"
-                  role="menuitem"
-                  onClick={() => {
-                    setFunOpen(false);
-                    onOpenRoadTest();
-                  }}
-                  className="w-full flex items-center gap-2 px-3 py-2 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-sm focus-visible:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-dark-surface2"
-                >
-                  <Car size={14} /> Take the road test
-                </button>
-                <p className="px-3 py-2 text-[11px] text-gray-500 dark:text-gray-400 border-t border-gray-100 dark:border-dark-border">
-                  Cosmetic only — never affects the barcode. Psst: try the Konami code.
-                </p>
-              </div>
-            )}
-          </div>{" "}
-          <div className="relative lg:hidden" ref={moreRef}>
-            <button
-              type="button"
-              onClick={() => setMoreOpen((v) => !v)}
-              aria-haspopup="menu"
-              aria-expanded={moreOpen}
-              aria-label="More actions"
-              title="More actions"
-              className="inline-flex h-k-touch w-k-touch items-center justify-center rounded-k text-[color:var(--state-on-primary)] hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
-            >
-              <MoreHorizontal size={20} />
-            </button>
-            {moreOpen && (
-              <div
-                role="menu"
-                className="absolute right-0 mt-1 w-56 overflow-hidden rounded-k border border-gray-200 bg-white text-gray-900 shadow-lg z-30 dark:border-dark-border dark:bg-dark-surface dark:text-gray-100"
-              >
-                <button
-                  type="button"
-                  role="menuitem"
-                  onClick={() => {
-                    setMoreOpen(false);
-                    onStartScan();
-                  }}
-                  className="flex h-k-touch w-full items-center gap-2 px-3 text-k-label font-medium hover:bg-gray-100 dark:hover:bg-dark-surface2"
-                >
-                  <Camera size={16} /> Scan
-                </button>
-                <button
-                  type="button"
-                  role="menuitem"
-                  onClick={() => {
-                    setMoreOpen(false);
-                    importRef.current?.click();
-                  }}
-                  className="flex h-k-touch w-full items-center gap-2 px-3 text-k-label font-medium hover:bg-gray-100 dark:hover:bg-dark-surface2"
-                >
-                  <Upload size={16} /> Import JSON
-                </button>
-                <button
-                  type="button"
-                  role="menuitem"
-                  onClick={() => {
-                    setMoreOpen(false);
-                    handleExportJson();
-                  }}
-                  className="flex h-k-touch w-full items-center gap-2 px-3 text-k-label font-medium hover:bg-gray-100 dark:hover:bg-dark-surface2"
-                >
-                  <Download size={16} /> Export JSON
-                </button>
-                <button
-                  type="button"
-                  role="menuitem"
-                  onClick={() => {
-                    setMoreOpen(false);
-                    onOpenCompare();
-                  }}
-                  className="flex h-k-touch w-full items-center gap-2 px-3 text-k-label font-medium hover:bg-gray-100 dark:hover:bg-dark-surface2"
-                >
-                  <GitCompare size={16} /> Compare
-                </button>
-                <button
-                  type="button"
-                  role="menuitem"
-                  onClick={() => {
-                    setMoreOpen(false);
-                    handleClearData();
-                  }}
-                  className="flex h-k-touch w-full items-center gap-2 px-3 text-k-label font-semibold text-red-700 hover:bg-red-50 dark:text-red-300 dark:hover:bg-red-950/40"
-                >
-                  <Trash2 size={16} /> Clear PII
-                </button>
-              </div>
-            )}
+    <>
+      <a className="skip-link" href="#record-workspace">
+        Skip to record
+      </a>
+      <header className="workbench-header header-safe-top">
+        <div className="product-wordmark">
+          <span className="barcode-mark" aria-hidden="true" />
+          <div>
+            <h1>
+              AAMVA<span className="wordmark-divider"> / </span>PDF417
+            </h1>
+            <span className="product-caption">Record workbench</span>
           </div>
         </div>
-      </div>
-
-      {/* Action bar. Three labelled groups so Clear PII no longer shares
-          visual weight with Export JSON. Appearance / Record / Session. */}
-      <div className="header-toolbar hidden lg:flex items-end gap-4 overflow-x-auto px-3 py-2">
-        <HeaderGroup label="Appearance">
-          {/* Theme toggle */}
-          <div className="state-toggle-group flex items-center rounded overflow-hidden border border-gray-200 dark:border-dark-border focus-within:ring-2 focus-within:ring-brand-500">
-            {THEMES.map((t) => {
-              const meta = THEME_LABELS[t];
-              const swatch = t === "dmv" ? getStateTheme(state).primary : meta.swatch;
-              // "Auto" uses a split swatch, so it needs `background`, not `backgroundColor`.
-              const swatchStyle = swatch.includes("gradient")
-                ? { background: swatch }
-                : { backgroundColor: swatch };
-              return (
-                <button
-                  key={t}
-                  onClick={() => {
-                    setTheme(t);
-                    bumpThemeToggles();
-                  }}
-                  title={`${meta.label} theme — ${meta.description}`}
-                  aria-pressed={theme === t}
-                  className={`flex h-k-touch items-center gap-1.5 px-3 text-k-help transition focus:outline-none ${
-                    theme === t
-                      ? "state-primary-bg font-semibold text-white"
-                      : "hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300"
-                  }`}
-                >
-                  <span
-                    aria-hidden
-                    className="inline-block w-3 h-3 rounded-full border border-black/15 shadow-sm"
-                    style={swatchStyle}
-                  />
-                  {meta.icon}
-                  <span className="hidden sm:inline">{meta.label}</span>
-                </button>
-              );
-            })}
-          </div>
-        </HeaderGroup>
-
-        <HeaderGroup label="Record">
-          {/* Undo / Redo */}
-          <button
-            onClick={undo}
-            disabled={!canUndo()}
-            title={`Undo (${undoLabel})${undoDepth ? ` — ${undoDepth} step${undoDepth === 1 ? "" : "s"}` : ""}`}
-            aria-label={`Undo last field change${undoDepth ? ` (${undoDepth} available)` : ""}`}
-            className="relative flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 disabled:opacity-40 disabled:cursor-not-allowed h-k-touch px-3 rounded-k transition text-k-help font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-          >
-            <Undo2 size={15} />
-            {undoDepth > 0 && (
-              <span
-                aria-hidden
-                className="absolute -top-0.5 -right-0.5 min-w-[14px] h-[14px] px-0.5 rounded-full bg-brand-600 text-white text-[9px] leading-[14px] text-center font-semibold shadow"
-              >
-                {undoDepth > 9 ? "9+" : undoDepth}
-              </span>
-            )}
-          </button>
-          <button
-            onClick={redo}
-            disabled={!canRedo()}
-            title={`Redo (${redoLabel})${redoDepth ? ` — ${redoDepth} step${redoDepth === 1 ? "" : "s"}` : ""}`}
-            aria-label={`Redo field change${redoDepth ? ` (${redoDepth} available)` : ""}`}
-            className="relative flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 disabled:opacity-40 disabled:cursor-not-allowed h-k-touch px-3 rounded-k transition text-k-help font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-          >
-            <Redo2 size={15} />
-            {redoDepth > 0 && (
-              <span
-                aria-hidden
-                className="absolute -top-0.5 -right-0.5 min-w-[14px] h-[14px] px-0.5 rounded-full bg-brand-600 text-white text-[9px] leading-[14px] text-center font-semibold shadow"
-              >
-                {redoDepth > 9 ? "9+" : redoDepth}
-              </span>
-            )}
-          </button>
-
-          <div className="state-divider w-px h-5 bg-gray-200 dark:bg-dark-border mx-1" />
-
-          {/* Quick Fill Presets */}
-          <div className="relative" ref={presetsRef}>
+        <div className="header-actions">
+          <InstallPrompt />
+          <div className="history-actions" role="group" aria-label="Record history">
             <button
-              onClick={() => setPresetsOpen((v) => !v)}
-              title="Quick fill from a preset profile"
-              aria-haspopup="menu"
-              aria-expanded={presetsOpen}
-              className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 h-k-touch px-3 rounded-k transition text-k-help font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+              className="wb-button icon-button"
+              onClick={undo}
+              disabled={!_history.length}
+              aria-label="Undo"
+              title="Undo · Ctrl/⌘ Z"
             >
-              <Sparkles size={15} />
-              <span className="hidden sm:inline">Presets</span>
-              <ChevronDown size={12} />
+              <Undo2 size={17} />
             </button>
-            {presetsOpen && (
-              <div
-                role="menu"
-                className="absolute right-0 mt-1 w-72 bg-white dark:bg-dark-surface border border-gray-200 dark:border-dark-border rounded-md shadow-lg z-30 overflow-hidden"
-              >
-                <div className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 border-b border-gray-100 dark:border-dark-border">
-                  Quick Fill Presets
-                </div>
-                {presets.length === 0 ? (
-                  <div className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">Loading…</div>
-                ) : null}
-                <ul>
-                  {presets.map((p) => (
-                    <li key={p.id}>
-                      <button
-                        type="button"
-                        role="menuitem"
-                        onClick={() => handleApplyPreset(p.id)}
-                        className="w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-sm text-gray-800 dark:text-gray-100 focus-visible:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-dark-surface2"
-                      >
-                        <div className="font-medium">{p.label}</div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">
-                          {p.description}
-                        </div>
-                      </button>
-                    </li>
+            <button
+              className="wb-button icon-button"
+              onClick={redo}
+              disabled={!_future.length}
+              aria-label="Redo"
+              title="Redo · Ctrl/⌘ Shift Z"
+            >
+              <Redo2 size={17} />
+            </button>
+          </div>
+          <button className="wb-button" onClick={() => setImportOpen(true)}>
+            Import
+          </button>
+          <button className="wb-button primary" onClick={onStartScan}>
+            Scan barcode
+          </button>
+          <div className="tools-menu" ref={menuRef}>
+            <button
+              ref={triggerRef}
+              className="wb-button"
+              onClick={() => setToolsOpen(!toolsOpen)}
+              aria-expanded={toolsOpen}
+              aria-controls="workspace-tools"
+            >
+              Tools <ChevronDown size={14} aria-hidden />
+            </button>
+            {toolsOpen && (
+              <div className="tool-popover" id="workspace-tools" aria-label="Workspace tools">
+                <button onClick={() => run(exportRecord)}>Export record JSON</button>
+                <button onClick={() => run(onOpenCompare)}>Compare payloads</button>
+                <button onClick={() => run(onOpenBatch)}>Batch CSV processing</button>
+                <button onClick={() => run(onOpenShortcuts)}>Keyboard shortcuts & help</button>
+                <label className="menu-setting">
+                  Appearance
+                  <select
+                    aria-label="Appearance"
+                    value={theme === "dmv" ? "light" : theme}
+                    onChange={(e) => setTheme(e.target.value as "system" | "light" | "dark")}
+                  >
+                    <option value="system">System</option>
+                    <option value="light">Light</option>
+                    <option value="dark">Dark</option>
+                  </select>
+                </label>
+                <details className="sample-menu">
+                  <summary>Synthetic sample records</summary>
+                  {presets.map((preset) => (
+                    <button
+                      key={preset.id}
+                      onClick={() =>
+                        run(() => {
+                          loadJson({
+                            state: preset.state,
+                            version: preset.version,
+                            subfileType: "DL",
+                            ...preset.fields
+                          });
+                          toast.success(
+                            "Synthetic record loaded. Undo is available in the toolbar."
+                          );
+                        })
+                      }
+                    >
+                      {preset.label}
+                    </button>
                   ))}
-                </ul>
+                </details>
+                <button
+                  className="danger-text"
+                  onClick={() => {
+                    setToolsOpen(false);
+                    setClearOpen(true);
+                  }}
+                >
+                  Erase record & history…
+                </button>
               </div>
             )}
           </div>
-
-          {/* Batch — a different task from single-payload editing, so it gets its
-            own modal instead of living at the bottom of the field form. */}
-          <button
-            onClick={onOpenBatch}
-            className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 h-k-touch px-3 rounded-k transition text-k-help font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-            title="Generate many barcodes from a JSON or CSV file"
-            aria-label="Open batch processing"
-          >
-            <Layers size={15} />
-            <span className="hidden sm:inline">Batch</span>
-          </button>
-
-          {/* Compare */}
-          <button
-            onClick={onOpenCompare}
-            className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 h-k-touch px-3 rounded-k transition text-k-help font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-            title="Compare two payloads side-by-side"
-            aria-label="Compare two payloads"
-          >
-            <GitCompare size={15} />
-            <span className="hidden sm:inline">Compare</span>
-          </button>
-
-          <div className="state-divider w-px h-5 bg-gray-200 dark:bg-dark-border mx-1" />
-
-          {/* Scan */}
-          <button
-            onClick={onStartScan}
-            className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 h-k-touch px-3 rounded-k transition text-k-help font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-            title="Scan Barcode from Webcam"
-            aria-label="Open barcode scanner"
-          >
-            <Camera size={15} />
-            <span className="hidden sm:inline">Scan ID</span>
-          </button>
-
-          {/* Import JSON */}
-          <input
-            ref={importRef}
-            type="file"
-            accept=".json,application/json"
-            onChange={handleImportJson}
-            className="hidden"
-            aria-hidden="true"
-            tabIndex={-1}
-          />
-          <button
-            onClick={() => importRef.current?.click()}
-            className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 h-k-touch px-3 rounded-k transition text-k-help font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-            title="Import JSON Profile"
-            aria-label="Import JSON payload file"
-          >
-            <Upload size={15} />
-            <span className="hidden sm:inline">Import JSON</span>
-          </button>
-
-          {/* Export JSON */}
-          <button
-            onClick={handleExportJson}
-            className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 h-k-touch px-3 rounded-k transition text-k-help font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-            title="Export JSON Profile"
-            aria-label="Export current fields as JSON"
-          >
-            <Download size={15} />
-            <span className="hidden sm:inline">Export JSON</span>
-          </button>
-        </HeaderGroup>
-
-        {/* Everything past here is utility or destructive, so it is pushed
-            away from the data actions rather than continuing the same run. */}
-        <HeaderGroup label="Session" className="ml-auto">
-          {/* Shortcuts */}
-          <button
-            onClick={() => {
-              markBingo("opened-shortcuts");
-              onOpenShortcuts();
-            }}
-            className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-700 dark:text-gray-300 h-k-touch px-3 rounded-k transition text-k-help font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-            title="Keyboard shortcuts (?)"
-            aria-label="Show keyboard shortcuts"
-          >
-            <Keyboard size={15} />
-          </button>
-
-          <div className="state-divider mx-1 h-5 w-px bg-gray-200 dark:bg-dark-border" />
-
-          {/* Clear PII */}
-          <button
-            onClick={handleClearData}
-            className="flex h-k-touch items-center gap-1.5 rounded-k border-[1.5px] border-red-400 px-3 text-k-help font-semibold text-red-700 transition hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 dark:border-red-700 dark:text-red-300 dark:hover:bg-red-950/40"
-            title="Securely Clear Memory"
-            aria-label="Clear all PII from memory and storage"
-          >
-            <Trash2 size={15} />
-            <span className="hidden whitespace-nowrap sm:inline">Clear PII</span>
-          </button>
-        </HeaderGroup>
-      </div>
-    </header>
+        </div>
+      </header>
+      {importOpen && <ImportRecordDialog onClose={() => setImportOpen(false)} />}
+      {clearOpen && (
+        <EraseDialog
+          onCancel={() => setClearOpen(false)}
+          onErase={() => {
+            clearFields();
+            setClearOpen(false);
+            toast.info(
+              "Record and undo history erased. Downloaded files and clipboard contents are unchanged."
+            );
+          }}
+        />
+      )}
+    </>
   );
 };
+
+import { useModalShell } from "../hooks/useModalShell";
+function EraseDialog({ onCancel, onErase }: { onCancel: () => void; onErase: () => void }) {
+  const ref = useModalShell({ open: true, onClose: onCancel });
+  return (
+    <div className="modal-backdrop">
+      <div
+        ref={ref}
+        className="wb-dialog compact-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="erase-title"
+        tabIndex={-1}
+      >
+        <h2 id="erase-title">Erase this record?</h2>
+        <p>
+          This removes the current fields, imported source, and undo history from the workspace. It
+          cannot be undone.
+        </p>
+        <div className="dialog-actions">
+          <button className="wb-button" onClick={onCancel}>
+            Keep record
+          </button>
+          <button className="wb-button danger" onClick={onErase}>
+            Erase record
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

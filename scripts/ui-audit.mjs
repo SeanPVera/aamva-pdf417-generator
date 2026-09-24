@@ -123,7 +123,7 @@ async function mobileChrome(page) {
  */
 async function redCensus(page) {
   return page.evaluate(() => {
-    const scope = ".dmv-main *, aside *, header *, .dmv-preview *";
+    const scope = ".record-editor *, aside *, header *, .output-panel *";
     const isRed = (el) => {
       const m = getComputedStyle(el).color.match(/\d+/g);
       if (!m) return false;
@@ -135,7 +135,7 @@ async function redCensus(page) {
     const red = [...document.querySelectorAll(scope)].filter(isRed);
     const byContainer = {};
     for (const el of red) {
-      const where = el.closest(".dmv-preview")
+      const where = el.closest(".output-panel")
         ? "preview"
         : el.closest("header")
           ? "header"
@@ -161,19 +161,22 @@ async function redCensus(page) {
 /** Every visible control smaller than the touch floor, worst first. */
 async function touchTargets(page) {
   const all = await page.evaluate((floor) => {
-    const sel = "header button, .dmv-main button, aside button, .dmv-preview button, nav button";
+    const sel =
+      "header button, .record-editor button, aside button, .output-panel button, nav button";
     return [...document.querySelectorAll(sel)]
       .map((el) => {
         const r = el.getBoundingClientRect();
         return {
-          label: (el.textContent || el.getAttribute("aria-label") || el.tagName).trim().slice(0, 28),
+          label: (el.textContent || el.getAttribute("aria-label") || el.tagName)
+            .trim()
+            .slice(0, 28),
           h: Math.round(r.height),
           w: Math.round(r.width)
         };
       })
       .filter((x) => x.h > 0 && x.w > 0)
       .sort((a, b) => a.h - b.h)
-      .map((x) => ({ ...x, under: x.h < floor }));
+      .map((x) => ({ ...x, under: x.h < floor || x.w < floor }));
   }, TOUCH_FLOOR);
   return { total: all.length, under: all.filter((x) => x.under), smallest: all.slice(0, 3) };
 }
@@ -190,7 +193,7 @@ async function controlContrast(browser, url, dark) {
   const raw = await page.evaluate(() => {
     const isFieldCode = (el) => /^[A-Z]{2}[A-Z0-9]$/.test(el.id);
     const field = [...document.querySelectorAll("input, select")].find(isFieldCode);
-    const panel = field?.closest(".dmv-main");
+    const panel = field?.closest(".record-editor");
     if (!field || !panel) return null;
     const cs = getComputedStyle(field);
     return {
@@ -265,7 +268,11 @@ async function audit(browser, url, label, shotDir) {
   await phone.close();
 
   const desk = await open(browser, url, DESKTOP);
-  const [red, targets, header] = [await redCensus(desk), await touchTargets(desk), await headerContrast(desk)];
+  const [red, targets, header] = [
+    await redCensus(desk),
+    await touchTargets(desk),
+    await headerContrast(desk)
+  ];
   if (shotDir) await desk.screenshot({ path: `${shotDir}/${label}-desktop.png` });
   await desk.close();
 
@@ -295,15 +302,33 @@ function report(a) {
   const verdicts = [];
   const push = (ok, text) => verdicts.push(`${ok ? "PASS" : "FAIL"}  ${text}`);
 
-  push(a.touchTargets.under.length === 0, `touch targets >= ${TOUCH_FLOOR}px (${a.touchTargets.under.length} of ${a.touchTargets.total} under)`);
+  push(
+    a.touchTargets.under.length === 0,
+    `touch targets >= ${TOUCH_FLOOR}px (${a.touchTargets.under.length} of ${a.touchTargets.total} under)`
+  );
   for (const [theme, c] of Object.entries(a.controlContrast)) {
     if (!c) continue;
-    push(c.borderVsFill >= WCAG_NON_TEXT, `${theme}: control border vs fill ${c.borderVsFill}:1 (needs ${WCAG_NON_TEXT})`);
-    push(c.borderVsPanel >= WCAG_NON_TEXT, `${theme}: control border vs panel ${c.borderVsPanel}:1 (needs ${WCAG_NON_TEXT})`);
-    push(c.textVsFill >= WCAG_TEXT_AA, `${theme}: field text vs fill ${c.textVsFill}:1 (needs ${WCAG_TEXT_AA})`);
+    push(
+      c.borderVsFill >= WCAG_NON_TEXT,
+      `${theme}: control border vs fill ${c.borderVsFill}:1 (needs ${WCAG_NON_TEXT})`
+    );
+    push(
+      c.borderVsPanel >= WCAG_NON_TEXT,
+      `${theme}: control border vs panel ${c.borderVsPanel}:1 (needs ${WCAG_NON_TEXT})`
+    );
+    push(
+      c.textVsFill >= WCAG_TEXT_AA,
+      `${theme}: field text vs fill ${c.textVsFill}:1 (needs ${WCAG_TEXT_AA})`
+    );
   }
-  push(a.headerControls.onGradient.length === 0, `no header control sits on a gradient (${a.headerControls.onGradient.join(", ") || "none"})`);
-  push(a.headerControls.belowAA.length === 0, `header controls clear AA (${a.headerControls.belowAA.map((h) => `${h.label} ${h.ratio}:1`).join(", ") || "all clear"})`);
+  push(
+    a.headerControls.onGradient.length === 0,
+    `no header control sits on a gradient (${a.headerControls.onGradient.join(", ") || "none"})`
+  );
+  push(
+    a.headerControls.belowAA.length === 0,
+    `header controls clear AA (${a.headerControls.belowAA.map((h) => `${h.label} ${h.ratio}:1`).join(", ") || "all clear"})`
+  );
 
   console.log(`\n=== ${a.label} ===`);
   console.log(verdicts.join("\n"));
@@ -314,10 +339,17 @@ function report(a) {
     `red on empty form    ${a.redOnUntouchedForm.total} elements ${JSON.stringify(a.redOnUntouchedForm.byContainer)}`
   );
   if (a.redOnUntouchedForm.texts.length) {
-    console.log(`                     ${a.redOnUntouchedForm.texts.slice(0, 5).map(([t, n]) => `${n}x "${t}"`).join(", ")}`);
+    console.log(
+      `                     ${a.redOnUntouchedForm.texts
+        .slice(0, 5)
+        .map(([t, n]) => `${n}x "${t}"`)
+        .join(", ")}`
+    );
   }
   if (a.touchTargets.under.length) {
-    console.log(`under ${TOUCH_FLOOR}px            ${a.touchTargets.under.map((t) => `${t.label} (${t.h}px)`).join(", ")}`);
+    console.log(
+      `under ${TOUCH_FLOOR}px            ${a.touchTargets.under.map((t) => `${t.label} (${t.h}px)`).join(", ")}`
+    );
   }
 }
 
@@ -326,7 +358,12 @@ const baseline = arg("baseline", null);
 const shots = arg("shots", null);
 
 const browser = await chromium.launch(
-  process.env["PW_CHROMIUM_PATH"] ? { executablePath: process.env["PW_CHROMIUM_PATH"] } : {}
+  process.env["PW_CHROMIUM_PATH"]
+    ? {
+        executablePath: process.env["PW_CHROMIUM_PATH"],
+        args: ["--no-sandbox", "--disable-dev-shm-usage", "--no-zygote"]
+      }
+    : {}
 );
 try {
   if (baseline) report(await audit(browser, baseline, "baseline", shots));

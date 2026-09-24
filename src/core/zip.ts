@@ -89,7 +89,7 @@ export function createZip(entries: ZipEntry[], now: Date = new Date()): Uint8Arr
     // Local file header.
     body.u32(0x04034b50);
     body.u16(20); // version needed
-    body.u16(0); // flags
+    body.u16(0x0800); // UTF-8 file names
     body.u16(0); // method: stored
     body.u16(time);
     body.u16(date);
@@ -105,7 +105,7 @@ export function createZip(entries: ZipEntry[], now: Date = new Date()): Uint8Arr
     central.u32(0x02014b50);
     central.u16(20); // version made by
     central.u16(20); // version needed
-    central.u16(0); // flags
+    central.u16(0x0800); // UTF-8 file names
     central.u16(0); // method: stored
     central.u16(time);
     central.u16(date);

@@ -193,7 +193,12 @@ export const FieldInput: React.FC<FieldInputProps> = ({
   // Typing into a field the encoder uppercases anyway is upper-cased live.
   // Casing never changes the string's length, so the caret stays put.
   const handleChange = (raw: string) => {
-    onChange(field.code, UPPERCASED_TYPES.has(field.type) ? raw.toUpperCase() : raw);
+    onChange(
+      field.code,
+      UPPERCASED_TYPES.has(field.type) && /^[\x20-\x7e]*$/.test(raw) && !field.code.startsWith("Z")
+        ? raw.toUpperCase()
+        : raw
+    );
   };
 
   // Dates are normalised when the user leaves the field rather than as they
@@ -376,13 +381,13 @@ export const FieldInput: React.FC<FieldInputProps> = ({
     "inline-flex h-k-touch items-center justify-center rounded-[0.5rem] px-3 text-k-help font-semibold text-gray-700 transition-colors bg-gray-100 hover:bg-gray-200 dark:bg-[#3A3A3A] dark:text-gray-100 dark:hover:bg-[#484848] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500";
 
   const labelRow = (
-    <div className="flex items-center justify-between gap-2">
+    <div className="field-label-row flex items-center justify-between gap-2">
       {/* No truncation and no width cap. The floated label was clamped to 85%
           of a 230px column, which is why "DDE — Family Name Trun…" was the
           whole name a user ever saw. */}
       <label
         htmlFor={field.code}
-        className={`text-k-label font-semibold leading-snug ${
+        className={`field-label text-k-label font-semibold leading-snug ${
           hasError
             ? "text-red-700 dark:text-red-300"
             : isWarning
@@ -390,7 +395,7 @@ export const FieldInput: React.FC<FieldInputProps> = ({
               : "text-gray-800 dark:text-gray-100"
         }`}
       >
-        <span className="font-mono text-k-help font-medium text-gray-500 dark:text-gray-400">
+        <span className="field-code font-mono text-k-help font-medium text-gray-500 dark:text-gray-400">
           <Highlighted text={field.code} term={highlight} />
         </span>{" "}
         <Highlighted text={field.label} term={highlight} />
@@ -451,7 +456,7 @@ export const FieldInput: React.FC<FieldInputProps> = ({
   );
 
   return (
-    <div className="group flex flex-col gap-2">
+    <div className="record-field group flex flex-col gap-1">
       {labelRow}
 
       {helpText && helpOpen && (
@@ -485,13 +490,36 @@ export const FieldInput: React.FC<FieldInputProps> = ({
           aria-invalid={hasError}
           aria-describedby={showAdvisory ? errorId : undefined}
           className="flex flex-wrap gap-1.5"
+          aria-label={`${field.code} ${field.label}`}
+          tabIndex={-1}
+          onKeyDown={(e) => {
+            if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"].includes(e.key))
+              return;
+            const radios = Array.from(
+              e.currentTarget.querySelectorAll<HTMLButtonElement>('[role="radio"]')
+            );
+            const current = radios.indexOf(document.activeElement as HTMLButtonElement);
+            const next =
+              e.key === "Home"
+                ? 0
+                : e.key === "End"
+                  ? radios.length - 1
+                  : (current +
+                      (["ArrowLeft", "ArrowUp"].includes(e.key) ? -1 : 1) +
+                      radios.length) %
+                    radios.length;
+            e.preventDefault();
+            radios[next]?.focus();
+            radios[next]?.click();
+          }}
         >
           {!field.required && (
             <button
               type="button"
               role="radio"
               data-value=""
-              aria-checked={value === "" && touched}
+              aria-checked={value === ""}
+              tabIndex={value === "" || !options.some((option) => option.value === value) ? 0 : -1}
               title="Omit this element from the barcode"
               onClick={() => {
                 setTouched(true);
@@ -521,6 +549,12 @@ export const FieldInput: React.FC<FieldInputProps> = ({
                 // outside. Same contract as `data-severity` on the validation
                 // rows: the encoded value, exposed as data.
                 data-value={opt.value}
+                tabIndex={
+                  selected ||
+                  (field.required && !options.some((o) => o.value === value) && opt === options[0])
+                    ? 0
+                    : -1
+                }
                 aria-checked={selected}
                 title={opt.description ?? opt.label}
                 aria-label={opt.description ?? opt.label}
@@ -683,59 +717,68 @@ export const FieldInput: React.FC<FieldInputProps> = ({
             </span>
           )}
           {dateChips.length > 0 && (
-            <div className="flex flex-wrap gap-1.5">
-              {dateChips.map((chip) => (
-                <button
-                  key={chip.label}
-                  type="button"
-                  onClick={() => onChange(field.code, chip.value)}
-                  title={chip.title}
-                  aria-label={`Set ${field.code}: ${chip.title}`}
-                  className="inline-flex min-h-k-touch items-center rounded-k border border-gray-200 bg-gray-50 px-3 text-k-help font-medium text-gray-700 transition-colors hover:bg-gray-100 dark:border-[#444] dark:bg-dark-surface2 dark:text-gray-300 dark:hover:bg-[#383838] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-                >
-                  {chip.label}
-                </button>
-              ))}
-            </div>
+            <details className="field-suggestions">
+              <summary>Date shortcuts</summary>
+              <div className="flex flex-wrap gap-1.5">
+                {dateChips.map((chip) => (
+                  <button
+                    key={chip.label}
+                    type="button"
+                    onClick={() => onChange(field.code, chip.value)}
+                    title={chip.title}
+                    aria-label={`Set ${field.code}: ${chip.title}`}
+                    className="inline-flex min-h-k-touch items-center rounded-k border border-gray-200 bg-gray-50 px-3 text-k-help font-medium text-gray-700 transition-colors hover:bg-gray-100 dark:border-[#444] dark:bg-dark-surface2 dark:text-gray-300 dark:hover:bg-[#383838] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                  >
+                    {chip.label}
+                  </button>
+                ))}
+              </div>
+            </details>
           )}
           {measureChips.length > 0 && (
-            <div className="flex flex-wrap gap-1.5">
-              {measureChips.map((chip) => (
-                <button
-                  key={chip.value}
-                  type="button"
-                  onClick={() => onChange(field.code, chip.value)}
-                  title={chip.title}
-                  aria-label={`Set ${field.code}: ${chip.title}`}
-                  className="inline-flex min-h-k-touch items-center rounded-k border border-gray-200 bg-gray-50 px-3 text-k-help font-medium text-gray-700 transition-colors hover:bg-gray-100 dark:border-[#444] dark:bg-dark-surface2 dark:text-gray-300 dark:hover:bg-[#383838] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-                >
-                  {chip.label}
-                </button>
-              ))}
-            </div>
-          )}
-          {suggestionChips.length > 0 && (
-            <div className="flex flex-wrap gap-1.5">
-              {suggestionChips.map((chip) => {
-                const selected = value === chip.value;
-                return (
+            <details className="field-suggestions">
+              <summary>Common measurements</summary>
+              <div className="flex flex-wrap gap-1.5">
+                {measureChips.map((chip) => (
                   <button
                     key={chip.value}
                     type="button"
                     onClick={() => onChange(field.code, chip.value)}
                     title={chip.title}
                     aria-label={`Set ${field.code}: ${chip.title}`}
-                    className={`inline-flex min-h-k-touch items-center rounded-k border px-3 text-k-help font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 ${
-                      selected
-                        ? "border-brand-700 bg-brand-700 text-white"
-                        : "border-gray-200 bg-gray-50 text-gray-700 hover:bg-gray-100 dark:border-[#444] dark:bg-dark-surface2 dark:text-gray-300 dark:hover:bg-[#383838]"
-                    }`}
+                    className="inline-flex min-h-k-touch items-center rounded-k border border-gray-200 bg-gray-50 px-3 text-k-help font-medium text-gray-700 transition-colors hover:bg-gray-100 dark:border-[#444] dark:bg-dark-surface2 dark:text-gray-300 dark:hover:bg-[#383838] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                   >
                     {chip.label}
                   </button>
-                );
-              })}
-            </div>
+                ))}
+              </div>
+            </details>
+          )}
+          {suggestionChips.length > 0 && (
+            <details className="field-suggestions">
+              <summary>Suggested values</summary>
+              <div className="flex flex-wrap gap-1.5">
+                {suggestionChips.map((chip) => {
+                  const selected = value === chip.value;
+                  return (
+                    <button
+                      key={chip.value}
+                      type="button"
+                      onClick={() => onChange(field.code, chip.value)}
+                      title={chip.title}
+                      aria-label={`Set ${field.code}: ${chip.title}`}
+                      className={`inline-flex min-h-k-touch items-center rounded-k border px-3 text-k-help font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 ${
+                        selected
+                          ? "border-brand-700 bg-brand-700 text-white"
+                          : "border-gray-200 bg-gray-50 text-gray-700 hover:bg-gray-100 dark:border-[#444] dark:bg-dark-surface2 dark:text-gray-300 dark:hover:bg-[#383838]"
+                      }`}
+                    >
+                      {chip.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </details>
           )}
           {/* Enumerated values become one-click chips — reading the list and
               fixing the field are the same gesture. */}

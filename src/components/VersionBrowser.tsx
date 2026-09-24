@@ -25,7 +25,7 @@ export const VersionBrowser: React.FC = () => {
   }, [versionDef, filterQuery]);
 
   return (
-    <div className="border border-gray-200 dark:border-dark-border rounded-md overflow-hidden">
+    <div className="version-reference">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -129,7 +129,12 @@ export const VersionBrowser: React.FC = () => {
                 )}
               </div>
 
-              <div className="overflow-auto max-h-64 rounded border border-gray-200 dark:border-dark-border">
+              <div
+                className="overflow-auto max-h-64"
+                role="region"
+                aria-label="Version field reference"
+                tabIndex={0}
+              >
                 <table
                   className="w-full text-xs border-collapse"
                   aria-label={`Fields for AAMVA version ${browsedVersion}`}

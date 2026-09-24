@@ -1,15 +1,6 @@
-// Builds filesystem-friendly basenames for exported artifacts.
-//
-// By default the basename carries NO personal data: the cardholder's name is
-// PII, and a filename is the one place it escapes the tab — downloads folders
-// are indexed by the OS, synced by drive clients, and visible in the file
-// picker during a screen share. The app's whole posture is that field values
-// never reach disk, so the default basename is jurisdiction + document type +
-// version + a short slice of the document discriminator, which stays unique
-// per card without naming anyone.
-//
-// Callers that genuinely want legible filenames can opt in per export with
-// `includeName`, which restores the older `barcode_CA_DOE_JANE_DL` shape.
+// Export filenames contain jurisdiction, document type, and version by default.
+// Neither names nor document identifiers belong in indexed download filenames.
+// The user may explicitly opt in to names; that does not make an export private.
 
 export interface ExportNameInput {
   state: string;
@@ -66,10 +57,6 @@ export function buildExportBasename(input: ExportNameInput): string {
 
   parts.push(subfileType);
   parts.push("V" + sanitizePart(version));
-  // The document discriminator is a per-card identifier, not a personal one, so
-  // a short slice keeps sibling exports apart without naming the cardholder.
-  const discriminator = sanitizePart(fields.DCF).slice(0, 8);
-  if (discriminator) parts.push(discriminator);
 
   return parts.filter(Boolean).join("_");
 }

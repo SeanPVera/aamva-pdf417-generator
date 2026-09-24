@@ -5,6 +5,8 @@
  * @returns A random integer in the range [0, max).
  */
 export function secureGetRandomInt(max: number): number {
+  if (!Number.isFinite(max) || !Number.isInteger(max))
+    throw new Error("max must be a finite integer");
   if (max <= 0) return 0;
   if (max > Number.MAX_SAFE_INTEGER) {
     throw new Error("max cannot exceed Number.MAX_SAFE_INTEGER");
