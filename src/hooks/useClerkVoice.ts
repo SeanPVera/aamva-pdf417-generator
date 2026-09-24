@@ -63,16 +63,27 @@ export interface ClerkVoice {
 }
 
 /**
- * Reads a payload back in a flat clerk monotone via the Web Speech API.
- * Everything stays on-device; nothing is uploaded. Genuinely useful for
- * proofreading a form you have been staring at for twenty minutes.
+ * Reads back only with a browser-reported local voice. Remote default voices
+ * can transmit the record despite the application itself making no fetch.
  */
 export function useClerkVoice(): ClerkVoice {
   const [speaking, setSpeaking] = React.useState(false);
-  const supported =
+  const available =
     typeof window !== "undefined" &&
     "speechSynthesis" in window &&
     typeof window.SpeechSynthesisUtterance === "function";
+
+  const [voices, setVoices] = React.useState<SpeechSynthesisVoice[]>(() =>
+    available ? window.speechSynthesis.getVoices().filter((voice) => voice.localService) : []
+  );
+  React.useEffect(() => {
+    if (!available) return;
+    const update = () =>
+      setVoices(window.speechSynthesis.getVoices().filter((voice) => voice.localService));
+    window.speechSynthesis.addEventListener("voiceschanged", update);
+    return () => window.speechSynthesis.removeEventListener("voiceschanged", update);
+  }, [available]);
+  const supported = available && voices.length > 0;
 
   const stop = React.useCallback(() => {
     if (!supported) return;
@@ -85,9 +96,13 @@ export function useClerkVoice(): ClerkVoice {
       if (!supported || !text) return;
       window.speechSynthesis.cancel();
       const utterance = new window.SpeechSynthesisUtterance(text);
-      // Slow and low: the cadence of someone who has said this all morning.
-      utterance.rate = 0.85;
-      utterance.pitch = 0.7;
+      // Never let the browser choose a remote default voice for identity data.
+      const voice =
+        window.speechSynthesis.getVoices().find((v) => v.localService && /^en\b/i.test(v.lang)) ??
+        window.speechSynthesis.getVoices().find((v) => v.localService);
+      if (!voice) return;
+      utterance.voice = voice;
+      utterance.rate = 0.95;
       utterance.onend = () => setSpeaking(false);
       utterance.onerror = () => setSpeaking(false);
       setSpeaking(true);

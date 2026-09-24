@@ -75,9 +75,9 @@ test.describe("dark mode readability under a jurisdiction theme", () => {
     await dismissTour(page);
     await ensurePanel(page, "form");
 
-    expect(await contrastOf(page, ".dmv-main h2")).toBeGreaterThanOrEqual(AA_NORMAL);
+    expect(await contrastOf(page, ".record-editor h2")).toBeGreaterThanOrEqual(AA_NORMAL);
     await ensurePanel(page, "config");
-    expect(await contrastOf(page, ".dmv-sidebar h2")).toBeGreaterThanOrEqual(AA_NORMAL);
+    expect(await contrastOf(page, ".record-context .wb-label")).toBeGreaterThanOrEqual(AA_NORMAL);
   });
 
   test("holds across jurisdictions with very different palettes", async ({ page }) => {

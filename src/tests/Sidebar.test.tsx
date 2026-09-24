@@ -39,7 +39,7 @@ describe("Sidebar Component", () => {
     render(<Sidebar />);
     expect(await screen.findByTestId("version-browser-mock")).toBeInTheDocument();
 
-    const strictModeCheckbox = screen.getByRole("checkbox", { name: "Strict Compliance Mode" });
+    const strictModeCheckbox = screen.getByRole("checkbox", { name: /Strict validation/ });
     expect(strictModeCheckbox).not.toBeChecked();
 
     fireEvent.click(strictModeCheckbox);
@@ -85,7 +85,7 @@ describe("Sidebar Component", () => {
     const stateCombobox = comboboxes[0];
 
     // Click to open the combobox, which renders the list of states
-    fireEvent.click(screen.getAllByRole("button")[0]); // Open combobox list
+    fireEvent.focus(stateCombobox); // Open jurisdiction choices
 
     // Find and click 'Texas' (which has a default version of '10' based on memory)
     // We can also just directly update the input as we are using JurisdictionCombobox which is accessible
@@ -103,21 +103,10 @@ describe("Sidebar Component", () => {
     render(<Sidebar />);
     expect(await screen.findByTestId("version-browser-mock")).toBeInTheDocument();
 
-    // Verify notice is shown
-    // Note: Due to React testing-library's rendering of split elements,
-    // it's sometimes better to match by role or sub-elements.
-    // The strong tag contains NY, and the text says "does not encode".
-    expect(
-      screen.getByText((content, element) => {
-        return element?.tagName.toLowerCase() === "p" && content.includes("does not encode");
-      })
-    ).toBeInTheDocument();
-
-    // Verify dismiss works
-    const dismissButton = screen.getByRole("button", { name: "Dismiss exclusion notice" });
-    fireEvent.click(dismissButton);
-
-    expect(screen.queryByText(/NY does not encode/i)).not.toBeInTheDocument();
+    const disclosure = screen.getByText("Schema notes & version reference");
+    fireEvent.click(disclosure);
+    expect(screen.getByText(/The NY profile omits/)).toBeInTheDocument();
+    expect(screen.getByText(/not a certification/)).toBeInTheDocument();
   });
 
   test("renders core configuration elements", async () => {
@@ -127,12 +116,12 @@ describe("Sidebar Component", () => {
     expect(await screen.findByTestId("version-browser-mock")).toBeInTheDocument();
 
     // Check headings and labels
-    expect(screen.getByText("Settings")).toBeInTheDocument();
-    expect(screen.getByText("State / Territory")).toBeInTheDocument();
-    expect(screen.getByText("AAMVA Version")).toBeInTheDocument();
-    expect(screen.getByText("Subfile Type")).toBeInTheDocument();
-    expect(screen.getByText("Strict Compliance Mode")).toBeInTheDocument();
-    expect(screen.getByText("Schema Info")).toBeInTheDocument();
+    expect(screen.getByText("Issuing jurisdiction")).toBeInTheDocument();
+    expect(screen.getByText("Issuing jurisdiction")).toBeInTheDocument();
+    expect(screen.getByText("AAMVA version")).toBeInTheDocument();
+    expect(screen.getByText("Document type")).toBeInTheDocument();
+    expect(screen.getByText(/Strict validation/)).toBeInTheDocument();
+    expect(screen.getByText("Schema notes & version reference")).toBeInTheDocument();
 
     // Check specific interactive elements (they should have the default values)
     // The jurisdiction combobox sets aria-labelledby implicitly via the label's htmlFor="state-select",
@@ -147,7 +136,7 @@ describe("Sidebar Component", () => {
     const subfileSelect = screen.getByRole("combobox", { name: "Select subfile type" });
     expect(subfileSelect).toHaveValue("DL");
 
-    const strictModeCheckbox = screen.getByRole("checkbox", { name: "Strict Compliance Mode" });
+    const strictModeCheckbox = screen.getByRole("checkbox", { name: /Strict validation/ });
     expect(strictModeCheckbox).not.toBeChecked();
   });
 });

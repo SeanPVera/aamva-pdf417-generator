@@ -17,11 +17,7 @@ import {
 
 async function ensureValidationReportOpen(page: import("@playwright/test").Page) {
   await ensurePanel(page, "preview");
-  const button = page.getByRole("button", { name: /validation report/i });
-  await expect(button).toBeVisible({ timeout: 10_000 });
-  if ((await button.getAttribute("aria-expanded")) !== "true") {
-    await button.click();
-  }
+  await page.getByRole("tab", { name: /^Validation/ }).click();
 }
 
 test.describe("validation report severity", () => {
@@ -42,6 +38,8 @@ test.describe("validation report severity", () => {
     await waitForPreview(page);
     await selectStateAndVersion(page, "CA", "10");
 
+    await ensurePanel(page, "config");
+    await page.getByRole("checkbox", { name: /^Strict validation/ }).uncheck();
     const fields: Array<[string, string]> = [
       ["DCS", "DOE"],
       ["DAC", "JANE"],

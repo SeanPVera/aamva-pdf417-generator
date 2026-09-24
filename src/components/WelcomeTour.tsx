@@ -1,5 +1,5 @@
 import React from "react";
-import { X, ChevronRight, ChevronLeft, Sparkles, Search, Camera, ScanBarcode } from "lucide-react";
+import { X, ChevronRight, ChevronLeft, Settings2, Search, Camera, ScanBarcode } from "lucide-react";
 import { useModalShell } from "../hooks/useModalShell";
 
 interface WelcomeTourProps {
@@ -16,12 +16,12 @@ interface Step {
 const STEPS: Step[] = [
   {
     title: "Pick a state and version",
-    icon: <Sparkles size={18} />,
+    icon: <Settings2 size={18} />,
     body: (
       <>
         Use the <strong>Setup</strong> panel to pick a jurisdiction and AAMVA version. On a phone
-        that lives in the bottom tab; on a desk it is the left column. The form rebuilds itself for
-        that combination, including any state-specific exclusions.
+        that lives in the bottom tab; on a desktop it runs across the top. The form rebuilds itself
+        for that combination, including any state-specific exclusions.
       </>
     )
   },
@@ -30,8 +30,8 @@ const STEPS: Step[] = [
     icon: <Search size={18} />,
     body: (
       <>
-        One section at a time, behind the <strong>step rail</strong>. Identity, Address, License
-        Details — work a rung, then the next. Search with{" "}
+        One section at a time, behind the <strong>section index</strong>. Identity, Address, License
+        Details — work through each section. Search with{" "}
         <kbd className="px-1 py-0.5 rounded border bg-gray-100 dark:bg-gray-700 text-[11px] font-mono">
           Ctrl+K
         </kbd>{" "}
@@ -44,7 +44,7 @@ const STEPS: Step[] = [
     icon: <ScanBarcode size={18} />,
     body: (
       <>
-        Click <strong>Generate auto fields</strong> (or press{" "}
+        Click <strong>Fill tools → Generate identifiers</strong> (or press{" "}
         <kbd className="px-1 py-0.5 rounded border bg-gray-100 dark:bg-gray-700 text-[11px] font-mono">
           Ctrl+G
         </kbd>
@@ -62,9 +62,9 @@ const STEPS: Step[] = [
     icon: <Camera size={18} />,
     body: (
       <>
-        Scan an existing card with the <strong>Scan ID</strong> button, or drag a JSON profile
+        Scan an existing card with the <strong>Scan barcode</strong> button, or drag a JSON profile
         anywhere on the page to import. Export a single barcode as PNG/SVG, or use{" "}
-        <strong>Batch Processing</strong> to generate many at once.
+        <strong>Tools → Batch CSV processing</strong> to generate many at once.
       </>
     )
   }

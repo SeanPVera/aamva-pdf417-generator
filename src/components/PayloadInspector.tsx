@@ -15,6 +15,10 @@ import type { ValidationIssue } from "../core/validation";
 import type { QuickFix } from "../core/quickFix";
 import { inspectPayload, summarizeAnomalies } from "../core/inspect";
 
+const InspectorTabContext = React.createContext<{ active: string; id: string } | null>(null);
+const INSPECTOR_TABS = ["Raw Payload", "Validation Report", "Decoded Output", "Wire Ledger"];
+const TAB_LABELS = ["Payload", "Validation", "Fields", "Bytes"];
+
 export function CollapsibleSection({
   title,
   badge,
@@ -30,6 +34,7 @@ export function CollapsibleSection({
 }) {
   const [open, setOpen] = useState(defaultOpen);
   const id = useId();
+  const tab = React.useContext(InspectorTabContext);
   const badgeClasses = {
     gray: "bg-gray-200 dark:bg-[#333] text-gray-700 dark:text-gray-200",
     green: "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300",
@@ -37,6 +42,26 @@ export function CollapsibleSection({
     blue: "bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300",
     amber: "bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300"
   }[badgeColor];
+
+  if (tab) {
+    const index = INSPECTOR_TABS.indexOf(title);
+    return (
+      <section
+        role="tabpanel"
+        id={`${tab.id}-panel-${index}`}
+        aria-labelledby={`${tab.id}-tab-${index}`}
+        hidden={tab.active !== title}
+        className="inspector-view"
+        tabIndex={0}
+      >
+        <div className="inspector-summary">
+          {title}
+          {badge !== undefined ? ` · ${badge}` : ""}
+        </div>
+        {children}
+      </section>
+    );
+  }
 
   return (
     <div className="border border-gray-200 dark:border-dark-border rounded-md overflow-hidden">
@@ -79,7 +104,7 @@ interface PayloadInspectorProps {
   onApplyFix?: (fix: QuickFix) => void;
   onApplyAllFixes?: () => void;
   onScrollToField: (code: string) => void;
-  onCopyPayload: () => void;
+  onCopyPayload: (text?: string) => void;
   copied: boolean;
 }
 
@@ -101,6 +126,12 @@ export const PayloadInspector: React.FC<PayloadInspectorProps> = ({
   onCopyPayload,
   copied
 }) => {
+  const [active, setActive] = useState("Raw Payload");
+  const [showSource, setShowSource] = useState(true);
+  const inspectingSource = !!sourcePayload && showSource;
+  const rawText = inspectingSource ? sourcePayload! : payloadStr;
+  const rawStale = !inspectingSource && stale;
+  const tabId = useId();
   const fixByCode = React.useMemo(() => new Map(fixes.map((fix) => [fix.code, fix])), [fixes]);
   // This panel was the single loudest source of the empty-as-error problem:
   // on an untouched California form it printed "Required field is empty." in
@@ -122,26 +153,71 @@ export const PayloadInspector: React.FC<PayloadInspectorProps> = ({
     issueCount === 0 ? "green" : invalidCount > 0 ? "red" : warningCount > 0 ? "amber" : "gray";
 
   return (
-    <>
+    <InspectorTabContext.Provider value={{ active, id: tabId }}>
+      <div
+        role="tablist"
+        aria-label="Inspect record output"
+        className="inspector-tabs"
+        onKeyDown={(e) => {
+          if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(e.key)) return;
+          e.preventDefault();
+          const current = INSPECTOR_TABS.indexOf(active);
+          const next =
+            e.key === "Home"
+              ? 0
+              : e.key === "End"
+                ? 3
+                : (current + (e.key === "ArrowLeft" ? -1 : 1) + 4) % 4;
+          setActive(INSPECTOR_TABS[next]!);
+          document.getElementById(`${tabId}-tab-${next}`)?.focus();
+        }}
+      >
+        {INSPECTOR_TABS.map((title, index) => (
+          <button
+            role="tab"
+            key={title}
+            id={`${tabId}-tab-${index}`}
+            aria-controls={`${tabId}-panel-${index}`}
+            aria-selected={active === title}
+            tabIndex={active === title ? 0 : -1}
+            onClick={() => setActive(title)}
+          >
+            {TAB_LABELS[index]}
+            {index === 1 && issues.length > 0 ? ` (${issues.length})` : ""}
+          </button>
+        ))}
+      </div>
       <CollapsibleSection
         title="Raw Payload"
-        badge={payloadStr.length || undefined}
+        badge={rawText.length || undefined}
         badgeColor="blue"
         defaultOpen
       >
+        {sourcePayload && (
+          <label className="wb-label">
+            Payload source
+            <select
+              className="wb-select"
+              aria-label="Payload source"
+              value={inspectingSource ? "source" : "output"}
+              onChange={(e) => setShowSource(e.target.value === "source")}
+            >
+              <option value="source">Imported source · original bytes</option>
+              <option value="output">Generated output · current form</option>
+            </select>
+          </label>
+        )}
         <div className="relative group/payload">
           <textarea
             readOnly
-            value={payloadStr}
+            value={rawText}
             aria-label="Raw AAMVA payload string"
-            aria-busy={stale}
-            className={`w-full h-32 p-2 pr-10 border border-gray-200 dark:border-gray-600 rounded bg-gray-50 dark:bg-gray-900 text-xs font-mono text-gray-700 dark:text-gray-300 resize-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 transition-opacity ${
-              stale ? "opacity-40" : ""
-            }`}
+            aria-busy={rawStale}
+            className={`w-full h-32 p-2 pr-10 border border-gray-200 dark:border-gray-600 rounded bg-gray-50 dark:bg-gray-900 text-xs font-mono text-gray-700 dark:text-gray-300 resize-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 transition-opacity `}
           />
           <button
-            onClick={onCopyPayload}
-            disabled={!payloadStr || stale}
+            onClick={() => onCopyPayload(rawText)}
+            disabled={!rawText || rawStale}
             title={
               copied
                 ? "Copied!"
@@ -150,7 +226,7 @@ export const PayloadInspector: React.FC<PayloadInspectorProps> = ({
                   : "Copy to clipboard"
             }
             aria-label={copied ? "Copied payload" : "Copy raw payload to clipboard"}
-            className="absolute top-2 right-2 inline-flex h-k-touch w-k-touch items-center justify-center rounded-k bg-white text-gray-500 shadow-sm border border-gray-200 hover:text-brand-600 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:text-brand-400 transition-all opacity-0 group-hover/payload:opacity-100 focus:opacity-100 focus-visible:ring-2 focus-visible:ring-brand-500 disabled:hidden"
+            className="absolute top-2 right-2 inline-flex h-k-touch w-k-touch items-center justify-center rounded-k bg-white text-gray-500 shadow-sm border border-gray-200 hover:text-brand-600 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:text-brand-400 transition-all opacity-100 focus-visible:ring-2 focus-visible:ring-brand-500 disabled:hidden"
           >
             {copied ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
           </button>
@@ -171,7 +247,7 @@ export const PayloadInspector: React.FC<PayloadInspectorProps> = ({
         {issueCount === 0 ? (
           <div className="flex items-center gap-2 py-1 text-sm text-green-700 dark:text-green-400">
             <CheckCircle2 size={15} />
-            All fields pass validation
+            All fields pass application validation
           </div>
         ) : (
           <>
@@ -315,7 +391,7 @@ export const PayloadInspector: React.FC<PayloadInspectorProps> = ({
       </CollapsibleSection>
 
       <WireLedger payloadStr={payloadStr} sourcePayload={sourcePayload} />
-    </>
+    </InspectorTabContext.Provider>
   );
 };
 

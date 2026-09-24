@@ -5,7 +5,6 @@ import type { Result } from "@zxing/library";
 import { decodeAAMVA } from "../core/decoder";
 import { AAMVA_VERSION_KEYS, isSupportedVersion } from "../core/schema";
 import {
-  Camera,
   X,
   AlertTriangle,
   ImagePlus,
@@ -55,6 +54,14 @@ export function WebcamScanner({ onClose }: WebcamScannerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const trackRef = useRef<MediaStreamTrack | null>(null);
+  const activeRef = useRef(true);
+  const imageRequest = useRef(0);
+  useEffect(() => {
+    activeRef.current = true;
+    return () => {
+      activeRef.current = false;
+    };
+  }, []);
   const [error, setError] = useState<string | null>(null);
   const [scanning, setScanning] = useState(false);
   const [imageScanning, setImageScanning] = useState(false);
@@ -63,7 +70,6 @@ export function WebcamScanner({ onClose }: WebcamScannerProps) {
   const [torchSupported, setTorchSupported] = useState(false);
   const [torchOn, setTorchOn] = useState(false);
   const loadJson = useFormStore((s) => s.loadJson);
-  const setStateVersion = useFormStore((s) => s.setStateVersion);
   const storedCameraId = useFormStore((s) => s.cameraDeviceId);
   const setCameraDeviceId = useFormStore((s) => s.setCameraDeviceId);
   const toast = useToast();
@@ -71,6 +77,7 @@ export function WebcamScanner({ onClose }: WebcamScannerProps) {
 
   const applyDecodedPayload = useCallback(
     (text: string) => {
+      if (!activeRef.current) return false;
       const decoded = decodeAAMVA(text);
       if (decoded.ok && decoded.json) {
         const { state, version } = decoded.json;
@@ -82,20 +89,24 @@ export function WebcamScanner({ onClose }: WebcamScannerProps) {
             `This barcode is AAMVA version ${version}, which this build does not support. ` +
               `Supported versions: ${AAMVA_VERSION_KEYS.join(", ")}.`
           );
-          return;
+          return false;
         }
-        if (state && version) setStateVersion(state, version);
+        if (!state || !version) {
+          setError("The barcode's issuer or version is not supported. No record was replaced.");
+          return false;
+        }
         // The raw bytes ride along so the byte ledger can inspect the card
         // itself. Re-encoding from the form discards the padding and the
         // unrecognised elements that are the whole reason to look.
         loadJson(decoded.json, text);
         toast.success(`Scanned ${state || "ID"}${version ? ` v${version}` : ""}`);
         onClose();
-        return;
+        return true;
       }
-      setError("Detected a barcode, but it is not a valid AAMVA DL/ID format.");
+      setError(decoded.error ?? "Detected a barcode, but it is not a valid AAMVA DL/ID format.");
+      return false;
     },
-    [loadJson, onClose, setStateVersion, toast]
+    [loadJson, onClose, toast]
   );
 
   // Load available cameras once on mount. Prefer the camera the user scanned
@@ -104,6 +115,7 @@ export function WebcamScanner({ onClose }: WebcamScannerProps) {
   useEffect(() => {
     BrowserPDF417Reader.listVideoInputDevices()
       .then((devs) => {
+        if (!activeRef.current) return;
         setDevices(devs);
         const remembered = devs.find((d) => d.deviceId === storedCameraId);
         const fallback = devs[devs.length - 1];
@@ -141,9 +153,8 @@ export function WebcamScanner({ onClose }: WebcamScannerProps) {
       _error: unknown,
       scannerControls: IScannerControls
     ) => {
-      if (result) {
-        scannerControls.stop();
-        applyDecodedPayloadRef.current(result.getText());
+      if (result && !cancelled && activeRef.current) {
+        if (applyDecodedPayloadRef.current(result.getText())) scannerControls.stop();
       }
     };
 
@@ -221,6 +232,14 @@ export function WebcamScanner({ onClose }: WebcamScannerProps) {
   const handleImageSelection = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
+    const input = event.target;
+    input.value = "";
+    if (file.size > 20_000_000) {
+      setError("Choose an image smaller than 20 MB.");
+      return;
+    }
+    const request = ++imageRequest.current;
+    const before = useFormStore.getState();
 
     setError(null);
     setImageScanning(true);
@@ -230,54 +249,55 @@ export function WebcamScanner({ onClose }: WebcamScannerProps) {
 
     try {
       const result = await imageReader.decodeFromImageUrl(imageUrl);
+      if (!activeRef.current || request !== imageRequest.current) return;
+      if (useFormStore.getState().fields !== before.fields) {
+        setError(
+          "The record changed while reading the image. Select it again to replace the current record."
+        );
+        return;
+      }
       applyDecodedPayload(result.getText());
     } catch {
-      setError("Could not find a readable PDF417 barcode in the selected image.");
+      if (activeRef.current && request === imageRequest.current)
+        setError("Could not find a readable PDF417 barcode in the selected image.");
     } finally {
       URL.revokeObjectURL(imageUrl);
-      setImageScanning(false);
-      event.target.value = "";
+      if (activeRef.current && request === imageRequest.current) setImageScanning(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm">
+    <div className="modal-backdrop">
       <div
         ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-label="Scan DL/ID Barcode"
-        className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-2xl max-w-lg w-full relative"
+        className="wb-dialog scanner-dialog relative"
       >
         <button
           data-autofocus
           onClick={onClose}
           aria-label="Close scanner"
-          className="absolute top-4 right-4 inline-flex h-k-touch w-k-touch items-center justify-center rounded-k text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          className="wb-button icon-button absolute top-4 right-4"
         >
           <X className="w-6 h-6" />
         </button>
 
-        <h2 className="text-xl font-bold text-slate-800 dark:text-white flex items-center gap-2 mb-4">
-          <Camera className="w-6 h-6 text-blue-500" />
-          Scan DL/ID Barcode
-        </h2>
+        <h2 className="mb-4 pr-12">Scan DL/ID Barcode</h2>
 
         {/* Camera selector — only shown when multiple cameras available */}
         {devices.length > 1 && (
           <div className="mb-3 flex items-center gap-2">
             <Video className="h-4 w-4 text-slate-500 shrink-0" aria-hidden />
-            <label
-              htmlFor="camera-select"
-              className="text-sm text-slate-600 dark:text-slate-300 whitespace-nowrap"
-            >
+            <label htmlFor="camera-select" className="wb-label whitespace-nowrap">
               Camera:
             </label>
             <select
               id="camera-select"
               value={selectedDeviceId}
               onChange={(e) => setSelectedDeviceId(e.target.value)}
-              className="h-k-control min-h-k-touch flex-1 rounded-k border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 px-3 text-k-value text-slate-800 dark:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+              className="wb-select flex-1"
             >
               {devices.map((dev, idx) => (
                 <option key={dev.deviceId} value={dev.deviceId}>
@@ -289,26 +309,21 @@ export function WebcamScanner({ onClose }: WebcamScannerProps) {
         )}
 
         {error && (
-          <div
-            role="alert"
-            className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg text-sm flex items-start gap-2"
-          >
+          <div role="alert" className="field-error mb-4 flex items-start gap-2">
             <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" aria-hidden />
             <p>{error}</p>
           </div>
         )}
 
-        <div className="relative aspect-video bg-black rounded-lg overflow-hidden flex items-center justify-center">
+        <div className="relative aspect-video bg-black overflow-hidden flex items-center justify-center">
           <video
             ref={videoRef}
             className="w-full h-full object-cover"
             aria-label="Camera feed for barcode scanning"
           />
           {scanning && !error && (
-            <div className="absolute inset-0 border-2 border-blue-500/50 flex items-center justify-center pointer-events-none">
-              <div className="w-3/4 h-1/3 border border-red-500/80 rounded relative" aria-hidden>
-                <div className="absolute inset-0 bg-red-500/10 animate-pulse" />
-              </div>
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div className="w-3/4 h-1/3 border-2 border-white" aria-hidden />
             </div>
           )}
         </div>
@@ -327,17 +342,17 @@ export function WebcamScanner({ onClose }: WebcamScannerProps) {
             type="button"
             onClick={() => imageInputRef.current?.click()}
             disabled={imageScanning}
-            className="inline-flex h-k-touch min-h-k-touch items-center gap-2 rounded-k border border-slate-300 dark:border-slate-600 px-3 text-k-help font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-60 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            className="wb-button"
             aria-busy={imageScanning}
           >
             <ImagePlus className="h-4 w-4" aria-hidden />
-            {imageScanning ? "Scanning image…" : "Use photo (iPhone-friendly)"}
+            {imageScanning ? "Scanning image…" : "Choose barcode image"}
           </button>
           {devices.length > 1 && (
             <button
               type="button"
               onClick={handleFlipCamera}
-              className="inline-flex h-k-touch min-h-k-touch items-center gap-2 rounded-k border border-slate-300 dark:border-slate-600 px-3 text-k-help font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+              className="wb-button"
               title="Switch to the next camera"
               aria-label="Flip camera"
             >
@@ -350,7 +365,7 @@ export function WebcamScanner({ onClose }: WebcamScannerProps) {
               type="button"
               onClick={handleToggleTorch}
               aria-pressed={torchOn}
-              className="inline-flex h-k-touch min-h-k-touch items-center gap-2 rounded-k border border-slate-300 dark:border-slate-600 px-3 text-k-help font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+              className="wb-button"
               title="Toggle the camera flashlight"
               aria-label="Toggle flashlight"
             >
@@ -362,16 +377,14 @@ export function WebcamScanner({ onClose }: WebcamScannerProps) {
               {torchOn ? "Light off" : "Light on"}
             </button>
           )}
-          <span className="text-xs text-slate-500 dark:text-slate-400">
-            Pick from Photos or open camera directly on mobile.
-          </span>
+          <span className="proof-note">Pick from Photos or open camera directly on mobile.</span>
         </div>
 
-        <p className="text-center text-sm text-slate-500 dark:text-slate-400 mt-4">
+        <p className="proof-note mt-4">
           Hold the PDF417 barcode steadily in front of the camera. The form will auto-fill when
           successfully decoded.
         </p>
-        <p className="text-center text-[11px] text-slate-400 dark:text-slate-500 mt-1">
+        <p className="proof-note mt-1">
           The camera feed stays on this device — nothing is uploaded.
         </p>
       </div>

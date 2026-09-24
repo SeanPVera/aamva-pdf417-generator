@@ -2,14 +2,14 @@
   "id": "./",
   "name": "AAMVA PDF417 Generator",
   "short_name": "AAMVA PDF417",
-  "description": "Generate AAMVA-compliant PDF417 barcode payloads and exports directly on your phone.",
+  "description": "Create, inspect, and export AAMVA records and PDF417 barcodes locally.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "display_override": ["standalone", "minimal-ui"],
   "orientation": "portrait",
-  "background_color": "#0f172a",
-  "theme_color": "#1d4ed8",
+  "background_color": "#f5f4ee",
+  "theme_color": "#232a25",
   "icons": [
     {
       "src": "./icons/icon-192.png",

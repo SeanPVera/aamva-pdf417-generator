@@ -69,7 +69,7 @@ test.describe("export buttons", () => {
       clickHeaderAction(page, /export current fields as json/i, /^export json$/i)
     ]);
     const name = download.suggestedFilename();
-    expect(name).toMatch(/^aamva_CA_DL_V10(_[A-Z0-9]+)?\.json$/i);
+    expect(name).toMatch(/^record_CA_DL_V10(_[A-Z0-9]+)?\.json$/i);
     expect(name).not.toMatch(/DOE|JANE/i);
   });
 });

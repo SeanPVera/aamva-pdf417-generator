@@ -2,10 +2,6 @@ import React from "react";
 import { SearchX, ChevronLeft, ChevronRight } from "lucide-react";
 import { Sidebar } from "./components/Sidebar";
 import { Header } from "./components/Header";
-// Static on purpose: the tour auto-opens on first load. Behind React.lazy it
-// mounted *after* the page was already interactive, dropping an aria-modal
-// dialog over a usable page — which also hides everything outside it from the
-// accessibility tree. The bundle saving is not worth that.
 import { WelcomeTour } from "./components/WelcomeTour";
 import { FieldInput } from "./components/FieldInput";
 import { FieldGroup, FIELD_GRID_CLASS } from "./components/FieldGroup";
@@ -25,7 +21,7 @@ import {
 } from "./core/schema";
 import { getValidationIssues } from "./core/validation";
 import { getFieldHelp } from "./core/fieldHelp";
-import { applyStateThemeToDocument } from "./core/stateThemes";
+import { parsePastedPayload } from "./core/pasteImport";
 import {
   generateStateDiscriminator,
   generateStateLicenseNumber,
@@ -34,8 +30,6 @@ import {
 import { buildSampleFill } from "./core/sampleFiller";
 import { hasUserData, seededFields } from "./core/derivedFields";
 import { useSwipe } from "./hooks/useSwipe";
-import { useClickClack } from "./hooks/useClickClack";
-import { useKonami } from "./hooks/useKonami";
 import { usePayload } from "./hooks/usePayload";
 
 const MOBILE_PANELS = ["config", "form", "preview"] as const;
@@ -60,36 +54,12 @@ const ShortcutsModal = React.lazy(() =>
 const CompareView = React.lazy(() =>
   import("./components/CompareView").then((module) => ({ default: module.CompareView }))
 );
-const EmployeeOfTheMonth = React.lazy(() =>
-  import("./components/EmployeeOfTheMonth").then((module) => ({
-    default: module.EmployeeOfTheMonth
-  }))
-);
-const DmvBingo = React.lazy(() =>
-  import("./components/DmvBingo").then((module) => ({ default: module.DmvBingo }))
-);
-// Decorative and gated behind the whimsy preference — never part of first paint,
-// and nothing blocks on them appearing.
-const TicketDispenser = React.lazy(() =>
-  import("./components/TicketDispenser").then((module) => ({ default: module.TicketDispenser }))
-);
-const ClerkMascot = React.lazy(() =>
-  import("./components/ClerkMascot").then((module) => ({ default: module.ClerkMascot }))
-);
-// Physics, a canvas loop, and an examiner. Nothing about it is needed to make a
-// barcode, so it is never in the initial chunk.
-const RoadTest = React.lazy(() =>
-  import("./components/RoadTest").then((module) => ({ default: module.RoadTest }))
-);
 
 function App() {
   const [isScanning, setIsScanning] = React.useState(false);
   const [shortcutsOpen, setShortcutsOpen] = React.useState(false);
   const [compareOpen, setCompareOpen] = React.useState(false);
   const [batchOpen, setBatchOpen] = React.useState(false);
-  const [badgesOpen, setBadgesOpen] = React.useState(false);
-  const [bingoOpen, setBingoOpen] = React.useState(false);
-  const [roadTestOpen, setRoadTestOpen] = React.useState(false);
   const [tourOpen, setTourOpen] = React.useState(false);
   const [mobilePanel, setMobilePanel] = React.useState<MobilePanel>("form");
   // Which rung of the rail is open. The form shows one section at a time; the
@@ -118,12 +88,8 @@ function App() {
     strictMode,
     fields,
     setField,
-    setDerivedField,
-    loadJson,
     mergeFields,
-    restoreFields,
     subfileType,
-    setSubfileType,
     setStrictMode,
     theme,
     undo,
@@ -134,33 +100,23 @@ function App() {
     setRequiredOnly,
     issuesOnly,
     setIssuesOnly,
-    tourSeenAt,
     markTourSeen,
-    whimsy,
-    soundOn,
-    mascots,
-    badgeStats,
-    recordBadgeEvent,
-    bingoMarked,
-    markBingo,
-    resetBingo,
     _changedAt,
     _changedCodes
   } = useFormStore();
+  const whimsy = false;
   const [copiedField, setCopiedField] = React.useState<string | null>(null);
   const [searchQuery, setSearchQuery] = React.useState("");
-  const [party, setParty] = React.useState(false);
 
   const handleResetFilters = React.useCallback(() => {
     setSearchQuery("");
     setRequiredOnly(false);
     setIssuesOnly(false);
   }, [setRequiredOnly, setIssuesOnly]);
-  const playClack = useClickClack(soundOn && whimsy);
   const copyTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const schemaFields = React.useMemo(
-    () => getFieldsForStateAndVersion(state, version),
-    [state, version]
+    () => getFieldsForStateAndVersion(state, version, subfileType),
+    [state, version, subfileType]
   );
   const toast = useToast();
 
@@ -175,8 +131,8 @@ function App() {
   // Single source of validation truth for the mobile tab badges, the issue
   // filter, and the clerk mascot.
   const issues = React.useMemo(
-    () => getValidationIssues(schemaFields, { ...fields, DAJ: state }, state, strictMode),
-    [schemaFields, fields, state, strictMode]
+    () => getValidationIssues(schemaFields, fields, state, strictMode, subfileType),
+    [schemaFields, fields, state, strictMode, subfileType]
   );
   // Everything that blocks generation, blank fields included. Only the
   // *display* of counts distinguishes the two kinds; the gate does not.
@@ -211,6 +167,10 @@ function App() {
     }
     return map;
   }, [visibleFields]);
+
+  const extraEntries = Object.entries(fields).filter(
+    ([code, value]) => value && !schemaFields.some((f) => f.code === code)
+  );
 
   const requiredFields = React.useMemo(
     () => schemaFields.filter((f) => f.required),
@@ -332,143 +292,34 @@ function App() {
     return () => media.removeEventListener?.("change", apply);
   }, [theme]);
 
-  // Apply the jurisdiction-specific palette whenever the selected state
-  // changes. The palette is exposed as CSS custom properties on <html>
-  // (consumed by `header.state-themed`, `.state-themed-*` rules, etc.).
+  // Page-level paste is a synchronous transaction. An explicit dialog also
+  // supports paste into a focused editor without intercepting field input.
   React.useEffect(() => {
-    applyStateThemeToDocument(state);
-  }, [state]);
-
-  // DAJ is the jurisdiction code, and generateAAMVAPayload forces it to the
-  // selected state regardless of what the form holds — so leaving it as an
-  // empty required field made the progress meter permanently short and sent
-  // "next empty required" to an input whose value could never matter. Fill it
-  // from the selection and show it read-only instead.
-  const hasJurisdictionField = React.useMemo(
-    () => schemaFields.some((f) => f.code === "DAJ"),
-    [schemaFields]
-  );
-  React.useEffect(() => {
-    if (!hasJurisdictionField) return;
-    if (fields.DAJ !== state) setDerivedField("DAJ", state);
-  }, [hasJurisdictionField, fields.DAJ, state, setDerivedField]);
-
-  // Paste a payload anywhere on the page and it loads. The app could already
-  // take a payload from a file, a drop, and a camera — but not from the
-  // clipboard, which is how a payload actually travels between tools.
-  //
-  // The handler reads state through a ref for the same reason the keyboard
-  // shortcuts do: a window listener that closes over form state would re-bind on
-  // every keystroke.
-  const pasteStateRef = React.useRef({
-    fields,
-    state,
-    version,
-    subfileType,
-    appSeeds,
-    loadJson,
-    restoreFields,
-    setSubfileType,
-    toast
-  });
-  React.useEffect(() => {
-    pasteStateRef.current = {
-      fields,
-      state,
-      version,
-      appSeeds,
-      subfileType,
-      loadJson,
-      restoreFields,
-      setSubfileType,
-      toast
-    };
-  });
-
-  React.useEffect(() => {
-    const onPaste = async (e: ClipboardEvent) => {
-      const before = pasteStateRef.current;
-      const target = e.target as HTMLElement | null;
-      // Never hijack a paste the user aimed at a field.
-      if (
-        target &&
-        (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable)
-      ) {
-        return;
-      }
-      // Read the clipboard synchronously — the event's data is not available
-      // once the handler has yielded.
-      const text = e.clipboardData?.getData("text") ?? "";
+    const onPaste = (event: ClipboardEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (target?.closest("input, textarea, select, [contenteditable], [role=dialog]")) return;
+      const text = event.clipboardData?.getData("text") ?? "";
       if (!text.trim()) return;
-
-      // Fetched on the first paste rather than at startup: a payload reader is
-      // not part of first paint, and a paste landing on the page body has no
-      // default action to race.
-      const { parsePastedPayload } = await import("./core/pasteImport");
       const result = parsePastedPayload(text);
       if (!result.data) {
-        // Silence on a stray paste; an explanation only once it looked like a
-        // payload and still failed.
-        if (result.kind !== "unknown") before.toast.error(result.summary);
+        if (result.kind !== "unknown") toast.error(result.summary);
         return;
       }
-
-      // Undo has to put back the configuration as well as the values: a payload
-      // from another jurisdiction or version changes the schema the restored
-      // fields would be read under, and the subfile marker decides whether the
-      // credential re-encodes as a DL or an ID.
-      const snapshot = {
-        fields: { ...before.fields },
-        state: before.state,
-        version: before.version,
-        subfileType: before.subfileType
-      };
-      const hadValues = hasUserData(before.fields, before.appSeeds);
-
-      before.loadJson(result.data, result.kind === "aamva" ? text : undefined);
-      if (result.subfileType && result.subfileType !== before.subfileType) {
-        before.setSubfileType(result.subfileType);
-      }
-
-      before.toast.success(
-        result.summary,
-        hadValues
-          ? {
-              action: {
-                label: "Undo",
-                onClick: () => {
-                  const { loadJson: load, setSubfileType: setSubfile } = pasteStateRef.current;
-                  load({
-                    state: snapshot.state,
-                    version: snapshot.version,
-                    ...snapshot.fields
-                  });
-                  setSubfile(snapshot.subfileType);
-                }
-              }
-            }
-          : undefined
-      );
+      event.preventDefault();
+      useFormStore
+        .getState()
+        .loadJson(
+          { ...result.data, ...(result.subfileType ? { subfileType: result.subfileType } : {}) },
+          result.kind === "aamva" ? text : undefined
+        );
+      toast.success(`${result.summary} Undo is available in the toolbar.`);
     };
-
     window.addEventListener("paste", onPaste);
     return () => window.removeEventListener("paste", onPaste);
-  }, []);
+  }, [toast]);
 
-  // Night shift badge — checked once per session.
-  React.useEffect(() => {
-    const hour = new Date().getHours();
-    if (hour < 4 && !badgeStats.nightShift) {
-      recordBadgeEvent({ nightShift: true });
-      markBingo("night-owl");
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // The tour is visible either because the user has never seen it OR they
-  // explicitly chose to replay it. Closing it both hides it and persists the
-  // "seen" timestamp so it doesn't auto-open on the next session.
-  const showTour = tourOpen || !tourSeenAt;
+  // Help is opened explicitly, never over an active workspace.
+  const showTour = tourOpen;
 
   const handleCloseTour = React.useCallback(() => {
     setTourOpen(false);
@@ -477,19 +328,7 @@ function App() {
 
   const handleChange = (code: string, value: string) => {
     setField(code, value);
-    playClack();
   };
-
-  // Konami code → DMV disco. Cosmetic; gated behind the whimsy preference.
-  useKonami(() => {
-    if (!whimsy) return;
-    markBingo("konami");
-    setParty((p) => {
-      const next = !p;
-      toast.success(next ? "🪩 DMV disco mode engaged!" : "Back to business.");
-      return next;
-    });
-  });
 
   // Diff-highlight: flash fields that changed in the last bulk load
   // (import / scan / preset) so the user sees exactly what landed.
@@ -517,8 +356,7 @@ function App() {
 
   const handleGenerate = (code: string) => {
     if (code === "DCF") {
-      handleChange(code, generateStateDiscriminator(state));
-      markBingo("regenerated-dd");
+      handleChange(code, generateStateDiscriminator(state, fields.DBD));
     } else if (code === "DAQ") handleChange(code, generateStateLicenseNumber(state));
     else if (code === "DDB")
       handleChange(code, generateStateCardRevisionDate(state, fields["DBD"], version) || "");
@@ -528,7 +366,7 @@ function App() {
   const handleGenerateAllAuto = () => {
     const presentCodes = new Set(schemaFields.map((f) => f.code));
     const patch: Record<string, string> = {};
-    if (presentCodes.has("DCF")) patch.DCF = generateStateDiscriminator(state);
+    if (presentCodes.has("DCF")) patch.DCF = generateStateDiscriminator(state, fields.DBD);
     if (presentCodes.has("DAQ")) patch.DAQ = generateStateLicenseNumber(state);
     if (presentCodes.has("DDB")) {
       const ddb = generateStateCardRevisionDate(state, fields["DBD"], version);
@@ -576,12 +414,11 @@ function App() {
   // Dev-only convenience: fill the form with valid sample values so we can
   // verify changes against a generated barcode without typing every field.
   const handleFillSample = () => {
-    const snapshot = { ...fields };
     const sample = buildSampleFill(schemaFields, state);
     mergeFields(sample);
-    toast.success(`Filled ${Object.keys(sample).length} sample fields`, {
-      action: { label: "Undo", onClick: () => restoreFields(snapshot) }
-    });
+    toast.success(
+      `Filled ${Object.keys(sample).length} synthetic sample fields. Undo is available in the toolbar.`
+    );
   };
 
   const handleCopyField = async (code: string, value: string) => {
@@ -643,7 +480,12 @@ function App() {
     // Still mid-switch: leave the request standing and try again next commit.
     if (!el) return;
     pendingFocusRef.current = null;
-    el.scrollIntoView({ behavior: "smooth", block: "center" });
+    const disclosure = el.closest("details");
+    if (disclosure) disclosure.open = true;
+    el.scrollIntoView({
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+      block: "center"
+    });
     try {
       el.focus({ preventScroll: true });
     } catch {
@@ -746,6 +588,7 @@ function App() {
       if (!mod) return;
       const key = e.key.toLowerCase();
 
+      if (isTyping && (key === "z" || key === "y")) return;
       if (key === "z" && !e.shiftKey) {
         if (canUndo()) {
           e.preventDefault();
@@ -772,22 +615,6 @@ function App() {
     return () => window.removeEventListener("keydown", handleKey);
   }, [undo, redo, canUndo, canRedo]);
 
-  const handleGenerated = React.useCallback(
-    (clean: boolean) => {
-      const isFirst = badgeStats.generated === 0;
-      recordBadgeEvent({
-        generated: badgeStats.generated + 1,
-        cleanGenerated: badgeStats.cleanGenerated + (clean ? 1 : 0),
-        firstTryClean: badgeStats.firstTryClean || (isFirst && clean)
-      });
-    },
-    [badgeStats, recordBadgeEvent]
-  );
-
-  const handleExported = React.useCallback(() => {
-    recordBadgeEvent({ exports: badgeStats.exports + 1 });
-  }, [badgeStats.exports, recordBadgeEvent]);
-
   // One field renderer for both views. They diverge in what they show and how
   // it is grouped, never in how a field behaves; two copies of this prop list
   // is how a fix lands in the section view and not in search results.
@@ -802,12 +629,10 @@ function App() {
       whimsy={whimsy}
       allValues={fields}
       highlight={searchQuery}
-      derivedFrom={field.code === "DAJ" ? "Set from the selected jurisdiction." : undefined}
       onChange={handleChange}
       onCopy={handleCopyField}
       onReset={handleResetField}
       onGenerate={handleGenerate}
-      onHelpOpened={() => markBingo("read-the-help")}
       onDisableStrict={() => {
         setStrictMode(false);
         toast.info("Strict mode disabled");
@@ -816,54 +641,20 @@ function App() {
   );
 
   return (
-    <div
-      className={`app-shell flex min-h-dvh flex-col overflow-x-hidden bg-white font-sans text-gray-900 dark:bg-[#121212] dark:text-gray-200${
-        party && whimsy ? " party-mode" : ""
-      }`}
-    >
+    <div className="app-shell">
       <Header
         onStartScan={() => setIsScanning(true)}
         onOpenShortcuts={() => setShortcutsOpen(true)}
         onOpenCompare={() => {
-          markBingo("compared");
           setCompareOpen(true);
         }}
         onOpenBatch={() => setBatchOpen(true)}
-        onOpenBadges={() => setBadgesOpen(true)}
-        onOpenBingo={() => setBingoOpen(true)}
-        onOpenRoadTest={() => setRoadTestOpen(true)}
       />
 
-      <main
-        ref={swipeRef}
-        className="flex flex-1 flex-col lg:flex-row overflow-visible lg:overflow-hidden gap-0 lg:gap-0 pb-safe"
-      >
-        <Sidebar mobileHidden={mobilePanel !== "config"}>
-          {/* The rail rides in the config column on desktop rather than taking
-              a fourth. On mobile the config panel is its own tab, so the rail
-              appears as a strip above the fields instead — see below. */}
-          <div className="hidden lg:flex lg:min-h-0 lg:flex-col lg:pt-4">
-            <span className="px-3 pb-2 text-k-eyebrow font-bold uppercase text-gray-600 dark:text-gray-400">
-              Sections
-            </span>
-            <StepRail
-              sections={railSections}
-              active={activeSection}
-              onSelect={handleSelectSection}
-            />
-          </div>
-        </Sidebar>
-
-        <div
-          className={`dmv-main m-0 min-h-[40vh] min-w-0 flex-1 flex-col overflow-y-auto rounded-none border-0 bg-white shadow-none lg:m-4 lg:rounded-xl lg:border lg:border-gray-200 lg:shadow-google dark:bg-[#1E1E1E] dark:shadow-none dark:lg:border-[#333333] ${
-            mobilePanel !== "form" ? "hidden lg:flex" : "flex"
-          }`}
-        >
-          {/* Phone: the rail collapses to a scrollable strip. It replaces the
-              old panel heading rather than sitting under it — the heading, its
-              privacy note and a six-row filter bar were 347px of an 844px
-              screen before a single input. */}
-          <div className="border-b border-gray-100 px-3 py-1.5 lg:hidden dark:border-gray-700">
+      <Sidebar mobileHidden={mobilePanel !== "config"} />
+      <main id="record-workspace" ref={swipeRef} className="workspace-grid" tabIndex={-1}>
+        <div className={`record-editor ${mobilePanel !== "form" ? "hidden lg:flex" : "flex"}`}>
+          <div className="section-index">
             <StepRail
               sections={railSections}
               active={activeSection}
@@ -871,8 +662,7 @@ function App() {
               orientation="horizontal"
             />
           </div>
-
-          <div id="section-heading" className="px-4 pb-3 pt-4 max-lg:sr-only lg:px-6 lg:pt-5">
+          <div id="section-heading" className="section-heading">
             {isFiltering ? (
               <>
                 <span className="text-k-eyebrow font-bold uppercase text-gray-600 dark:text-gray-400">
@@ -887,13 +677,13 @@ function App() {
               </>
             ) : (
               <>
-                <span className="text-k-eyebrow font-bold uppercase text-gray-600 dark:text-gray-400">
+                <span className="section-progress text-k-eyebrow font-bold uppercase text-gray-600 dark:text-gray-400">
                   Section {activeSectionIndex + 1} of {railSections.length}
                 </span>
                 <h2 className="mt-1 text-k-section font-bold text-gray-900 dark:text-gray-50">
                   {activeSectionDef?.label}
                 </h2>
-                <p className="mt-1 text-k-help text-gray-600 dark:text-gray-400">
+                <p className="section-description mt-1 text-k-help text-gray-600 dark:text-gray-400">
                   {activeSectionDef?.description}
                 </p>
               </>
@@ -904,7 +694,6 @@ function App() {
             query={searchQuery}
             onQueryChange={(value) => {
               setSearchQuery(value);
-              if (value.trim()) markBingo("searched-fields");
             }}
             requiredOnly={requiredOnly}
             onRequiredOnlyChange={setRequiredOnly}
@@ -921,7 +710,7 @@ function App() {
             onFillSample={handleFillSample}
           />
 
-          <div className="px-3 pb-5 pt-2 lg:px-6 lg:pt-4 lg:pb-6">
+          <div className="record-fields">
             {visibleFields.length === 0 ? (
               // role="status" so screen readers announce the dead end as soon
               // as the filters produce nothing, and a reset button so the user
@@ -968,17 +757,54 @@ function App() {
                 );
               })
             ) : (
-              <div className={FIELD_GRID_CLASS}>{sectionFields.map(renderField)}</div>
+              <>
+                <div className={FIELD_GRID_CLASS}>
+                  {sectionFields
+                    .filter((f) => !["DDE", "DDF", "DDG", "DCU"].includes(f.code))
+                    .map(renderField)}
+                </div>
+                {sectionFields.some((f) => ["DDE", "DDF", "DDG", "DCU"].includes(f.code)) && (
+                  <details className="name-encoding">
+                    <summary>
+                      Name encoding & suffix <span>Truncation indicators and optional suffix</span>
+                    </summary>
+                    <div className={FIELD_GRID_CLASS}>
+                      {sectionFields
+                        .filter((f) => ["DDE", "DDF", "DDG", "DCU"].includes(f.code))
+                        .map(renderField)}
+                    </div>
+                  </details>
+                )}
+              </>
             )}
           </div>
 
+          {extraEntries.length > 0 && (
+            <details className="unmodeled-fields">
+              <summary>{extraEntries.length} fields outside this schema</summary>
+              <p>
+                Preserved in record JSON, omitted from the generated barcode. Switch back to their
+                schema or remove them explicitly.
+              </p>
+              <div className="field-grid">
+                {extraEntries.map(([code, value]) => (
+                  <label key={code}>
+                    {code}
+                    <input
+                      aria-label={`Unmodeled ${code}`}
+                      value={value}
+                      onChange={(e) => setField(code, e.target.value)}
+                      autoComplete="off"
+                    />
+                  </label>
+                ))}
+              </div>
+            </details>
+          )}
           {/* Step navigation. Only in the section view — in search results
               "next section" has no meaning. */}
           {!isFiltering && railSections.length > 1 && (
-            <nav
-              aria-label="Section navigation"
-              className="mt-auto flex items-center justify-between gap-3 border-t border-gray-200 bg-white/95 px-4 py-3 backdrop-blur lg:sticky lg:bottom-0 lg:px-6 dark:border-[#333] dark:bg-[#1E1E1E]/95"
-            >
+            <nav aria-label="Section navigation" className="section-footer">
               {prevSection ? (
                 <button
                   type="button"
@@ -1014,9 +840,6 @@ function App() {
             error={payloadError}
             stale={payloadStale}
             onRegisterExportPng={handleRegisterExportPng}
-            onExported={handleExported}
-            onGenerated={handleGenerated}
-            onBingo={markBingo}
           />
         </React.Suspense>
       </main>
@@ -1051,25 +874,6 @@ function App() {
         </React.Suspense>
       )}
       <WelcomeTour open={showTour} onClose={handleCloseTour} />
-      {badgesOpen && (
-        <React.Suspense fallback={null}>
-          <EmployeeOfTheMonth
-            open={badgesOpen}
-            onClose={() => setBadgesOpen(false)}
-            stats={badgeStats}
-          />
-        </React.Suspense>
-      )}
-      {bingoOpen && (
-        <React.Suspense fallback={null}>
-          <DmvBingo
-            open={bingoOpen}
-            onClose={() => setBingoOpen(false)}
-            marked={bingoMarked}
-            onReset={resetBingo}
-          />
-        </React.Suspense>
-      )}
       <MobileActionBar
         panel={mobilePanel}
         onPanelChange={setMobilePanel}
@@ -1081,46 +885,11 @@ function App() {
         onExport={handleExportPNGShortcut}
       />
 
-      {roadTestOpen && (
-        <React.Suspense fallback={null}>
-          <RoadTest
-            open={roadTestOpen}
-            onClose={() => setRoadTestOpen(false)}
-            onPassed={() => {
-              markBingo("road-tested");
-              toast.success("🚗 Road test passed. You may now park anywhere.");
-            }}
-          />
-        </React.Suspense>
-      )}
       <DropZoneOverlay />
-      {/* The two corner residents. Unlike the rest of the whimsy — which fires
-          in response to something and then leaves — these sit over the page for
-          the whole session, so they are opt-in on top of `whimsy` rather than
-          on by default. Playful extras → "Desk mascots" turns them on. */}
-      {whimsy && mascots && (
-        // Both used to be independently pinned to the bottom-left corner, which
-        // meant Gus's speech bubble sat directly on top of the queue ticket.
-        // One column, stacked, so each keeps its own height.
-        <div className="desk-mascots">
-          <React.Suspense fallback={null}>
-            <TicketDispenser
-              enabled
-              served={badgeStats.generated}
-              onTakeTicket={() => markBingo("took-a-number")}
-            />
-          </React.Suspense>
-          <React.Suspense fallback={null}>
-            <ClerkMascot
-              enabled
-              errorCount={invalidCount}
-              requiredComplete={requiredComplete}
-              anyFields={anyFields}
-              onDismiss={() => markBingo("dismissed-gus")}
-            />
-          </React.Suspense>
-        </div>
-      )}
+      <footer className="workspace-footer">
+        <span>Local processing · Records are not saved in this browser</span>
+        <span>Application validation ≠ standards certification</span>
+      </footer>
     </div>
   );
 }

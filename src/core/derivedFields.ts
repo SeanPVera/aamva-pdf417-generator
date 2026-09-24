@@ -1,16 +1,6 @@
-// Field codes the app fills on the user's behalf, and the "did the user enter
-// anything" question that has to look past them.
-//
-// `DAJ` is the jurisdiction code. `generateAAMVAPayload` forces it to the
-// selected state whatever the form holds, so the app fills it from the picker
-// rather than leaving a required field nobody could satisfy. That makes it
-// present on a form nobody has touched — and every dirty-state check in the UI
-// (the unsaved-work prompt, the mobile bar's empty state, whether an import
-// needs an Undo, how many fields "Clear PII" actually cleared) would otherwise
-// read a blank form as populated.
-
-/** Codes written by `setDerivedField` rather than by the user. */
-export const DERIVED_FIELD_CODES: ReadonlySet<string> = new Set(["DAJ"]);
+// Address jurisdiction (DAJ) belongs to the record, not to the issuer picker.
+// No identity field is app-owned; prefilled values are compared against seeds.
+export const DERIVED_FIELD_CODES: ReadonlySet<string> = new Set();
 
 /** True when `code` is app-owned rather than user-entered. */
 export function isDerivedField(code: string): boolean {

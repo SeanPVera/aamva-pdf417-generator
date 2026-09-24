@@ -287,8 +287,10 @@ export const AAMVA_STATE_RULES: Record<string, StateRules> = (() => {
  * strict-mode promotion live in `evaluateFieldValue`.
  */
 export function validateFieldValue(field: AAMVAField, value: string, stateCode?: string): boolean {
-  if (field.required && !value) return false;
+  if (field.required && !value.trim()) return false;
   if (!value) return true;
+  if (/[^\x20-\x7e]/.test(value)) return false;
+  if (field.code === "DAJ" && !/^[A-Z]{2}$/.test(value)) return false;
 
   const allowedValues = getAllowedSet(field);
   if (allowedValues && !allowedValues.has(value)) return false;
@@ -411,7 +413,8 @@ function parseVehicleClasses(dca?: string): string[] {
 export function validateCrossFieldConsistency(
   dataObj: Record<string, string>,
   fields: AAMVAField[],
-  stateCode?: string
+  stateCode?: string,
+  subfileType: "DL" | "ID" = "DL"
 ): CrossFieldValidationIssue[] {
   const issues: CrossFieldValidationIssue[] = [];
 
@@ -474,7 +477,7 @@ export function validateCrossFieldConsistency(
   // Date-rule layer: pull jurisdiction-specific (or default) bounds.
   const dateRules = getEffectiveDateRules(stateCode || "");
 
-  if (birthDate && issueDate) {
+  if (subfileType === "DL" && birthDate && issueDate) {
     const ageAtIssue = ageAtDate(birthDate, issueDate);
 
     const minAge = dateRules.minIssuanceAge ?? 14;
@@ -520,7 +523,7 @@ export function validateCrossFieldConsistency(
 
   // Class-minimum-age constraints from the rule pack (hard error: a 14-year-old
   // can't legally hold a Class A CDL).
-  if (stateCode && birthDate && issueDate) {
+  if (subfileType === "DL" && stateCode && birthDate && issueDate) {
     const pack = JURISDICTION_RULE_PACKS[stateCode];
     if (pack?.classMinimumAges && dataObj.DCA) {
       const ageAtIssue = ageAtDate(birthDate, issueDate);
@@ -609,10 +612,18 @@ export function evaluateFieldValue(
   stateCode?: string,
   strictMode: boolean = false
 ): FieldEvaluation {
-  if (field.required && !value) {
+  if (field.required && !value.trim()) {
     return { ok: false, severity: "error", message: "Required field is empty." };
   }
   if (!value) return { ok: true, severity: "info" };
+  if (/[^\x20-\x7e]/.test(value)) {
+    return {
+      ok: false,
+      severity: "error",
+      message:
+        "This generator supports printable ASCII. Edit unsupported characters explicitly; input is kept unchanged."
+    };
+  }
 
   const allowed = getAllowedSet(field);
   if (allowed && !allowed.has(value)) {
@@ -689,7 +700,8 @@ export function getValidationIssues(
   fields: AAMVAField[],
   values: Record<string, string>,
   stateCode: string,
-  strictMode: boolean
+  strictMode: boolean,
+  subfileType: "DL" | "ID" = "DL"
 ): ValidationIssue[] {
   const issues: ValidationIssue[] = [];
 
@@ -714,8 +726,9 @@ export function getValidationIssues(
 
   if (pack?.additionalRequiredFields) {
     for (const code of pack.additionalRequiredFields) {
-      if (!values[code]) {
+      if (!(values[code] ?? "").trim()) {
         const field = fields.find((f) => f.code === code);
+        if (!field) continue;
         const key = `${code}:error`;
         if (seen.has(key)) continue;
         issues.push({
@@ -732,8 +745,9 @@ export function getValidationIssues(
 
   if (pack?.recommendedFields) {
     for (const code of pack.recommendedFields) {
-      if (!values[code]) {
+      if (!(values[code] ?? "").trim()) {
         const field = fields.find((f) => f.code === code);
+        if (!field) continue;
         const key = `${code}:warning`;
         if (seen.has(key)) continue;
         issues.push({
@@ -750,9 +764,9 @@ export function getValidationIssues(
 
   // Cross-field issues are appended so the UI can render them inline with
   // per-field issues.
-  const cross = validateCrossFieldConsistency(values, fields, stateCode);
+  const cross = validateCrossFieldConsistency(values, fields, stateCode, subfileType);
   for (const ci of cross) {
-    issues.push(ci);
+    issues.push(strictMode && ci.severity === "warning" ? { ...ci, severity: "error" } : ci);
   }
 
   // Blockers first. Rule-pack warnings and cross-field issues are appended

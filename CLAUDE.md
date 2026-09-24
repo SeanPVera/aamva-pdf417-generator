@@ -6,9 +6,10 @@ This file provides AI assistants (Claude, Copilot, etc.) with the context needed
 
 ## Project Overview
 
-**aamva-pdf417-generator** is a fully client-side AAMVA PDF417 barcode generator for U.S. driver's licenses and ID cards. It implements the AAMVA (American Association of Motor Vehicle Administrators) specification across versions 01–10 for all 50 states, D.C., and U.S. territories. Versions 05, 06, and 07 share the 2009 (v04) data-element set — those revisions changed card design and security requirements rather than the DL subfile.
+**aamva-pdf417-generator** is a fully client-side AAMVA PDF417 barcode generator for U.S. driver's licenses and ID cards. It models AAMVA (American Association of Motor Vehicle Administrators) fields across versions 01–11 for all 50 states, D.C., and U.S. territories. The current model reuses the 2009 (v04) data-element set for versions 05, 06, and 07; verify historical edition requirements against authoritative material before extending that assumption.
 
 **Key traits:**
+
 - Zero server-side code — runs entirely in the browser or as an Electron desktop app
 - Built with React + TypeScript + Vite; Tailwind CSS for styling
 - Data never leaves the user's device (UI preferences in localStorage only; PII fields are never persisted)
@@ -49,8 +50,8 @@ This file provides AI assistants (Claude, Copilot, etc.) with the context needed
 │   ├── App.tsx                   # Main app component: layout, keyboard shortcuts, theme
 │   ├── setupTests.ts             # Vitest setup (testing-library/jest-dom)
 │   ├── core/
-│   │   ├── schema.ts             # AAMVA versions 01–10 field definitions, IINs, options
-│   │   ├── states.ts             # 54 jurisdictions (50 states + DC + 4 territories)
+│   │   ├── schema.ts             # AAMVA versions 01–11 field definitions, IINs, options
+│   │   ├── states.ts             # 55 jurisdictions (50 states + DC + 4 territories)
 │   │   ├── generator.ts          # AAMVA payload generator with state-specific rules
 │   │   ├── decoder.ts            # Payload decoder and structural validator
 │   │   ├── inspect.ts            # Byte ledger: where every byte of a payload went
@@ -58,7 +59,7 @@ This file provides AI assistants (Claude, Copilot, etc.) with the context needed
 │   │   ├── dateHelpers.ts        # Flexible date parsing/formatting + relative date chips
 │   │   ├── quickFix.ts           # Deterministic repairs for values the validator rejects
 │   │   ├── pasteImport.ts        # Classifies clipboard text into a loadable field map
-│   │   ├── derivedFields.ts      # App-owned field codes (DAJ) and user-dirty-state checks
+│   │   ├── derivedFields.ts      # Seed tracking and user-dirty-state checks (DAJ is user-owned)
 │   │   ├── roadTest.ts           # Parallel-parking physics and examiner scoring (decorative)
 │   │   ├── jurisdictionRules.ts  # Per-jurisdiction rule packs + observed encoding profiles
 │   │   ├── barcodeDimensions.ts  # PDF417 row/column sizing for the encoder
@@ -76,7 +77,7 @@ This file provides AI assistants (Claude, Copilot, etc.) with the context needed
 │   │   ├── BarcodePreview.tsx    # PDF417 canvas via bwip-js, payload display, PNG/SVG/PDF export
 │   │   ├── BatchProcessor.tsx    # Bulk field operations UI
 │   │   ├── WebcamScanner.tsx     # ZXing-based barcode scanner modal
-│   │   ├── VersionBrowser.tsx    # Modal for exploring AAMVA versions 01–10
+│   │   ├── VersionBrowser.tsx    # Expandable reference for AAMVA versions 01–11
 │   │   ├── StepRail.tsx          # Section navigator: one rung per field group, with its state
 │   │   ├── MobileActionBar.tsx   # Sticky mobile status + export strip
 │   │   ├── RoadTest.tsx          # The parallel-parking exam (lazy, decorative)
@@ -117,59 +118,59 @@ This file provides AI assistants (Claude, Copilot, etc.) with the context needed
 
 Named exports:
 
-| Export | Contents |
-|---|---|
-| `AAMVA_VERSIONS` | Object keyed by `"01"`–`"10"`: `{ name, fields: AAMVAField[] }` |
-| `AAMVA_FIELD_OPTIONS` | Enumerated values for sex, eye color, hair color, race/ethnicity, etc. |
-| `AAMVA_FIELD_LIMITS` | Max character lengths per field code |
-| `AAMVA_STATE_EXCLUDED_FIELDS` | Fields excluded per jurisdiction (e.g., NY excludes `DAW`, `DAX`, `DAZ`, `DCL`) |
-| `getFieldsForVersion(v)` | Returns full field array for a version |
-| `getFieldsForStateAndVersion(stateCode, v)` | Filters by state exclusions |
-| `getMandatoryFields(stateCode, version)` | Mandatory fields only, derived from `getFieldsForStateAndVersion` so it can never drift from the rendered form |
-| `AAMVA_VERSION_KEYS` | Version tokens in ascending order — use this for pickers, never `Object.keys(AAMVA_VERSIONS)` (see note below) |
-| `isSupportedVersion(v)` | Whether this build has a field table for `v` |
-| `describeVersion(v)` | Human-readable version summary |
+| Export                                      | Contents                                                                                                       |
+| ------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `AAMVA_VERSIONS`                            | Object keyed by `"01"`–`"11"`: `{ name, fields: AAMVAField[] }`                                                |
+| `AAMVA_FIELD_OPTIONS`                       | Enumerated values for sex, eye color, hair color, race/ethnicity, etc.                                         |
+| `AAMVA_FIELD_LIMITS`                        | Max character lengths per field code                                                                           |
+| `AAMVA_STATE_EXCLUDED_FIELDS`               | Fields excluded per jurisdiction (e.g., NY excludes `DAW`, `DAX`, `DAZ`, `DCL`)                                |
+| `getFieldsForVersion(v)`                    | Returns full field array for a version                                                                         |
+| `getFieldsForStateAndVersion(stateCode, v)` | Filters by state exclusions                                                                                    |
+| `getMandatoryFields(stateCode, version)`    | Mandatory fields only, derived from `getFieldsForStateAndVersion` so it can never drift from the rendered form |
+| `AAMVA_VERSION_KEYS`                        | Version tokens in ascending order — use this for pickers, never `Object.keys(AAMVA_VERSIONS)` (see note below) |
+| `isSupportedVersion(v)`                     | Whether this build has a field table for `v`                                                                   |
+| `describeVersion(v)`                        | Human-readable version summary                                                                                 |
 
 **Do not** change field codes — they are standardized 3-character AAMVA data element identifiers (`^[A-Z]{2}[A-Z0-9]$`).
 
 ### `src/core/states.ts` — Jurisdiction Registry
 
-| Export | Contents |
-|---|---|
-| `AAMVA_STATES` | Record of 54 jurisdictions: `{ [code]: AAMVAStateDef }` |
-| `isJurisdictionSupported(stateCode)` | Boolean check |
-| `getVersionForState(stateCode)` | Default AAMVA version per state |
+| Export                               | Contents                                                |
+| ------------------------------------ | ------------------------------------------------------- |
+| `AAMVA_STATES`                       | Record of 55 jurisdictions: `{ [code]: AAMVAStateDef }` |
+| `isJurisdictionSupported(stateCode)` | Boolean check                                           |
+| `getVersionForState(stateCode)`      | Default AAMVA version per state                         |
 
 ### `src/core/generator.ts` — Payload Generator
 
-| Export | Contents |
-|---|---|
-| `generateAAMVAPayload(stateCode, version, fields, dataObj, options)` | Main payload builder |
-| `generateDocumentDiscriminator(length?)` | Random 12-char alphanumeric DCF |
-| `generateStateDiscriminator(stateCode, issueDateStr?)` | State-specific DCF generator; the issue date is threaded through for issuers that embed it (CT) |
-| `generateStateLicenseNumber(stateCode)` | State-specific DAQ generator |
-| `generateStateCardRevisionDate(stateCode, issueDateStr)` | Auto-generates DDB from era ranges |
+| Export                                                               | Contents                                                                                        |
+| -------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `generateAAMVAPayload(stateCode, version, fields, dataObj, options)` | Main payload builder                                                                            |
+| `generateDocumentDiscriminator(length?)`                             | Random 12-char alphanumeric DCF                                                                 |
+| `generateStateDiscriminator(stateCode, issueDateStr?)`               | State-specific DCF generator; the issue date is threaded through for issuers that embed it (CT) |
+| `generateStateLicenseNumber(stateCode)`                              | State-specific DAQ generator                                                                    |
+| `generateStateCardRevisionDate(stateCode, issueDateStr)`             | Auto-generates DDB from era ranges                                                              |
 
 ### `src/core/decoder.ts` — Decoder / Validator
 
-| Export | Contents |
-|---|---|
-| `validateAAMVAPayloadStructure(payload, strictMode)` | Validates AAMVA format compliance |
-| `decodePayload(text)` | Generic decoder (handles AAMVA format or JSON) |
-| `decodeAAMVAFormat(text)` | Parses AAMVA binary format string to JSON |
-| `decodeAAMVA(text)` | High-level decoder returning `{ ok, json, mapped, subfiles }` |
-| `describeFields(obj)` | Human-readable field descriptions |
+| Export                                               | Contents                                                      |
+| ---------------------------------------------------- | ------------------------------------------------------------- |
+| `validateAAMVAPayloadStructure(payload, strictMode)` | Validates AAMVA format compliance                             |
+| `decodePayload(text)`                                | Generic decoder (handles AAMVA format or JSON)                |
+| `decodeAAMVAFormat(text)`                            | Parses AAMVA binary format string to JSON                     |
+| `decodeAAMVA(text)`                                  | High-level decoder returning `{ ok, json, mapped, subfiles }` |
+| `describeFields(obj)`                                | Human-readable field descriptions                             |
 
 ### `src/core/inspect.ts` — Byte ledger
 
-| Export | Contents |
-|---|---|
-| `inspectPayload(text)` | Per-subfile accounting: declared vs. accounted vs. unaccounted bytes, padding, unknown codes |
-| `formatInspection(inspection)` | The ledger as plain text |
-| `summarizeAnomalies(inspection)` | One-line verdict, or `null` when the payload balances |
+| Export                           | Contents                                                                                     |
+| -------------------------------- | -------------------------------------------------------------------------------------------- |
+| `inspectPayload(text)`           | Per-subfile accounting: declared vs. accounted vs. unaccounted bytes, padding, unknown codes |
+| `formatInspection(inspection)`   | The ledger as plain text                                                                     |
+| `summarizeAnomalies(inspection)` | One-line verdict, or `null` when the payload balances                                        |
 
-Decoding answers *what does this card say*; inspection answers *where did every
-byte go*. Keep them separate — the second is diagnostic detail that has no
+Decoding answers _what does this card say_; inspection answers _where did every
+byte go_. Keep them separate — the second is diagnostic detail that has no
 business in the path every scan takes.
 
 This exists because a decoded New York credential declared a 323-byte `DL`
@@ -185,59 +186,56 @@ defeat the purpose. Do not make the decoder that permissive.
 
 ### `src/core/dateHelpers.ts` — Date entry
 
-| Export | Contents |
-|---|---|
-| `normalizeDateInput(raw, format, now?)` | `8/11/2026`, `2026-08-11`, `08112026` → the wire form; `null` when it cannot resolve without guessing |
-| `parseAamvaDateParts(value, format)` | Canonical string → `{ year, month, day }`, calendar-checked |
-| `describeAamvaDate(value, format)` | `"Aug 11, 2026"` |
-| `yearsBetween(from, to, format)` | Whole years, used for age-at-issue |
-| `todayAamva(format, now?)` / `shiftYears(value, years, format)` | Chip values (Feb 29 clamps rather than rolling) |
-| `getDateChips(code, fields, format, now?)` | One-click offers per date field, anchored to sibling values |
+| Export                                                          | Contents                                                                                              |
+| --------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `normalizeDateInput(raw, format, now?)`                         | `8/11/2026`, `2026-08-11`, `08112026` → the wire form; `null` when it cannot resolve without guessing |
+| `parseAamvaDateParts(value, format)`                            | Canonical string → `{ year, month, day }`, calendar-checked                                           |
+| `describeAamvaDate(value, format)`                              | `"Aug 11, 2026"`                                                                                      |
+| `yearsBetween(from, to, format)`                                | Whole years, used for age-at-issue                                                                    |
+| `todayAamva(format, now?)` / `shiftYears(value, years, format)` | Chip values (Feb 29 clamps rather than rolling)                                                       |
+| `getDateChips(code, fields, format, now?)`                      | One-click offers per date field, anchored to sibling values                                           |
 
-Two-digit years are only accepted from *separated* input and resolve against a
+Two-digit years are only accepted from _separated_ input and resolve against a
 pivot of `current year + 10`. A bare digit run is never padded — that would
 invent digits the user did not type.
 
 ### `src/core/quickFix.ts` — Deterministic repairs
 
-| Export | Contents |
-|---|---|
-| `getQuickFix(field, value, state, strict)` | Best repair for a value that **fails** validation |
+| Export                                             | Contents                                                                                       |
+| -------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `getQuickFix(field, value, state, strict)`         | Best repair for a value that **fails** validation                                              |
 | `getCanonicalRewrite(field, value, state, strict)` | For a value that passes but is not what the encoder writes (casing, ZIP dash, height notation) |
-| `getQuickFixes(fields, values, state, strict)` | Both kinds across a schema — what "Fix all" applies |
+| `getQuickFixes(fields, values, state, strict)`     | Both kinds across a schema — what "Fix all" applies                                            |
 
 **Invariant:** a fix is only returned once `evaluateFieldValue` accepts the
 rewritten value, and never for an empty field. A quick fix rewrites what the
 user typed; it must never invent data.
 
-### `src/core/derivedFields.ts` — App-owned values
+### `src/core/derivedFields.ts` — Empty-record helpers
 
-`DAJ` is filled from the jurisdiction picker (`setDerivedField`), so it holds a
-value on a form nobody has touched. Every "has the user entered anything" check
-— the unsaved-work prompt, the mobile bar's empty state, whether an import needs
-an Undo, how many fields `Clear PII` reports — must go through `hasUserData` /
-`userEnteredCodes` rather than reading `fields` directly, or a blank form reads
-as populated.
+The issuer is in the header IIN. `DAJ` is an independently editable address
+jurisdiction and must never be replaced from the issuer picker. Blank records seed only country/truncation defaults; use `hasUserData` /
+`userEnteredCodes` with those seeds for empty-record checks.
 
 ### `src/core/validation.ts` — Validation
 
-| Export | Contents |
-|---|---|
-| `AAMVA_STATE_RULES` | Per-state regex validators and generators |
-| `validateFieldValue(field, value, stateCode, strictMode)` | Single field validation |
-| `validateCrossFieldConsistency(dataObj, fields)` | Date ordering, age-at-issuance logic |
-| `getValidationIssues(fields, values, stateCode, strictMode)` | Full validation report |
-| `ValidationIssue.kind` | `"empty"` (blank) vs `"invalid"` (a value the validator rejects) |
-| `sanitizeFieldValue(value)` | Strips control characters |
+| Export                                                       | Contents                                                         |
+| ------------------------------------------------------------ | ---------------------------------------------------------------- |
+| `AAMVA_STATE_RULES`                                          | Per-state regex validators and generators                        |
+| `validateFieldValue(field, value, stateCode, strictMode)`    | Single field validation                                          |
+| `validateCrossFieldConsistency(dataObj, fields)`             | Date ordering, age-at-issuance logic                             |
+| `getValidationIssues(fields, values, stateCode, strictMode)` | Full validation report                                           |
+| `ValidationIssue.kind`                                       | `"empty"` (blank) vs `"invalid"` (a value the validator rejects) |
+| `sanitizeFieldValue(value)`                                  | Strips control characters                                        |
 
 ### `src/core/stateThemes.ts` — Color Palettes
 
-| Export | Contents |
-|---|---|
-| `STATE_THEMES` | Record of 54 jurisdiction palettes: `{ primary, primaryDark, accent, onPrimary, onAccent, tint }` |
-| `DEFAULT_STATE_THEME` | Fallback palette |
-| `getStateTheme(code)` | Returns palette with fallback |
-| `applyStateThemeToDocument(stateCode)` | Sets CSS custom properties on `<html>` |
+| Export                                 | Contents                                                                                                                  |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `STATE_THEMES`                         | Legacy jurisdiction palettes: `{ primary, primaryDark, accent, onPrimary, onAccent, tint }`; not applied to the workbench |
+| `DEFAULT_STATE_THEME`                  | Fallback palette                                                                                                          |
+| `getStateTheme(code)`                  | Returns palette with fallback                                                                                             |
+| `applyStateThemeToDocument(stateCode)` | Sets CSS custom properties on `<html>`                                                                                    |
 
 ### `src/hooks/useFormStore.ts` — Zustand State Store
 
@@ -245,40 +243,41 @@ State shape: `state`, `version`, `strictMode`, `subfileType`, `fields`, `theme`,
 
 Key actions:
 
-| Action | Description |
-|---|---|
-| `setField(code, value)` | Update a field value and push to undo history |
-| `setDerivedField(code, value)` | Update an app-owned value (today only `DAJ`) **without** touching undo history — a derived value is not an edit |
-| `setStateVersion(state, version)` | Switch jurisdiction/version, rebuild field list |
-| `setStrictMode(mode)` | Toggle strict validation |
-| `setSubfileType(type)` | Toggle DL vs ID subfile type |
-| `setTheme(theme)` | Switch UI theme (light / dark / dmv) |
-| `setWhimsy(value)` / `setSoundOn(value)` | Gate the playful flourishes and the clerk-stamp clicks |
-| `setMascots(value)` | Gate the two screen-corner residents (Gus, the queue ticket). **Off by default** — they are the only decorations that stay on screen for a whole session rather than firing and leaving, so they are opt-in on top of `whimsy` |
-| `clearFields()` | Reset all fields |
-| `mergeFields(patch)` | Apply many field values as ONE undo step — use for any bulk action |
-| `loadJson(data)` | Import from JSON object |
-| `undo()` / `redo()` | Navigate edit history (20-item limit) |
-| `canUndo()` / `canRedo()` | Check history availability |
+| Action                                   | Description                                                                                                                          |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `setField(code, value)`                  | Update a field value and push to undo history                                                                                        |
+| `setDerivedField(code, value)`           | Legacy compatibility setter without history; no identity fields are currently app-owned. Do not use it for DAJ or other record edits |
+| `setStateVersion(state, version)`        | Switch jurisdiction/version, rebuild field list                                                                                      |
+| `setStrictMode(mode)`                    | Toggle strict validation                                                                                                             |
+| `setSubfileType(type)`                   | Toggle DL vs ID subfile type                                                                                                         |
+| `setTheme(theme)`                        | Switch appearance (system / light / dark; legacy dmv maps to light)                                                                  |
+| `setWhimsy(value)` / `setSoundOn(value)` | Legacy preferences; decorative flourishes and sounds are unmounted from the workbench                                                |
+| `setMascots(value)`                      | Legacy preference; screen-corner decorations are unmounted from the workbench                                                        |
+| `clearFields()`                          | Erase fields, source, and undo/redo history                                                                                          |
+| `mergeFields(patch)`                     | Apply many field values as ONE undo step — use for any bulk action                                                                   |
+| `loadJson(data)`                         | Import from JSON object                                                                                                              |
+| `undo()` / `redo()`                      | Navigate edit history (20-item limit)                                                                                                |
+| `canUndo()` / `canRedo()`                | Check history availability                                                                                                           |
 
 **Persistence:** Zustand `persist` middleware over plain `localStorage`. `partialize` restricts what is written to UI preferences only — the AAMVA `fields` payload is never persisted, so no PII reaches disk. An earlier version wrapped storage in CryptoJS AES, but the key sat in plaintext localStorage beside the ciphertext and provided no real protection against same-origin access; it was removed rather than left as security theater. Do not reintroduce client-side encryption here without a key that lives outside the origin.
 
 ### `src/components/` — UI Components
 
-| Component | Purpose |
-|---|---|
-| `Header.tsx` | Top bar: undo/redo, theme toggle, import/export JSON, clear, scanner launch |
-| `Sidebar.tsx` | Holds the step rail, then the jurisdiction/version/subfile/strict settings |
-| `StepRail.tsx` | One rung per field group; vertical on desktop, a scrollable strip on a phone |
+| Component            | Purpose                                                                                   |
+| -------------------- | ----------------------------------------------------------------------------------------- |
+| `Header.tsx`         | Top bar: undo/redo, theme toggle, import/export JSON, clear, scanner launch               |
+| `Sidebar.tsx`        | Horizontal jurisdiction/version/document/strict settings (historical filename)            |
+| `StepRail.tsx`       | Horizontal numbered sections on desktop and phone                                         |
 | `BarcodePreview.tsx` | PDF417 canvas (bwip-js), payload display, decoded JSON, validation issues, PDF/PNG export |
-| `BatchProcessor.tsx` | Bulk field operations |
-| `WebcamScanner.tsx` | ZXing barcode scanner modal |
-| `VersionBrowser.tsx` | Explore AAMVA field definitions by version |
-| `ErrorBoundary.tsx` | Graceful error fallback |
+| `BatchProcessor.tsx` | Bulk field operations                                                                     |
+| `WebcamScanner.tsx`  | ZXing barcode scanner modal                                                               |
+| `VersionBrowser.tsx` | Explore AAMVA field definitions by version                                                |
+| `ErrorBoundary.tsx`  | Graceful error fallback                                                                   |
 
 ### `main.js` / `preload.js` — Electron Shell
 
 Security settings are intentional and must be preserved:
+
 - `nodeIntegration: false`
 - `contextIsolation: true`
 - `sandbox: true`
@@ -290,18 +289,21 @@ Security settings are intentional and must be preserved:
 ## Development Workflows
 
 ### Quick Start (Browser Dev Server)
+
 ```bash
 npm run easy        # npm install && npm run dev
 # App runs at http://localhost:3000 (vite.config.mts pins server.port)
 ```
 
 ### Mobile / Network Access
+
 ```bash
 npm run easy:mobile   # npm install && npm run dev:mobile
 # Binds to 0.0.0.0:3000 for LAN access
 ```
 
 ### Electron Desktop App
+
 ```bash
 npm install
 npm run electron:dev   # Runs Vite dev server + Electron concurrently
@@ -309,11 +311,13 @@ npm start              # Electron only (requires prior build or running dev serv
 ```
 
 ### Building a Distributable
+
 ```bash
 npm run build   # Vite build → dist/; electron-builder packages OS installers
 ```
 
 ### Running Tests
+
 ```bash
 npm test
 # Internally: vitest (Vitest with jsdom environment)
@@ -335,6 +339,7 @@ rather than asserted. `PW_CHROMIUM_PATH` points it at a browser if Playwright
 cannot find its own.
 
 ### Linting & Formatting
+
 ```bash
 npm run lint            # ESLint (max-warnings 0)
 npm run format          # Prettier write
@@ -356,10 +361,10 @@ npm run format:check    # Prettier check (used in CI)
 
 **Test coverage areas:**
 
-1. **Schema** — all 54 jurisdictions have valid 6-digit IINs with no duplicates; field code format
+1. **Schema** — all 55 jurisdictions have valid 6-digit IINs with no duplicates; field code format
 2. **Field options** — enums for sex, eye color, hair color, race/ethnicity
 3. **Field limits** — max character enforcement per field code
-4. **AAMVA versions 01–10** — structure and required fields
+4. **AAMVA versions 01–11** — structure and required fields
 5. **State exclusions** — `AAMVA_STATE_EXCLUDED_FIELDS` per jurisdiction
 6. **State-specific generators** — DAQ, DCF, DDB patterns per state
 7. **Payload generation** — golden vectors, header structure, directory length, uppercase enforcement
@@ -387,11 +392,11 @@ downloading: the sandbox image may ship a different build than
 `e2e/helpers.ts` carries the three moves a spec cannot make on its own, and each
 exists because a rename silently broke a suite:
 
-| Helper | What it hides |
-|---|---|
-| `revealField(page, code)` | Opens the rung holding `code`. No-ops when the field is already on the page, which covers both the right rung and the filtered whole-form view |
-| `ensurePanel(page, panel)` | The phone's panel switcher — nav `Mobile panels`, tabs **Setup / Form / Barcode**, active one marked `aria-current="page"`. It moved to the bottom bar and was renamed with it |
-| `clickHeaderAction(page, barName, menuName)` | The action bar is `hidden lg:flex`; below that the same actions are **More actions** menu items under shorter names |
+| Helper                                       | What it hides                                                                                                                                                                  |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `revealField(page, code)`                    | Opens the rung holding `code`. No-ops when the field is already on the page, which covers both the right rung and the filtered whole-form view                                 |
+| `ensurePanel(page, panel)`                   | The phone's panel switcher — nav `Mobile panels`, tabs **Setup / Form / Barcode**, active one marked `aria-current="page"`. It moved to the bottom bar and was renamed with it |
+| `clickHeaderAction(page, barName, menuName)` | The action bar is `hidden lg:flex`; below that the same actions are **More actions** menu items under shorter names                                                            |
 
 A short enumeration renders as a chip group, not a `<select>`: a
 `role="radiogroup"` div carrying the field's id, one `role="radio"` button per
@@ -421,12 +426,15 @@ wire value it writes ("2") is exposed as `data-value` — the same contract as
 ## Key AAMVA Concepts for Editing
 
 ### IIN (Issuer Identification Number)
+
 Each jurisdiction has a unique 6-digit IIN embedded in the PDF417 header. Defined in `src/core/states.ts`. Must match the official AAMVA issuer codes exactly.
 
 ### Data Elements / Field Codes
+
 Fields use 3-character codes (e.g., `DAA`, `DCS`, `DAB`). These are standardized — do not invent or alter them. Versions differ in which fields are mandatory, optional, or absent.
 
 ### AAMVA Versions
+
 - `"01"` — oldest (AAMVA DL/ID-2000); uses `DAA` for full name (not split)
 - `"04"`–`"07"` — intermediate; split name fields (`DCS`, `DAC`, `DAD`)
 - `"08"` — 2013 standard; adds organ donor/veteran fields (`DDK`, `DDL`)
@@ -468,7 +476,7 @@ meaning is not published anywhere.
 ### Jurisdiction encoding profiles
 
 `jurisdictionRules.ts` carries an optional `encoding` block per jurisdiction
-recording where an issuer's *wire format* departs from the spec default: the
+recording where an issuer's _wire format_ departs from the spec default: the
 two-digit **jurisdiction version** in the header (NY emits `04`, not the `00`
 this app assumed for everyone), element order within the subfile, whether `DAK`
 is space-filled to its fixed 11-character width, and any jurisdiction subfile.
@@ -526,50 +534,24 @@ make the encoder reproduce an issuer's arithmetic error**: we absorb drift when
 reading and never emit it.
 
 ### Auto-version Selection
+
 `getVersionForState(stateCode)` in `src/core/states.ts` maps each jurisdiction to its default AAMVA version. When a user selects a state, `useFormStore.setStateVersion()` rebuilds the field list accordingly.
 
-### State Themes
-`applyStateThemeToDocument(stateCode)` sets CSS custom properties (`--color-primary`, `--color-accent`, etc.) on `<html>` derived from `STATE_THEMES` in `src/core/stateThemes.ts`. All 54 jurisdictions have curated palettes.
+### Workbench design system
 
-**Every `--state-*` surface variable is a light tint** — `surface` is literally `#ffffff`, `input` and `background` are near-white mixes. `data-state-theme` is set for every jurisdiction regardless of the color scheme, because the jurisdiction and the light/dark preference are independent choices. So any rule that paints a background or border with one of them must be scoped `html[data-state-theme]:not(.dark)`, with a `html[data-state-theme].dark` counterpart that mixes the hue *into* the dark surface (`color-mix(in srgb, var(--state-primary) 14%, #2c2c2c)`) rather than replacing it. Unscoped, they render near-white panels under the near-white text `html.dark` has already chosen — the form's own text boxes sat at 1.03:1. `src/tests/themeSurfaces.test.ts` checks the stylesheet for unscoped light surfaces; `e2e/dark-contrast.spec.ts` measures what the browser actually paints.
+The record workbench uses a neutral paper/ink palette with an oxide action
+accent. Issuer selection never recolors the interface. `stateThemes.ts` remains
+as a legacy data API; it is not used to paint the workspace.
 
-Form fields carry validation state in their border, so the themed rules set only the *fill* on `.dmv-main input/select/textarea`. An `!important` border-color there repaints every red and amber edge in the jurisdiction's color.
+Tokens live in `src/styles/index.css`, with matching Tailwind keys. Main controls
+and touch targets are 44px. Typography uses self-hosted Atkinson Hyperlegible
+Next for prose/values and JetBrains Mono for codes, dates, and wire bytes.
+Control radius is 3px; overlays use 6px. Do not add new decorative credential,
+game, mascot, or jurisdiction-theme UI to the workbench.
 
-### Kiosk scale and typography
-
-The UI is sized for a thumb and read at arm's length. The scale lives in two
-places that must not drift: custom properties at the top of `src/styles/index.css`
-and the matching Tailwind theme keys in `tailwind.config.js`.
-
-| Token | Value | What it is |
-|---|---|---|
-| `h-k-control` | 56px | Primary control height — inputs, selects |
-| `h-k-touch` | 44px | The floor. Nothing interactive may be smaller |
-| `text-k-value` | 18px | What the user typed |
-| `text-k-label` | 15px | Field label |
-| `text-k-help` | 13.5px | Hint, advisory, counter |
-| `text-k-section` | 30px | Section heading |
-| `rounded-k` / `rounded-k-lg` | 10px / 14px | The only two radii |
-
-Two faces, both self-hosted variable woff2 under `src/assets/fonts/`, both
-SIL OFL 1.1 with their licences shipped beside them:
-
-- **Atkinson Hyperlegible Next** for everything. It was drawn by the Braille
-  Institute to pull confusable characters apart — `0`/`O`, `1`/`l`/`I`, `8`/`B`.
-  That is a correctness property here, not an aesthetic one: this is a
-  data-entry form for identity documents, and reading a licence number's `O` as
-  a `0` produces a credential for nobody.
-- **JetBrains Mono** (slashed zero) for field codes, dates, and the raw payload.
-
-They are imported from `src/assets/` rather than dropped in `public/` so Vite
-hashes them and emits **relative** URLs. That is what keeps them resolvable
-under `base: './'` at a Pages subpath, from a domain root, and from Electron's
-`file://`. A `public/fonts/` copy would force an absolute `/fonts/` path and
-break the first two. They also join the service-worker precache
-(`inject-sw-precache-manifest` in `vite.config.mts` globs `woff2`), because
-cache-first would only pick them up after a successful request — an installed
-iOS app whose first launch is offline would otherwise sit on the fallback face
-with no way to recover.
+See `docs/design/WORKBENCH.md` for hierarchy, layout, interaction, and token
+rationale. Preserve relative font URLs and service-worker precaching. Test light,
+dark, narrow widths, and keyboard interaction in the rendered interface.
 
 ### Section navigation, and what "filtering" switches on
 
@@ -591,7 +573,7 @@ about to exist, and the jump silently does nothing.
 ### Empty is not an error
 
 `ValidationIssue` carries `kind`. Both `"empty"` and `"invalid"` are
-`severity: "error"` and both block generation — the *gate* does not care. Every
+`severity: "error"` and both block generation — the _gate_ does not care. Every
 place that **counts or colours** them must:
 
 - say "N to fill" about `"empty"`, in a neutral colour;
@@ -603,6 +585,7 @@ red elements and a "20 errors" badge, which taught users that red means nothing.
 is visible; the honest floor is a destructive control plus the required markers.
 
 ### Strict Mode
+
 When enabled, validation warnings are treated as errors and block payload generation. Controlled by `setStrictMode()` in the Zustand store.
 
 Two warning channels feed that promise and both are enforced at generation time:
@@ -613,20 +596,26 @@ Two warning channels feed that promise and both are enforced at generation time:
 `validateFieldValue` deliberately takes no strict-mode parameter — its checks (enumerations, length limits, jurisdiction validators, type formats) are never advisory. Severity lives in `evaluateFieldValue`.
 
 ### Auto-Generated Fields
+
 `generateAAMVAPayload`'s `autoGenerateDiscriminator` option may only invent `DCF` (document discriminator) and `DDB` (card revision date) — see `AUTO_GENERATED_CODES` in `generator.ts`. **`DAQ` is never auto-generated**: it is the cardholder's real customer/licence number, it is mandatory in every version, and filling it in silently both put a fictional identifier into the barcode and defeated the missing-mandatory-field check.
 
 `generateAAMVAPayload` does not mutate the object it is given. Auto-filled values are visible in the returned payload (decode it), not in the caller's map.
 
-`usePayload` caches the values it auto-fills — both keyed on jurisdiction + issue date — so the payload stays stable across keystrokes instead of re-rolling on every debounce. `DCF` is keyed on the issue date too because some issuers derive it from that date (Connecticut prefixes it with the issue date as `YYMMDD`), and a `DCF` cached across a `DBD` edit would contradict the date printed beside it.
+The live `usePayload` preview encodes only explicitly entered data. It never
+invents DCF or DDB. Individual Generate buttons and Fill tools make synthetic
+values visible and undoable. Batch generation retains its explicit auto-generation
+option; do not confuse that with exact record serialization.
 
 ### Undo/Redo
-`setField()` pushes state to `_history` (20-item cap). `undo()`/`redo()` navigate the stack. History is not persisted across sessions.
+
+`setField()` pushes state to `_history` (20-item cap). `undo()`/`redo()` navigate the stack. History snapshots include fields, issuer, version, document type, and source. History is not persisted across sessions; explicit erasure also removes it.
 
 ---
 
 ## CI/CD
 
 GitHub Actions workflow (`.github/workflows/node.js.yml`):
+
 - **Triggers:** Push to `main`, PRs targeting `main`
 - **Matrix:** Node.js 20.x, 22.x
 - **Steps (in order):** `npm ci` → `npm run lint` → `npm run format:check` → `npm run typecheck` → `npm run build` → `npm run test:run` → (Node 22 only) `npm run test:coverage` with thresholds → (Node 22 only) `npm run size` (size-limit budget) → upload coverage artifact → `npm audit --audit-level=high`
@@ -662,6 +651,7 @@ Notes for anyone touching this:
 - To ship a change, add a changeset (`npm run changeset`). Version bumps are never hand-edited in `package.json`.
 
 Local hooks (Husky):
+
 - `pre-commit` — `npx lint-staged` (lint + Prettier on staged files)
 - `pre-push` — `npm run typecheck` (catch type errors before they reach CI)
 
@@ -678,16 +668,16 @@ Local hooks (Husky):
 - **Do not** build a version picker from `Object.keys(AAMVA_VERSIONS)` — `"10"` is an integer-like key and sorts ahead of `"01"`; use `AAMVA_VERSION_KEYS`
 - **Do not** call `setField` in a loop for a bulk action — use `mergeFields` so it stays one undo step
 - **Do not** paint a background or border with a `--state-*` variable without scoping it away from `html.dark` — every palette is a light tint (see State Themes above)
-- **Do not** select a bare `button` under `.header-identity` in a themed rule — use `.header-ctrl`. Those are descendant selectors and a popover *anchored* to the identity row is not *on* it; every palette sets `onPrimary: #ffffff`, so a `button` selector painted the whole **More actions** menu white-on-white at 1.00:1. `e2e/header-popovers.spec.ts` measures both header menus on a phone
-- **Do not** pair `text-gray-400` with `dark:text-gray-500` — that combination is below AA in *both* themes; `text-gray-500 dark:text-gray-400` clears it in both
+- **Do not** select a bare `button` under `.header-identity` in a themed rule — use `.header-ctrl`. Those are descendant selectors and a popover _anchored_ to the identity row is not _on_ it; every palette sets `onPrimary: #ffffff`, so a `button` selector painted the whole **More actions** menu white-on-white at 1.00:1. `e2e/header-popovers.spec.ts` measures both header menus on a phone
+- **Do not** pair `text-gray-400` with `dark:text-gray-500` — that combination is below AA in _both_ themes; `text-gray-500 dark:text-gray-400` clears it in both
 - **Do not** dismiss a popover on the trigger's `blur` alone — clicking a `<button>` does not focus it in Safari or Firefox, so the popover never closes (see `FieldInput.tsx`)
 - **Do not** assume the first subfile starts at byte 31 — the directory grows with the entry count; read `21 + entries × 10`
 - **Do not** write jurisdiction (`Z*`) elements into the `DL`/`ID` subfile, and do not add them to `AAMVA_VERSIONS` — they belong to one jurisdiction, not to the standard
 - **Do not** upper-case jurisdiction (`Z*`) values — they are opaque, and NY's `ZNB` is mixed-case
 - **Do not** hardcode the jurisdiction version to `"00"` — it is per-issuer and lives in the encoding profile
-- **Do not** count a blank required field as an "error" in any badge, chip or report — see *Empty is not an error*
+- **Do not** count a blank required field as an "error" in any badge, chip or report — see _Empty is not an error_
 - **Do not** ship an interactive control under 44px, or a control border under 3:1 against **both** its fill and the surface behind it (WCAG 1.4.11); `scripts/ui-audit.mjs` checks both
-- **Do not** paint text on `--state-gradient` — it runs from the jurisdiction's primary to its *accent*, a light hue, and white on California's accent measures 2.0:1
+- **Do not** paint text on `--state-gradient` — it runs from the jurisdiction's primary to its _accent_, a light hue, and white on California's accent measures 2.0:1
 - **Do not** move the fonts to `public/` or add a `fonts.googleapis.com` link — the CSP is `style-src 'self'` and `base: './'` needs relative URLs
 - **Do not** add an external test runner — use Vitest only
 - **Do not** bypass the Husky pre-commit hook (`--no-verify`) without fixing the underlying lint/format issue
@@ -697,53 +687,58 @@ Local hooks (Husky):
 ## Common Tasks
 
 ### Add a new AAMVA field
+
 1. Add the field object to the relevant version's `fields` array in `src/core/schema.ts`
 2. If the field has constrained values, add them to `AAMVA_FIELD_OPTIONS`
 3. If the field has a length limit, add it to `AAMVA_FIELD_LIMITS`
 4. Add a test in `src/tests/aamva.test.ts` verifying the field exists in the expected version(s)
 
 ### Add or update a jurisdiction
+
 1. Edit `AAMVA_STATES` in `src/core/states.ts` (IIN must be the correct 6-digit issuer code)
 2. Update `getVersionForState()` if the jurisdiction's AAMVA version differs
 3. Add a color palette entry in `src/core/stateThemes.ts`
 4. Run `npm test` to verify no duplicate IINs or structural violations
 
 ### Add a state-specific validation rule
+
 1. Add a rule entry in `AAMVA_STATE_RULES` in `src/core/validation.ts`
 2. Include a regex pattern for the relevant field code (e.g., DAQ for license number)
 3. Add a test in `src/tests/aamva.test.ts` for the new rule
 
 ### Fix a PDF417 encoding bug
+
 1. Review `BarcodePreview.tsx` for bwip-js option mapping
 2. Changes to encoder options (columns, eclevel, compact, scale) require validation with a physical scanner
 3. After changes, run `npm test` and physically scan a generated barcode to confirm
 
 ### Update the UI
+
 1. Edit component files in `src/components/` for behavior
 2. Use Tailwind utility classes for styling; avoid inline styles
-3. Theme colors come from CSS custom properties set by `applyStateThemeToDocument()` — add new theme variables there
+3. Use semantic tokens in `src/styles/index.css`; issuer choice must not change UI contrast.
 
 ---
 
 ## Dependency Summary
 
-| Package | Type | Purpose |
-|---|---|---|
-| `react` / `react-dom` | dependency | UI framework (v19) |
-| `zustand` | dependency | Lightweight state management with persistence |
-| `bwip-js` | dependency | PDF417 barcode encoding and canvas rendering |
-| `jspdf` | dependency | PDF generation for barcode export |
-| `lucide-react` | dependency | Icon library |
-| `@zxing/browser` / `@zxing/library` | dependency | Webcam barcode scanning |
-| `electron` | devDependency | Desktop app runtime |
-| `electron-builder` | devDependency | Packages app into OS installers |
-| `vite` / `@vitejs/plugin-react` | devDependency | Build tool and React plugin |
-| `vitest` | devDependency | Test runner (replaces Node built-in test) |
-| `@testing-library/react` | devDependency | React component testing utilities |
-| `jsdom` | devDependency | DOM environment for Vitest |
-| `typescript` | devDependency | Type checking |
-| `tailwindcss` | devDependency | Utility-first CSS framework |
-| `eslint` + `@typescript-eslint/*` | devDependency | Code linting |
-| `prettier` | devDependency | Code formatting |
-| `husky` / `lint-staged` | devDependency | Pre-commit lint/format hooks |
-| `concurrently` / `cross-env` / `wait-on` | devDependency | Electron dev workflow utilities |
+| Package                                  | Type          | Purpose                                       |
+| ---------------------------------------- | ------------- | --------------------------------------------- |
+| `react` / `react-dom`                    | dependency    | UI framework (v19)                            |
+| `zustand`                                | dependency    | Lightweight state management with persistence |
+| `bwip-js`                                | dependency    | PDF417 barcode encoding and canvas rendering  |
+| `jspdf`                                  | dependency    | PDF generation for barcode export             |
+| `lucide-react`                           | dependency    | Icon library                                  |
+| `@zxing/browser` / `@zxing/library`      | dependency    | Webcam barcode scanning                       |
+| `electron`                               | devDependency | Desktop app runtime                           |
+| `electron-builder`                       | devDependency | Packages app into OS installers               |
+| `vite` / `@vitejs/plugin-react`          | devDependency | Build tool and React plugin                   |
+| `vitest`                                 | devDependency | Test runner (replaces Node built-in test)     |
+| `@testing-library/react`                 | devDependency | React component testing utilities             |
+| `jsdom`                                  | devDependency | DOM environment for Vitest                    |
+| `typescript`                             | devDependency | Type checking                                 |
+| `tailwindcss`                            | devDependency | Utility-first CSS framework                   |
+| `eslint` + `@typescript-eslint/*`        | devDependency | Code linting                                  |
+| `prettier`                               | devDependency | Code formatting                               |
+| `husky` / `lint-staged`                  | devDependency | Pre-commit lint/format hooks                  |
+| `concurrently` / `cross-env` / `wait-on` | devDependency | Electron dev workflow utilities               |

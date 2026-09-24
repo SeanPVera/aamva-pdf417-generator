@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import bwipjs from "bwip-js";
-import { ShieldCheck, Maximize2 } from "lucide-react";
+import { Maximize2 } from "lucide-react";
 import { useFormStore } from "../hooks/useFormStore";
 import { getFieldsForStateAndVersion } from "../core/schema";
 import { decodeAAMVA } from "../core/decoder";
@@ -14,7 +14,6 @@ import {
 } from "../core/barcodeDimensions";
 import { buildExportBasename } from "../core/exportNaming";
 import { downloadBlob, downloadUrl } from "../core/download";
-import { getStateCritter } from "../core/stateCritters";
 import { PayloadInspector } from "./PayloadInspector";
 import { InspectorModal } from "./InspectorModal";
 import { BarcodeCanvas } from "./BarcodeCanvas";
@@ -38,20 +37,18 @@ interface BarcodePreviewProps {
   /** Lets App drive the PNG export from the keyboard shortcut. */
   onRegisterExportPng?: (fn: (() => void) | null) => void;
   onExported?: () => void;
-  onGenerated?: (clean: boolean) => void;
   onBingo?: (id: string) => void;
 }
 
 export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
   mobileHidden = false,
   onScrollToField,
-  whimsy = true,
+  whimsy = false,
   payload,
   error,
   stale,
   onRegisterExportPng,
   onExported,
-  onGenerated,
   onBingo
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -63,35 +60,44 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
   const sourcePayload = useFormStore((s) => s.sourcePayload);
   const setInspectorWidth = useFormStore((s) => s.setInspectorWidth);
   const [zoom, setZoom] = useState(1);
-  const [confettiKey, setConfettiKey] = useState(0);
-  const [stampKey, setStampKey] = useState(0);
-  const [laminateKey, setLaminateKey] = useState(0);
   const [jsonCopied, setJsonCopied] = useState(false);
   const [imgCopied, setImgCopied] = useState(false);
   const [copied, setCopied] = useState(false);
   const [expanded, setExpanded] = useState(false);
-  const wasReadyRef = useRef(false);
-  const wasValidRef = useRef(false);
   const voice = useClerkVoice();
   const toast = useToast();
 
   const payloadStr = payload;
+  const [renderResult, setRenderResult] = useState<{ payload: string; error: string | null }>({
+    payload: "",
+    error: null
+  });
 
   // Paint the canvas whenever a settled payload arrives.
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    if (!payloadStr) {
-      const ctx = canvas.getContext("2d");
-      ctx?.clearRect(0, 0, canvas.width, canvas.height);
-      return;
-    }
-    try {
-      bwipjs.toCanvas(canvas, { ...BWIP_OPTIONS, text: payloadStr });
-    } catch {
-      const ctx = canvas.getContext("2d");
-      ctx?.clearRect(0, 0, canvas.width, canvas.height);
-    }
+    const frame = requestAnimationFrame(() => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      if (!payloadStr) {
+        const ctx = canvas.getContext("2d");
+        ctx?.clearRect(0, 0, canvas.width, canvas.height);
+        setRenderResult({ payload: "", error: null });
+        return;
+      }
+      try {
+        bwipjs.toCanvas(canvas, { ...BWIP_OPTIONS, text: payloadStr });
+        setRenderResult({ payload: payloadStr, error: null });
+      } catch {
+        const ctx = canvas.getContext("2d");
+        ctx?.clearRect(0, 0, canvas.width, canvas.height);
+        setRenderResult({
+          payload: payloadStr,
+          error:
+            "Could not render PDF417. The payload may exceed symbol capacity. Reduce the record before exporting."
+        });
+      }
+    });
+    return () => cancelAnimationFrame(frame);
   }, [payloadStr]);
 
   const exportBasename = React.useCallback(
@@ -107,71 +113,45 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
     [state, version, fields, subfileType, includeNameInExport]
   );
 
-  const success = !!payloadStr && !error;
+  const renderError = renderResult.payload === payloadStr ? renderResult.error : null;
+  const success = !!payloadStr && !error && !renderError && renderResult.payload === payloadStr;
   // Exports are blocked while stale: the canvas and payload still hold the
   // previous result, and shipping that as current is the bug this closes.
   const canExport = success && !stale;
 
   const handleExportPNG = React.useCallback(() => {
-    if (!canvasRef.current || error || !payloadStr || stale) return;
-
     const source = canvasRef.current;
-    const { widthInches, heightInches } = getBarcodeDimensions(state);
-    const targetWidth = Math.round(widthInches * EXPORT_DPI);
-    const targetHeight = Math.round(heightInches * EXPORT_DPI);
-
-    // The preview canvas is rendered at PREVIEW_SCALE px per module, so dividing
-    // gives the symbol's module grid. Re-encode at the scale that fills the
-    // credential's barcode area instead of resampling the screen-resolution
-    // canvas — upscaling it by a fractional, per-axis factor made neighbouring
-    // modules different pixel widths and collapsed the row-height : X-dimension
-    // ratio below the 3:1 minimum PDF417 needs, which stops the print decoding.
-    const layout = computeExportLayout(
-      source.width / PREVIEW_SCALE,
-      source.height / PREVIEW_SCALE,
-      targetWidth,
-      targetHeight
-    );
-
-    const target = document.createElement("canvas");
-    target.width = targetWidth;
-    target.height = targetHeight;
-    const ctx = target.getContext("2d");
-    if (!ctx) return;
-
-    ctx.imageSmoothingEnabled = false;
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(0, 0, targetWidth, targetHeight);
-
+    if (!source || !canExport) return;
     try {
+      const { widthInches, heightInches } = getBarcodeDimensions(state);
+      const targetWidth = Math.round(widthInches * EXPORT_DPI);
+      const targetHeight = Math.round(heightInches * EXPORT_DPI);
+      const layout = computeExportLayout(
+        source.width / PREVIEW_SCALE,
+        source.height / PREVIEW_SCALE,
+        targetWidth,
+        targetHeight
+      );
+      const target = document.createElement("canvas");
+      target.width = targetWidth;
+      target.height = targetHeight;
+      const ctx = target.getContext("2d");
+      if (!ctx) throw new Error("Canvas unavailable");
+      ctx.imageSmoothingEnabled = false;
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, targetWidth, targetHeight);
       const printCanvas = document.createElement("canvas");
-      bwipjs.toCanvas(printCanvas, {
-        ...BWIP_OPTIONS,
-        scale: layout.scale,
-        text: payloadStr
-      });
+      bwipjs.toCanvas(printCanvas, { ...BWIP_OPTIONS, scale: layout.scale, text: payloadStr });
       ctx.drawImage(printCanvas, layout.offsetX, layout.offsetY);
+      downloadUrl(target.toDataURL("image/png"), exportBasename("barcode") + ".png");
+      onExported?.();
+      onBingo?.("exported-png");
     } catch {
-      // Re-encoding failed for some reason — fall back to the preview canvas,
-      // still scaled uniformly so the symbol stays undistorted.
-      ctx.drawImage(
-        source,
-        0,
-        0,
-        source.width,
-        source.height,
-        layout.offsetX,
-        layout.offsetY,
-        layout.drawWidth,
-        layout.drawHeight
+      toast.error(
+        "Could not export PNG. The symbol must fit the print preset and render successfully. Try SVG for a larger symbol."
       );
     }
-
-    downloadUrl(target.toDataURL("image/png"), exportBasename("barcode") + ".png");
-    setLaminateKey((k) => k + 1);
-    onExported?.();
-    onBingo?.("exported-png");
-  }, [error, payloadStr, stale, state, exportBasename, onExported, onBingo]);
+  }, [canExport, state, payloadStr, exportBasename, onExported, onBingo, toast]);
 
   // Hand the exporter up so Ctrl/⌘+E can run it without scraping the DOM for a
   // button by aria-label.
@@ -181,7 +161,7 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
   }, [onRegisterExportPng, handleExportPNG, canExport]);
 
   const handleExportSVG = () => {
-    if (!payloadStr || error || stale) return;
+    if (!canExport) return;
     try {
       // bwip-js toSVG returns an SVG string
       const svgStr = (
@@ -194,20 +174,9 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
         new Blob([svgStr], { type: "image/svg+xml" }),
         exportBasename("barcode") + ".svg"
       );
-      setLaminateKey((k) => k + 1);
       onExported?.();
     } catch {
-      // Fallback: wrap the canvas PNG in an SVG element
-      if (!canvasRef.current) return;
-      const w = canvasRef.current.width;
-      const h = canvasRef.current.height;
-      const pngData = canvasRef.current.toDataURL("image/png");
-      const fallbackSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><image href="${pngData}" width="${w}" height="${h}"/></svg>`;
-      downloadBlob(
-        new Blob([fallbackSvg], { type: "image/svg+xml" }),
-        exportBasename("barcode") + ".svg"
-      );
-      onExported?.();
+      toast.error("Could not export SVG. No file was downloaded.");
     }
   };
 
@@ -216,9 +185,20 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
   // PNG and SVG exports never pay for it.
   const handleExportPDF = React.useCallback(async () => {
     const canvas = canvasRef.current;
-    if (!canvas || !payloadStr || error || stale) return;
+    if (!canvas || !canExport) return;
+    const before = useFormStore.getState();
     try {
       const { jsPDF } = await import("jspdf");
+      const current = useFormStore.getState();
+      if (
+        current.fields !== before.fields ||
+        current.state !== before.state ||
+        current.version !== before.version ||
+        current.subfileType !== before.subfileType
+      ) {
+        toast.info("The record changed while PDF export loaded. Export the current record again.");
+        return;
+      }
       const { widthInches, heightInches } = getBarcodeDimensions(state);
       const margin = 36; // half an inch, in points
       const height = heightInches * 72;
@@ -265,15 +245,16 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
         margin + 26 + height
       );
       pdf.save(exportBasename("barcode") + ".pdf");
-      setLaminateKey((k) => k + 1);
       onExported?.();
-    } catch (err) {
-      console.error("Failed to export PDF:", err);
+    } catch {
+      toast.error(
+        "Could not export PDF. The symbol must fit the print preset and render successfully."
+      );
     }
-  }, [payloadStr, error, stale, state, version, subfileType, exportBasename, onExported]);
+  }, [payloadStr, canExport, state, version, subfileType, exportBasename, onExported, toast]);
 
   const handlePrint = () => {
-    if (!canvasRef.current || error || stale) return;
+    if (!canvasRef.current || !canExport) return;
     document.documentElement.classList.add("printing-barcode");
     onBingo?.("printed");
     // Defer until layout settles so the print stylesheet applies cleanly.
@@ -290,30 +271,30 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
     });
   };
 
-  const handleCopy = async () => {
-    if (!payloadStr || stale) return;
+  const handleCopy = async (text = payloadStr) => {
+    if (!text || (stale && text !== sourcePayload)) return;
     try {
-      await navigator.clipboard.writeText(payloadStr);
+      await navigator.clipboard.writeText(text);
       setCopied(true);
       toast.success("Copied raw payload to clipboard");
       setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error("Failed to copy payload:", err);
+    } catch {
+      toast.error("Could not copy payload. Check clipboard permission.");
     }
   };
 
   // Decoded output
-  const decoded = payloadStr ? decodeAAMVA(payloadStr) : null;
+  const decoded = React.useMemo(() => (payloadStr ? decodeAAMVA(payloadStr) : null), [payloadStr]);
 
   const handleCopyJson = async () => {
-    if (!decoded?.json) return;
+    if (!decoded?.json || stale) return;
     try {
       await navigator.clipboard.writeText(JSON.stringify(decoded.json, null, 2));
       setJsonCopied(true);
       toast.success("Copied decoded JSON to clipboard");
       setTimeout(() => setJsonCopied(false), 2000);
-    } catch (err) {
-      console.error("Failed to copy JSON:", err);
+    } catch {
+      toast.error("Could not copy JSON. Check clipboard permission.");
     }
   };
 
@@ -327,27 +308,28 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
       const blob = await new Promise<Blob | null>((resolve) =>
         canvas.toBlob((b) => resolve(b), "image/png")
       );
-      if (!blob) return;
+      if (!blob) throw new Error("Canvas returned no image");
       await navigator.clipboard.write([new ClipboardItemCtor({ "image/png": blob })]);
       setImgCopied(true);
       toast.success("Copied barcode image to clipboard");
       onExported?.();
       setTimeout(() => setImgCopied(false), 2000);
-    } catch (err) {
-      console.error("Failed to copy image:", err);
+    } catch {
+      toast.error("Could not copy image. Check clipboard permission.");
     }
   };
 
   const canCopyImage =
     typeof window !== "undefined" && "ClipboardItem" in window && !!navigator.clipboard?.write;
   const decodedEntries: Array<[string, string]> = decoded?.json
-    ? Object.entries(decoded.json).filter(([k]) => k !== "version" && k !== "state")
+    ? Object.entries(decoded.json).filter(
+        ([k]) => k !== "version" && k !== "state" && k !== "subfileType"
+      )
     : [];
 
   // Validation report
-  const schemaFields = getFieldsForStateAndVersion(state, version);
-  const issues = getValidationIssues(schemaFields, { ...fields, DAJ: state }, state, strictMode);
-  const issueCount = issues.length;
+  const schemaFields = getFieldsForStateAndVersion(state, version, subfileType);
+  const issues = getValidationIssues(schemaFields, fields, state, strictMode, subfileType);
 
   const emptyRequired = schemaFields.filter((f) => f.required && !(fields[f.code] || "").trim());
 
@@ -368,31 +350,6 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
     mergeFields(Object.fromEntries(fixes.map((fix) => [fix.code, fix.value])));
   }, [fixes, mergeFields]);
   const dims = getBarcodeDimensions(state);
-  const critter = getStateCritter(state);
-
-  // Fire the celebratory confetti on the rising edge of a successful render.
-  useEffect(() => {
-    if (success && !wasReadyRef.current) {
-      wasReadyRef.current = true;
-      onGenerated?.(issueCount === 0);
-      if (whimsy) setTimeout(() => setConfettiKey((k) => k + 1), 0);
-    } else if (!success) {
-      wasReadyRef.current = false;
-    }
-    // `issueCount` is read for the badge signal but must not re-fire the burst.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [success, whimsy]);
-
-  // Thunk the APPROVED stamp on the rising edge of a fully-valid payload.
-  useEffect(() => {
-    const valid = success && issueCount === 0;
-    if (valid && !wasValidRef.current) {
-      wasValidRef.current = true;
-      if (whimsy) setTimeout(() => setStampKey((k) => k + 1), 0);
-    } else if (!valid) {
-      wasValidRef.current = false;
-    }
-  }, [success, issueCount, whimsy]);
 
   const scrollToField = (code: string) => {
     if (onScrollToField) {
@@ -406,25 +363,32 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
 
   // ── Draggable divider ───────────────────────────────────────────────────
   const draggingRef = useRef(false);
+  const dragCleanupRef = useRef<(() => void) | null>(null);
+  useEffect(() => () => dragCleanupRef.current?.(), []);
   const startDrag = (startX: number, startWidth: number) => {
     draggingRef.current = true;
     const onMove = (clientX: number) => {
       if (!draggingRef.current) return;
       // The panel is on the right, so dragging left widens it.
-      setInspectorWidth(startWidth + (startX - clientX));
+      setInspectorWidth(Math.min(window.innerWidth * 0.42, startWidth + (startX - clientX)));
     };
     const onPointerMove = (e: PointerEvent) => onMove(e.clientX);
     const onPointerUp = () => {
       draggingRef.current = false;
       window.removeEventListener("pointermove", onPointerMove);
       window.removeEventListener("pointerup", onPointerUp);
+      window.removeEventListener("pointercancel", onPointerUp);
       document.body.style.removeProperty("cursor");
       document.body.style.removeProperty("user-select");
     };
+    dragCleanupRef.current?.();
+    dragCleanupRef.current = onPointerUp;
+    draggingRef.current = true;
     document.body.style.cursor = "col-resize";
     document.body.style.userSelect = "none";
     window.addEventListener("pointermove", onPointerMove);
     window.addEventListener("pointerup", onPointerUp);
+    window.addEventListener("pointercancel", onPointerUp);
   };
 
   const handleDividerKey = (e: React.KeyboardEvent) => {
@@ -436,7 +400,7 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
       setInspectorWidth(inspectorWidth - 24);
     } else if (e.key === "Home") {
       e.preventDefault();
-      setInspectorWidth(320);
+      setInspectorWidth(440);
     }
   };
 
@@ -476,31 +440,22 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
           e.preventDefault();
           startDrag(e.clientX, inspectorWidth);
         }}
-        onDoubleClick={() => setInspectorWidth(320)}
+        onDoubleClick={() => setInspectorWidth(440)}
         title="Drag to resize · double-click to reset"
         className={`panel-divider hidden lg:block ${mobileHidden ? "" : ""}`}
       />
 
       <aside
-        className={`dmv-preview w-full bg-gray-50 dark:bg-dark-surface border-t lg:border-t-0 lg:border-l border-gray-200 dark:border-dark-border z-10 p-4 flex flex-col gap-4 shadow-sm overflow-y-auto shrink-0 ${
-          mobileHidden ? "hidden lg:flex" : "flex"
-        }`}
+        className={`output-panel ${mobileHidden ? "hidden lg:flex" : "flex"}`}
         style={{ ["--inspector-width" as string]: `${inspectorWidth}px` }}
         aria-label="Barcode preview and diagnostics"
       >
-        <div className="flex items-center justify-between gap-2">
-          <h2 className="text-lg font-medium tracking-tight text-gray-900 dark:text-gray-100">
-            Preview
-          </h2>
+        <div className="output-heading">
+          <h2>Output</h2>
           <div className="flex items-center gap-1.5">
-            {strictMode && (
-              <span
-                className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded-full bg-brand-50 dark:bg-brand-900/40 text-brand-700 dark:text-brand-300 border border-brand-200 dark:border-brand-800"
-                title="Strict compliance mode is on — warnings block generation."
-              >
-                <ShieldCheck size={11} /> Strict
-              </span>
-            )}
+            <span className="validation-mode">
+              {strictMode ? "Strict validation" : "Standard validation"}
+            </span>
             <button
               type="button"
               onClick={() => setExpanded(true)}
@@ -519,13 +474,9 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
           setZoom={setZoom}
           stale={stale}
           success={success}
-          error={error}
+          error={error || renderError}
           whimsy={whimsy}
           state={state}
-          critter={critter}
-          confettiKey={confettiKey}
-          stampKey={stampKey}
-          laminateKey={laminateKey}
           onBingo={onBingo}
           emptyRequired={emptyRequired}
           issues={issues}
@@ -554,6 +505,14 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
           voice={voice}
         />
 
+        {Object.keys(fields).some(
+          (code) => fields[code] && !schemaFields.some((f) => f.code === code)
+        ) && (
+          <p className="proof-note">
+            Some stored fields are outside this schema and are omitted from this output. Review
+            “fields outside this schema” in the editor.
+          </p>
+        )}
         {inspector}
       </aside>
 

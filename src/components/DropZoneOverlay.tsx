@@ -1,7 +1,6 @@
 import React from "react";
 import { FileUp } from "lucide-react";
-import { useFormStore } from "../hooks/useFormStore";
-import { parseImportedPayload } from "../core/importPayload";
+import { useRecordImport } from "../hooks/useRecordImport";
 import { useToast } from "./Toast";
 
 /**
@@ -12,7 +11,7 @@ import { useToast } from "./Toast";
 export const DropZoneOverlay: React.FC = () => {
   const [active, setActive] = React.useState(false);
   const dragDepthRef = React.useRef(0);
-  const loadJson = useFormStore((s) => s.loadJson);
+  const importRecord = useRecordImport();
   const toast = useToast();
 
   React.useEffect(() => {
@@ -45,19 +44,7 @@ export const DropZoneOverlay: React.FC = () => {
         return;
       }
 
-      const reader = new FileReader();
-      reader.onload = (evt) => {
-        // Same validation as the header's file picker — this path had its own
-        // copy of the checks, so it kept accepting files the picker rejected.
-        const result = parseImportedPayload(evt.target?.result as string, file.name);
-        if (!result.ok) {
-          toast.error(result.error, { persistent: true });
-          return;
-        }
-        loadJson(result.data);
-        toast.success(`Imported ${file.name}`);
-      };
-      reader.readAsText(file);
+      void importRecord(file);
     };
 
     window.addEventListener("dragenter", handleEnter);
@@ -70,7 +57,7 @@ export const DropZoneOverlay: React.FC = () => {
       window.removeEventListener("dragleave", handleLeave);
       window.removeEventListener("drop", handleDrop);
     };
-  }, [loadJson, toast]);
+  }, [importRecord, toast]);
 
   if (!active) return null;
   return (

@@ -60,10 +60,28 @@ describe("getQuickFix", () => {
     expect(getQuickFix(DAQ, "a1234567", "CA", true)?.value).toBe("A1234567");
   });
 
-  it("truncates past the field's character limit", () => {
+  it("leaves overlong identity data for explicit editing", () => {
     const long = "A".repeat(30);
     // DAI is capped at 20 characters.
-    expect(getQuickFix(field("DAI"), long)?.value).toBe("A".repeat(20));
+    expect(getQuickFix(field("DAI"), long)).toBeNull();
+  });
+
+  it("never transliterates or deletes unsupported name characters", () => {
+    for (const value of ["JOSÉ", "STRAßE", "DOE\u0000SMITH"]) {
+      expect(getQuickFix(field("DCS"), value)).toBeNull();
+      expect(getCanonicalRewrite(field("DCS"), value)).toBeNull();
+    }
+  });
+
+  it("leaves opaque extension bytes unchanged", () => {
+    expect(getCanonicalRewrite(field("ZNB", { subfile: "jurisdiction" }), "aBc12  ")).toBeNull();
+  });
+
+  it("does not guess from a prefix or silently discard postal code letters", () => {
+    expect(getQuickFix(DDE, "NOT SURE")).toBeNull();
+    expect(getQuickFix(DAY, "BROWNISH GREEN")).toBeNull();
+    expect(getQuickFix(DAK, "AB90001")).toBeNull();
+    expect(getQuickFix(field("DAU"), "5 ft 19 in")).toBeNull();
   });
 
   it("returns null when there is nothing to repair", () => {
@@ -107,7 +125,7 @@ describe("getCanonicalRewrite", () => {
 
   it("uppercases a name the encoder would rewrite anyway", () => {
     expect(getCanonicalRewrite(field("DCS"), "Doe")?.value).toBe("DOE");
-    expect(getCanonicalRewrite(field("DCS"), "  Doe  Smith ")?.value).toBe("DOE SMITH");
+    expect(getCanonicalRewrite(field("DCS"), "  Doe  Smith ")?.value).toBe("DOE  SMITH");
     expect(getCanonicalRewrite(field("DCS"), "DOE")).toBeNull();
   });
 

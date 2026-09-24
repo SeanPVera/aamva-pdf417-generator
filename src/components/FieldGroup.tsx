@@ -13,7 +13,7 @@ import type { FieldGroupDef } from "../core/schema";
  * no longer absolutely positioned at `-bottom-4`; the grid had been carrying
  * space for content that was overflowing its own cell.
  */
-export const FIELD_GRID_CLASS = "grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-x-6 gap-y-5";
+export const FIELD_GRID_CLASS = "field-grid";
 
 interface FieldGroupProps {
   group: FieldGroupDef;

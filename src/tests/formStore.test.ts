@@ -153,7 +153,7 @@ describe("useFormStore — desk mascots preference", () => {
     // Gus and the queue ticket are the only decorations that stay on screen for
     // the whole session, so they are opt-in even though `whimsy` is on.
     expect(useFormStore.getInitialState().mascots).toBe(false);
-    expect(useFormStore.getInitialState().whimsy).toBe(true);
+    expect(useFormStore.getInitialState().whimsy).toBe(false);
   });
 
   test("setMascots toggles the flag and it survives into the persisted slice", () => {

@@ -36,6 +36,10 @@ export function useModalShell<T extends HTMLElement = HTMLDivElement>({
 }: ModalShellOptions): React.RefObject<T | null> {
   const containerRef = React.useRef<T | null>(null);
   const restoreRef = React.useRef<HTMLElement | null>(null);
+  const onCloseRef = React.useRef(onClose);
+  React.useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
 
   React.useEffect(() => {
     if (!open) return;
@@ -43,6 +47,21 @@ export function useModalShell<T extends HTMLElement = HTMLDivElement>({
     restoreRef.current = (document.activeElement as HTMLElement | null) ?? null;
 
     const container = containerRef.current;
+    // aria-modal describes a dialog but does not make the rest of the page
+    // inert. Isolate siblings along the ancestry path, including nested modals.
+    const isolated: Array<{ node: Element; prior: string | null }> = [];
+    for (
+      let branch: Element | null = container;
+      branch?.parentElement;
+      branch = branch.parentElement
+    ) {
+      for (const sibling of Array.from(branch.parentElement.children)) {
+        if (sibling === branch || ["SCRIPT", "STYLE", "LINK"].includes(sibling.tagName)) continue;
+        isolated.push({ node: sibling, prior: sibling.getAttribute("inert") });
+        sibling.setAttribute("inert", "");
+      }
+      if (branch.parentElement === document.body) break;
+    }
     const focusables = () =>
       Array.from(container?.querySelectorAll<HTMLElement>(FOCUSABLE) ?? []).filter(
         (el) => el.offsetParent !== null || el === document.activeElement
@@ -57,7 +76,7 @@ export function useModalShell<T extends HTMLElement = HTMLDivElement>({
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape" && closeOnEscape) {
         e.preventDefault();
-        onClose();
+        onCloseRef.current();
         return;
       }
       if (e.key !== "Tab") return;
@@ -85,11 +104,15 @@ export function useModalShell<T extends HTMLElement = HTMLDivElement>({
     window.addEventListener("keydown", onKeyDown, true);
     return () => {
       window.removeEventListener("keydown", onKeyDown, true);
+      for (const { node, prior } of isolated) {
+        if (prior === null) node.removeAttribute("inert");
+        else node.setAttribute("inert", prior);
+      }
       const toRestore = restoreRef.current;
       // Defer so the dialog is out of the DOM before focus moves back.
       window.setTimeout(() => toRestore?.focus?.(), 0);
     };
-  }, [open, onClose, closeOnEscape]);
+  }, [open, closeOnEscape]);
 
   return containerRef;
 }

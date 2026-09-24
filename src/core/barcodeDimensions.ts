@@ -3,17 +3,13 @@ export interface BarcodeDimension {
   heightInches: number;
 }
 
-// AAMVA DL/ID Card Design Standard target barcode area on a CR80 credential.
-// Used as the fallback for jurisdictions without a documented override.
+// Application print presets, not verified issuer measurements or AAMVA requirements.
 export const DEFAULT_BARCODE_DIMENSIONS: BarcodeDimension = {
   widthInches: 3.0,
   heightInches: 1.0
 };
 
-// Per-jurisdiction overrides for the printed PDF417 area. Values reflect
-// commonly observed proportions on issued credentials; jurisdictions that
-// follow the AAMVA-standard 3.0" x 1.0" footprint are intentionally omitted
-// and inherit DEFAULT_BARCODE_DIMENSIONS.
+// Legacy application presets; their issuer-specific provenance is unverified.
 export const BARCODE_DIMENSIONS: Record<string, BarcodeDimension> = {
   CA: { widthInches: 3.125, heightInches: 1.0 },
   TX: { widthInches: 3.125, heightInches: 1.0 },
@@ -58,6 +54,7 @@ export const PDF417_ENCODER_OPTIONS = {
   bcid: "pdf417",
   scale: PREVIEW_SCALE,
   eclevel: 5,
+  backgroundcolor: "FFFFFF",
   compact: false as const,
   paddingwidth: 2,
   paddingheight: 2
@@ -93,8 +90,15 @@ export function computeExportLayout(
   if (moduleWidth <= 0 || moduleHeight <= 0) {
     return { scale: 1, drawWidth: 0, drawHeight: 0, offsetX: 0, offsetY: 0 };
   }
+  if (![moduleWidth, moduleHeight, targetWidth, targetHeight].every(Number.isFinite)) {
+    throw new Error("Print dimensions must be finite numbers.");
+  }
 
   const fit = Math.min(targetWidth / moduleWidth, targetHeight / moduleHeight);
+  if (fit < 1)
+    throw new Error(
+      "The symbol cannot fit this print area without clipping. Use SVG or a larger print area."
+    );
   const scale = Math.max(1, Math.floor(fit));
 
   const drawWidth = moduleWidth * scale;

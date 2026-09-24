@@ -64,7 +64,7 @@ export const InstallPrompt: React.FC = () => {
       <button
         type="button"
         onClick={handleInstall}
-        className="header-ctrl inline-flex h-k-touch items-center gap-1.5 bg-white/15 hover:bg-white/25 text-white px-3 rounded-k text-k-help font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
+        className="wb-button"
         title="Install app on your phone"
       >
         {isIOS() ? <Smartphone size={14} /> : <Download size={14} />}
@@ -72,16 +72,13 @@ export const InstallPrompt: React.FC = () => {
       </button>
 
       {showIosHelp && (
-        <div
-          className="fixed inset-0 z-50 bg-black/50 p-4 flex items-center justify-center"
-          onClick={() => setShowIosHelp(false)}
-        >
+        <div className="modal-backdrop" onClick={() => setShowIosHelp(false)}>
           <div
             ref={dialogRef}
             role="dialog"
             aria-modal="true"
             aria-label="Install on iPhone or iPad"
-            className="w-full max-w-sm rounded-lg bg-white dark:bg-dark-surface border border-gray-200 dark:border-dark-border p-4"
+            className="wb-dialog compact-dialog"
             onClick={(e) => e.stopPropagation()}
           >
             <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">

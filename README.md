@@ -1,713 +1,125 @@
-# AAMVA PDF417 Generator
+# AAMVA / PDF417
 
-A browser-first tool for creating **AAMVA-formatted payloads** and rendering them as **PDF417 barcodes**.
+A local record workbench for creating, importing, inspecting, and exporting AAMVA payloads and PDF417 barcodes. React + TypeScript in a browser, an installable PWA, or an optional Electron desktop window.
 
-This project is designed for **local, offline-oriented use** and runs as a React + TypeScript app via Vite. It also includes an optional Electron wrapper if you prefer a desktop app window.
+[Open the published app](https://seanpvera.github.io/aamva-pdf417-generator/) · [Audit and validation evidence](docs/AUDIT_2026-09-24.md) · [Design system](docs/design/WORKBENCH.md)
 
-> [!WARNING]
-> This project is for educational, testing, and research use. Do not use it to create fraudulent IDs or documents. You are responsible for complying with all laws and policies in your jurisdiction.
+![Record workbench](docs/screenshots/workbench-desktop-record.png)
 
-## 🌐 Try it now — no install required
+The published app follows `main`; a draft pull request does not update it.
 
-The app is published as a static site straight from this repo, so you can use it
-in a browser with nothing to clone or run:
+## Scope
 
-**<https://seanpvera.github.io/aamva-pdf417-generator/>**
+The field registry contains versions **01–11** and **55 US jurisdictions**. Registry coverage is not standards certification. Only Connecticut and New York currently have repository fixtures whose layouts originate outside this encoder. Issuer defaults, many field rules, and print presets still need authoritative verification.
 
-It is a fully offline-capable PWA (installable to your phone's Home Screen, see
-[iPhone setup guide](#iphone-setup-guide)) built and deployed automatically by
-[`.github/workflows/pages.yml`](.github/workflows/pages.yml) on every push to
-`main`. No data leaves your device — see [Capabilities](#capabilities).
+Use synthetic or otherwise authorized data. This tool does not verify a person's identity or create an authentic government credential.
 
----
+## Run locally
 
-## Table of Contents
-
-- [Try it now — no install required](#-try-it-now--no-install-required)
-- [What this project does](#what-this-project-does)
-- [Capabilities](#capabilities)
-- [Known limitations](#known-limitations)
-- [Plan to address current limitations](#plan-to-address-current-limitations)
-- [Tech stack and architecture](#tech-stack-and-architecture)
-- [Zero-BS quick start (copy/paste)](#zero-bs-quick-start-copypaste)
-- [One-click installer downloads](#one-click-installer-downloads)
-- [Full install guide (college-student friendly)](#full-install-guide-college-student-friendly)
-  - [Prerequisites](#prerequisites)
-  - [Step 1: Download the project](#step-1-download-the-project)
-  - [Step 2: Open in browser mode](#step-2-open-in-browser-mode)
-  - [Step 3: Run desktop mode with Electron](#step-3-run-desktop-mode-with-electron)
-  - [Step 4: Build one-click installers (optional)](#step-4-build-one-click-installers-optional)
-- [How to use the app](#how-to-use-the-app)
-- [iPhone setup guide](#iphone-setup-guide)
-  - [Option A: Hosted PWA (no computer required)](#option-a-hosted-pwa-no-computer-required)
-  - [Option B: Local Wi-Fi dev server](#option-b-local-wi-fi-dev-server)
-- [JSON import format](#json-import-format)
-- [Troubleshooting](#troubleshooting)
-- [Production readiness checklist](#production-readiness-checklist)
-- [Next-level roadmap (execution focused)](#next-level-roadmap-execution-focused)
-- [Developer notes](#developer-notes)
-- [Project structure](#project-structure)
-- [License](#license)
-
----
-
-## What this project does
-
-At a high level, the app:
-
-1. Lets you choose a jurisdiction (state) and AAMVA schema/version.
-2. Builds a data payload using selected field values.
-3. Converts that payload to a PDF417 barcode matrix.
-4. Draws the barcode on a canvas in real time.
-5. Exports the result as PNG, SVG, or PDF.
-
----
-
-## Capabilities
-
-- **Runs locally in the browser** with no backend (`npm run dev` / `npm run build`).
-- **Optional desktop app mode** via Electron (`npm start`).
-- **Schema-driven field forms** per selected version.
-- **State metadata/IIN mapping** for all 50 U.S. states (+ DC).
-- **Jurisdiction coverage includes all 50 states, DC, and U.S. territories** (with varying rule-depth by jurisdiction).
-- **Live barcode rendering** as you type.
-- **Payload visibility tools**:
-  - Decoded output panel
-  - Raw codewords panel
-  - Payload inspector panel
-  - Validation report panel (pass/fail + issue count)
-  - Version browser panel
-- **Import JSON** to prefill field data, or **paste** a raw AAMVA payload or JSON profile
-  anywhere on the page (⌘/Ctrl+V) — the same import path as the file picker, drag-drop, and
-  webcam scan, with a one-click Undo.
-- **Forgiving field entry**:
-  - Dates accept `8/11/2026`, `2026-08-11`, or `08112026` and fold to the wire format on blur,
-    with a plain-language readout (`Aug 11, 2026 · age 36 at issue`) and one-click offsets.
-  - String fields are upper-cased as you type, matching what the encoder actually writes.
-  - **Quick fixes** rewrite values the validator rejects — `brown` → `BRO`, `5'9"` → `069 IN`,
-    `90001-1234` → `900011234` — individually or all at once. A fix is only ever offered once
-    the rewritten value has been checked against the validator.
-- **Group navigator** strip with per-group error and empty-required counts, one click to jump.
-- **Export** barcode output as:
-  - PNG
-  - SVG
-  - PDF (print-ready, at the credential's physical size)
-- **Theming** options in UI (Light / Dark / DMV Blue).
-- **Undo/redo controls** for form state changes.
-- **Mobile status bar** that reports whether the barcode is ready — and exports it — without
-  leaving the form panel.
-
----
-
-## Known limitations
-
-Please read this section carefully if you need strict production-grade compliance.
-
-- **Not a government-certified implementation.**
-  - The project is practical and useful for testing workflows, but it is not presented as a certified issuer system.
-  - Implementation coverage is tracked in [`docs/AAMVA_COMPLIANCE_MATRIX.md`](docs/AAMVA_COMPLIANCE_MATRIX.md).
-- **Schema coverage is limited to versions defined in code.**
-  - Current keys include versions `01` through `10`, covering legacy (DL/ID-2000) through modern (DL/ID-2020) entries.
-- **Validation is intentionally lightweight.**
-  - It checks required-ness and basic formats (examples: date/ZIP/single-char), and surfaces a structured pass/fail issue report in the UI, but does not enforce every jurisdiction-specific rule.
-- **Jurisdiction support is broad, but compliance depth varies.**
-  - All 50 states, DC, and territories currently resolve in code, but field rules still need deeper jurisdiction-specific parity testing.
-- **No backend persistence.**
-  - Data is not stored on a server. Form data is persisted locally in browser storage only, so clearing site data/private mode can remove it.
-- **No cryptographic signature/security layer.**
-  - This is payload generation and visual barcode encoding, not identity verification.
-- **Conformance vectors are currently all synthetic.**
-  - Every `expectedBytes` value in `src/core/conformance/vectors/` was produced by this project's own encoder, so the corpus proves the encoder is *stable*, not that it is *correct*. Vectors sourced from AAMVA-published test cards or anonymised real credentials are the missing evidence.
-  - Run `npm run conformance:report` for the current figure — real-world coverage is reported on every CI run rather than left implicit.
-- **Automated tests focus on core units; device testing is still limited.**
-  - Run `npm test` for schema/payload/decoder checks, then validate scanner/export flows manually across target browsers/devices.
-  - The rendered symbol *is* verified independently: `src/tests/scanOracle.test.ts` re-reads every generated barcode with ZXing, so encoder-option drift and encode/decode assumptions shared between our own modules are caught. That covers the barcode layer, not jurisdiction field semantics.
-
-## Plan to address current limitations
-
-### Progress update
-
-- ✅ Added cross-field validation checks in generation flow for date chronology consistency (birth/issue/expiry).
-- ✅ Added warning-level validation signals (for example: unusually young age-at-issue), with strict mode treating warnings as blocking.
-- ✅ Added dedicated automated tests for cross-field validation and strict-mode behavior.
-
-1. **Certification-readiness track (governance + legal)**
-   - Define a compliance matrix against relevant AAMVA implementation guidance.
-   - Document accepted/non-accepted use cases and add explicit release gates.
-   - Produce auditable release notes for each compliance-impacting change.
-
-2. **Schema and rule-depth expansion**
-   - Add jurisdiction-specific rule packs (per-state/territory overrides for required fields, constraints, and date semantics).
-   - Introduce schema fixtures from real-world anonymized samples and conformance test vectors.
-   - Add version migration helpers when switching between AAMVA versions.
-
-3. **Validation hardening**
-   - Add cross-field validations (e.g., issue/expiry/birth chronology, age-class constraints, derived field consistency).
-   - Add warnings vs errors severity levels to improve UX.
-   - Add a "strict compliance" profile that enforces jurisdiction rule packs by default.
-
-4. **Persistence and security upgrades**
-   - Add optional encrypted export/import with user passphrase for secure transfer.
-   - In Electron mode, move key material to OS keychain/credential storage.
-   - Add configurable retention policy (auto-clear after inactivity, session-only mode, explicit secure wipe).
-
-5. **Cryptographic trust layer**
-   - Design a pluggable signing module for payload provenance (issuer key IDs, signature blocks, verification UI).
-   - Add verification mode for imported/scanned payloads, including tamper indicators.
-   - Keep signing optional so testing/research workflows still work without PKI dependencies.
-
-6. **Testing maturity expansion**
-   - Add E2E coverage (Playwright) for form fill, scan, and PNG/PDF/SVG export happy paths.
-   - Add mobile/browser matrix checks (Safari iOS, Chrome Android, desktop Chrome/Firefox/Edge).
-   - Add performance budgets (bundle size + scanner startup latency) and fail CI on regressions.
-
----
-
-## Tech stack and architecture
-
-- **Frontend:** React 19 + TypeScript + Vite
-- **State management:** Zustand (persisted storage with encryption layer)
-- **Barcode encoding:** `bwip-js`
-- **Barcode decode/scanning:** `@zxing/browser` + `@zxing/library`
-- **Optional desktop runtime:** Electron (`main.js`, `preload.js`)
-- **PDF export library:** `jspdf`
-
----
-
-## Zero-BS quick start (copy/paste)
-
-If you just want it running **as fast as possible**, do this:
-
-### Mac / Linux
+Requires Node **20.19+** and npm; CI uses Node 20 and 22.
 
 ```bash
 git clone https://github.com/SeanPVera/aamva-pdf417-generator.git
 cd aamva-pdf417-generator
-npm run easy
-```
-
-### Windows (PowerShell)
-
-```powershell
-git clone https://github.com/SeanPVera/aamva-pdf417-generator.git
-cd aamva-pdf417-generator
-npm run easy
-```
-
-Then open **http://localhost:3000**.
-
-That one command installs dependencies (if needed) and starts the app.
-
----
-
-## One-click installer downloads
-
-If you want to install without running terminal commands, use the prebuilt desktop installers from GitHub Releases:
-
-- **Latest release page:** <https://github.com/SeanPVera/aamva-pdf417-generator/releases/latest>
-- **All releases:** <https://github.com/SeanPVera/aamva-pdf417-generator/releases>
-
-From the release page, download the artifact that matches your OS:
-
-| OS | File type | Notes |
-| --- | --- | --- |
-| Windows | `.exe` (NSIS) | One-click installer. |
-| macOS | `.dmg` | Drag app to Applications after opening DMG. |
-| Linux | `.AppImage` or `.deb` | Use AppImage for portable use; `.deb` for Debian/Ubuntu installs. |
-
-Installers are published automatically for each tagged version by
-[`.github/workflows/release.yml`](.github/workflows/release.yml). If you do not
-see an installer for your OS in the latest release, you can build it locally
-with the commands in [Step 4](#step-4-build-one-click-installers-optional).
-
-> [!NOTE]
-> **These builds are not code-signed.** On first launch, macOS Gatekeeper will
-> say the app "cannot be opened because the developer cannot be verified"
-> (right-click → **Open**, then confirm), and Windows SmartScreen will show a
-> blue "Windows protected your PC" panel (**More info** → **Run anyway**). If
-> you would rather not bypass those prompts, build from source instead — the
-> result is identical.
-
----
-
-## Full install guide (college-student friendly)
-
-This section assumes zero setup experience.
-
-### Prerequisites
-
-Install these first:
-
-1. **Git** (optional but recommended)
-   - Download: <https://git-scm.com/downloads>
-2. **Node.js LTS** (required for Electron mode)
-   - Download: <https://nodejs.org/>
-   - Verify install in terminal:
-     ```bash
-     node -v
-     npm -v
-     ```
-
-If those commands print versions, you are ready.
-
----
-
-### Step 1: Download the project
-
-#### Option A (recommended): Clone with Git
-
-```bash
-git clone https://github.com/SeanPVera/aamva-pdf417-generator.git
-cd aamva-pdf417-generator
-```
-
-#### Option B: ZIP download
-
-1. Download ZIP from your repository page.
-2. Extract it.
-3. Open terminal in the extracted folder.
-
----
-
-### Step 2: Open in browser mode
-
-From the project folder:
-
-```bash
-# easiest
-npm run easy
-
-# or explicit two-step
-npm install
+npm ci
 npm run dev
 ```
 
-Then open the URL shown in terminal (usually `http://localhost:3000`).
-
----
-
-### Step 3: Run desktop mode with Electron
-
-From the project folder:
-
-1. Install dependencies:
-   ```bash
-   npm install
-   ```
-2. Launch app:
-   ```bash
-   npm start
-   ```
-
-You should see a desktop window titled **AAMVA PDF417 Generator**.
-
----
-
-### Step 4: Build one-click installers (optional)
-
-> [!TIP]
-> If you prefer prebuilt files, check [One-click installer downloads](#one-click-installer-downloads) first.
-
-This project now ships Electron Builder targets for **Windows, macOS, and Linux** so each platform gets an installer-style artifact:
-
-- **Windows:** NSIS one-click installer (`.exe`)
-- **macOS:** DMG (`.dmg`)
-- **Linux:** AppImage (`.AppImage`) and Debian package (`.deb`)
-
-Use one command for the current host OS:
+Open the localhost URL Vite prints. For a browser-only install where the Electron binary cannot be downloaded, use `ELECTRON_SKIP_BINARY_DOWNLOAD=1 npm ci` (PowerShell: set `$env:ELECTRON_SKIP_BINARY_DOWNLOAD="1"` first). Do not disable TLS verification.
 
 ```bash
-npm run dist
-```
-
-Or force a specific platform target:
-
-```bash
-npm run dist:win
-npm run dist:mac
-npm run dist:linux
-```
-
-Installer artifacts are written to `dist_electron/`.
-
----
-
-## How to use the app
-
-1. **Choose State** from the dropdown.
-2. **Choose AAMVA Version**.
-3. Fill required fields (for example name, DOB, expiration date, ID number, address fields).
-4. Watch the **PDF417 Preview** update.
-5. Use side panels for diagnostics:
-   - **Decoded Output**: object-like representation
-   - **Raw Codewords**: encoded symbol codewords
-   - **Payload Inspector**: payload text sent to encoder
-   - **Version Browser**: schema visibility for a selected version
-6. Export from buttons under the canvas:
-   - **Export PNG**
-   - **Export PDF**
-   - **Export SVG**
-
-### Importing JSON
-
-- Click **Import JSON** and select a `.json` file.
-- The UI attempts to map keys to known AAMVA field codes.
-- Unknown fields can be rejected depending on policy.
-
-### Pasting a payload
-
-- Copy a raw AAMVA payload string (or a JSON profile in the shape **Export JSON** writes) and
-  press ⌘/Ctrl+V anywhere outside a text field.
-- The payload is decoded, the jurisdiction and version come from its IIN, and keys that are not
-  AAMVA field codes are dropped rather than loaded.
-- Pasting over a filled form offers **Undo** on the confirmation toast.
-
-### Taking the road test
-
-Under **Playful extras → Take the road test** there is a full parallel-parking examination:
-a canvas course, a kinematic-bicycle-model vehicle, four cones, and an examiner who itemises
-your deductions on a score sheet. It is decorative. It has no effect on the barcode, the
-payload, or your standing with any jurisdiction.
-
----
-
-## iPhone setup guide
-
-There are two ways to run this on an iPhone. Pick based on whether you want a
-computer involved at all.
-
-| | [Hosted PWA](#option-a-hosted-pwa-no-computer-required) | [Local Wi-Fi server](#option-b-local-wi-fi-dev-server) |
-| --- | --- | --- |
-| Needs a Mac | No | No |
-| Needs *any* computer running | No | Yes, on the same Wi-Fi |
-| Works away from home | Yes | No |
-| Works offline on the phone | Yes | No |
-| Camera scanner | Yes (HTTPS) | No (iOS blocks it on plain HTTP) |
-| Best for | Actually using the app | Developing it |
-
-### Option A: Hosted PWA (no computer required)
-
-The app is entirely client-side, so it can be published as static files and
-installed to the Home Screen straight from Safari. The build runs on GitHub's
-Linux runners — no Mac, no Xcode, no Apple Developer account, and no machine
-on your network.
-
-1. **Turn on Pages once:** repository **Settings → Pages → Source → GitHub
-   Actions**. The included `.github/workflows/pages.yml` deploys `dist/` on
-   every push to `main`.
-2. **Open the published URL in Safari** on the iPhone
-   (`https://<owner>.github.io/aamva-pdf417-generator/`).
-3. **Share → Add to Home Screen → Add.**
-
-It now launches full-screen with its own icon and keeps working in Airplane
-Mode. Push to `main` to ship an update; the next online launch picks it up.
-
-**📱 Full walkthrough, other free hosts, offline verification, camera notes,
-and why a native `.ipa` needs an Apple Developer account: [docs/IPHONE.md](docs/IPHONE.md).**
-
----
-
-### Option B: Local Wi-Fi dev server
-
-Useful while developing. Your iPhone opens a URL hosted from your computer, and
-both devices must be on the **same Wi-Fi network**.
-
-> Note: iOS only grants camera access in a secure context, so the barcode
-> scanner does not work over a plain `http://192.168.x.x` address. Use
-> Option A if you need to scan.
-
-### Step 1: Start the mobile server on your computer
-
-**Quickest path (one command):**
-
-```bash
-npm run easy:mobile
-```
-
-This installs dependencies (if needed) and starts the dev server bound to your local network.
-
-**Or, if you already ran `npm install`:**
-
-```bash
-npm run dev:mobile
-```
-
-### Step 2: Find your computer's local IP address
-
-After the server starts, the terminal will print something like:
-
-```
-  ➜  Local:   http://localhost:3000/
-  ➜  Network: http://192.168.1.25:3000/
-```
-
-Copy the **Network** URL — that is the address your iPhone will use.
-
-> If no Network URL appears, your firewall may be blocking Vite. Allow Node.js or port 3000 through your firewall, then restart the server.
-
-### Step 3: Open the app on your iPhone
-
-1. Connect your iPhone to the **same Wi-Fi network** as your computer.
-2. Open **Safari** on your iPhone.
-3. Type (or paste) the Network URL into the address bar (for example `http://192.168.1.25:3000`).
-4. The app loads — no install required.
-
-> Use **Safari**, not Chrome or Firefox. Safari has the most reliable WebKit camera support on iOS.
-
-### Step 4 (optional): Add to Home Screen
-
-To launch the app like a native app without typing the URL each time:
-
-1. Tap the **Share** button (box with an arrow) in Safari's toolbar.
-2. Scroll down and tap **Add to Home Screen**.
-3. Give it a name and tap **Add**.
-
-The app now appears on your home screen and opens full-screen.
-
----
-
-### Alternative: production preview mode (more stable, no hot-reload)
-
-If you want a production-quality build instead of the dev server:
-
-```bash
-npm install
 npm run build
-npm run preview:mobile
+npm run serve
 ```
 
-The preview server starts at port `4173`. Use the Network URL it prints (for example `http://192.168.1.25:4173`) in Safari.
+For a desktop development window: `npm run electron:dev`. For a production desktop window, build first, then `npm start`.
 
----
+## Work with a record
 
-### Camera and barcode scanning on iOS
+1. Set the **issuing jurisdiction**, **AAMVA version**, and **DL/ID document type**. Strict validation also blocks the application's format advisories; it does not certify standards compliance.
+2. Edit the numbered sections. Search spans every section; **Required only**, **Problems**, and **Next empty** help navigate dense records. Name truncation flags and suggestions expand in place.
+3. Use **Fill tools** for explicitly synthetic data or generate individual identifiers. The live preview never invents values absent from the form. Address jurisdiction (`DAJ`) is independent of the issuing jurisdiction.
+4. Inspect **Payload**, **Validation**, **Fields**, and **Bytes** beside the barcode. On a phone, use **Setup**, **Form**, and **Barcode** in the bottom navigation. An imported raw payload remains available separately from generated output.
+5. Export **PNG**, **SVG**, or **PDF**, or print. Export is enabled only for the current successfully rendered payload. **Tools → Export record JSON** preserves the editable record, including unknown element codes.
 
-- If Safari does not ask for camera permission, go to **Settings → Safari → Camera → Allow**.
-- If the live camera still fails to start, use the in-app **photo upload** scanning option as a fallback.
-- For production deployments (outside local Wi-Fi), serve over **HTTPS** — iOS requires a secure context for camera access on non-localhost origins.
+**Import** accepts pasted AAMVA bytes or JSON, and JSON/text files. JSON files can also be dropped onto the page. **Scan barcode** uses a camera or an uploaded image. Import replaces the document in one undoable step, including jurisdiction, version, document type, and original source. Invalid imports preserve the current work. Unsupported issuer IINs are refused instead of being assigned to the current issuer.
 
----
+Unknown three-character element codes are retained for inspection and JSON export. They are visibly excluded from regeneration when the selected schema does not model them. This is not a lossless arbitrary-payload editor.
 
-### Troubleshooting iPhone connectivity
+**Tools** also contains comparison, batch CSV/JSON processing, keyboard help, light/dark/system appearance, and **Erase record & history**. Erasure clears the active record and application undo history; it cannot undo downloads, printing, or clipboard copies.
 
-| Problem | Fix |
-| --- | --- |
-| iPhone cannot reach the URL | Confirm both devices are on the same Wi-Fi subnet (not one on 5 GHz and one on a guest network). |
-| URL loads but then spins | Restart the dev server; check the terminal for errors. |
-| Still unreachable after checking network | Allow Node.js or port 3000 through your computer's firewall. |
-| Corporate/school Wi-Fi blocks local peers | Switch to a personal hotspot or home network. |
-| Need access from outside local Wi-Fi | Use [Option A](#option-a-hosted-pwa-no-computer-required) — the hosted PWA needs no computer at all. |
+## Input and output contracts
 
-## JSON import format
-
-There is no rigid external API contract, but a practical file usually looks like:
+JSON is a flat object of **string values**. Metadata keys are `state`, `version`, and `subfileType`. Numeric identifiers are rejected because their leading zeros may already have been lost.
 
 ```json
 {
   "state": "CA",
   "version": "10",
-  "DCS": "DOE",
+  "subfileType": "ID",
+  "DCS": "EXAMPLE",
   "DAC": "JANE",
-  "DBB": "01311994",
-  "DBA": "01312030",
-  "DAQ": "D1234567",
-  "DAG": "123 MAIN ST",
-  "DAI": "LOS ANGELES",
-  "DAJ": "CA",
-  "DAK": "90001"
+  "DAJ": "NV"
 }
 ```
 
-Tips:
-- Date format depends on the selected AAMVA version: version 01 uses `YYYYMMDD`, versions 02+ use `MMDDYYYY`.
-- ZIP supports `12345` or `12345-6789`.
-- Field requirements vary by selected version.
+This example is intentionally incomplete. The form identifies the remaining required fields.
 
----
+- Version 01 uses `YYYYMMDD`; later modeled versions use `MMDDYYYY` for the main dates. Separated dates normalize visibly on blur.
+- Generation currently accepts **printable ASCII**. Unsupported characters are rejected without transliteration or deletion. The published standard permits a broader single-byte repertoire; this implementation does not yet encode all of it.
+- Quick fixes use explicit spelling aliases or unambiguous formatting. They do not truncate identity values, guess from prefixes, or alter opaque jurisdiction data.
+- Single-record input is bounded at 1 MB; raw wire parsing at 100,000 single-byte characters. Batch input is bounded at 5 MB / 1,000 rows, and scanner images at 20 MB. These are application resource limits, not PDF417 capacity claims.
+- PDF417 capacity is checked by the encoder. Preview, SVG, PNG, PDF, and print are different rendering paths; physical scanner and printer validation is still required. State-labeled print dimensions are **unverified application presets**.
+- Batch PDF currently uses its existing page-fit layout, rather than the single-record print presets. Missing discriminator/revision fields may be synthesized by the batch generation option; inspect batch data before treating it as an exact record export.
 
-## Troubleshooting
+## Privacy and offline behavior
 
-### App opens but no barcode appears
+There is no backend or analytics. Record processing is local. The production CSP blocks network connections from the app. Fonts and code are self-hosted and precached for offline use after a successful online load.
 
-- Ensure both **State** and **Version** are selected.
-- Check required fields are filled.
-- Open browser DevTools console for error messages.
+Only UI preferences are persisted in localStorage. Field values, imported source, and undo/redo records remain in memory. Downloads and clipboard copies are explicit exports of potentially sensitive data. Default filenames include no names or document identifiers; name inclusion is opt-in. Read-aloud is available only with a voice the browser reports as local.
 
-### Export buttons do nothing
+## Platforms
 
-- Make sure a barcode is currently rendered.
-- Try a different browser (latest Chrome/Firefox).
+- Static website / GitHub Pages: `.github/workflows/pages.yml` publishes `main`.
+- Installable PWA: see [iPhone setup and offline verification](docs/IPHONE.md). Camera access normally requires HTTPS or localhost.
+- Electron: Windows NSIS, macOS DMG (x64 / arm64), Linux AppImage / deb. Navigation is restricted, renderer sandboxing and context isolation are enabled, and Node integration is disabled.
+- [Release downloads](https://github.com/SeanPVera/aamva-pdf417-generator/releases). Desktop packages are not code-signed. Native packaging and real devices require their own validation.
 
-### Electron app does not start
+Build installers with `npm run dist:win`, `npm run dist:mac`, or `npm run dist:linux` on the appropriate platform. These commands do not publish releases.
 
-- Re-run:
-  ```bash
-  npm install
-  npm start
-  ```
-- Confirm Node and npm versions are installed correctly.
-
-### “Unsupported territory” is disabled
-
-- This is expected. Territories listed as `null` are intentionally not enabled.
-
----
-
-## Production readiness checklist
-
-Before shipping this app in an internal or external environment, run through:
-
-- **Dependency hygiene**
-  - Run `npm audit` and address vulnerabilities before release.
-  - Keep Node/Electron versions aligned with CI and lockfile updates.
-- **Quality gates**
-  - Run `npm test`, `npm run lint`, and `npm run format:check` in CI.
-  - Treat failing checks as release blockers.
-- **Electron hardening**
-  - `contextIsolation` is enabled, `nodeIntegration` is disabled, and renderer sandboxing is enabled by default.
-  - Outbound navigation and popups are blocked in `main.js`.
-- **Operational guardrails**
-  - Keep this tool restricted to legal and authorized use cases only.
-  - Avoid processing real production PII unless your environment has approved controls (device security, encryption, access controls, retention policy).
-
-Suggested release command sequence (mirrors CI):
+## Development and validation
 
 ```bash
-npm ci
 npm run lint
 npm run format:check
 npm run typecheck
-npm run build
 npm run test:run
-npm run test:coverage   # enforces the coverage thresholds
-npm run size            # enforces the per-chunk bundle budgets
+npm run test:coverage
+npm run build
+npm run size
+npm run conformance:report
 npm audit --audit-level=high
-```
-
-End-to-end checks run separately and need browsers installed once:
-
-```bash
 npm run test:e2e:install
 npm run test:e2e
 ```
 
-Releases themselves are automated. Add a changeset describing your change
-(`npm run changeset`) and merge it; the release workflow opens a version PR,
-and merging that PR tags the version, builds the desktop installers on all
-three platforms, and publishes the GitHub Release with them attached.
+`PW_BROWSERS=all npm run test:e2e` selects the full configured browser matrix after installing those engines. `PW_CHROMIUM_EXECUTABLE=/path/to/chromium` optionally selects a local Chromium binary. CI's ordinary browser setup is unchanged.
 
----
+The unit suite includes deterministic fixtures, malformed-input tests, property tests, and an independent ZXing pixel decoder. Browser tests exercise the actual downloaded PNG as well as state, keyboard, import, export, responsive layout, and WCAG checks. Neither green tests nor an internally balanced byte directory prove issuer compliance.
 
-## Next-level roadmap (execution focused)
+| Area                                  | Location                                                                       |
+| ------------------------------------- | ------------------------------------------------------------------------------ |
+| Framing, encoding, parsing            | `src/core/generator.ts`, `decoder.ts`, `inspect.ts`                            |
+| Versions and fields                   | `src/core/schema.ts`                                                           |
+| Issuer registry and observed profiles | `src/core/states.ts`, `jurisdictionRules.ts`                                   |
+| Validation and explicit repairs       | `src/core/validation.ts`, `quickFix.ts`                                        |
+| Import and batch boundaries           | `src/core/importPayload.ts`, `pasteImport.ts`, `batchInput.ts`, `csv.ts`       |
+| Document history and preferences      | `src/hooks/useFormStore.ts`                                                    |
+| Live payload lifecycle                | `src/hooks/usePayload.ts`                                                      |
+| Workspace and design tokens           | `src/App.tsx`, `src/components/`, `src/styles/index.css`, `tailwind.config.js` |
+| Electron boundary                     | `main.js`, `preload.js`, `electron/urlPolicy.js`                               |
+| Tests and provenance                  | `src/tests/`, `e2e/`, `src/core/conformance/`                                  |
 
-If the goal is to move from a capable local generator to a trusted, production-adjacent platform, execute in this order.
+See [CONTRIBUTING.md](CONTRIBUTING.md), [CLAUDE.md](CLAUDE.md), and the [implementation coverage matrix](docs/AAMVA_COMPLIANCE_MATRIX.md). Add a changeset for reviewable release notes. Do not regenerate golden fixtures simply to make a failing test pass.
 
-### Accuracy check: mapping roadmap to known limitations
-
-This roadmap is intentionally aligned to the limitations listed above so each workstream closes a specific gap:
-
-| Known limitation | Roadmap coverage |
-| --- | --- |
-| Not a government-certified implementation | Certification-readiness track + release governance, compliance matrix, and auditable notes. |
-| Schema coverage/rule-depth gaps | Conformance harness, jurisdiction rule packs, and version migration helpers. |
-| Validation is lightweight | Validation hardening with cross-field checks + warning/error severity + strict profile expansion. |
-| Jurisdiction support depth varies | State/territory override modules and a published rule-coverage matrix. |
-| No backend persistence | Intentional browser-first posture, plus secure import/export and configurable local retention controls. |
-| No cryptographic trust layer | Optional signing/verification layer and key-management hardening in Electron mode. |
-| Limited E2E/device testing | Scanner realism program + browser/device matrix + CI gating on conformance checks. |
-
-### Sequenced execution plan
-
-1. **Define product tiers and success metrics (Week 1)**
-   - Split the product into explicit modes: *Educational*, *QA/Conformance*, and *Internal Operational*.
-   - Track measurable targets (example): generation success rate, scanner round-trip pass rate, export reliability, validation false-positive/false-negative rates.
-   - Publish a lightweight scorecard in the repo so quality changes are visible per release.
-
-2. **Build a conformance harness (Weeks 1–3)**
-   - Add canonical AAMVA fixtures by version (`01`–`10`) and jurisdiction scenarios.
-   - Create round-trip tests: **input → payload → barcode → scan/decode → semantic compare**.
-   - Add snapshot testing for payload text and symbol parameters so regressions are caught early.
-
-3. **Strengthen jurisdiction rule packs (Weeks 2–6)**
-   - Introduce jurisdiction override modules with explicit required fields, date rules, and warning/error policy.
-   - Add strict mode profiles per jurisdiction and a matrix report showing rule coverage depth.
-   - Include migration helpers that safely remap fields when changing AAMVA version.
-
-4. **Invest in scanner realism (Weeks 3–6)**
-   - Add image quality stress tests (blur, skew, glare, low contrast) against generated barcodes.
-   - Validate scanner behavior on iOS Safari, Android Chrome, desktop webcams, and uploaded photos.
-   - Track scan latency and decode reliability across device classes.
-
-5. **Ship security and data lifecycle controls (Weeks 4–8)**
-   - Add optional encrypted project/session export using a passphrase-derived key.
-   - For Electron mode, store sensitive secrets in OS credential stores.
-   - Add retention settings (session-only, timed wipe) and explicit user-facing privacy notices.
-
-6. **Operationalize release discipline (Weeks 5–8)**
-   - Enforce CI quality gates: lint, format, unit tests, conformance suite, and package build checks.
-   - Add signed release artifacts, changelogs, and compliance-impact labels in PRs.
-   - Gate production-tagged releases on zero critical defects and target pass-rate thresholds.
-
-7. **Improve enterprise adoption readiness (Weeks 6–10)**
-   - Add import/export compatibility docs and versioned schema contracts.
-   - Provide audit logs for key user actions (generate/export/import) in desktop mode.
-   - Add role-based configuration toggles for strict mode defaults and data retention policies.
-
-### Recommended KPI dashboard
-
-Track these in CI and release notes:
-
-- **Conformance pass rate** (by version and jurisdiction)
-- **Scanner round-trip success rate** (by device/browser)
-- **Median decode latency**
-- **Validation precision/recall** (where labeled fixtures exist)
-- **Export integrity pass rate** (PNG/SVG/PDF)
-- **Regression escape rate** (issues found post-release)
-
-### Practical first milestone (30 days)
-
-- Ship conformance harness + 100+ fixtures.
-- Enforce CI quality gates on every PR.
-- Publish first coverage matrix and KPI baseline.
-- Add strict mode toggle backed by at least 5 high-priority jurisdiction rule packs.
-
----
-
-## Developer notes
-
-- Core AAMVA schema/version definitions live under `src/core/schema.ts`.
-- Payload generation and decode logic live in `src/core/generator.ts` and `src/core/decoder.ts`.
-- UI components are in `src/components/`, app composition in `src/App.tsx`.
-- State management and persistence are in `src/hooks/useFormStore.ts`.
-- Tests are in `src/tests/` and run with Vitest.
-
----
-
-## Project structure
-
-```text
-.
-├── src/
-│   ├── core/
-│   ├── components/
-│   ├── hooks/
-│   ├── tests/
-│   ├── App.tsx
-│   └── main.tsx
-├── index.html
-├── main.js
-├── preload.js
-├── package.json
-├── vite.config.mts
-├── tsconfig.json
-├── README.md
-└── LICENSE
-```
-
----
-
-## License
-
-MIT License — see [LICENSE](LICENSE) for details.
-
-© 2025 Sean Vera
+MIT license — [LICENSE](LICENSE).

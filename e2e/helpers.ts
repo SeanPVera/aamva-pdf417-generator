@@ -21,6 +21,7 @@ export const CA_REQUIRED_FIELDS: Array<[string, string]> = [
   // Address
   ["DAG", "123 MAIN ST"],
   ["DAI", "ANYTOWN"],
+  ["DAJ", "CA"],
   ["DAK", "90001"],
   // Physical Description
   ["DAY", "BRO"],
@@ -93,22 +94,10 @@ export async function ensurePanel(page: Page, panel: "config" | "form" | "previe
   }
 }
 
-/**
- * Clicks a header action that lives in the desktop action bar and, on a phone,
- * inside the "More actions" menu instead.
- *
- * The action bar is `hidden lg:flex`. Below that width the same actions are
- * menu items with shorter names — "Export JSON" rather than "Export current
- * fields as JSON" — so both names have to be supplied.
- */
-export async function clickHeaderAction(page: Page, barName: RegExp, menuName: RegExp) {
-  const isMobile = await page.evaluate(() => window.innerWidth < 1024);
-  if (!isMobile) {
-    await page.getByRole("button", { name: barName }).click();
-    return;
-  }
-  await page.getByRole("button", { name: /more actions/i }).click();
-  await page.getByRole("menuitem", { name: menuName }).click();
+/** Tools are in the same position at every supported viewport. */
+export async function clickHeaderAction(page: Page, _barName: RegExp, _menuName: RegExp) {
+  await page.getByRole("button", { name: "Tools", exact: true }).click();
+  await page.getByRole("button", { name: "Export record JSON", exact: true }).click();
 }
 
 /**
@@ -146,12 +135,13 @@ function escapeForRegExp(value: string): string {
  */
 export async function revealField(page: Page, code: string) {
   await ensurePanel(page, "form");
-  if ((await page.locator(`#${code}`).count()) > 0) return;
-
-  const groupId = getFieldGroup(code);
-  const group = AAMVA_FIELD_GROUPS.find((g) => g.id === groupId);
-  if (!group) throw new Error(`No section for field ${code} (group ${groupId})`);
-  await openSection(page, group.label);
+  if ((await page.locator(`#${code}`).count()) === 0) {
+    const group = AAMVA_FIELD_GROUPS.find((g) => g.id === getFieldGroup(code));
+    if (!group) throw new Error(`No section for field ${code}`);
+    await openSection(page, group.label);
+  }
+  const disclosure = page.locator(`#${code}`).locator("xpath=ancestor::details[not(@open)]");
+  if (await disclosure.count()) await disclosure.locator("summary").first().click();
 }
 
 /**
@@ -193,35 +183,9 @@ export async function fillCaliforniaForm(page: Page) {
   await page.keyboard.press("Tab");
 }
 
-/**
- * The Welcome Tour appears on first load and can obscure elements.
- * Dismiss it early so it doesn't interfere with test interactions.
- */
-// The tour is shown once per browser context and its "seen" flag persists, so
-// it can only ever need dismissing once per page. Tracking that lets repeat
-// calls return immediately instead of each burning a full timeout waiting for
-// a button that will never come back.
-const tourHandled = new WeakSet<Page>();
-
+/** No tour interrupts initial work; help is opened explicitly. */
 export async function dismissTour(page: Page) {
-  if (tourHandled.has(page)) return;
-
-  const skipBtn = page.getByRole("button", { name: /skip tour/i });
-  try {
-    await skipBtn.waitFor({ state: "visible", timeout: 10_000 });
-    await skipBtn.click();
-    // Ensure the dialog is actually gone before returning control.
-    await expect(page.getByRole("dialog")).not.toBeVisible();
-  } catch {
-    // If the tour didn't show up (e.g. session already marked it seen),
-    // just continue.
-  }
-  tourHandled.add(page);
-
-  // The tour carries aria-modal, so while it is open every role-based query
-  // outside it resolves to nothing. Assert it is gone here, where the failure
-  // names the real cause, rather than letting it surface later as an
-  // "element not found" on whatever the modal was hiding.
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   await expect(page.locator('[aria-modal="true"]')).toHaveCount(0);
 }
 
@@ -229,6 +193,7 @@ export async function dismissTour(page: Page) {
 export async function waitForPreview(page: Page) {
   await dismissTour(page);
   await ensurePanel(page, "preview");
+  await page.getByRole("tab", { name: "Payload", exact: true }).click();
   await expect(page.getByRole("textbox", { name: /raw aamva payload string/i })).toBeVisible({
     timeout: 15_000
   });

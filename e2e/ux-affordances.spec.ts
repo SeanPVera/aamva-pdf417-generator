@@ -13,7 +13,9 @@ import {
 // status bar, and the road test. The pure logic behind each of these is
 // unit tested in src/tests — these assert the wiring.
 test.describe("form affordances", () => {
-  test("uppercases typing, normalizes a slashed date, and fills DAJ", async ({ page }) => {
+  test("uppercases typing, normalizes a slashed date, and preserves an independently entered address jurisdiction", async ({
+    page
+  }) => {
     await page.goto("/");
     await dismissTour(page);
     await ensurePanel(page, "form");
@@ -32,14 +34,22 @@ test.describe("form affordances", () => {
     // overrides it anyway, so it was a required field nobody could satisfy.
     // It lives in Address, so the rail has to move before it is on the page.
     await revealField(page, "DAJ");
-    await expect(page.locator("#DAJ")).toHaveValue("CA");
-    await expect(page.locator("#DAJ")).toHaveAttribute("readonly", "");
+    await page.locator("#DAJ").fill("NV");
+    await expect(page.locator("#DAJ")).toHaveValue("NV");
+    await expect(page.locator("#DAJ")).toBeEditable();
   });
 
   test("a date chip fills the issue date", async ({ page }) => {
     await page.goto("/");
     await dismissTour(page);
     await revealField(page, "DBD");
+    await page
+      .locator("#DBD")
+      .locator(
+        "xpath=ancestor::div[contains(concat(' ', normalize-space(@class), ' '), ' record-field ')][1]"
+      )
+      .getByText("Date shortcuts", { exact: true })
+      .click();
     await page.getByRole("button", { name: /^Set DBD:/ }).click();
     await expect(page.locator("#DBD")).toHaveValue(/^\d{8}$/);
   });
@@ -115,7 +125,7 @@ test.describe("form affordances", () => {
     await dismissTour(page);
     await ensurePanel(page, "form");
 
-    const bar = page.getByRole("region", { name: /kiosk navigation/i });
+    const bar = page.getByRole("region", { name: /workspace navigation/i });
     await expect(bar).toBeVisible();
     // An empty form is blocked on required fields, so the bar offers the jump
     // rather than an export. "Next" while everything is merely blank, "Fix"
@@ -147,30 +157,5 @@ test.describe("form affordances", () => {
     const download = page.waitForEvent("download", { timeout: 20_000 });
     await page.getByRole("button", { name: /export barcode as pdf/i }).click();
     expect((await download).suggestedFilename()).toMatch(/\.pdf$/);
-  });
-});
-
-// Entirely decorative, and still held to the same standard as everything else:
-// it has to open, run, and produce a score sheet.
-test.describe("road test", () => {
-  test("opens, runs, and grades an attempt", async ({ page }) => {
-    await page.goto("/");
-    await dismissTour(page);
-    await page.getByRole("button", { name: /toggle playful extras/i }).click();
-    await page.getByRole("menuitem", { name: /take the road test/i }).click();
-
-    const dialog = page.getByRole("dialog", { name: /behind-the-wheel/i });
-    await expect(dialog).toBeVisible();
-    await dialog.getByRole("button", { name: /begin examination/i }).click();
-
-    // Drive briefly, then hand in the attempt.
-    await page.keyboard.down("ArrowUp");
-    await page.waitForTimeout(400);
-    await page.keyboard.up("ArrowUp");
-    await dialog.getByRole("button", { name: /i'm parked/i }).click();
-
-    await expect(dialog.getByText(/examiner's score sheet/i)).toBeVisible();
-    // Nowhere near the space, so the examiner has an opinion about it.
-    await expect(dialog.getByText(/not within the designated space/i)).toBeVisible();
   });
 });

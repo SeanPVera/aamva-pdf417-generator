@@ -128,6 +128,12 @@ export function generateAAMVAPayload(
 ): string {
   const strictMode = options.strictMode === true;
   const subfileType = options.subfileType || "DL";
+  if (subfileType !== "DL" && subfileType !== "ID")
+    throw new Error("Subfile type must be DL or ID");
+
+  if (subfileType === "ID" && (version === "10" || version === "11")) {
+    fields = fields.filter((f) => !["DCA", "DCB", "DCD"].includes(f.code));
+  }
 
   // Work on a copy. This used to normalise and auto-fill the caller's object in
   // place, so generating a preview quietly rewrote the values the caller still
@@ -157,7 +163,10 @@ export function generateAAMVAPayload(
     for (const [code, generator] of Object.entries(generators)) {
       if (!AUTO_GENERATED_CODES.has(code)) continue;
       if (!presentCodes.has(code) || dataObj[code]) continue;
-      dataObj[code] = code === "DDB" ? generator(dataObj.DBD) : generator();
+      dataObj[code] =
+        code === "DDB"
+          ? (generateStateCardRevisionDate(stateCode, dataObj.DBD, version) ?? "")
+          : generator(dataObj.DBD);
     }
   }
 
@@ -174,23 +183,22 @@ export function generateAAMVAPayload(
   for (const field of fields) {
     const raw = dataObj[field.code];
     if (raw) {
+      if (typeof raw !== "string" || /[^\x20-\x7e]/.test(raw)) {
+        throw new Error(
+          `${field.code}: unsupported character encoding. This generator accepts printable ASCII; edit the value explicitly before encoding.`
+        );
+      }
       let val = raw;
       // Jurisdiction subfile values are opaque: a decoded New York card carries
       // a mixed-case blob in ZNB, and upper-casing it — as the AAMVA text rule
       // would — silently rewrites data whose meaning we do not know.
       const isOpaque = field.subfile === "jurisdiction";
       if (!isOpaque && ["string", "char", "zip"].includes(field.type)) val = val.toUpperCase();
-      dataObj[field.code] = val
-        .normalize("NFKD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/[^\x20-\x7e]/g, "")
-        // eslint-disable-next-line no-control-regex
-        .replace(/[\x00-\x1f\x7f]/g, "")
-        .trim();
+      dataObj[field.code] = isOpaque ? val : val.trim();
     }
   }
 
-  const mandatoryFields = getMandatoryFields(stateCode, version);
+  const mandatoryFields = getMandatoryFields(stateCode, version, subfileType);
   const missing = mandatoryFields
     .filter((f) => !dataObj[f.code])
     .map((f) => `${f.label} (${f.code})`);
@@ -201,11 +209,8 @@ export function generateAAMVAPayload(
     );
   }
 
-  if (dataObj.DAJ && dataObj.DAJ !== stateCode) {
-    if (strictMode)
-      throw new Error(`Strict Mode: DAJ (${dataObj.DAJ}) must match state code (${stateCode})`);
-    dataObj.DAJ = stateCode;
-  }
+  // DAJ is the address jurisdiction, not the issuer (CDS 2020/2025 Table D.3).
+  // The issuing jurisdiction is already represented by the header IIN.
 
   // `evaluateFieldValue` rather than `validateFieldValue`, so the jurisdiction
   // rule packs are consulted here too. They were previously only reachable from
@@ -233,7 +238,7 @@ export function generateAAMVAPayload(
     );
   }
 
-  const crossFieldIssues = validateCrossFieldConsistency(dataObj, fields, stateCode);
+  const crossFieldIssues = validateCrossFieldConsistency(dataObj, fields, stateCode, subfileType);
   const blockingCrossFieldIssues = crossFieldIssues.filter(
     (issue) => issue.severity === "error" || (strictMode && issue.severity === "warning")
   );

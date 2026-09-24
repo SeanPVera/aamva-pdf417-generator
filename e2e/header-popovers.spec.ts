@@ -58,7 +58,7 @@ async function contrastOf(page: Page, handle: string, index: number): Promise<nu
   );
 }
 
-const ITEMS = '[role="menu"] [role="menuitem"], [role="menu"] [role="menuitemcheckbox"]';
+const ITEMS = ".tool-popover > button";
 
 async function everyItemIsLegible(page: Page, label: string) {
   const items = page.locator(ITEMS);
@@ -80,17 +80,18 @@ test.describe("header popovers on a phone", () => {
     await dismissTour(page);
   });
 
-  test("the More actions menu is readable", async ({ page }) => {
-    await page.getByRole("button", { name: /more actions/i }).click();
+  test("Tools is readable in light mode", async ({ page }) => {
+    await page.getByRole("button", { name: /^Tools$/ }).click();
     await everyItemIsLegible(page, "More actions");
   });
 
-  test("the playful extras menu is reachable and readable", async ({ page }) => {
-    // It used to live in the action bar, which is `hidden lg:flex` — so the
-    // whimsy toggles, the badge case, DMV Bingo and the road test were simply
-    // gone below 1024px. Reaching it at all is half of what this asserts.
-    await page.getByRole("button", { name: /toggle playful extras/i }).click();
-    await expect(page.getByRole("menuitem", { name: /take the road test/i })).toBeVisible();
-    await everyItemIsLegible(page, "Playful extras");
+  test("Tools is readable in dark mode and Escape restores focus", async ({ page }) => {
+    const trigger = page.getByRole("button", { name: "Tools", exact: true });
+    await trigger.click();
+    await page.getByLabel("Appearance", { exact: true }).selectOption("dark");
+    await everyItemIsLegible(page, "Tools dark");
+    await page.keyboard.press("Escape");
+    await expect(trigger).toBeFocused();
+    await expect(page.locator("#workspace-tools")).toHaveCount(0);
   });
 });

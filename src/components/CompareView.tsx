@@ -3,7 +3,7 @@ import { X, Upload, GitCompare, FileText } from "lucide-react";
 import { useToast } from "./Toast";
 import { useModalShell } from "../hooks/useModalShell";
 import { useFormStore } from "../hooks/useFormStore";
-import { getFieldsForStateAndVersion } from "../core/schema";
+import { parseImportedPayload, MAX_IMPORT_BYTES } from "../core/importPayload";
 
 interface CompareViewProps {
   open: boolean;
@@ -16,18 +16,14 @@ interface PayloadFile {
 }
 
 async function readJsonFile(file: File): Promise<Record<string, string>> {
-  const text = await file.text();
-  const parsed = JSON.parse(text);
-  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
-    throw new Error("JSON must be a single payload object.");
-  }
-  return Object.fromEntries(
-    Object.entries(parsed as Record<string, unknown>).map(([k, v]) => [k, String(v)])
-  );
+  if (file.size > MAX_IMPORT_BYTES) throw new Error("Choose a record smaller than 1 MB.");
+  const result = parseImportedPayload(await file.text(), file.name);
+  if (!result.ok) throw new Error(result.error);
+  return result.data;
 }
 
 export const CompareView: React.FC<CompareViewProps> = ({ open, onClose }) => {
-  const { fields, state, version } = useFormStore();
+  const { fields, state, version, subfileType } = useFormStore();
   const [left, setLeft] = useState<PayloadFile | null>(null);
   const [right, setRight] = useState<PayloadFile | null>(null);
   const leftInputRef = useRef<HTMLInputElement>(null);
@@ -35,14 +31,17 @@ export const CompareView: React.FC<CompareViewProps> = ({ open, onClose }) => {
   const toast = useToast();
   const dialogRef = useModalShell<HTMLDivElement>({ open, onClose });
 
+  const requests = useRef({ A: 0, B: 0 });
+  React.useEffect(
+    () => () => {
+      requests.current.A++;
+      requests.current.B++;
+    },
+    []
+  );
   const handleUseActiveForm = (setSide: (p: PayloadFile) => void, side: "A" | "B") => {
-    const schemaCodes = new Set(getFieldsForStateAndVersion(state, version).map((f) => f.code));
-    const activeData: Record<string, string> = { state, version };
-    for (const [code, value] of Object.entries(fields)) {
-      if (value && schemaCodes.has(code)) {
-        activeData[code] = value;
-      }
-    }
+    requests.current[side]++;
+    const activeData: Record<string, string> = { state, version, subfileType, ...fields };
     const name = `Active Form (${state} v${version})`;
     setSide({ name, data: activeData });
     toast.success(`Loaded active form for payload ${side}`);
@@ -50,16 +49,20 @@ export const CompareView: React.FC<CompareViewProps> = ({ open, onClose }) => {
 
   const handleLoad = async (
     e: React.ChangeEvent<HTMLInputElement>,
-    setSide: (p: PayloadFile) => void
+    setSide: (p: PayloadFile) => void,
+    side: "A" | "B"
   ) => {
     const file = e.target.files?.[0];
     e.target.value = "";
     if (!file) return;
+    const token = ++requests.current[side];
     try {
       const data = await readJsonFile(file);
+      if (token !== requests.current[side]) return;
       setSide({ name: file.name, data });
       toast.success(`Loaded ${file.name}`);
     } catch (err) {
+      if (token !== requests.current[side]) return;
       toast.error(`Failed to load: ${(err as Error).message}`);
     }
   };
@@ -90,16 +93,13 @@ export const CompareView: React.FC<CompareViewProps> = ({ open, onClose }) => {
   if (!open) return null;
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-      onClick={onClose}
-    >
+    <div className="modal-backdrop" onClick={onClose}>
       <div
         ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="compare-title"
-        className="w-full max-w-5xl bg-white dark:bg-dark-surface rounded-lg shadow-xl border border-gray-200 dark:border-dark-border max-h-[90vh] flex flex-col"
+        className="modal-panel wide"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-dark-border">
@@ -133,7 +133,7 @@ export const CompareView: React.FC<CompareViewProps> = ({ open, onClose }) => {
                 ref={ref}
                 type="file"
                 accept=".json,application/json"
-                onChange={(e) => handleLoad(e, setSide)}
+                onChange={(e) => handleLoad(e, setSide, side)}
                 className="hidden"
                 aria-label={`Load JSON payload ${side}`}
               />
@@ -169,6 +169,7 @@ export const CompareView: React.FC<CompareViewProps> = ({ open, onClose }) => {
                   <button
                     type="button"
                     onClick={() => {
+                      requests.current[side]++;
                       setSide(null);
                       toast.info(`Cleared payload ${side}`);
                     }}
@@ -184,26 +185,31 @@ export const CompareView: React.FC<CompareViewProps> = ({ open, onClose }) => {
         </div>
 
         {(left || right) && (
-          <div className="flex flex-wrap gap-3 px-4 py-2 border-b border-gray-200 dark:border-dark-border text-xs">
-            <span className="px-2 py-0.5 rounded bg-gray-100 dark:bg-dark-surface2 text-gray-700 dark:text-gray-200">
-              {allKeys.length} fields
+          <div className="comparison-summary">
+            <span>
+              <strong>{allKeys.length}</strong> fields
             </span>
-            <span className="px-2 py-0.5 rounded bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300">
-              {diffStats.same} match
+            <span>
+              <strong>{diffStats.same}</strong> match
             </span>
-            <span className="px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300">
-              {diffStats.different} differ
+            <span>
+              <strong>{diffStats.different}</strong> differ
             </span>
-            <span className="px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300">
-              {diffStats.onlyLeft} only in A
+            <span>
+              <strong>{diffStats.onlyLeft}</strong> only in A
             </span>
-            <span className="px-2 py-0.5 rounded bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300">
-              {diffStats.onlyRight} only in B
+            <span>
+              <strong>{diffStats.onlyRight}</strong> only in B
             </span>
           </div>
         )}
 
-        <div className="flex-1 overflow-auto p-4">
+        <div
+          className="flex-1 overflow-auto p-4"
+          role="region"
+          aria-label="Comparison results"
+          tabIndex={0}
+        >
           {!left && !right ? (
             <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-8">
               Load two JSON payloads to compare them side by side.

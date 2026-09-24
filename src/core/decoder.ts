@@ -1,5 +1,6 @@
 import { AAMVA_STATES } from "./states";
 import { AAMVA_VERSIONS } from "./schema";
+import { parseImportedPayload } from "./importPayload";
 
 // Pre-built IIN → state-code Map for O(1) lookup during decoding.
 // Replaces an O(n) linear scan through all 54 jurisdictions on every decode.
@@ -75,6 +76,9 @@ export function readDirectory(
   strict: boolean,
   maxLengthOverrun: number = SUBFILE_OFFSET_TOLERANCE
 ): DirectoryRead {
+  if (!RE_2_DIGITS.test(payload.substring(19, 21))) {
+    return { entries: [], error: "Invalid directory entry count" };
+  }
   const numEntries = parseInt(payload.substring(19, 21), 10);
   const directoryEnd = HEADER_LENGTH + numEntries * DIRECTORY_ENTRY_LENGTH;
   const entries: SubfileEntry[] = [];
@@ -129,6 +133,10 @@ export function readDirectory(
     entries.push({ type, declaredOffset, declaredLength, start, end, repaired });
   }
 
+  if (strict && entries[0]?.start !== directoryEnd) {
+    return { entries, error: "Unaccounted bytes before first subfile" };
+  }
+
   if (strict) {
     // Our own encoder lays subfiles end to end with nothing between them and
     // nothing after the last, so anything else in strict mode is our bug. The
@@ -156,6 +164,9 @@ export function readDirectory(
     const current = entries[i];
     const next = entries[i + 1];
     if (current && next && current.end > next.start) {
+      if (next.start <= current.start || current.end - next.start > SUBFILE_OFFSET_TOLERANCE) {
+        return { entries, error: "Overlapping or unordered subfile directory" };
+      }
       current.end = next.start;
       current.repaired = true;
     }
@@ -199,6 +210,11 @@ export function validateAAMVAPayloadStructure(
     return { ok: false, error: "Empty or invalid payload" };
   if (payload.length < 31)
     return { ok: false, error: "Payload too short for AAMVA header and directory" };
+  if (payload.length > 100_000) return { ok: false, error: "Payload exceeds parser size limit" };
+  // eslint-disable-next-line no-control-regex -- validate the single-byte wire boundary
+  if (/[^\u0000-\u00ff]/.test(payload)) {
+    return { ok: false, error: "Unsupported input encoding: expected a single-byte payload" };
+  }
 
   if (payload.charAt(0) !== "@") return { ok: false, error: "Invalid compliance indicator" };
   if (payload.charAt(1) !== "\n") return { ok: false, error: "Invalid data element separator" };
@@ -227,8 +243,16 @@ export function validateAAMVAPayloadStructure(
   // real part of the format — Connecticut ships one — and a directory that
   // declares two entries while only the first is well-formed is not a payload
   // this app should call valid.
-  const { error } = readDirectory(payload, strictMode);
+  const { entries, error } = readDirectory(payload, strictMode);
   if (error) return { ok: false, error };
+  for (const entry of entries) {
+    if ((entry.type === "DL" || entry.type === "ID") && payload[entry.end - 1] !== "\r") {
+      return {
+        ok: false,
+        error: `Missing segment terminator in ${entry.type}; payload may be truncated`
+      };
+    }
+  }
 
   return { ok: true };
 }
@@ -248,17 +272,8 @@ export function decodePayload(text: string): DecodeResult {
 
   if (text.charAt(0) === "@") return decodeAAMVAFormat(text);
 
-  try {
-    const obj = JSON.parse(text);
-    // Arrays are objects too. Letting one through handed callers a "field map"
-    // whose keys were array indices, which the form then loaded as fields.
-    if (!obj || typeof obj !== "object" || Array.isArray(obj)) {
-      return { error: "Not a valid payload" };
-    }
-    return { data: obj };
-  } catch {
-    return { error: "Unrecognized payload format" };
-  }
+  const parsed = parseImportedPayload(text, "This barcode");
+  return parsed.ok ? { data: parsed.data } : { error: parsed.error };
 }
 
 export function decodeAAMVAFormat(text: string): DecodeResult {
@@ -282,7 +297,10 @@ export function decodeAAMVAFormat(text: string): DecodeResult {
     for (const subfile of subfiles) {
       const fieldData = text.substring(subfile.start + 2, subfile.end);
       for (const entry of fieldData.split("\n")) {
-        if (entry.length < 3) continue;
+        if (!entry || entry === "\r") continue;
+        if (entry.length < 3 || !RE_FIELD_CODE.test(entry.substring(0, 3))) {
+          return { error: `Malformed data element in ${subfile.type}` };
+        }
         const code = entry.substring(0, 3);
         let value = entry.substring(3);
         // Strip the segment terminator and any fixed-width space padding the
@@ -290,8 +308,16 @@ export function decodeAAMVAFormat(text: string): DecodeResult {
         // The padding is an encoding artefact, never data — leaving it on the
         // decoded value made the postal code fail re-validation, so a scanned
         // or imported barcode could not be regenerated.
-        value = value.replace(/\r$/, "").replace(/ +$/, "");
+        value = value.replace(/\r$/, "");
+        if (!subfile.type.startsWith("Z")) value = value.replace(/ +$/, "");
         if (RE_FIELD_CODE.test(code)) {
+          if (Object.prototype.hasOwnProperty.call(obj, code) && obj[code] !== value) {
+            return { error: `Conflicting duplicate element ${code}; inspect the original payload` };
+          }
+          // Interior control characters are not a continuation of the value.
+          // eslint-disable-next-line no-control-regex
+          if (/[\x00-\x1f\x7f]/.test(value))
+            return { error: `Unexpected control character in element ${code}` };
           obj[code] = value;
         }
       }
@@ -299,6 +325,7 @@ export function decodeAAMVAFormat(text: string): DecodeResult {
 
     const stateCode = _IIN_TO_STATE.get(iin);
     if (stateCode) obj.state = stateCode;
+    obj.subfileType = subfiles[0]!.type;
 
     return { data: obj, subfiles: subfiles.map((s) => s.type) };
   } catch (err) {
@@ -325,7 +352,7 @@ export function describeFields(obj: Record<string, string>): string {
   // part of a real card that no published field table will explain.
   const known = new Set(def.fields.map((f) => f.code));
   const extra = Object.keys(obj).filter(
-    (code) => code !== "version" && code !== "state" && !known.has(code)
+    (code) => !["version", "state", "subfileType"].includes(code) && !known.has(code)
   );
   if (extra.length > 0) {
     lines.push("", "Jurisdiction-defined / unrecognized elements:");

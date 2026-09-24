@@ -923,8 +923,12 @@ const _EXCLUDED_SETS: Readonly<Record<string, ReadonlySet<string>>> = Object.fro
 // is small and fixed at runtime, so this Map grows to at most ~54×11 = 594 entries.
 const _stateVersionFieldCache = new Map<string, AAMVAField[]>();
 
-export function getFieldsForStateAndVersion(stateCode: string, v: string): AAMVAField[] {
-  const cacheKey = `${stateCode}:${v}`;
+export function getFieldsForStateAndVersion(
+  stateCode: string,
+  v: string,
+  subfileType: "DL" | "ID" = "DL"
+): AAMVAField[] {
+  const cacheKey = `${stateCode}:${v}:${subfileType}`;
   const cached = _stateVersionFieldCache.get(cacheKey);
   if (cached) return cached;
 
@@ -959,6 +963,11 @@ export function getFieldsForStateAndVersion(stateCode: string, v: string): AAMVA
     );
   }
 
+  // CDS 2020/2025 Table D.3 marks these three elements DL-only.
+  // Older editions retain their existing model pending primary-source review.
+  if (subfileType === "ID" && (v === "10" || v === "11")) {
+    result = result.filter((f) => !["DCA", "DCB", "DCD"].includes(f.code));
+  }
   _stateVersionFieldCache.set(cacheKey, result);
   return result;
 }
@@ -967,8 +976,12 @@ export function getFieldsForStateAndVersion(stateCode: string, v: string): AAMVA
 // generator demands can never drift from the set the user was shown. Reading
 // the version table directly (and ignoring `stateCode`, as this used to) only
 // happened to agree because the exclusion filter above keeps required fields.
-export function getMandatoryFields(stateCode: string, version: string): AAMVAField[] {
-  return getFieldsForStateAndVersion(stateCode, version).filter((f) => f.required);
+export function getMandatoryFields(
+  stateCode: string,
+  version: string,
+  subfileType: "DL" | "ID" = "DL"
+): AAMVAField[] {
+  return getFieldsForStateAndVersion(stateCode, version, subfileType).filter((f) => f.required);
 }
 
 export function describeVersion(v: string): string {

@@ -5,6 +5,9 @@ import type { FieldGroupId } from "../core/schema";
 // the initial chunk, even though only the plaque modal ever renders them.
 import type { BadgeStats } from "../core/badges";
 import { seededFields } from "../core/derivedFields";
+import { validateImportedRecord } from "../core/importPayload";
+import { AAMVA_STATES } from "../core/states";
+import { isSupportedVersion } from "../core/schema";
 
 // Persisted state intentionally excludes the AAMVA `fields` payload, so no PII
 // is ever written to disk. Only UI preferences (state, version, strict mode,
@@ -40,6 +43,24 @@ const INITIAL_BADGE_STATS: BadgeStats = {
   batchRows: 0,
   nightShift: false
 };
+
+export interface DocumentSnapshot {
+  state: string;
+  version: string;
+  subfileType: "DL" | "ID";
+  fields: Record<string, string>;
+  sourcePayload: string | null;
+}
+
+export function documentSnapshot(s: DocumentSnapshot): DocumentSnapshot {
+  return {
+    state: s.state,
+    version: s.version,
+    subfileType: s.subfileType,
+    fields: { ...s.fields },
+    sourcePayload: s.sourcePayload
+  };
+}
 
 export interface FormState {
   state: string;
@@ -77,8 +98,8 @@ export interface FormState {
   // Last camera the user scanned with, so the scanner reopens on the same one.
   cameraDeviceId: string;
   // undo/redo stacks — not persisted
-  _history: Array<Record<string, string>>;
-  _future: Array<Record<string, string>>;
+  _history: DocumentSnapshot[];
+  _future: DocumentSnapshot[];
   // Coalescing bookkeeping for `setField` — not persisted.
   _lastEditCode: string;
   _lastEditAt: number;
@@ -154,10 +175,10 @@ export const useFormStore = create<FormState>()(
       requiredOnly: false,
       issuesOnly: false,
       recentStates: [],
-      inspectorWidth: 320,
+      inspectorWidth: 440,
       includeNameInExport: false,
       tourSeenAt: "",
-      whimsy: true,
+      whimsy: false,
       soundOn: false,
       mascots: false,
       badgeStats: { ...INITIAL_BADGE_STATS },
@@ -180,7 +201,9 @@ export const useFormStore = create<FormState>()(
             s._lastEditCode === code &&
             now - s._lastEditAt < COALESCE_WINDOW_MS &&
             s._history.length > 0;
-          const history = coalesce ? s._history : [...s._history, s.fields].slice(-HISTORY_LIMIT);
+          const history = coalesce
+            ? s._history
+            : [...s._history, documentSnapshot(s)].slice(-HISTORY_LIMIT);
           return {
             fields: { ...s.fields, [code]: value },
             _history: history,
@@ -198,7 +221,12 @@ export const useFormStore = create<FormState>()(
       setDerivedField: (code, value) =>
         set((s) => (s.fields[code] === value ? s : { fields: { ...s.fields, [code]: value } })),
 
-      setStateVersion: (stateCode, version) =>
+      setStateVersion: (stateCode, version) => {
+        if (
+          !Object.prototype.hasOwnProperty.call(AAMVA_STATES, stateCode) ||
+          !isSupportedVersion(version)
+        )
+          throw new Error("Unsupported jurisdiction or version");
         set((s) => {
           const visited = s.badgeStats.visitedStates.includes(stateCode)
             ? s.badgeStats.visitedStates
@@ -212,19 +240,35 @@ export const useFormStore = create<FormState>()(
           return {
             state: stateCode,
             version,
+            _history: [...s._history, documentSnapshot(s)].slice(-HISTORY_LIMIT),
+            _future: [],
             fields: nextFields,
             recentStates: promoteRecent(s.recentStates, stateCode),
             badgeStats: { ...s.badgeStats, visitedStates: visited },
             _lastEditCode: "",
             _lastEditAt: 0
           };
-        }),
+        });
+      },
 
       setStrictMode: (mode) => set({ strictMode: mode }),
 
       // Switching DL/ID no longer rewrites the vehicle class. Picking a
       // subfile type is not the user stating what they are licensed to drive.
-      setSubfileType: (type) => set({ subfileType: type }),
+      setSubfileType: (type) => {
+        if (type !== "DL" && type !== "ID") throw new Error("Invalid subfile type");
+        set((s) =>
+          s.subfileType === type
+            ? s
+            : {
+                subfileType: type,
+                _history: [...s._history, documentSnapshot(s)].slice(-HISTORY_LIMIT),
+                _future: [],
+                _lastEditCode: "",
+                _lastEditAt: 0
+              }
+        );
+      },
 
       setTheme: (theme) => set({ theme }),
 
@@ -238,7 +282,11 @@ export const useFormStore = create<FormState>()(
       setIssuesOnly: (value) => set({ issuesOnly: value }),
 
       setInspectorWidth: (width) =>
-        set({ inspectorWidth: Math.max(280, Math.min(720, Math.round(width))) }),
+        set((s) => ({
+          inspectorWidth: Number.isFinite(width)
+            ? Math.max(280, Math.min(720, Math.round(width)))
+            : s.inspectorWidth
+        })),
 
       setIncludeNameInExport: (value) => set({ includeNameInExport: value }),
 
@@ -273,13 +321,15 @@ export const useFormStore = create<FormState>()(
       // before the seeds were narrowed, a vehicle class. Structural defaults
       // come back when a jurisdiction is chosen, not when data is wiped.
       clearFields: () =>
-        set((s) => ({
+        set(() => ({
           fields: {},
           sourcePayload: null,
-          _history: [...s._history, s.fields].slice(-HISTORY_LIMIT),
+          _history: [],
           _future: [],
           _lastEditCode: "",
-          _lastEditAt: 0
+          _lastEditAt: 0,
+          _changedCodes: [],
+          _changedAt: 0
         })),
 
       // Applies many field values as ONE undo step. Bulk actions used to call
@@ -291,7 +341,7 @@ export const useFormStore = create<FormState>()(
           const next = { ...s.fields, ...patch };
           return {
             fields: next,
-            _history: [...s._history, s.fields].slice(-HISTORY_LIMIT),
+            _history: [...s._history, documentSnapshot(s)].slice(-HISTORY_LIMIT),
             _future: [],
             _lastEditCode: "",
             _lastEditAt: 0,
@@ -305,7 +355,7 @@ export const useFormStore = create<FormState>()(
       restoreFields: (fields) =>
         set((s) => ({
           fields,
-          _history: [...s._history, s.fields].slice(-HISTORY_LIMIT),
+          _history: [...s._history, documentSnapshot(s)].slice(-HISTORY_LIMIT),
           _future: [],
           _lastEditCode: "",
           _lastEditAt: 0,
@@ -313,17 +363,20 @@ export const useFormStore = create<FormState>()(
           _changedAt: Date.now()
         })),
 
-      loadJson: (data, sourcePayload) =>
+      loadJson: (data, sourcePayload) => {
+        const checked = validateImportedRecord(data);
+        if (!checked.ok) throw new Error(checked.error);
         set((s) => {
-          const { state: newState, version, ...rest } = data;
+          const { state: newState, version, subfileType, ...rest } = checked.data;
           const newFields = Object.fromEntries(
             Object.entries(rest).map(([k, v]) => [k, String(v)])
           );
-          const history = [...s._history, s.fields].slice(-HISTORY_LIMIT);
+          const history = [...s._history, documentSnapshot(s)].slice(-HISTORY_LIMIT);
           const nextState = newState || s.state;
           return {
             state: nextState,
             version: version || s.version,
+            subfileType: subfileType === "ID" || subfileType === "DL" ? subfileType : s.subfileType,
             recentStates:
               nextState === s.state ? s.recentStates : promoteRecent(s.recentStates, nextState),
             fields: newFields,
@@ -338,16 +391,17 @@ export const useFormStore = create<FormState>()(
             // payload attached would have the ledger describe the wrong one.
             sourcePayload: sourcePayload ?? null
           };
-        }),
+        });
+      },
 
       undo: () =>
         set((s) => {
           if (s._history.length === 0) return s;
           const prev = s._history[s._history.length - 1];
           const history = s._history.slice(0, -1);
-          const future = [s.fields, ...s._future].slice(0, HISTORY_LIMIT);
+          const future = [documentSnapshot(s), ...s._future].slice(0, HISTORY_LIMIT);
           return {
-            fields: prev,
+            ...prev,
             _history: history,
             _future: future,
             _lastEditCode: "",
@@ -361,9 +415,9 @@ export const useFormStore = create<FormState>()(
           if (s._future.length === 0) return s;
           const next = s._future[0];
           const future = s._future.slice(1);
-          const history = [...s._history, s.fields].slice(-HISTORY_LIMIT);
+          const history = [...s._history, documentSnapshot(s)].slice(-HISTORY_LIMIT);
           return {
-            fields: next,
+            ...next,
             _history: history,
             _future: future,
             _lastEditCode: "",
@@ -378,6 +432,44 @@ export const useFormStore = create<FormState>()(
     {
       name: "aamva_form_prefs_v2",
       storage: createJSONStorage(() => localStorage),
+      merge: (saved, current) => {
+        const raw = (saved && typeof saved === "object" ? saved : {}) as Record<string, unknown>;
+        const safe: Partial<FormState> = {};
+        if (
+          typeof raw.state === "string" &&
+          Object.prototype.hasOwnProperty.call(AAMVA_STATES, raw.state)
+        )
+          safe.state = raw.state;
+        if (typeof raw.version === "string" && isSupportedVersion(raw.version))
+          safe.version = raw.version;
+        if (raw.subfileType === "DL" || raw.subfileType === "ID")
+          safe.subfileType = raw.subfileType;
+        if (["system", "light", "dark", "dmv"].includes(String(raw.theme)))
+          safe.theme = raw.theme as Theme;
+        for (const key of [
+          "strictMode",
+          "requiredOnly",
+          "issuesOnly",
+          "includeNameInExport",
+          "whimsy",
+          "soundOn",
+          "mascots"
+        ] as const) {
+          if (typeof raw[key] === "boolean") safe[key] = raw[key];
+        }
+        if (typeof raw.inspectorWidth === "number" && Number.isFinite(raw.inspectorWidth))
+          safe.inspectorWidth = Math.max(280, Math.min(720, raw.inspectorWidth));
+        if (typeof raw.tourSeenAt === "string") safe.tourSeenAt = raw.tourSeenAt;
+        if (typeof raw.cameraDeviceId === "string") safe.cameraDeviceId = raw.cameraDeviceId;
+        if (Array.isArray(raw.recentStates))
+          safe.recentStates = raw.recentStates
+            .filter(
+              (v): v is string =>
+                typeof v === "string" && Object.prototype.hasOwnProperty.call(AAMVA_STATES, v)
+            )
+            .slice(0, RECENT_STATES_LIMIT);
+        return { ...current, ...safe };
+      },
       // Persist only non-sensitive UI preferences. AAMVA payload `fields`,
       // undo/redo stacks are intentionally excluded.
       partialize: (s) => ({

@@ -34,6 +34,7 @@ export function splitDelimited(text: string, delimiter: string): string[][] {
   let row: string[] = [];
   let cell = "";
   let inQuotes = false;
+  let closedQuote = false;
 
   for (let i = 0; i < text.length; i++) {
     const ch = text[i];
@@ -45,6 +46,7 @@ export function splitDelimited(text: string, delimiter: string): string[][] {
           i++;
         } else {
           inQuotes = false;
+          closedQuote = true;
         }
       } else {
         cell += ch;
@@ -52,22 +54,28 @@ export function splitDelimited(text: string, delimiter: string): string[][] {
       continue;
     }
 
+    if (closedQuote && ch !== delimiter && ch !== "\n" && ch !== "\r")
+      throw new Error("Unexpected text after a closing CSV quote.");
     if (ch === '"') {
+      if (cell.length) throw new Error("A CSV quote must start a field.");
       inQuotes = true;
     } else if (ch === delimiter) {
       row.push(cell);
       cell = "";
+      closedQuote = false;
     } else if (ch === "\n") {
       row.push(cell);
       rows.push(row);
       row = [];
       cell = "";
+      closedQuote = false;
     } else if (ch !== "\r") {
       cell += ch;
     }
   }
 
   // Flush whatever the last line left behind.
+  if (inQuotes) throw new Error("Unclosed quoted CSV field.");
   if (cell.length > 0 || row.length > 0) {
     row.push(cell);
     rows.push(row);
@@ -101,12 +109,15 @@ export function parseBatchTable(text: string, delimiter?: string): ParsedTable {
   const unknownHeaders = headers.filter(
     (h) => !FIELD_CODE_RE.test(h) && !BATCH_CONTROL_COLUMNS.includes(h as never)
   );
+  if (new Set(headers).size !== headers.length) throw new Error("Duplicate CSV column headers.");
 
   const rows = grid.slice(1).map((cells) => {
+    if (cells.length > headers.length) throw new Error("CSV row has more columns than its header.");
     const record: Record<string, string> = {};
     headers.forEach((header, idx) => {
       if (!header) return;
-      const value = (cells[idx] ?? "").trim();
+      const raw = cells[idx] ?? "";
+      const value = header.startsWith("Z") ? raw : raw.trim();
       if (value) record[header] = value;
     });
     return record;
@@ -137,4 +148,19 @@ export function toCsv(
     lines.push(headers.map((h) => quoteCell(String(row[h] ?? ""), delimiter)).join(delimiter));
   }
   return lines.join("\r\n");
+}
+
+/** A human-readable report is opened in spreadsheets; untrusted cells must not execute formulas. */
+export function toSafeReportCsv(
+  headers: string[],
+  rows: Array<Record<string, string | number>>
+): string {
+  const safe = (value: string | number) =>
+    typeof value === "string" && /^[\s]*[=+@-]/.test(value) ? "'" + value : value;
+  return toCsv(
+    headers,
+    rows.map((row) =>
+      Object.fromEntries(Object.entries(row).map(([key, value]) => [key, safe(value)]))
+    )
+  );
 }

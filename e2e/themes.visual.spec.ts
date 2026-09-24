@@ -1,59 +1,21 @@
 import { test, expect } from "@playwright/test";
 import { dismissTour, selectState } from "./helpers";
 
-// Theme regression for representative state palettes. Themes are applied
-// as CSS custom properties on <html> by applyStateThemeToDocument; we
-// assert those properties switch to the expected per-state values when
-// the user picks a state.
-//
-// The values below mirror src/core/stateThemes.ts — if a palette is
-// intentionally retuned, update this map. A pixel-diff snapshot was
-// considered but is too sensitive to font rendering and lazy-bundle
-// timing to be useful in CI; the CSS-variable contract is what the
-// implementation actually guarantees.
-
-interface ExpectedPalette {
-  primary: string;
-  accent: string;
-  tint: string;
-}
-
-const EXPECTED: Record<string, ExpectedPalette> = {
-  CA: { primary: "#003A70", accent: "#F2A900", tint: "#dbe4ed" },
-  NY: { primary: "#1D3458", accent: "#D8A637", tint: "#dde2ea" },
-  TX: { primary: "#BF0A30", accent: "#002868", tint: "#f8dfe4" },
-  FL: { primary: "#C8102E", accent: "#FFD100", tint: "#fadfe4" },
-  WA: { primary: "#0F4A2F", accent: "#FFC72C", tint: "#dde5e0" },
-  DC: { primary: "#BF0A30", accent: "#002868", tint: "#f8dfe4" }
-};
-
-async function readVar(
-  page: import("@playwright/test").Page,
-  name: string
-): Promise<string> {
-  return page.evaluate(
-    (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim(),
-    name
-  );
-}
-
-for (const [state, palette] of Object.entries(EXPECTED)) {
-  test(`state theme variables: ${state}`, async ({ page }) => {
+// Issuer choice changes the record, never the contrast or meaning of UI colors.
+for (const state of ["CA", "NY", "TX", "FL", "WA", "DC"]) {
+  test(`workbench appearance stays stable when selecting ${state}`, async ({ page }) => {
     await page.goto("/");
     await dismissTour(page);
-    // The state selector lives in the Config panel, which is not the default
-    // panel on mobile viewports. `selectState` also handles the picker being a
-    // type-to-filter combobox rather than a native <select>.
+    const paint = () =>
+      page.locator(".workbench-header").evaluate((el) => ({
+        background: getComputedStyle(el).backgroundColor,
+        color: getComputedStyle(el).color
+      }));
+    const before = await paint();
     await selectState(page, state);
-
-    // Wait for the React effect that calls applyStateThemeToDocument to
-    // flush. setProperty is synchronous once the effect runs, but the
-    // effect itself is queued for after commit.
-    await expect
-      .poll(() => readVar(page, "--state-primary"), { timeout: 5_000 })
-      .toBe(palette.primary);
-
-    expect(await readVar(page, "--state-accent")).toBe(palette.accent);
-    expect(await readVar(page, "--state-tint")).toBe(palette.tint);
+    await expect(page.getByRole("combobox", { name: /select state or territory/i })).toHaveValue(
+      new RegExp(`\\(${state}\\)`)
+    );
+    expect(await paint()).toEqual(before);
   });
 }
