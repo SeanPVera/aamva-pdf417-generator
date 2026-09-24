@@ -70,6 +70,52 @@ describe("PreviewActions", () => {
     fireEvent.click(screen.getByRole("button", { name: "Copy decoded payload as JSON" }));
     expect(handleCopyJson).toHaveBeenCalledTimes(1);
   });
+
+  test("export and copy buttons show helpful tooltips when disabled", () => {
+    renderActions({
+      canExport: false,
+      decoded: null,
+      stale: false
+    });
+
+    expect(screen.getByRole("button", { name: "Export barcode as PNG" })).toHaveAttribute(
+      "title",
+      "Fill required fields to export PNG"
+    );
+    expect(screen.getByRole("button", { name: "Export barcode as SVG" })).toHaveAttribute(
+      "title",
+      "Fill required fields to export SVG"
+    );
+    expect(screen.getByRole("button", { name: "Export barcode as PDF" })).toHaveAttribute(
+      "title",
+      "Fill required fields to export PDF"
+    );
+    expect(screen.getByRole("button", { name: "Print barcode" })).toHaveAttribute(
+      "title",
+      "Fill required fields to print barcode"
+    );
+    expect(screen.getByRole("button", { name: "Copy barcode image to clipboard" })).toHaveAttribute(
+      "title",
+      "Fill required fields to copy barcode image"
+    );
+    expect(screen.getByRole("button", { name: "Copy decoded payload as JSON" })).toHaveAttribute(
+      "title",
+      "Fill required fields to generate JSON payload"
+    );
+  });
+
+  test("copy JSON button displays 'Payload is updating...' tooltip when stale", () => {
+    renderActions({
+      canExport: true,
+      decoded: decoded,
+      stale: true
+    });
+
+    expect(screen.getByRole("button", { name: "Copy decoded payload as JSON" })).toHaveAttribute(
+      "title",
+      "Payload is updating..."
+    );
+  });
 });
 
 // It is a command button that swaps commands, not a toggle: the visible text
