@@ -384,3 +384,77 @@ describe("Maine carries DAW", () => {
     expect(payload).toContain("DAW180");
   });
 });
+
+describe("FieldInput character counter visual state", () => {
+  it("applies correct warning and error classes at capacity thresholds", async () => {
+    const { render, screen } = await import("@testing-library/react");
+    const { FieldInput } = await import("../components/FieldInput");
+
+    const sampleField: AAMVAField = {
+      code: "DAG",
+      label: "Street Address",
+      type: "string",
+      maxLength: 10
+    };
+
+    const noop = () => {};
+
+    // 1. Below 80% (5/10)
+    const { rerender } = render(
+      <FieldInput
+        field={sampleField}
+        value="12345"
+        state="CA"
+        strictMode={false}
+        copied={false}
+        onChange={noop}
+        onCopy={noop}
+        onReset={noop}
+        onGenerate={noop}
+      />
+    );
+
+    let counter = screen.getByText("5/10");
+    expect(counter).toHaveClass("text-gray-600");
+    expect(counter).toHaveClass("opacity-0");
+
+    // 2. Reaching 80% (8/10) -> Amber warning
+    rerender(
+      <FieldInput
+        field={sampleField}
+        value="12345678"
+        state="CA"
+        strictMode={false}
+        copied={false}
+        onChange={noop}
+        onCopy={noop}
+        onReset={noop}
+        onGenerate={noop}
+      />
+    );
+
+    counter = screen.getByText("8/10");
+    expect(counter).toHaveClass("text-amber-600");
+    expect(counter).toHaveClass("opacity-100");
+
+    // 3. Reaching 100% (10/10) -> Red error / limit reached
+    rerender(
+      <FieldInput
+        field={sampleField}
+        value="1234567890"
+        state="CA"
+        strictMode={false}
+        copied={false}
+        onChange={noop}
+        onCopy={noop}
+        onReset={noop}
+        onGenerate={noop}
+      />
+    );
+
+    counter = screen.getByText("10/10");
+    expect(counter).toHaveClass("text-red-600");
+    expect(counter).toHaveClass("font-bold");
+    expect(counter).toHaveClass("opacity-100");
+  });
+});
