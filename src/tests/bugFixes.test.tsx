@@ -11,6 +11,11 @@ import { decodeAAMVA, decodePayload } from "../core/decoder";
 import { evaluateFieldValue, getValidationIssues } from "../core/validation";
 import { JURISDICTION_RULE_PACKS } from "../core/jurisdictionRules";
 import type { AAMVAField } from "../core/schema";
+import ilIdBaseline from "../core/conformance/vectors/il-v09-id-baseline.json";
+
+// A complete, synthetic ID record that already lives in the repo, so these
+// regressions need no hand-written stand-in for a real card.
+const ID_VECTOR_INPUT = ilIdBaseline.input as Record<string, string>;
 
 /**
  * Regression suite for the defects found in the bug review. Each block names
@@ -299,5 +304,83 @@ describe("PreviewActions filename privacy toggle", () => {
     expect(checkbox).toBeChecked();
     expect(screen.getByText(/On:/i)).toBeInTheDocument();
     expect(screen.getByText(/On:/i)).toHaveTextContent("On: barcode_CA_DL_V10.png");
+  });
+});
+
+describe("an ID card is not required to carry driving privileges", () => {
+  // DCA, DCB and DCD exist to describe driving privileges. v10/v11 already drop
+  // them from an ID subfile outright, per CDS Table D.3; the older editions
+  // were left demanding them "pending primary-source review". A decoded Maine
+  // ID card (AAMVA v09) supplied it — the card omits all three, and the
+  // generator rejected it as missing mandatory fields.
+  const DRIVING = ["DCA", "DCB", "DCD"];
+
+  it("stops demanding them on an ID subfile, every edition that defines them", () => {
+    for (const version of AAMVA_VERSION_KEYS) {
+      const idFields = getFieldsForStateAndVersion("ME", version, "ID");
+      const demanded = getMandatoryFields("ME", version, "ID").map((f) => f.code);
+      for (const code of DRIVING) {
+        expect(demanded, `v${version} ID demands ${code}`).not.toContain(code);
+      }
+      // A DL still owes all three wherever the edition defines them.
+      const dlFields = getFieldsForStateAndVersion("ME", version, "DL");
+      const dlDemanded = getMandatoryFields("ME", version, "DL").map((f) => f.code);
+      for (const code of DRIVING) {
+        if (dlFields.some((f) => f.code === code)) {
+          expect(dlDemanded, `v${version} DL dropped ${code}`).toContain(code);
+        }
+      }
+      void idFields;
+    }
+  });
+
+  it("keeps them available on the editions that still define them", () => {
+    // v10/v11 remove them; earlier editions must not, or Illinois's v09 ID
+    // vector — which carries all three — could no longer be encoded.
+    const il = getFieldsForStateAndVersion("IL", "09", "ID").map((f) => f.code);
+    for (const code of DRIVING) expect(il, `IL v09 ID lost ${code}`).toContain(code);
+  });
+
+  it("builds an ID payload that omits all three", () => {
+    // Illinois's own synthetic ID vector, minus the driving-privilege codes.
+    const input: Record<string, string> = { ...ID_VECTOR_INPUT };
+    for (const code of DRIVING) delete input[code];
+
+    const fields = getFieldsForStateAndVersion("IL", "09", "ID");
+    const out = generateAAMVAPayload("IL", "09", fields, input, { subfileType: "ID" });
+    const payload = typeof out === "string" ? out : (out as { payload: string }).payload;
+    for (const code of DRIVING) expect(payload).not.toContain(code);
+    expect(payload).toContain(`DCS${ID_VECTOR_INPUT.DCS}`);
+  });
+
+  it("still reports nothing outstanding to the form and the validator", () => {
+    // Requiredness is read off the field list by validation, the readiness
+    // counts and the progress bar alike, so all of them have to agree with the
+    // generator rather than each carrying their own copy of the rule.
+    const input: Record<string, string> = { ...ID_VECTOR_INPUT };
+    for (const code of DRIVING) delete input[code];
+
+    const fields = getFieldsForStateAndVersion("IL", "09", "ID");
+    const issues = getValidationIssues(fields, input, "IL", false);
+    expect(issues.filter((i) => DRIVING.includes(i.code))).toEqual([]);
+    expect(fields.filter((f) => f.required && !(input[f.code] ?? "").trim())).toEqual([]);
+  });
+});
+
+describe("Maine carries DAW", () => {
+  // ME was listed in AAMVA_STATE_EXCLUDED_FIELDS as excluding DAW. A decoded
+  // Maine ID card carries it, and excluding the element cost the subfile its
+  // code, its value and its separator.
+  it("includes DAW in the Maine field list", () => {
+    expect(getFieldsForStateAndVersion("ME", "09").map((f) => f.code)).toContain("DAW");
+  });
+
+  it("emits DAW in a generated Maine payload", () => {
+    const fields = getFieldsForStateAndVersion("ME", "09", "ID");
+    const input: Record<string, string> = { ...ID_VECTOR_INPUT, DAJ: "ME", DAW: "180" };
+    for (const code of ["DCA", "DCB", "DCD"]) delete input[code];
+    const out = generateAAMVAPayload("ME", "09", fields, input, { subfileType: "ID" });
+    const payload = typeof out === "string" ? out : (out as { payload: string }).payload;
+    expect(payload).toContain("DAW180");
   });
 });
