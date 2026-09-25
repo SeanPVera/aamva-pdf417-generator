@@ -489,7 +489,10 @@ export const AAMVA_STATE_EXCLUDED_FIELDS: Record<string, string[]> = {
   NY: ["DAW", "DAX", "DAZ", "DCL"],
   CT: ["DAW", "DAX", "DCL"],
   VT: ["DAW", "DAX", "DCL"],
-  ME: ["DAW", "DAX", "DCL"],
+  // DAW is not excluded: a decoded Maine ID card carries it, and dropping the
+  // element cost the subfile its code, value and separator. DAX (weight in
+  // kilograms) and DCL have not been observed on a Maine card either way.
+  ME: ["DAX", "DCL"],
   NH: ["DAW", "DAX", "DCL"],
   AL: ["DAX", "DCL"],
   AK: ["DAX", "DCL"],
@@ -923,6 +926,9 @@ const _EXCLUDED_SETS: Readonly<Record<string, ReadonlySet<string>>> = Object.fro
 // is small and fixed at runtime, so this Map grows to at most ~54×11 = 594 entries.
 const _stateVersionFieldCache = new Map<string, AAMVAField[]>();
 
+/** Elements that exist only to carry driving privileges an ID card does not confer. */
+const DRIVING_PRIVILEGE_CODES = ["DCA", "DCB", "DCD"];
+
 export function getFieldsForStateAndVersion(
   stateCode: string,
   v: string,
@@ -964,9 +970,19 @@ export function getFieldsForStateAndVersion(
   }
 
   // CDS 2020/2025 Table D.3 marks these three elements DL-only.
-  // Older editions retain their existing model pending primary-source review.
   if (subfileType === "ID" && (v === "10" || v === "11")) {
-    result = result.filter((f) => !["DCA", "DCB", "DCD"].includes(f.code));
+    result = result.filter((f) => !DRIVING_PRIVILEGE_CODES.includes(f.code));
+  } else if (subfileType === "ID") {
+    // The primary-source review the older editions were waiting on: an issued
+    // Maine ID card (AAMVA v09) omits all three, and the generator rejected it
+    // outright as missing mandatory fields. Those editions do still define the
+    // elements — Illinois's v09 ID vector carries them — so here they stop
+    // being demanded rather than being removed as in v10/v11. An ID card that
+    // carries a vehicle class can still say so; one that does not is no longer
+    // refused.
+    result = result.map((f) =>
+      f.required && DRIVING_PRIVILEGE_CODES.includes(f.code) ? { ...f, required: false } : f
+    );
   }
   _stateVersionFieldCache.set(cacheKey, result);
   return result;
