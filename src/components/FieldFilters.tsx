@@ -57,7 +57,8 @@ export const FieldFilters: React.FC<FieldFiltersProps> = (p) => {
           <button
             className="wb-button"
             onClick={() => p.onQueryChange("")}
-            aria-label="Clear search"
+            aria-label="Clear field search"
+            title="Clear field search"
           >
             Clear
           </button>
