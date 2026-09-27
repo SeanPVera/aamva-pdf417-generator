@@ -662,7 +662,7 @@ test("generateStateDiscriminator uses state-specific DCF format for CA", () => {
 test("generateStateDiscriminator uses state-specific DCF format for NY", () => {
   const dcf = window.generateStateDiscriminator("NY");
   // A decoded NY card carries a 10-character mixed letter/digit discriminator
-  // ("KMEMI7FG20"); this generator produced 10 digits until that was read.
+  // (shaped like "ABCDE1FG20"); this generator produced 10 digits until that was read.
   assert.match(dcf, /^[A-Z0-9]{10}$/, "NY DCF should be 10 alphanumeric characters");
 });
 
