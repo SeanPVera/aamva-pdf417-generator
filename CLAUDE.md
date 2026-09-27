@@ -473,6 +473,15 @@ the AAMVA text rule applies to standard string fields, because a real NY card
 carries a mixed-case blob in `ZNB` and upper-casing it would rewrite data whose
 meaning is not published anywhere.
 
+What `ZNB` holds can be measured, if not explained. It is Ascii85, and on a
+decoded card its 89 characters come out as a 71-byte DER `SEQUENCE` of two
+`INTEGER`s, 32 and 33 bytes: the shape of an ECDSA signature over 256-bit
+integers. DER's leading zero byte makes such a signature 70 to 72 bytes, so
+`ZNB` runs 88 to 90 characters, and New York space-fills it to 90. The first NY
+vector's placeholder filled all 90 characters, which is why the missing width
+went unnoticed until `ny-v10-dl-issued-znb-fill.json`. The generator never
+invents a `ZNB`; a real one only verifies against the card it came from.
+
 ### Jurisdiction encoding profiles
 
 `jurisdictionRules.ts` carries an optional `encoding` block per jurisdiction
