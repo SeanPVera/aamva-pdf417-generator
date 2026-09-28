@@ -68,7 +68,12 @@ export function ImportRecordDialog({ onClose }: { onClose: () => void }) {
             <span className="eyebrow">Bring a record into the workspace</span>
             <h2 id="import-title">Import payload or JSON</h2>
           </div>
-          <button className="wb-button" onClick={onClose} aria-label="Close import">
+          <button
+            className="wb-button"
+            onClick={onClose}
+            aria-label="Close import"
+            title="Close import"
+          >
             Close
           </button>
         </div>
