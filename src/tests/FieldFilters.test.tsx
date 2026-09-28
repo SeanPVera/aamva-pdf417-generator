@@ -81,4 +81,11 @@ describe("FieldFilters Component", () => {
     );
     expect(onIssuesOnlyChange).toHaveBeenCalledWith(true);
   });
+
+  test("clear search button has aria-label and title matching for tooltip accessibility", () => {
+    render(<FieldFilters {...defaultProps} query="DOE" />);
+    const clearBtn = screen.getByRole("button", { name: "Clear search" });
+    expect(clearBtn).toHaveAttribute("aria-label", "Clear search");
+    expect(clearBtn).toHaveAttribute("title", "Clear search");
+  });
 });
