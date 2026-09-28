@@ -81,4 +81,15 @@ describe("FieldFilters Component", () => {
     );
     expect(onIssuesOnlyChange).toHaveBeenCalledWith(true);
   });
+
+  test("clear search button has accessible name, title, and resets query on click", () => {
+    const onQueryChange = vi.fn();
+    render(<FieldFilters {...defaultProps} query="license" onQueryChange={onQueryChange} />);
+
+    const clearBtn = screen.getByRole("button", { name: "Clear field search" });
+    expect(clearBtn).toHaveAttribute("title", "Clear field search");
+
+    fireEvent.click(clearBtn);
+    expect(onQueryChange).toHaveBeenCalledWith("");
+  });
 });
