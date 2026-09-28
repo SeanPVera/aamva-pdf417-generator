@@ -800,15 +800,26 @@ export const FieldInput: React.FC<FieldInputProps> = ({
         </div>
         <div className="ml-2 flex shrink-0 items-center gap-2">
           {whimsy && field.code === "DAU" && <HeightSilhouette value={value} />}
-          {!options && maxLen && (
-            <span
-              className="whitespace-nowrap font-mono text-k-help text-gray-600 opacity-0 transition-opacity group-focus-within:opacity-100 dark:text-gray-400"
-              aria-hidden
-              title={`${value.length} of ${maxLen} characters used`}
-            >
-              {value.length}/{maxLen}
-            </span>
-          )}
+          {!options &&
+            maxLen &&
+            (() => {
+              const isAtCapacity = value.length >= maxLen;
+              const isNearCapacity = value.length >= Math.floor(maxLen * 0.8);
+              const counterColorClass = isAtCapacity
+                ? "text-red-600 dark:text-red-400 font-bold opacity-100"
+                : isNearCapacity
+                  ? "text-amber-600 dark:text-amber-400 font-semibold opacity-100"
+                  : "text-gray-600 dark:text-gray-400 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100";
+              return (
+                <span
+                  className={`whitespace-nowrap font-mono text-k-help transition-opacity ${counterColorClass}`}
+                  aria-hidden
+                  title={`${value.length} of ${maxLen} characters used`}
+                >
+                  {value.length}/{maxLen}
+                </span>
+              );
+            })()}
         </div>
       </div>
       {/* The only part of the counter worth announcing. */}
