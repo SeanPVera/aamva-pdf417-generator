@@ -232,7 +232,7 @@ export const AAMVA_STATE_RULES: Record<string, StateRules> = (() => {
     NY: {
       validators: { DAQ: (val) => /^[0-9]{9}$/.test(val) },
       // A decoded NY card carries a 10-character mixed letter/digit
-      // discriminator ("KMEMI7FG20"), not the 10 digits this used to mint.
+      // discriminator (shaped like "ABCDE1FG20"), not the 10 digits this used to mint.
       // `an` excludes look-alike characters; NY uses the full alphabet, so this
       // draws from it directly.
       generators: { DAQ: () => d(9), DCF: () => alnum(10) }

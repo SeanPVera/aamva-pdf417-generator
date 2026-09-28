@@ -38,6 +38,12 @@ one byte per subfile saved by closing the final element with the segment
 terminator alone. Both are now in NY's encoding profile, and the vector
 reproduces the card's directory exactly.
 
+A second New York vector (`ny-v10-dl-issued-znb-fill.json`) comes from a card
+whose `ZNB` fell one character short of its field. Its layout matches the first
+card's byte for byte, and the one space of fill after `ZNB` is what showed that
+New York pads that element to 90 as well. The first vector could not show it:
+its placeholder fills all 90 characters, so it passes with or without the width.
+
 Current coverage — run any time, and printed in CI:
 
 ```bash

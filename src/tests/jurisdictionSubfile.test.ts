@@ -305,12 +305,12 @@ describe("NY encoding profile", () => {
     DCA: "D",
     DCB: "NONE",
     DCD: "NONE",
-    DBA: "01162028",
+    DBA: "01012028",
     DCS: "SPECIMEN",
     DAC: "AVERY",
     DAD: "P",
-    DBD: "12172024",
-    DBB: "01161991",
+    DBD: "01012024",
+    DBB: "01011990",
     DBC: "1",
     DAY: "BRO",
     DAU: "603",
@@ -319,7 +319,7 @@ describe("NY encoding profile", () => {
     DAJ: "NY",
     DAK: "100010000",
     DAQ: "123456789",
-    DCF: "KMEMI7FG20",
+    DCF: "ABCDE1FG20",
     DCG: "USA",
     DDE: "U",
     DDF: "U",
@@ -344,16 +344,31 @@ describe("NY encoding profile", () => {
   });
 
   test("the ZN subfile keeps mixed-case values byte for byte", () => {
-    // ZNB on the source card is an opaque blob of mixed-case printable ASCII.
-    // The AAMVA text rule upper-cases string fields, which would silently
-    // rewrite data whose meaning nobody outside the DMV knows.
+    // ZNB is Ascii85, whose alphabet runs from "!" to "u": mixed case and most
+    // punctuation. The AAMVA text rule upper-cases string fields, which would
+    // silently rewrite data whose meaning nobody outside the DMV knows.
     const blob = '0LZ$c>Xf2jS/?W%E;R,]\'/e*>`%\\$/$;F<OSli^u%"kOr![.QqNK"BZ2HQNU';
     const payload = generateNY({ ...NY_RECORD, ZNA: "SPECIMEN@AVERY@P", ZNB: blob });
 
     // ZNB is the subfile's last element, and NY closes those with the segment
-    // terminator alone — no separator before it.
-    expect(payload).toContain(`ZNB${blob}\r`);
-    expect(decodeAAMVAFormat(payload).data?.ZNB).toBe(blob);
+    // terminator alone — no separator before it, only the fill to 90.
+    expect(payload).toContain(`ZNB${blob.padEnd(90)}\r`);
+    expect(decodeAAMVAFormat(payload).data?.ZNB).toBe(blob.padEnd(90));
+  });
+
+  test("space-fills ZNB to 90, as a card with a short signature does", () => {
+    // A DER-encoded signature runs 70 to 72 bytes, so ZNB runs 88 to 90
+    // Ascii85 characters. A card whose ZNB held 89 carried one space after
+    // them and declared a 120-byte ZN subfile. Without the width the encoder
+    // declared 119 and came up a byte short of the card's 484.
+    const signature =
+      '0LZ$c&J5Te&J5Te&J5Te&J5Te&J5Te&J5Te&J5Te&J5Te![.Q"LkpkCLkpkCLkpkCLkpkCLkpkCLkpkCLkpkCLkpi';
+    const payload = generateNY({ ...NY_RECORD, ZNA: "SPECIMEN@AVERY@P", ZNB: signature });
+
+    expect(signature).toHaveLength(89);
+    expect(payload).toContain(`ZNB${signature} \r`);
+    expect(payload.substring(31, 41)).toBe("ZN03640120");
+    expect(payload).toHaveLength(484);
   });
 
   test("standard elements are still upper-cased", () => {

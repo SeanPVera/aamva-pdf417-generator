@@ -675,13 +675,15 @@ export const JURISDICTION_RULE_PACKS: Record<string, JurisdictionRulePack> = {
     // evidence that this entry is wrong.
     encoding: {
       source:
-        "Decoded New York plastic DL card barcode (AAMVA v10, IIN 636001), captured 2026-08-17",
+        "Decoded New York plastic DL card barcodes (AAMVA v10, IIN 636001), captured 2026-08-17 and 2026-09-27",
       jurisdictionVersion: "04",
       omitFinalSeparator: true,
       // Measured from the card's own bytes with the wire ledger: 100 bytes of
       // space fill across ten elements. Only four widths are the AAMVA ones
       // (DCD, DAU, DAI, DAK); the rest are New York's own, which is why testing
       // the byte gap against spec widths alone could never account for it.
+      // ZNB's width came from a second card, whose ZNB fell one character short
+      // of the field and carried a space of fill; see the subfile note below.
       fieldWidths: {
         DCA: 4,
         DCB: 10,
@@ -693,16 +695,23 @@ export const JURISDICTION_RULE_PACKS: Record<string, JurisdictionRulePack> = {
         DAG: 25,
         DAI: 20,
         DAK: 11,
-        ZNA: 20
+        ZNA: 20,
+        ZNB: 90
       },
       jurisdictionSubfile: {
         type: "ZN",
         source:
-          "Decoded New York plastic DL card barcode (AAMVA v10, IIN 636001), captured 2026-08-17",
+          "Decoded New York plastic DL card barcodes (AAMVA v10, IIN 636001), captured 2026-08-17 and 2026-09-27",
         // ZNA holds the cardholder's name re-encoded with "@" separators,
-        // space-filled to 20; ZNB an opaque 90-character blob of mixed-case
-        // printable ASCII. Neither has a published meaning — AAMVA reserves Z*
-        // subfiles to the issuer.
+        // space-filled to 20. ZNB is Ascii85: on the second card its 89
+        // characters decode to a 71-byte DER SEQUENCE of two INTEGERs, the shape
+        // an ECDSA signature over 256-bit integers takes. DER gives an integer a
+        // leading zero byte when its top bit is set, so ZNB runs 88 to 90
+        // characters and New York space-fills it to 90. If it is the signature
+        // it looks like, only the issuer's key can make one that verifies; the
+        // generator carries a value through and never invents one. Neither
+        // element has a published meaning — AAMVA reserves Z* subfiles to the
+        // issuer.
         elements: [
           { code: "ZNA", label: "NY Optional Field A", maxLength: 50 },
           { code: "ZNB", label: "NY Optional Field B", maxLength: 120 }
