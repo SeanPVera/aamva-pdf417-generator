@@ -189,6 +189,7 @@ export const JurisdictionCombobox: React.FC<JurisdictionComboboxProps> = ({
           <button
             type="button"
             aria-label="Clear jurisdiction search"
+            title="Clear jurisdiction search"
             onClick={() => {
               setQuery("");
               inputRef.current?.focus();

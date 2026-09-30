@@ -384,3 +384,48 @@ describe("Maine carries DAW", () => {
     expect(payload).toContain("DAW180");
   });
 });
+
+describe("Icon-only buttons specify title tooltips matching aria-labels", () => {
+  it("includes matching title attributes on close/dismiss buttons in modals and overlays", async () => {
+    const { render, screen } = await import("@testing-library/react");
+    const { ShortcutsModal } = await import("../components/ShortcutsModal");
+    const { InspectorModal } = await import("../components/InspectorModal");
+    const { BatchProcessor } = await import("../components/BatchProcessor");
+    const { DmvBingo } = await import("../components/DmvBingo");
+    const { TicketDispenser } = await import("../components/TicketDispenser");
+    const { ClerkMascot } = await import("../components/ClerkMascot");
+    const { EmployeeOfTheMonth } = await import("../components/EmployeeOfTheMonth");
+
+    render(
+      <>
+        <ShortcutsModal open={true} onClose={() => {}} />
+        <InspectorModal onClose={() => {}}>
+          <div>Content</div>
+        </InspectorModal>
+        <BatchProcessor open={true} onClose={() => {}} />
+        <DmvBingo open={true} onClose={() => {}} marked={[]} onReset={() => {}} />
+        <TicketDispenser enabled={true} served={0} />
+        <ClerkMascot enabled={true} errorCount={0} requiredComplete={false} anyFields={false} />
+        <EmployeeOfTheMonth
+          open={true}
+          onClose={() => {}}
+          stats={{ visitedStates: [], generatedCount: 0, undoCount: 0, batchRows: 0 }}
+        />
+      </>
+    );
+
+    const checkButton = (ariaLabel: string, expectedTitle: string) => {
+      const btn = screen.getByRole("button", { name: ariaLabel });
+      expect(btn).toBeInTheDocument();
+      expect(btn).toHaveAttribute("title", expectedTitle);
+    };
+
+    checkButton("Close shortcuts", "Close shortcuts");
+    checkButton("Close inspector", "Close inspector");
+    checkButton("Close batch processing", "Close batch processing");
+    checkButton("Close bingo", "Close bingo");
+    checkButton("Hide the queue ticket", "Hide the queue ticket");
+    checkButton("Hide the clerk mascot", "Hide the clerk mascot");
+    checkButton("Close the plaque", "Close the plaque");
+  });
+});
