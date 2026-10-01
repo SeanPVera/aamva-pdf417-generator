@@ -28,11 +28,29 @@ describe("FieldFilters Component", () => {
       screen.getByRole("checkbox", { name: "Show only fields with validation issues" })
     ).toBeEnabled();
   });
-  test("an empty inactive issue filter is disabled", () => {
+  test("an empty inactive issue filter is disabled and displays a descriptive tooltip", () => {
     render(<FieldFilters {...defaultProps} issueCount={0} />);
+    const problemsCheckbox = screen.getByRole("checkbox", {
+      name: "Show only fields with validation issues"
+    });
+    expect(problemsCheckbox).toBeDisabled();
+    expect(problemsCheckbox).toHaveAttribute("title", "No validation issues found");
+  });
+
+  test("clear search and next empty buttons provide descriptive title tooltips", () => {
+    const { rerender } = render(<FieldFilters {...defaultProps} query="DL" hasNextEmpty />);
+    expect(screen.getByRole("button", { name: "Clear search" })).toHaveAttribute(
+      "title",
+      "Clear search"
+    );
     expect(
-      screen.getByRole("checkbox", { name: "Show only fields with validation issues" })
-    ).toBeDisabled();
+      screen.getByRole("button", { name: "Jump to next empty required field" })
+    ).toHaveAttribute("title", "Jump to next empty required field");
+
+    rerender(<FieldFilters {...defaultProps} query="" hasNextEmpty={false} />);
+    expect(
+      screen.getByRole("button", { name: "Jump to next empty required field" })
+    ).toHaveAttribute("title", "All required fields are filled");
   });
   test("an active issue filter can be cleared after the final error is fixed", () => {
     const clear = vi.fn();
