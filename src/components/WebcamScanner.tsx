@@ -279,6 +279,7 @@ export function WebcamScanner({ onClose }: WebcamScannerProps) {
           data-autofocus
           onClick={onClose}
           aria-label="Close scanner"
+          title="Close scanner"
           className="wb-button icon-button absolute top-4 right-4"
         >
           <X className="w-6 h-6" />

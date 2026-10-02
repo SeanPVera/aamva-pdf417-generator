@@ -68,7 +68,12 @@ export function ImportRecordDialog({ onClose }: { onClose: () => void }) {
             <span className="eyebrow">Bring a record into the workspace</span>
             <h2 id="import-title">Import payload or JSON</h2>
           </div>
-          <button className="wb-button" onClick={onClose} aria-label="Close import">
+          <button
+            className="wb-button"
+            onClick={onClose}
+            aria-label="Close import"
+            title="Close import"
+          >
             Close
           </button>
         </div>
@@ -109,7 +114,7 @@ export function ImportRecordDialog({ onClose }: { onClose: () => void }) {
           </p>
         )}
         <div className="dialog-actions">
-          <label className="file-picker wb-button">
+          <label className="file-picker wb-button focus-within:ring-2 focus-within:ring-brand-500">
             Choose JSON or text file
             <input
               type="file"
@@ -121,7 +126,18 @@ export function ImportRecordDialog({ onClose }: { onClose: () => void }) {
               }}
             />
           </label>
-          <button className="wb-button primary" disabled={!text.trim() || reading} onClick={apply}>
+          <button
+            className="wb-button primary"
+            disabled={!text.trim() || reading}
+            onClick={apply}
+            title={
+              reading
+                ? "Reading file…"
+                : !text.trim()
+                  ? "Paste payload text or select a file to import"
+                  : "Import payload into workspace"
+            }
+          >
             {reading ? "Reading…" : "Import record"}
           </button>
         </div>
