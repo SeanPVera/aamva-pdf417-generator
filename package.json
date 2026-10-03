@@ -126,6 +126,7 @@
   "overrides": {
     "@electron/asar": "^4.2.0",
     "@electron/get": "^3.1.0",
+    "axios": "^1.20.0",
     "cacache": "^20.0.4",
     "fflate": "^0.8.3",
     "global-agent": "^4.1.3",
