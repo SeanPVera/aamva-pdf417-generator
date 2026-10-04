@@ -718,7 +718,9 @@ export const FieldInput: React.FC<FieldInputProps> = ({
           )}
           {dateChips.length > 0 && (
             <details className="field-suggestions">
-              <summary>Date shortcuts</summary>
+              <summary className="rounded-k focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500">
+                Date shortcuts
+              </summary>
               <div className="flex flex-wrap gap-1.5">
                 {dateChips.map((chip) => (
                   <button
@@ -737,7 +739,9 @@ export const FieldInput: React.FC<FieldInputProps> = ({
           )}
           {measureChips.length > 0 && (
             <details className="field-suggestions">
-              <summary>Common measurements</summary>
+              <summary className="rounded-k focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500">
+                Common measurements
+              </summary>
               <div className="flex flex-wrap gap-1.5">
                 {measureChips.map((chip) => (
                   <button
@@ -756,7 +760,9 @@ export const FieldInput: React.FC<FieldInputProps> = ({
           )}
           {suggestionChips.length > 0 && (
             <details className="field-suggestions">
-              <summary>Suggested values</summary>
+              <summary className="rounded-k focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500">
+                Suggested values
+              </summary>
               <div className="flex flex-wrap gap-1.5">
                 {suggestionChips.map((chip) => {
                   const selected = value === chip.value;

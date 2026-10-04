@@ -210,4 +210,16 @@ describe("FieldInput — enumerated fields", () => {
     );
     expect(onChange).toHaveBeenCalledWith("DCD", "H");
   });
+
+  test("suggestion accordion summaries specify focus-visible rings for keyboard navigation", () => {
+    renderField({
+      code: "DAU",
+      label: "Height",
+      type: "string",
+      required: true
+    });
+    const summary = screen.getByText("Common measurements");
+    expect(summary.className).toContain("focus-visible:ring-2");
+    expect(summary.className).toContain("focus-visible:ring-brand-500");
+  });
 });
