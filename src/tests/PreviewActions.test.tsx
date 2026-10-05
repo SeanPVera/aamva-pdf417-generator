@@ -70,6 +70,30 @@ describe("PreviewActions", () => {
     fireEvent.click(screen.getByRole("button", { name: "Copy decoded payload as JSON" }));
     expect(handleCopyJson).toHaveBeenCalledTimes(1);
   });
+
+  test("shows explanatory title tooltips when export actions are disabled", () => {
+    renderActions({ canExport: false });
+
+    const pngButton = screen.getByRole("button", { name: "Export barcode as PNG" });
+    expect(pngButton).toBeDisabled();
+    expect(pngButton).toHaveAttribute(
+      "title",
+      "Complete required fields and resolve rendering errors to export barcode"
+    );
+  });
+
+  test("shows explanatory title tooltips for copy JSON button when disabled or stale", () => {
+    const { unmount } = renderActions({ decoded: null });
+    const noDecodedBtn = screen.getByRole("button", { name: "Copy decoded payload as JSON" });
+    expect(noDecodedBtn).toBeDisabled();
+    expect(noDecodedBtn).toHaveAttribute("title", "No decoded payload available to copy");
+    unmount();
+
+    renderActions({ stale: true });
+    const staleBtn = screen.getByRole("button", { name: "Copy decoded payload as JSON" });
+    expect(staleBtn).toBeDisabled();
+    expect(staleBtn).toHaveAttribute("title", "Payload is updating...");
+  });
 });
 
 // It is a command button that swaps commands, not a toggle: the visible text
