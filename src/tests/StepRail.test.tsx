@@ -117,4 +117,16 @@ describe("StepRail", () => {
     );
     expect(screen.getByRole("button", { name: /Identity/ })).toHaveTextContent("3 to fix");
   });
+
+  it("includes a descriptive title attribute on step buttons for visual tooltips", () => {
+    render(
+      <StepRail
+        sections={[section({ requiredFilled: 2, requiredTotal: 7 })]}
+        active="identity"
+        onSelect={() => {}}
+      />
+    );
+    const button = screen.getByRole("button", { name: /Identity/ });
+    expect(button).toHaveAttribute("title", "Identity — 2 of 7 filled");
+  });
 });
