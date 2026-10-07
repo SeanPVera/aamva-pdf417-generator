@@ -41,8 +41,9 @@ export const TicketDispenser: React.FC<TicketDispenserProps> = ({
     <div className={`ticket-dispenser${yourTurn ? " ticket-your-turn" : ""}`}>
       <button
         type="button"
-        className="ticket-dismiss"
+        className="ticket-dismiss focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
         aria-label="Hide the queue ticket"
+        title="Hide the queue ticket"
         onClick={() => setDismissed(true)}
       >
         <span aria-hidden>×</span>

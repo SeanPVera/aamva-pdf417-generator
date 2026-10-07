@@ -73,8 +73,9 @@ export const ClerkMascot: React.FC<ClerkMascotProps> = ({
     <div className="clerk-mascot" role="status" aria-live="off">
       <button
         type="button"
-        className="clerk-dismiss"
+        className="clerk-dismiss focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
         aria-label="Hide the clerk mascot"
+        title="Hide the clerk mascot"
         onClick={() => {
           setDismissed(true);
           onDismiss?.();
