@@ -36,6 +36,7 @@ export const StepRail: React.FC<StepRailProps> = ({ sections, active, onSelect, 
               onClick={() => onSelect(s.id)}
               aria-current={s.id === active ? "step" : undefined}
               className={s.id === active ? "active" : ""}
+              title={`${s.label} — ${detail}`}
             >
               <span className="section-number" aria-hidden>
                 {String(index + 1).padStart(2, "0")}

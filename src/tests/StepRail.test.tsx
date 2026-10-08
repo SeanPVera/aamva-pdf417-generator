@@ -117,4 +117,25 @@ describe("StepRail", () => {
     );
     expect(screen.getByRole("button", { name: /Identity/ })).toHaveTextContent("3 to fix");
   });
+
+  it("sets informative title tooltips on section buttons", () => {
+    render(
+      <StepRail
+        sections={[
+          section({ id: "identity", label: "Identity", requiredFilled: 0, requiredTotal: 7 }),
+          section({ id: "address", label: "Address", requiredFilled: 7, errors: 2 })
+        ]}
+        active="identity"
+        onSelect={() => {}}
+      />
+    );
+    expect(screen.getByRole("button", { name: /Identity/ })).toHaveAttribute(
+      "title",
+      "Identity — 0 of 7 filled"
+    );
+    expect(screen.getByRole("button", { name: /Address/ })).toHaveAttribute(
+      "title",
+      "Address — 2 to fix"
+    );
+  });
 });
