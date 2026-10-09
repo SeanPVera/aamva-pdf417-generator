@@ -29,6 +29,7 @@ export const PreviewActions: React.FC<PreviewActionsProps> = (p) => (
         disabled={!p.canExport}
         onClick={p.handleExportPNG}
         aria-label="Export barcode as PNG"
+        title="Export barcode as PNG"
       >
         PNG
       </button>
@@ -37,6 +38,7 @@ export const PreviewActions: React.FC<PreviewActionsProps> = (p) => (
         disabled={!p.canExport}
         onClick={p.handleExportSVG}
         aria-label="Export barcode as SVG"
+        title="Export barcode as SVG"
       >
         SVG
       </button>
@@ -45,6 +47,7 @@ export const PreviewActions: React.FC<PreviewActionsProps> = (p) => (
         disabled={!p.canExport}
         onClick={p.handleExportPDF}
         aria-label="Export barcode as PDF"
+        title="Export barcode as PDF"
       >
         PDF
       </button>
@@ -53,6 +56,7 @@ export const PreviewActions: React.FC<PreviewActionsProps> = (p) => (
         disabled={!p.canExport}
         onClick={p.handlePrint}
         aria-label="Print barcode"
+        title="Print barcode"
       >
         Print
       </button>
@@ -64,6 +68,7 @@ export const PreviewActions: React.FC<PreviewActionsProps> = (p) => (
           disabled={!p.canExport}
           onClick={p.handleCopyImage}
           aria-label="Copy barcode image to clipboard"
+          title="Copy barcode image to clipboard"
         >
           {p.imgCopied ? "Copied image" : "Copy image"}
         </button>
@@ -73,6 +78,7 @@ export const PreviewActions: React.FC<PreviewActionsProps> = (p) => (
         disabled={!p.decoded?.json || p.stale}
         onClick={p.handleCopyJson}
         aria-label="Copy decoded payload as JSON"
+        title="Copy decoded payload as JSON"
       >
         {p.jsonCopied ? "Copied JSON" : "Copy JSON"}
       </button>
