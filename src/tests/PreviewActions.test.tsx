@@ -44,7 +44,7 @@ function renderActions(overrides: Partial<React.ComponentProps<typeof PreviewAct
 }
 
 describe("PreviewActions", () => {
-  test("every export and copy action is reachable by its accessible name", () => {
+  test("every export and copy action is reachable by its accessible name and has a title tooltip", () => {
     renderActions();
 
     for (const name of [
@@ -55,7 +55,9 @@ describe("PreviewActions", () => {
       "Copy barcode image to clipboard",
       "Copy decoded payload as JSON"
     ]) {
-      expect(screen.getByRole("button", { name })).toBeInTheDocument();
+      const button = screen.getByRole("button", { name });
+      expect(button).toBeInTheDocument();
+      expect(button).toHaveAttribute("title", name);
     }
   });
 
