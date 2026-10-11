@@ -80,6 +80,7 @@ test("suggestion summaries retain a visible outline in forced colors", async ({
   await ensurePanel(page, "form");
   await page.getByRole("button", { name: /Physical Description/ }).click();
   const summary = page.getByText("Common measurements", { exact: true }).first();
+  await page.keyboard.press("Tab");
   await summary.focus();
   await expect(summary).toBeFocused();
   const outline = await summary.evaluate((el) => {
