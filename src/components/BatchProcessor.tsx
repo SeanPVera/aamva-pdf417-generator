@@ -392,6 +392,7 @@ export const BatchProcessor: React.FC<BatchProcessorProps> = ({ open, onClose })
             onClick={onClose}
             disabled={processing}
             aria-label="Close batch processing"
+            title="Close batch processing"
             className="inline-flex h-k-touch w-k-touch items-center justify-center rounded-k hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-600 dark:text-gray-300 disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           >
             <X size={16} />
