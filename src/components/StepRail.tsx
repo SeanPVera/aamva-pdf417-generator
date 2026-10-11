@@ -26,6 +26,8 @@ export const StepRail: React.FC<StepRailProps> = ({ sections, active, onSelect, 
       </span>
       <ol>
         {sections.map((s, index) => {
+          const labelId = `${helpId}-${s.id}-label`;
+          const detailId = `${helpId}-${s.id}-detail`;
           const detail = s.errors
             ? `${s.errors} to fix`
             : s.advisories && s.requiredFilled === s.requiredTotal
@@ -42,18 +44,21 @@ export const StepRail: React.FC<StepRailProps> = ({ sections, active, onSelect, 
                 aria-current={s.id === active ? "step" : undefined}
                 className={s.id === active ? "active" : ""}
                 title={`${s.label} — ${detail}`}
+                aria-labelledby={`${labelId} ${detailId}`}
                 aria-describedby={helpId}
               >
                 <span className="section-number" aria-hidden>
                   {String(index + 1).padStart(2, "0")}
                 </span>
-                <span>{s.label}</span>
+                <span id={labelId}>{s.label}</span>
                 {s.errors > 0 && (
                   <span className="section-error" aria-hidden>
                     !
                   </span>
                 )}
-                <span className="sr-only">{` ${detail}`}</span>
+                <span id={detailId} className="sr-only">
+                  {detail}
+                </span>
               </button>
             </li>
           );
