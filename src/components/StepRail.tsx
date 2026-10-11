@@ -53,7 +53,7 @@ export const StepRail: React.FC<StepRailProps> = ({ sections, active, onSelect, 
                     !
                   </span>
                 )}
-                <span className="sr-only">{detail}</span>
+                <span className="sr-only">{` ${detail}`}</span>
               </button>
             </li>
           );
