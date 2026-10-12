@@ -85,6 +85,7 @@ export const ShortcutsModal: React.FC<ShortcutsModalProps> = ({ open, onClose, o
             type="button"
             onClick={onClose}
             aria-label="Close shortcuts"
+            title="Close shortcuts"
             className="wb-button icon-button"
           >
             <X size={16} />

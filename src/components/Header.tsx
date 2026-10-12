@@ -132,10 +132,18 @@ export const Header: React.FC<HeaderProps> = ({
               <Redo2 size={17} />
             </button>
           </div>
-          <button className="wb-button" onClick={() => setImportOpen(true)}>
+          <button
+            className="wb-button"
+            onClick={() => setImportOpen(true)}
+            title="Import payload or JSON file"
+          >
             Import
           </button>
-          <button className="wb-button primary" onClick={onStartScan}>
+          <button
+            className="wb-button primary"
+            onClick={onStartScan}
+            title="Scan barcode with camera or image"
+          >
             Scan barcode
           </button>
           <div className="tools-menu" ref={menuRef}>

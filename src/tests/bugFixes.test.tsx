@@ -384,3 +384,40 @@ describe("Maine carries DAW", () => {
     expect(payload).toContain("DAW180");
   });
 });
+
+describe("Dialog accessibility tooltips and action explanations", () => {
+  it("ImportRecordDialog provides title tooltips on close and dynamic action buttons", async () => {
+    const { render, screen, fireEvent } = await import("@testing-library/react");
+    const { ImportRecordDialog } = await import("../components/ImportRecordDialog");
+    const { ToastProvider } = await import("../components/Toast");
+
+    render(
+      <ToastProvider>
+        <ImportRecordDialog onClose={() => {}} />
+      </ToastProvider>
+    );
+
+    const closeBtn = screen.getByRole("button", { name: "Close import" });
+    expect(closeBtn).toHaveAttribute("title", "Close import");
+
+    const importBtn = screen.getByRole("button", { name: "Import record" });
+    expect(importBtn).toBeDisabled();
+    expect(importBtn).toHaveAttribute("title", "Paste payload data or choose a file to import");
+
+    const textarea = screen.getByLabelText("Source data");
+    fireEvent.change(textarea, { target: { value: '{"DCS":"SMITH"}' } });
+
+    expect(importBtn).not.toBeDisabled();
+    expect(importBtn).toHaveAttribute("title", "Import record into workspace");
+  });
+
+  it("ShortcutsModal provides matching title tooltip on close button", async () => {
+    const { render, screen } = await import("@testing-library/react");
+    const { ShortcutsModal } = await import("../components/ShortcutsModal");
+
+    render(<ShortcutsModal open={true} onClose={() => {}} />);
+
+    const closeBtn = screen.getByRole("button", { name: "Close shortcuts" });
+    expect(closeBtn).toHaveAttribute("title", "Close shortcuts");
+  });
+});
