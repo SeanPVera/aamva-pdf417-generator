@@ -122,6 +122,7 @@ const WelcomeTourBody: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             type="button"
             onClick={onClose}
             aria-label="Skip tour"
+            title="Skip tour"
             className="inline-flex h-k-touch w-k-touch items-center justify-center rounded-k text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-dark-surface2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           >
             <X size={16} />
