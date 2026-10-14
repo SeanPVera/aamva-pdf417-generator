@@ -81,4 +81,23 @@ describe("FieldFilters Component", () => {
     );
     expect(onIssuesOnlyChange).toHaveBeenCalledWith(true);
   });
+
+  test("provides title tooltips explaining status and actions", () => {
+    const { rerender } = render(
+      <FieldFilters {...defaultProps} query="test" issueCount={0} hasNextEmpty={false} />
+    );
+
+    expect(screen.getByRole("button", { name: "Clear search" })).toHaveAttribute(
+      "title",
+      "Clear search (Esc)"
+    );
+    expect(
+      screen.getByRole("button", { name: "Jump to next empty required field" })
+    ).toHaveAttribute("title", "All required fields are filled");
+
+    rerender(<FieldFilters {...defaultProps} issueCount={3} hasNextEmpty={true} />);
+    expect(
+      screen.getByRole("button", { name: "Jump to next empty required field" })
+    ).toHaveAttribute("title", "Jump to next empty required field");
+  });
 });
