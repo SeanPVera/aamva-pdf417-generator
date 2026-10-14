@@ -58,13 +58,14 @@ export const FieldFilters: React.FC<FieldFiltersProps> = (p) => {
             className="wb-button"
             onClick={() => p.onQueryChange("")}
             aria-label="Clear search"
+            title="Clear search (Esc)"
           >
             Clear
           </button>
         )}
       </div>
       <div className="filter-controls">
-        <label>
+        <label title="Show only required fields">
           <input
             type="checkbox"
             checked={p.requiredOnly}
@@ -73,7 +74,13 @@ export const FieldFilters: React.FC<FieldFiltersProps> = (p) => {
           />
           Required only
         </label>
-        <label>
+        <label
+          title={
+            !p.issueCount && !p.issuesOnly
+              ? "No validation issues found"
+              : "Show only fields with validation issues"
+          }
+        >
           <input
             type="checkbox"
             checked={p.issuesOnly}
@@ -91,20 +98,28 @@ export const FieldFilters: React.FC<FieldFiltersProps> = (p) => {
           disabled={!p.hasNextEmpty}
           onClick={p.onJumpToNextEmpty}
           aria-label="Jump to next empty required field"
+          title={
+            p.hasNextEmpty ? "Jump to next empty required field" : "All required fields are filled"
+          }
         >
           Next empty →
         </button>
         <details className="field-tools">
-          <summary>Fill tools</summary>
+          <summary title="Fill tools">Fill tools</summary>
           <div className="tool-popover">
             <button
               onClick={p.onGenerateAutoFields}
               aria-label="Generate auto fields (DCF, DAQ, DDB)"
+              title="Generate auto fields (DCF, DAQ, DDB)"
             >
               Generate identifiers
             </button>
             {p.onFillSample && (
-              <button onClick={p.onFillSample} aria-label="Fill all fields with demo data">
+              <button
+                onClick={p.onFillSample}
+                aria-label="Fill all fields with demo data"
+                title="Fill all fields with demo data"
+              >
                 Fill synthetic sample
               </button>
             )}
