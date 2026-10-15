@@ -128,9 +128,9 @@ test.describe("form affordances", () => {
     const bar = page.getByRole("region", { name: /workspace navigation/i });
     await expect(bar).toBeVisible();
     // An empty form is blocked on required fields, so the bar offers the jump
-    // rather than an export. "Next" while everything is merely blank, "Fix"
+    // rather than an export. "Next field" while everything is merely blank, "Fix errors"
     // once something is actually wrong — a blank field is not an error.
-    await expect(bar.getByRole("button", { name: /^(next|fix)$/i })).toBeVisible();
+    await expect(bar.getByRole("button", { name: /^(next field|fix errors):/i })).toBeVisible();
 
     // Once the form is complete the bar offers the export instead, under a name
     // of its own — two controls answering to one accessible name is ambiguous

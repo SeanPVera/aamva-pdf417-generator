@@ -211,3 +211,24 @@ describe("FieldInput — enumerated fields", () => {
     expect(onChange).toHaveBeenCalledWith("DCD", "H");
   });
 });
+
+describe("FieldInput — capacity feedback", () => {
+  test.each([
+    ["", "text-gray-600", false],
+    ["1234567", "text-gray-600", false],
+    ["12345678", "text-amber-700", true],
+    ["1234567890", "text-red-600", true]
+  ])("matches visual and announced thresholds at length %s", (value, color, announce) => {
+    renderField({ code: "DAG", label: "Street Address", type: "string", maxLength: 10 }, value);
+    const counter = screen.getByText(`${value.length}/10`);
+    expect(counter).toHaveClass(color);
+    const milestone = screen.queryByText(/characters left in DAG|DAG is at its 10 character limit/);
+    expect(!!milestone).toBe(announce);
+  });
+
+  test("does not warn before 80 percent for a short limit", () => {
+    renderField({ code: "DAG", label: "Street Address", type: "string", maxLength: 4 }, "123");
+    expect(screen.getByText("3/4")).toHaveClass("text-gray-600");
+    expect(screen.queryByText(/characters left in DAG/)).not.toBeInTheDocument();
+  });
+});

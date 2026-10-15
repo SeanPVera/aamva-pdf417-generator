@@ -4,6 +4,28 @@ import React from "react";
 import { FieldFilters } from "../components/FieldFilters";
 
 describe("FieldFilters Component", () => {
+  test("clearing a query preserves the active filters and does not advertise Escape", () => {
+    const onQueryChange = vi.fn();
+    const onRequiredOnlyChange = vi.fn();
+    const onIssuesOnlyChange = vi.fn();
+    render(
+      <FieldFilters
+        {...defaultProps}
+        query="license"
+        requiredOnly
+        issuesOnly
+        onQueryChange={onQueryChange}
+        onRequiredOnlyChange={onRequiredOnlyChange}
+        onIssuesOnlyChange={onIssuesOnlyChange}
+      />
+    );
+    const button = screen.getByRole("button", { name: "Clear field search" });
+    expect(button).toHaveAttribute("title", "Clear field search");
+    fireEvent.click(button);
+    expect(onQueryChange).toHaveBeenCalledWith("");
+    expect(onRequiredOnlyChange).not.toHaveBeenCalled();
+    expect(onIssuesOnlyChange).not.toHaveBeenCalled();
+  });
   const defaultProps = {
     query: "",
     onQueryChange: vi.fn(),

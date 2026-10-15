@@ -57,14 +57,15 @@ export const FieldFilters: React.FC<FieldFiltersProps> = (p) => {
           <button
             className="wb-button"
             onClick={() => p.onQueryChange("")}
-            aria-label="Clear search"
+            aria-label="Clear field search"
+            title="Clear field search"
           >
             Clear
           </button>
         )}
       </div>
       <div className="filter-controls">
-        <label>
+        <label title="Show only required fields">
           <input
             type="checkbox"
             checked={p.requiredOnly}
@@ -73,7 +74,9 @@ export const FieldFilters: React.FC<FieldFiltersProps> = (p) => {
           />
           Required only
         </label>
-        <label>
+        <label
+          title={p.issueCount ? "Show fields with validation issues" : "No validation issues found"}
+        >
           <input
             type="checkbox"
             checked={p.issuesOnly}
@@ -91,6 +94,9 @@ export const FieldFilters: React.FC<FieldFiltersProps> = (p) => {
           disabled={!p.hasNextEmpty}
           onClick={p.onJumpToNextEmpty}
           aria-label="Jump to next empty required field"
+          title={
+            p.hasNextEmpty ? "Jump to next empty required field" : "All required fields are filled"
+          }
         >
           Next empty →
         </button>

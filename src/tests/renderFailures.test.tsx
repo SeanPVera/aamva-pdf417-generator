@@ -34,10 +34,8 @@ describe("barcode output failure boundaries", () => {
       throw new Error("symbol capacity exceeded");
     });
     preview();
-    await waitFor(() =>
-      expect(screen.getByRole("button", { name: "Export barcode as PNG" })).toBeDisabled()
-    );
-    expect(screen.getByRole("alert")).toHaveTextContent(/could not render/i);
+    expect(await screen.findByRole("alert")).toHaveTextContent(/could not render/i);
+    expect(screen.getByRole("button", { name: "Export barcode as PNG" })).toBeDisabled();
     expect(screen.queryByText("Rendered · ready to export")).not.toBeInTheDocument();
   });
   it("reports failed SVG encoding without disguising a bitmap as vector output", async () => {
