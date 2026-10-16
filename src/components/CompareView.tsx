@@ -26,6 +26,7 @@ export const CompareView: React.FC<CompareViewProps> = ({ open, onClose }) => {
   const { fields, state, version, subfileType } = useFormStore();
   const [left, setLeft] = useState<PayloadFile | null>(null);
   const [right, setRight] = useState<PayloadFile | null>(null);
+  const [showDiffOnly, setShowDiffOnly] = useState(false);
   const leftInputRef = useRef<HTMLInputElement>(null);
   const rightInputRef = useRef<HTMLInputElement>(null);
   const toast = useToast();
@@ -73,6 +74,11 @@ export const CompareView: React.FC<CompareViewProps> = ({ open, onClose }) => {
     if (right) Object.keys(right.data).forEach((k) => set.add(k));
     return Array.from(set).sort();
   }, [left, right]);
+
+  const displayedKeys = useMemo(() => {
+    if (!showDiffOnly) return allKeys;
+    return allKeys.filter((k) => left?.data[k] !== right?.data[k]);
+  }, [allKeys, left, right, showDiffOnly]);
 
   const diffStats = useMemo(() => {
     let same = 0;
@@ -175,6 +181,7 @@ export const CompareView: React.FC<CompareViewProps> = ({ open, onClose }) => {
                       toast.info(`Cleared payload ${side}`);
                     }}
                     aria-label={`Clear payload ${side}`}
+                    title={`Clear payload ${side}`}
                     className="inline-flex h-k-touch w-k-touch shrink-0 items-center justify-center rounded-k text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-dark-surface2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                   >
                     <X size={12} />
@@ -186,22 +193,33 @@ export const CompareView: React.FC<CompareViewProps> = ({ open, onClose }) => {
         </div>
 
         {(left || right) && (
-          <div className="comparison-summary">
-            <span>
-              <strong>{allKeys.length}</strong> fields
-            </span>
-            <span>
-              <strong>{diffStats.same}</strong> match
-            </span>
-            <span>
-              <strong>{diffStats.different}</strong> differ
-            </span>
-            <span>
-              <strong>{diffStats.onlyLeft}</strong> only in A
-            </span>
-            <span>
-              <strong>{diffStats.onlyRight}</strong> only in B
-            </span>
+          <div className="comparison-summary items-center justify-between">
+            <div className="flex flex-wrap gap-4 items-center">
+              <span>
+                <strong>{allKeys.length}</strong> fields
+              </span>
+              <span>
+                <strong>{diffStats.same}</strong> match
+              </span>
+              <span>
+                <strong>{diffStats.different}</strong> differ
+              </span>
+              <span>
+                <strong>{diffStats.onlyLeft}</strong> only in A
+              </span>
+              <span>
+                <strong>{diffStats.onlyRight}</strong> only in B
+              </span>
+            </div>
+            <label className="inline-flex items-center gap-2 cursor-pointer text-xs font-medium text-gray-700 dark:text-gray-300 focus-within:ring-2 focus-within:ring-brand-500 rounded px-1 py-0.5">
+              <input
+                type="checkbox"
+                checked={showDiffOnly}
+                onChange={(e) => setShowDiffOnly(e.target.checked)}
+                className="rounded border-gray-300 dark:border-gray-600 focus:ring-brand-500"
+              />
+              Show differences only
+            </label>
           </div>
         )}
 
@@ -215,6 +233,10 @@ export const CompareView: React.FC<CompareViewProps> = ({ open, onClose }) => {
             <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-8">
               Load two JSON payloads to compare them side by side.
             </p>
+          ) : showDiffOnly && displayedKeys.length === 0 ? (
+            <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-8" role="status">
+              No differences found between Payload A and Payload B.
+            </p>
           ) : (
             <table className="w-full text-xs border-collapse" aria-label="Payload field comparison">
               <thead className="sticky top-0 bg-white dark:bg-dark-surface">
@@ -225,7 +247,7 @@ export const CompareView: React.FC<CompareViewProps> = ({ open, onClose }) => {
                 </tr>
               </thead>
               <tbody>
-                {allKeys.map((k) => {
+                {displayedKeys.map((k) => {
                   const l = left?.data[k];
                   const r = right?.data[k];
                   const both = l !== undefined && r !== undefined;
