@@ -384,3 +384,36 @@ describe("Maine carries DAW", () => {
     expect(payload).toContain("DAW180");
   });
 });
+
+describe("PayloadInspector title tooltips", () => {
+  it("renders Scroll to first error button with title tooltip", async () => {
+    const { render, screen } = await import("@testing-library/react");
+    const { PayloadInspector } = await import("../components/PayloadInspector");
+
+    const mockIssues = [
+      {
+        code: "DAQ",
+        label: "Customer ID",
+        message: "Invalid format",
+        severity: "error" as const,
+        kind: "invalid" as const
+      }
+    ];
+
+    render(
+      <PayloadInspector
+        payloadStr="TEST"
+        stale={false}
+        decodedEntries={[]}
+        issues={mockIssues}
+        onScrollToField={() => {}}
+        onCopyPayload={() => {}}
+        copied={false}
+      />
+    );
+
+    const btn = screen.getByRole("button", { name: /Scroll to first error/i, hidden: true });
+    expect(btn).toBeInTheDocument();
+    expect(btn).toHaveAttribute("title", "Jump to the first invalid field in the form");
+  });
+});
