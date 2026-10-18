@@ -34,11 +34,27 @@ describe("VersionBrowser component", () => {
     expect(screen.getByText("DCA")).toBeInTheDocument();
     expect(screen.queryByText("DCF")).not.toBeInTheDocument();
 
+    // Verify summary count updates to "X of Y fields shown"
+    expect(
+      screen.getByText((_, element) => element?.textContent === "1 of 33 fields shown")
+    ).toBeInTheDocument();
+
     // Clear filter
     const clearBtn = screen.getByRole("button", { name: /Clear version browser filter/i });
     fireEvent.click(clearBtn);
     expect(searchInput).toHaveValue("");
     expect(screen.getByText("DCF")).toBeInTheDocument();
+  });
+
+  it("adds role='status' to empty state cell when query has no matches", () => {
+    render(<VersionBrowser />);
+    fireEvent.click(screen.getByRole("button", { name: /Version Browser/i }));
+
+    const searchInput = screen.getByLabelText(/Filter fields in version browser/i);
+    fireEvent.change(searchInput, { target: { value: "NONEXISTENT_FIELD_XYZ" } });
+
+    const statusCell = screen.getByRole("status");
+    expect(statusCell).toHaveTextContent("No fields matching “NONEXISTENT_FIELD_XYZ”");
   });
 
   it("shows 'Set as active' action when browsing a non-active version and updates state", () => {

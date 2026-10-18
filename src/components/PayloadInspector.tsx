@@ -279,6 +279,7 @@ export const PayloadInspector: React.FC<PayloadInspectorProps> = ({
                     }}
                     className="inline-flex h-k-touch items-center gap-1.5 rounded-k border border-red-200 bg-red-50 px-3 text-k-help font-semibold text-red-800 hover:bg-red-100 dark:border-red-800 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-900/50 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
                     aria-label="Scroll to first error"
+                    title="Jump to the first invalid field in the form"
                   >
                     <ArrowDownToLine size={12} />
                     Scroll to first error
