@@ -384,3 +384,33 @@ describe("Maine carries DAW", () => {
     expect(payload).toContain("DAW180");
   });
 });
+
+describe("JurisdictionCombobox search icon and clear button visibility", () => {
+  it("hides search icon and displays clear button when query is present", async () => {
+    const { render, screen, fireEvent } = await import("@testing-library/react");
+    const { JurisdictionCombobox } = await import("../components/JurisdictionCombobox");
+
+    render(<JurisdictionCombobox value="CA" onChange={() => {}} recent={["CA"]} />);
+
+    const combobox = screen.getByRole("combobox", { name: "Select state or territory" });
+    fireEvent.focus(combobox);
+
+    // When combobox is open and query is empty, clear search button is not present
+    expect(
+      screen.queryByRole("button", { name: "Clear jurisdiction search" })
+    ).not.toBeInTheDocument();
+
+    // Type a query into combobox
+    fireEvent.change(combobox, { target: { value: "Tex" } });
+
+    // Now clear button should be visible
+    const clearButton = screen.getByRole("button", { name: "Clear jurisdiction search" });
+    expect(clearButton).toBeInTheDocument();
+
+    // Clicking clear resets query and hides clear button
+    fireEvent.click(clearButton);
+    expect(
+      screen.queryByRole("button", { name: "Clear jurisdiction search" })
+    ).not.toBeInTheDocument();
+  });
+});
