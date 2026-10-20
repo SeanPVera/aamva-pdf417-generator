@@ -62,18 +62,18 @@ export const DropZoneOverlay: React.FC = () => {
   if (!active) return null;
   return (
     <div
-      className="fixed inset-0 z-[60] pointer-events-none flex items-center justify-center"
+      className="fixed inset-0 z-[60] pointer-events-none flex items-center justify-center animate-toast-in transition-all duration-200"
       role="status"
       aria-live="polite"
     >
-      <div className="absolute inset-4 rounded-2xl border-4 border-dashed border-brand-500 bg-brand-500/10 backdrop-blur-sm" />
-      <div className="relative flex flex-col items-center gap-3 px-6 py-5 rounded-xl bg-white dark:bg-dark-surface border border-brand-200 dark:border-brand-800 shadow-2xl text-center">
-        <FileUp size={28} className="text-brand-600 dark:text-brand-400" />
+      <div className="absolute inset-4 rounded-2xl border-4 border-dashed border-brand-500 bg-brand-500/15 backdrop-blur-md ring-4 ring-brand-500/20 transition-all duration-300" />
+      <div className="relative flex flex-col items-center gap-3 px-6 py-5 rounded-xl bg-white dark:bg-dark-surface border-2 border-brand-500 dark:border-brand-400 shadow-2xl text-center scale-100 transition-transform">
+        <FileUp size={32} className="text-brand-600 dark:text-brand-400 animate-bounce" />
         <div>
-          <div className="text-sm font-semibold text-gray-800 dark:text-gray-100">
+          <div className="text-base font-bold text-gray-900 dark:text-gray-100">
             Drop JSON to import
           </div>
-          <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+          <div className="text-xs text-gray-600 dark:text-gray-300 mt-0.5 font-medium">
             Single payload object, like Export JSON output.
           </div>
         </div>
