@@ -20,6 +20,8 @@ interface FieldFiltersProps {
 }
 export const FieldFilters: React.FC<FieldFiltersProps> = (p) => {
   const ref = React.useRef<HTMLInputElement>(null);
+  const detailsRef = React.useRef<HTMLDetailsElement>(null);
+
   React.useEffect(() => {
     const key = (e: KeyboardEvent) => {
       if (
@@ -32,9 +34,35 @@ export const FieldFilters: React.FC<FieldFiltersProps> = (p) => {
         ref.current?.select();
       }
     };
+    const handlePointerDown = (e: PointerEvent) => {
+      if (detailsRef.current?.open && !detailsRef.current.contains(e.target as Node)) {
+        detailsRef.current.open = false;
+      }
+    };
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && detailsRef.current?.open) {
+        e.stopPropagation();
+        detailsRef.current.open = false;
+        detailsRef.current.querySelector("summary")?.focus();
+      }
+    };
     window.addEventListener("keydown", key);
-    return () => window.removeEventListener("keydown", key);
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", key);
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
   }, []);
+
+  const closeTools = () => {
+    if (detailsRef.current) {
+      detailsRef.current.open = false;
+      detailsRef.current.querySelector("summary")?.focus();
+    }
+  };
+
   return (
     <div className="field-filters">
       <div className="filter-search">
@@ -100,17 +128,28 @@ export const FieldFilters: React.FC<FieldFiltersProps> = (p) => {
         >
           Next empty →
         </button>
-        <details className="field-tools">
+        <details className="field-tools" ref={detailsRef}>
           <summary>Fill tools</summary>
           <div className="tool-popover">
             <button
-              onClick={p.onGenerateAutoFields}
+              onClick={() => {
+                closeTools();
+                p.onGenerateAutoFields();
+              }}
               aria-label="Generate auto fields (DCF, DAQ, DDB)"
+              title="Generate auto fields (DCF, DAQ, DDB)"
             >
               Generate identifiers
             </button>
             {p.onFillSample && (
-              <button onClick={p.onFillSample} aria-label="Fill all fields with demo data">
+              <button
+                onClick={() => {
+                  closeTools();
+                  p.onFillSample?.();
+                }}
+                aria-label="Fill all fields with demo data"
+                title="Fill all fields with demo data"
+              >
                 Fill synthetic sample
               </button>
             )}
