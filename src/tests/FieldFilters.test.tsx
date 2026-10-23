@@ -103,4 +103,44 @@ describe("FieldFilters Component", () => {
     );
     expect(onIssuesOnlyChange).toHaveBeenCalledWith(true);
   });
+
+  test("Fill tools menu closes on option selection, Escape key, and click outside", () => {
+    const onGenerateAutoFields = vi.fn();
+    const onFillSample = vi.fn();
+
+    render(
+      <FieldFilters
+        {...defaultProps}
+        onGenerateAutoFields={onGenerateAutoFields}
+        onFillSample={onFillSample}
+      />
+    );
+
+    const summary = screen.getByText("Fill tools");
+    const details = summary.closest("details") as HTMLDetailsElement;
+
+    // Open details popover
+    details.open = true;
+
+    // Verify titles match aria-labels
+    const genButton = screen.getByRole("button", { name: "Generate auto fields (DCF, DAQ, DDB)" });
+    const sampleButton = screen.getByRole("button", { name: "Fill all fields with demo data" });
+    expect(genButton).toHaveAttribute("title", "Generate auto fields (DCF, DAQ, DDB)");
+    expect(sampleButton).toHaveAttribute("title", "Fill all fields with demo data");
+
+    // Click option auto-closes details popover
+    fireEvent.click(genButton);
+    expect(onGenerateAutoFields).toHaveBeenCalledTimes(1);
+    expect(details.open).toBe(false);
+
+    // Re-open and test Escape key closing popover
+    details.open = true;
+    fireEvent.keyDown(document, { key: "Escape" });
+    expect(details.open).toBe(false);
+
+    // Re-open and test click outside closing popover
+    details.open = true;
+    fireEvent.pointerDown(document.body);
+    expect(details.open).toBe(false);
+  });
 });
