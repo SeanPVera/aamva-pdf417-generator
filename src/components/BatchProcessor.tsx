@@ -158,6 +158,15 @@ export const BatchProcessor: React.FC<BatchProcessorProps> = ({ open, onClose })
   const soundOn = useFormStore((s) => s.soundOn);
   const holdMusic = useHoldMusic(soundOn && whimsy);
 
+  const handleClearFile = () => {
+    setFile(null);
+    setEntries(null);
+    setParseError(null);
+    setUnknownHeaders([]);
+    setRowResults(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
   const handleDownloadTemplate = (format: "json" | "csv") => {
     if (format === "json") {
       downloadBlob(
@@ -459,9 +468,23 @@ export const BatchProcessor: React.FC<BatchProcessorProps> = ({ open, onClose })
               <Upload size={16} />
               <span>Select File</span>
             </button>
-            <span className="text-sm text-gray-500 dark:text-gray-400 font-medium truncate">
-              {file ? file.name : "No file selected"}
-            </span>
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="text-sm text-gray-500 dark:text-gray-400 font-medium truncate">
+                {file ? file.name : "No file selected"}
+              </span>
+              {file && (
+                <button
+                  type="button"
+                  onClick={handleClearFile}
+                  disabled={processing}
+                  aria-label="Clear selected file"
+                  title="Clear selected file"
+                  className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-gray-500 hover:text-gray-700 hover:bg-gray-200 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700 transition disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                >
+                  <X size={14} />
+                </button>
+              )}
+            </div>
           </div>
 
           {parseError && (
