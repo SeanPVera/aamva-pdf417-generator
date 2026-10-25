@@ -25,7 +25,7 @@ describe("AAMVA conformance corpus", () => {
 
     describe(`${v.id} [${v.provenance.tier}]`, () => {
       it(claim, () => {
-        const fields = getFieldsForStateAndVersion(v.state, v.version);
+        const fields = getFieldsForStateAndVersion(v.state, v.version, v.subfileType);
         const payload = generateAAMVAPayload(
           v.state,
           v.version,

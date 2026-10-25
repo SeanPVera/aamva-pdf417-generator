@@ -174,7 +174,7 @@ export function generateAAMVAPayload(
     dataObj.DCF = generateDocumentDiscriminator();
   }
 
-  const encoding = getJurisdictionEncoding(stateCode);
+  const encoding = getJurisdictionEncoding(stateCode, version);
 
   // Normalise before the mandatory/format checks so values that arrive from an
   // import or a scan are judged on their real content. Decoded AAMVA values
@@ -193,7 +193,12 @@ export function generateAAMVAPayload(
       // a mixed-case blob in ZNB, and upper-casing it — as the AAMVA text rule
       // would — silently rewrites data whose meaning we do not know.
       const isOpaque = field.subfile === "jurisdiction";
-      if (!isOpaque && ["string", "char", "zip"].includes(field.type)) val = val.toUpperCase();
+      if (
+        !isOpaque &&
+        !encoding?.preserveValueCase?.includes(field.code) &&
+        ["string", "char", "zip"].includes(field.type)
+      )
+        val = val.toUpperCase();
       dataObj[field.code] = isOpaque ? val : val.trim();
     }
   }
@@ -289,7 +294,7 @@ export function generateAAMVAPayload(
   const jurisdictionFields = fields.filter((f) => f.subfile === "jurisdiction");
 
   const orderedPrimaryFields = orderFields(primaryFields, encoding?.elementOrder);
-  const padPostal = shouldPadPostalCode(stateCode);
+  const padPostal = shouldPadPostalCode(stateCode, version);
   const fieldWidths = encoding?.fieldWidths ?? {};
 
   const omitFinalSeparator = encoding?.omitFinalSeparator === true;

@@ -24,6 +24,8 @@ export const VECTORS_DIR = resolve(
  */
 export const VECTOR_TIERS = ["synthetic", "published", "issued"] as const;
 export type VectorTier = (typeof VECTOR_TIERS)[number];
+export const SOURCE_FIDELITIES = ["unmodified-source", "anonymized", "canonicalized"] as const;
+export type SourceFidelity = (typeof SOURCE_FIDELITIES)[number];
 
 export const TIER_DESCRIPTIONS: Record<VectorTier, string> = {
   synthetic:
@@ -46,6 +48,11 @@ export interface VectorProvenance {
   verifiedBy: string | null;
   /** How PII was replaced, for `issued` vectors. */
   anonymization?: string;
+  /** How expected bytes differ from their external source, independently of tier. */
+  fidelity?: SourceFidelity;
+  sourceSha256?: string;
+  payloadSha256?: string;
+  evidenceImageSha256?: string;
   notes?: string;
 }
 
@@ -87,6 +94,9 @@ export function validateProvenance(vector: ConformanceVector): string[] {
   }
 
   if (REAL_WORLD_TIERS.includes(p.tier)) {
+    if (!p.fidelity || !SOURCE_FIDELITIES.includes(p.fidelity)) {
+      problems.push(`${vector.id}: an external vector must declare its source fidelity`);
+    }
     // A real-world vector with no capture date cannot be assessed for staleness,
     // and one nobody verified is just an assertion.
     if (!p.capturedAt) {
@@ -113,6 +123,8 @@ export interface CoverageReport {
   /** Jurisdictions with only synthetic vectors, or none at all. */
   unverifiedJurisdictions: string[];
   realWorldVectorCount: number;
+  byFidelity: Record<SourceFidelity, number>;
+  referenceCombinations: string[];
 }
 
 export function computeCoverage(
@@ -121,11 +133,18 @@ export function computeCoverage(
 ): CoverageReport {
   const byTier = { synthetic: 0, published: 0, issued: 0 } as Record<VectorTier, number>;
   const realWorld = new Set<string>();
+  const byFidelity = { "unmodified-source": 0, anonymized: 0, canonicalized: 0 };
+  const combinations = new Set<string>();
 
   for (const v of vectors) {
     const tier = v.provenance?.tier;
     if (tier && tier in byTier) byTier[tier] += 1;
-    if (tier && REAL_WORLD_TIERS.includes(tier)) realWorld.add(v.state);
+    if (tier && REAL_WORLD_TIERS.includes(tier)) {
+      realWorld.add(v.state);
+      combinations.add(`${v.state} v${v.version} ${v.subfileType}`);
+      const fidelity = v.provenance.fidelity;
+      if (fidelity && SOURCE_FIDELITIES.includes(fidelity)) byFidelity[fidelity] += 1;
+    }
   }
 
   return {
@@ -133,7 +152,9 @@ export function computeCoverage(
     byTier,
     realWorldJurisdictions: [...realWorld].sort(),
     unverifiedJurisdictions: allJurisdictions.filter((j) => !realWorld.has(j)).sort(),
-    realWorldVectorCount: byTier.published + byTier.issued
+    realWorldVectorCount: byTier.published + byTier.issued,
+    byFidelity,
+    referenceCombinations: [...combinations].sort()
   };
 }
 
@@ -143,8 +164,12 @@ export function formatCoverage(report: CoverageReport, totalJurisdictions: numbe
   return [
     `Conformance corpus: ${report.total} vector(s)`,
     `  synthetic (regression only): ${report.byTier.synthetic}`,
-    `  published (AAMVA test material): ${report.byTier.published}`,
+    `  published (external test material): ${report.byTier.published}`,
     `  issued (anonymised real credential): ${report.byTier.issued}`,
-    `Jurisdictions with real-world evidence: ${verified}/${totalJurisdictions} (${pct}%)`
+    `Jurisdictions with external reference layouts: ${verified}/${totalJurisdictions} (${pct}%)`,
+    `  unmodified source payloads: ${report.byFidelity["unmodified-source"]}`,
+    `  anonymized source layouts: ${report.byFidelity.anonymized}`,
+    `  canonicalized derived layouts: ${report.byFidelity.canonicalized}`,
+    `Observed jurisdiction/version/type combinations: ${report.referenceCombinations.length}`
   ].join("\n");
 }

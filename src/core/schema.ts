@@ -956,7 +956,7 @@ export function getFieldsForStateAndVersion(
   // them and the store holds them like any other value. They are tagged
   // `subfile: "jurisdiction"` and never written into the DL/ID subfile — see
   // the partition in `generateAAMVAPayload`.
-  const jurisdictionElements = stateCode ? getJurisdictionSubfileElements(stateCode) : [];
+  const jurisdictionElements = stateCode ? getJurisdictionSubfileElements(stateCode, v) : [];
   if (jurisdictionElements.length > 0) {
     result = result.concat(
       jurisdictionElements.map((el) => ({

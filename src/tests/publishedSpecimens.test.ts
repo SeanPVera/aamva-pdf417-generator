@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 
 import { decodeAAMVAFormat } from "../core/decoder";
 import intakeData from "../core/conformance/published/2026-10-25.json";
+import { loadVectors } from "./support/conformanceVectors";
 
 interface PublishedSpecimen {
   id: string;
@@ -31,9 +32,9 @@ describe("independently scanned published specimens", () => {
   const specimens = intake.payloads;
 
   it("keeps the acquired set distinct and traceable to downloaded source documents", () => {
-    expect(specimens).toHaveLength(24);
+    expect(specimens).toHaveLength(26);
     expect(new Set(specimens.map((s) => s.sha256)).size).toBe(specimens.length);
-    expect(new Set(specimens.map((s) => s.jurisdiction)).size).toBe(10);
+    expect(new Set(specimens.map((s) => s.jurisdiction)).size).toBe(12);
     const sourceById = new Map(intake.sources.map((source) => [source.id, source]));
     for (const specimen of specimens) {
       expect(specimen.dataClass).toBe("jurisdiction-published-sample");
@@ -43,6 +44,18 @@ describe("independently scanned published specimens", () => {
       expect(specimen.imageSha256).toMatch(/^[a-f0-9]{64}$/);
       expect(sourceById.get(specimen.sourceId)?.status).toBe("downloaded");
       expect(sourceById.get(specimen.sourceId)?.sha256).toBe(specimen.sourceSha256);
+    }
+  });
+
+  it("promotes source bytes into positive vectors without changing their evidence", () => {
+    const byHash = new Map(specimens.map((specimen) => [specimen.sha256, specimen]));
+    for (const vector of loadVectors().filter((entry) => entry.provenance.tier === "published")) {
+      const source = byHash.get(vector.provenance.payloadSha256 ?? "");
+      expect(source, `${vector.id}: source observation must remain in the intake`).toBeDefined();
+      expect(vector.expectedBytes).toBe(source?.rawBytesLatin1);
+      expect(vector.provenance.fidelity).toBe("unmodified-source");
+      expect(vector.provenance.sourceSha256).toBe(source?.sourceSha256);
+      expect(vector.provenance.evidenceImageSha256).toBe(source?.imageSha256);
     }
   });
 

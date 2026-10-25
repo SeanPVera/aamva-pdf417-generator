@@ -2,13 +2,16 @@
   "schemaVersion": 1,
   "capturedAt": "2026-10-25",
   "repository": "SeanPVera/aamva-pdf417-generator",
-  "repositoryCommit": "aec3057e64537f0c8bb1d49745dcf1c560c3eed3",
-  "scope": "Publicly released government specimen credentials, permits, ID cards, calibration symbols and reference figures. Includes Iowa state specimens republished by federal E-Verify. Colorado\u2019s 2021 proposal is explicitly labeled. No private issued credentials were curated.",
+  "repositoryCommit": "a6dcf7961a86ea577e8ba88a8df3c81b53825f9c",
+  "scope": "Public government specimen credentials, permits, calibration symbols and reference figures. Includes federal and public-university republications, plus a clearly identified archived Arkansas government calibration document. No private issued credentials, background artwork, standalone portraits, or mobile-wallet decorative art were added.",
   "rights": "Publisher ownership and sample markings are preserved. Downloaded public material is not assumed to have an open redistribution license. Keep source artwork out of public Git history until its reuse terms have been checked.",
   "stats": {
-    "imageAssets": 258,
+    "imageAssets": 291,
     "imageJurisdictions": [
       "AK",
+      "AL",
+      "AR",
+      "AZ",
       "CA",
       "CO",
       "CT",
@@ -16,46 +19,72 @@
       "DE",
       "FL",
       "GA",
+      "GU",
       "HI",
       "IA",
       "ID",
+      "IL",
       "IN",
       "KS",
       "KY",
+      "LA",
       "MA",
+      "MD",
+      "ME",
       "MI",
+      "MN",
       "MO",
+      "MS",
       "MT",
       "NC",
       "ND",
       "NE",
+      "NH",
       "NJ",
       "NM",
       "NV",
       "NY",
       "OH",
+      "OK",
       "OR",
       "PA",
       "RI",
       "SC",
       "SD",
+      "TN",
       "TX",
+      "UT",
       "VA",
+      "VI",
       "VT",
       "WA",
       "WI",
       "WV",
       "WY"
     ],
-    "downloadedPdfSources": 33,
-    "downloadedHtmlSources": 18,
-    "distinctPayloads": 24,
-    "payloadJurisdictions": ["DE", "FL", "GA", "NE", "NJ", "NY", "SC", "SD", "TX", "VA"],
-    "decoderAccepted": 20,
+    "downloadedPdfSources": 48,
+    "downloadedHtmlSources": 25,
+    "distinctPayloads": 26,
+    "payloadJurisdictions": [
+      "AR",
+      "DE",
+      "FL",
+      "GA",
+      "IL",
+      "NE",
+      "NJ",
+      "NY",
+      "SC",
+      "SD",
+      "TX",
+      "VA"
+    ],
+    "decoderAccepted": 22,
     "generatorResults": {
       "not-attempted": 4,
-      "different-bytes": 12,
-      "rejected-input": 8
+      "different-bytes": 11,
+      "rejected-input": 8,
+      "exact-match": 3
     }
   },
   "sources": [
@@ -974,6 +1003,714 @@
       "resolvedUrl": "https://dds.georgia.gov/document/document/license-printed-after-october-2012pdf/download",
       "pageCount": 2,
       "intakeRevision": 2
+    },
+    {
+      "id": "ar-archived-calibration",
+      "jurisdiction": "AR",
+      "capturedAt": "2026-10-25",
+      "resolvedUrl": "https://web.archive.org/web/20200919023843id_/http://banking.arkansas.gov/public/userfiles/Important_Info/Arkansas_Barcode_Specifications_2018.pdf",
+      "sha256": "4ab40a3d81aea6c6f8ffcaa9f94421c7d0a9664f1192e7c1d57290521381bf17",
+      "bytes": 292014,
+      "pages": 3,
+      "sourceUrl": "https://web.archive.org/web/20200919023843id_/http://banking.arkansas.gov/public/userfiles/Important_Info/Arkansas_Barcode_Specifications_2018.pdf",
+      "publisherClass": "archived-jurisdiction-publication",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "status": "downloaded",
+      "path": "sources/ar-archived-calibration.pdf",
+      "kind": "official-pdf",
+      "pageCount": 3,
+      "originalSourceUrl": "https://banking.arkansas.gov/public/userfiles/Important_Info/Arkansas_Barcode_Specifications_2018.pdf",
+      "archiveCapture": "2020-09-19T02:38:43Z"
+    },
+    {
+      "id": "ar-current-calibration",
+      "jurisdiction": "AR",
+      "capturedAt": "2026-10-25",
+      "resolvedUrl": "https://banking.arkansas.gov/wp-content/uploads/2026/02/Arkansas_Barcode_Specifications_2018.pdf",
+      "error": "404 Client Error: Not Found for url: https://banking.arkansas.gov/wp-content/uploads/2026/02/Arkansas_Barcode_Specifications_2018.pdf",
+      "sourceUrl": "https://banking.arkansas.gov/wp-content/uploads/2026/02/Arkansas_Barcode_Specifications_2018.pdf",
+      "publisherClass": "jurisdiction",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "status": "failed",
+      "httpStatus": 404
+    },
+    {
+      "id": "ar-institution-info",
+      "jurisdiction": "AR",
+      "capturedAt": "2026-10-25",
+      "resolvedUrl": "https://banking.arkansas.gov/financial-institution-info/information-for-financial-institutions/",
+      "sha256": "5f3783a5331ea00f97c1ce77173d9ad72d95c729ca3576efcb08bc6de7f4c516",
+      "bytes": 109956,
+      "sourceUrl": "https://banking.arkansas.gov/financial-institution-info/information-for-financial-institutions/",
+      "publisherClass": "jurisdiction",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "status": "excluded-after-review",
+      "acquisitionStatus": "downloaded",
+      "exclusionReason": "No additional in-scope public specimen or normative reference retained."
+    },
+    {
+      "id": "ar-media-search",
+      "jurisdiction": "AR",
+      "capturedAt": "2026-10-25",
+      "resolvedUrl": "https://banking.arkansas.gov/wp-json/wp/v2/media?search=barcode&per_page=20",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "bytes": 2,
+      "sourceUrl": "https://banking.arkansas.gov/wp-json/wp/v2/media?search=barcode&per_page=20",
+      "publisherClass": "jurisdiction",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "status": "excluded-after-review",
+      "acquisitionStatus": "downloaded",
+      "exclusionReason": "No additional in-scope public specimen or normative reference retained."
+    },
+    {
+      "id": "belgium-us-license-register",
+      "jurisdiction": "US",
+      "capturedAt": "2026-10-25",
+      "resolvedUrl": "https://mobilit.belgium.be/nl/file/10695/download?token=HiSWIsHa",
+      "sha256": "e8c058d1c410eaf40840eed6325a41f108e907901b17578df2938bf7e7dd9447",
+      "bytes": 555361,
+      "pages": 57,
+      "sourceUrl": "https://mobilit.belgium.be/nl/file/10695/download?token=HiSWIsHa",
+      "publisherClass": "jurisdiction",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "status": "excluded-after-review",
+      "acquisitionStatus": "downloaded",
+      "exclusionReason": "No additional in-scope public specimen or normative reference retained."
+    },
+    {
+      "id": "as-real-id-policy",
+      "jurisdiction": "AS",
+      "capturedAt": "2026-10-25",
+      "resolvedUrl": "https://www.americansamoa.gov/_files/ugd/4bfff9_d3df982d7bb54fb68a97315feb72b3a3.pdf",
+      "sha256": "3510126719c51ecfcd6eeb2d3617cacd02a3e6a6d7a94433ef333799c2047948",
+      "bytes": 141291,
+      "pages": 4,
+      "sourceUrl": "https://www.americansamoa.gov/_files/ugd/4bfff9_d3df982d7bb54fb68a97315feb72b3a3.pdf",
+      "publisherClass": "jurisdiction",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "status": "downloaded",
+      "path": "sources/as-real-id-policy.pdf",
+      "kind": "official-pdf",
+      "pageCount": 4
+    },
+    {
+      "id": "as-driver-guide",
+      "jurisdiction": "AS",
+      "capturedAt": "2026-10-25",
+      "resolvedUrl": "https://www.americansamoa.gov/_files/ugd/4bfff9_d853ec469ef34c75a8a5350a6b20b341.pdf",
+      "sha256": "ee488f815cb5f8e4de1e4147a7c204307e2bc0144ad89e11462c2e5859352295",
+      "bytes": 247692,
+      "pages": 12,
+      "sourceUrl": "https://www.americansamoa.gov/_files/ugd/4bfff9_d853ec469ef34c75a8a5350a6b20b341.pdf",
+      "publisherClass": "jurisdiction",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "status": "downloaded",
+      "path": "sources/as-driver-guide.pdf",
+      "kind": "official-pdf",
+      "pageCount": 12
+    },
+    {
+      "id": "ar-banking-home",
+      "jurisdiction": "AR",
+      "capturedAt": "2026-10-25",
+      "resolvedUrl": "https://banking.arkansas.gov/",
+      "sha256": "a7313ef091738969beb57c26ba756542f2d029f6ce0fadc014260b00a342fd71",
+      "bytes": 163329,
+      "sourceUrl": "https://banking.arkansas.gov/",
+      "publisherClass": "jurisdiction",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "status": "excluded-after-review",
+      "acquisitionStatus": "downloaded",
+      "exclusionReason": "No additional in-scope public specimen or normative reference retained."
+    },
+    {
+      "id": "aamva-2016-mirror",
+      "jurisdiction": "standard-mirror",
+      "capturedAt": "2026-10-25",
+      "resolvedUrl": "https://dgzn.github.io/AAMVA-to-PDF417-Generator/public/2016_Card_Design_Standard.pdf",
+      "sha256": "3bae09c3ce6f4a40def411e7e748ba74121f694ad268fcc36058e03b967586e5",
+      "bytes": 4499048,
+      "pages": 126,
+      "sourceUrl": "https://dgzn.github.io/AAMVA-to-PDF417-Generator/public/2016_Card_Design_Standard.pdf",
+      "publisherClass": "aamva-authored-mirror",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "status": "downloaded",
+      "path": "sources/aamva-2016-mirror.pdf",
+      "kind": "official-pdf",
+      "pageCount": 126
+    },
+    {
+      "id": "aamva-2005-mirror",
+      "jurisdiction": "standard-mirror",
+      "capturedAt": "2026-10-25",
+      "resolvedUrl": "https://eocweb.net/pdf/2005DLIDCardSpecV2FINAL.pdf",
+      "sha256": "6e19d2e08609eb13d56c62c657b1ab4d55018ccc96af1aa85b034a15dd059047",
+      "bytes": 967140,
+      "pages": 79,
+      "sourceUrl": "https://eocweb.net/pdf/2005DLIDCardSpecV2FINAL.pdf",
+      "publisherClass": "aamva-authored-mirror",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "status": "downloaded",
+      "path": "sources/aamva-2005-mirror.pdf",
+      "kind": "official-pdf",
+      "pageCount": 79
+    },
+    {
+      "id": "ga-dds-released-manual",
+      "jurisdiction": "US-territory-samples",
+      "capturedAt": "2026-10-25",
+      "resolvedUrl": "https://archive.americanoversight.org/2020/20-0362/Responses/GA-DDS-20-0362-A.pdf",
+      "sha256": "9bec21e402bf163172cc77feae1854dc5e2033c5a67300427006477034f6196e",
+      "bytes": 25370010,
+      "pages": 59,
+      "sourceUrl": "https://archive.americanoversight.org/2020/20-0362/Responses/GA-DDS-20-0362-A.pdf",
+      "publisherClass": "jurisdiction",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "status": "excluded-after-review",
+      "acquisitionStatus": "downloaded",
+      "exclusionReason": "Released records contain a bulletin marked for internal use; its specimen attachment was excluded from this public specimen collection."
+    },
+    {
+      "id": "vi-bmv",
+      "jurisdiction": "VI",
+      "capturedAt": "2026-10-25",
+      "resolvedUrl": "https://bmv.vi.gov/",
+      "sha256": "444746c36e442855d6b13510545c874fc363dc290fcb2d9946ba5511fd7d93f1",
+      "bytes": 55837,
+      "sourceUrl": "https://bmv.vi.gov/",
+      "publisherClass": "jurisdiction",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "status": "downloaded",
+      "path": "sources/vi-bmv.html",
+      "kind": "official-page"
+    },
+    {
+      "id": "as-dps",
+      "jurisdiction": "AS",
+      "capturedAt": "2026-10-25",
+      "resolvedUrl": "https://www.asdps.com/",
+      "error": "403 Client Error: Forbidden for url: https://www.asdps.com/",
+      "sourceUrl": "https://www.asdps.com/",
+      "publisherClass": "jurisdiction",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "status": "failed",
+      "httpStatus": 403
+    },
+    {
+      "id": "pr-real-id",
+      "jurisdiction": "PR",
+      "capturedAt": "2026-10-25",
+      "resolvedUrl": "https://www.cesco.pr.gov/real-id",
+      "error": "404 Client Error: Not Found for url: https://www.cesco.pr.gov/real-id",
+      "sourceUrl": "https://www.cesco.pr.gov/real-id",
+      "publisherClass": "jurisdiction",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "status": "failed",
+      "httpStatus": 404
+    },
+    {
+      "id": "me-brochure-migrated-host",
+      "jurisdiction": "ME",
+      "capturedAt": "2026-10-25",
+      "resolvedUrl": "https://www3.maine.gov/sos/sites/maine.gov.sos/files/inline-files/MVL-8%20Rev%2012-22_0.pdf",
+      "sha256": "25986894c38aa3224f775ebe00073907db83ee017fd89ed0641dd3e4ddae2f19",
+      "bytes": 381062,
+      "pages": 2,
+      "sourceUrl": "https://www3.maine.gov/sos/sites/maine.gov.sos/files/inline-files/MVL-8%20Rev%2012-22_0.pdf",
+      "publisherClass": "jurisdiction",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "status": "excluded-after-review",
+      "acquisitionStatus": "downloaded",
+      "exclusionReason": "No additional in-scope public specimen or normative reference retained."
+    },
+    {
+      "id": "tn-university-real-id",
+      "jurisdiction": "TN",
+      "capturedAt": "2026-10-25",
+      "resolvedUrl": "https://www.mtas.tennessee.edu/system/files/mrln/mknowledge/main/MTAS%20Tennessee%20REAL%20ID%202025.pdf",
+      "sha256": "dc088a97b8b831e448bc9974b89703887fbd07856e39b77d47191d500fb66f13",
+      "bytes": 731421,
+      "pages": 17,
+      "sourceUrl": "https://www.mtas.tennessee.edu/system/files/mrln/mknowledge/main/MTAS%20Tennessee%20REAL%20ID%202025.pdf",
+      "publisherClass": "public-university-republication",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "status": "downloaded",
+      "path": "sources/tn-university-real-id.pdf",
+      "kind": "official-pdf",
+      "pageCount": 17
+    },
+    {
+      "id": "gu-new-design-brochure",
+      "jurisdiction": "GU",
+      "capturedAt": "2026-10-25",
+      "resolvedUrl": "https://www.guamtax.com/notices/Guam_D500BrochureProd.pdf",
+      "sha256": "8d4083154f5a87d582d9c2d4df72976684cccdfb6e0e7397818be0a76d301700",
+      "bytes": 4211771,
+      "pages": 2,
+      "sourceUrl": "https://www.guamtax.com/notices/Guam_D500BrochureProd.pdf",
+      "publisherClass": "jurisdiction",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "status": "downloaded",
+      "path": "sources/gu-new-design-brochure.pdf",
+      "kind": "official-pdf",
+      "pageCount": 2
+    },
+    {
+      "id": "mn-new-design-county",
+      "jurisdiction": "MN",
+      "capturedAt": "2026-10-25",
+      "resolvedUrl": "https://cms3.revize.com/revize/pipestonecomn/Document%20Center/Government/Department/Treasurer/Driver%20License/DL%20new%20designs.pdf",
+      "sha256": "b704c4d7fbcb81f19afe0f4878cb975c3bd33a8ff6847088b8119eaba226198c",
+      "bytes": 269225,
+      "pages": 1,
+      "sourceUrl": "https://cms3.revize.com/revize/pipestonecomn/Document%20Center/Government/Department/Treasurer/Driver%20License/DL%20new%20designs.pdf",
+      "publisherClass": "jurisdiction",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "status": "downloaded",
+      "path": "sources/mn-new-design-county.pdf",
+      "kind": "official-pdf",
+      "pageCount": 1
+    },
+    {
+      "id": "mn-all-info",
+      "jurisdiction": "MN",
+      "capturedAt": "2026-10-25",
+      "resolvedUrl": "https://assets.dps.mn.gov/files/dvs/Drivers-License-for-All-info-sheet.pdf",
+      "sha256": "bd8a137f7f42d2b0eb5e28dc217286e4d7f2b274e0060a7c4becb3c018eb89ef",
+      "bytes": 474661,
+      "pages": 2,
+      "sourceUrl": "https://assets.dps.mn.gov/files/dvs/Drivers-License-for-All-info-sheet.pdf",
+      "publisherClass": "jurisdiction",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "status": "downloaded",
+      "path": "sources/mn-all-info.pdf",
+      "kind": "official-pdf",
+      "pageCount": 2
+    },
+    {
+      "id": "mn-agent-training-2026",
+      "jurisdiction": "MN",
+      "capturedAt": "2026-10-25",
+      "resolvedUrl": "https://assets.dps.mn.gov/files/dvs/dvs-dr-dla-training-handouts-2026-1.pdf",
+      "error": "403 Client Error: Forbidden for url: https://assets.dps.mn.gov/files/dvs/dvs-dr-dla-training-handouts-2026-1.pdf",
+      "sourceUrl": "https://assets.dps.mn.gov/files/dvs/dvs-dr-dla-training-handouts-2026-1.pdf",
+      "publisherClass": "jurisdiction",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "status": "failed",
+      "httpStatus": 403
+    },
+    {
+      "id": "tn-design-2024",
+      "jurisdiction": "TN",
+      "capturedAt": "2026-10-25",
+      "resolvedUrl": "https://www.tn.gov/safety/news/2024/8/19/department-of-safety-and-homeland-security-unveils-new-tennessee-driver-licenses-and-self-service-kiosks.html",
+      "error": "403 Client Error: Forbidden for url: https://www.tn.gov/safety/news/2024/8/19/department-of-safety-and-homeland-security-unveils-new-tennessee-driver-licenses-and-self-service-kiosks.html",
+      "sourceUrl": "https://www.tn.gov/safety/news/2024/8/19/department-of-safety-and-homeland-security-unveils-new-tennessee-driver-licenses-and-self-service-kiosks.html",
+      "publisherClass": "jurisdiction",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "status": "failed",
+      "httpStatus": 403
+    },
+    {
+      "id": "az-evolution",
+      "jurisdiction": "AZ",
+      "capturedAt": "2026-10-25",
+      "resolvedUrl": "https://azdot.gov/adot-blog/evolution-arizonas-driver-license",
+      "error": "403 Client Error: Forbidden for url: https://azdot.gov/adot-blog/evolution-arizonas-driver-license",
+      "sourceUrl": "https://azdot.gov/adot-blog/evolution-arizonas-driver-license",
+      "publisherClass": "jurisdiction",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "status": "failed",
+      "httpStatus": 403
+    },
+    {
+      "id": "az-new-design",
+      "jurisdiction": "AZ",
+      "capturedAt": "2026-10-25",
+      "resolvedUrl": "https://azdot.gov/adot-news/arizona-license-and-id-cards-are-getting-updated-look",
+      "error": "403 Client Error: Forbidden for url: https://azdot.gov/adot-news/arizona-license-and-id-cards-are-getting-updated-look",
+      "sourceUrl": "https://azdot.gov/adot-news/arizona-license-and-id-cards-are-getting-updated-look",
+      "publisherClass": "jurisdiction",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "status": "failed",
+      "httpStatus": 403
+    },
+    {
+      "id": "az-new-design-2014",
+      "jurisdiction": "AZ",
+      "capturedAt": "2026-10-25",
+      "resolvedUrl": "https://azdot.gov/blog-article/adot-launch-new-driver-license-process-and-design",
+      "error": "403 Client Error: Forbidden for url: https://azdot.gov/blog-article/adot-launch-new-driver-license-process-and-design",
+      "sourceUrl": "https://azdot.gov/blog-article/adot-launch-new-driver-license-process-and-design",
+      "publisherClass": "jurisdiction",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "status": "failed",
+      "httpStatus": 403
+    },
+    {
+      "id": "ok-design-2026",
+      "jurisdiction": "OK",
+      "capturedAt": "2026-10-25",
+      "resolvedUrl": "https://content.govdelivery.com/accounts/OKSERVICE/bulletins/408f9dc",
+      "sha256": "cf1fcf58ade1a14f23dac63c4b078e94247d910125001076ccc5a4fa36bcfbc4",
+      "bytes": 19537,
+      "sourceUrl": "https://content.govdelivery.com/accounts/OKSERVICE/bulletins/408f9dc",
+      "publisherClass": "jurisdiction",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "status": "excluded-after-review",
+      "acquisitionStatus": "downloaded",
+      "exclusionReason": "No additional in-scope public specimen or normative reference retained."
+    },
+    {
+      "id": "me-checklist-current",
+      "jurisdiction": "ME",
+      "capturedAt": "2026-10-25",
+      "resolvedUrl": "https://www.maine.gov/sos/sites/maine.gov.sos/files/inline-files/MVL-9Checklist%20Brochure%20Revised%207-2022.pdf",
+      "error": "403 Client Error: Forbidden for url: https://www.maine.gov/sos/sites/maine.gov.sos/files/inline-files/MVL-9Checklist%20Brochure%20Revised%207-2022.pdf",
+      "sourceUrl": "https://www.maine.gov/sos/sites/maine.gov.sos/files/inline-files/MVL-9Checklist%20Brochure%20Revised%207-2022.pdf",
+      "publisherClass": "jurisdiction",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "status": "failed",
+      "httpStatus": 403
+    },
+    {
+      "id": "me-real-id-brochure",
+      "jurisdiction": "ME",
+      "capturedAt": "2026-10-25",
+      "resolvedUrl": "https://www.maine.gov/sos/sites/maine.gov.sos/files/inline-files/MVL-8%20Rev%2012-22_0.pdf",
+      "error": "403 Client Error: Forbidden for url: https://www.maine.gov/sos/sites/maine.gov.sos/files/inline-files/MVL-8%20Rev%2012-22_0.pdf",
+      "sourceUrl": "https://www.maine.gov/sos/sites/maine.gov.sos/files/inline-files/MVL-8%20Rev%2012-22_0.pdf",
+      "publisherClass": "jurisdiction",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "status": "failed",
+      "httpStatus": 403
+    },
+    {
+      "id": "md-real-id-toolkit",
+      "jurisdiction": "MD",
+      "capturedAt": "2026-10-25",
+      "resolvedUrl": "https://mva.maryland.gov/pages/realid-toolkit.aspx",
+      "error": "404 Client Error: Not Found for url: https://mva.maryland.gov/pages/realid-toolkit.aspx",
+      "sourceUrl": "https://mva.maryland.gov/pages/realid-toolkit.aspx",
+      "publisherClass": "jurisdiction",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "status": "failed",
+      "httpStatus": 404
+    },
+    {
+      "id": "e-verify-wisconsin",
+      "jurisdiction": "WI",
+      "capturedAt": "2026-10-25",
+      "resolvedUrl": "https://www.e-verify.gov/sites/default/files/everify/factsheets/WisconsinRIDEFactSheet.pdf",
+      "sha256": "3a4f2e1fb2320e9640c3614a2b826898fd7ae59e6491791c10412650ceb3815e",
+      "bytes": 551822,
+      "pages": 1,
+      "sourceUrl": "https://www.uscis.gov/sites/default/files/USCIS/Verification/E-Verify/E-Verify_Native_Documents/Wisconsin_RIDE_Fact_Sheet.pdf",
+      "publisherClass": "federal-republication",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "status": "downloaded",
+      "path": "sources/e-verify-wisconsin.pdf",
+      "kind": "official-pdf",
+      "pageCount": 1
+    },
+    {
+      "id": "as-real-id-policy-page",
+      "jurisdiction": "AS",
+      "capturedAt": "2026-10-25",
+      "resolvedUrl": "https://www.americansamoa.gov/real-id-act-enforcement-begin-may-7",
+      "sha256": "548ac45f5cb0c34cf51086fccd0b2b1c15df3f3f8abc49a44ef5d85e568baeb9",
+      "bytes": 723391,
+      "sourceUrl": "https://www.americansamoa.gov/real-id-act-enforcement-begin-may-7",
+      "publisherClass": "jurisdiction",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "status": "downloaded",
+      "path": "sources/as-real-id-policy-page.html",
+      "kind": "official-page"
+    },
+    {
+      "id": "as-media",
+      "jurisdiction": "AS",
+      "capturedAt": "2026-10-25",
+      "resolvedUrl": "https://www.americansamoa.gov/media",
+      "sha256": "f97d04867c67755ec75f2c341119e06ed64bb6497dc1565b593c2fd43e63238e",
+      "bytes": 787903,
+      "sourceUrl": "https://www.americansamoa.gov/media",
+      "publisherClass": "jurisdiction",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "status": "downloaded",
+      "path": "sources/as-media.html",
+      "kind": "official-page"
+    },
+    {
+      "id": "pr-mobile-id",
+      "jurisdiction": "PR",
+      "capturedAt": "2026-10-25",
+      "resolvedUrl": "https://www.idmovil.pr.gov/idingooglewallet",
+      "sha256": "cdca967477f33069865e1a3bd44798af9e05f27620c71f28cfc114d29d59f10e",
+      "bytes": 23573,
+      "sourceUrl": "https://www.idmovil.pr.gov/idingooglewallet",
+      "publisherClass": "jurisdiction",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "status": "downloaded",
+      "path": "sources/pr-mobile-id.html",
+      "kind": "official-page"
+    },
+    {
+      "id": "vi-real-id",
+      "jurisdiction": "VI",
+      "capturedAt": "2026-10-25",
+      "resolvedUrl": "https://bmv.vi.gov/real-id/",
+      "sha256": "ec1a7bc31e61d337c68a7bae6d5cefe9bb9eea4cc014a12538a6f447d2239504",
+      "bytes": 48564,
+      "sourceUrl": "https://bmv.vi.gov/real-id/",
+      "publisherClass": "jurisdiction",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "status": "downloaded",
+      "path": "sources/vi-real-id.html",
+      "kind": "official-page"
+    },
+    {
+      "id": "vi-2025-design",
+      "jurisdiction": "VI",
+      "capturedAt": "2026-10-25",
+      "resolvedUrl": "https://bmv.vi.gov/2025/04/22/real-id-issuance-starting-april-24-2025/",
+      "sha256": "8288967921c6d9c89d6bc1d88dd17f8bc08466c4b6439d7a24b1eb460815476e",
+      "bytes": 44529,
+      "sourceUrl": "https://bmv.vi.gov/2025/04/22/real-id-issuance-starting-april-24-2025/",
+      "publisherClass": "jurisdiction",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "status": "downloaded",
+      "path": "sources/vi-2025-design.html",
+      "kind": "official-page"
+    },
+    {
+      "id": "aamva-2026",
+      "jurisdiction": "standard",
+      "capturedAt": "2026-10-25",
+      "resolvedUrl": "https://www.aamva.org/getmedia/feab821e-baa5-4524-b865-3eb172b51acd/2026-DLID-Card-Design-Standard.pdf",
+      "sha256": "2c55f933e390a290dab6df0929e8b373abe67e6b6f363bcf04632535e1459c2a",
+      "bytes": 8141678,
+      "pages": 142,
+      "sourceUrl": "https://www.aamva.org/getmedia/feab821e-baa5-4524-b865-3eb172b51acd/2026-DLID-Card-Design-Standard.pdf",
+      "publisherClass": "aamva",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "status": "downloaded",
+      "path": "sources/aamva-2026.pdf",
+      "kind": "official-pdf",
+      "pageCount": 142
+    },
+    {
+      "id": "aamva-2025",
+      "jurisdiction": "standard",
+      "capturedAt": "2026-10-25",
+      "resolvedUrl": "https://www.aamva.org/getmedia/81af105d-8b1b-45e1-aa46-f1800a259ed1/AAMVADLIDCardDesignStandard2025.pdf",
+      "sha256": "ddc3512eef39d02ca26e861e568c456ca4f5df34491816d386fc1ff6702999dc",
+      "bytes": 7051223,
+      "pages": 128,
+      "sourceUrl": "https://www.aamva.org/getmedia/81af105d-8b1b-45e1-aa46-f1800a259ed1/AAMVADLIDCardDesignStandard2025.pdf",
+      "publisherClass": "aamva",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "status": "downloaded",
+      "path": "sources/aamva-2025.pdf",
+      "kind": "official-pdf",
+      "pageCount": 128
+    },
+    {
+      "id": "aamva-loc",
+      "jurisdiction": "standard-archive",
+      "capturedAt": "2026-10-25",
+      "resolvedUrl": "https://tile.loc.gov/storage-services/master/gdc/gdcebookspublic/20/23/69/38/91/2023693891/2023693891.pdf",
+      "sha256": "a72aff9f4f437b0f84b4d43536ff271f15fb2fb5c58023c2a3106c23bb24ed89",
+      "bytes": 25055435,
+      "pages": 396,
+      "sourceUrl": "https://tile.loc.gov/storage-services/master/gdc/gdcebookspublic/20/23/69/38/91/2023693891/2023693891.pdf",
+      "publisherClass": "aamva",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "status": "excluded-after-review",
+      "acquisitionStatus": "downloaded",
+      "exclusionReason": "No additional in-scope public specimen or normative reference retained."
+    },
+    {
+      "id": "congress-state-samples",
+      "jurisdiction": "US",
+      "capturedAt": "2026-10-25",
+      "resolvedUrl": "https://www.govinfo.gov/content/pkg/CRPT-118hrpt964/pdf/CRPT-118hrpt964.pdf",
+      "sha256": "27149d707d8553a46168de955bd5057104ec72b5e9d93b2074e343d3d527d61f",
+      "bytes": 10306657,
+      "pages": 211,
+      "sourceUrl": "https://www.govinfo.gov/content/pkg/CRPT-118hrpt964/pdf/CRPT-118hrpt964.pdf",
+      "publisherClass": "federal-republication",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "status": "downloaded",
+      "path": "sources/congress-state-samples.pdf",
+      "kind": "official-pdf",
+      "pageCount": 211
+    },
+    {
+      "id": "mn-new-design-faq",
+      "jurisdiction": "MN",
+      "capturedAt": "2026-10-25",
+      "error": "HTTPSConnectionPool(host='dvsinfohub.dps.mn.gov', port=443): Max retries exceeded with url: /resources/Documents/FAQ-NewDesign.pdf (Caused by SSLError(SSLCertVerificationError(1, \"[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: Hostname mismatch, certificate is not valid for 'dvsinfohub.dps.mn.gov'. (_ssl.c:1010)\")))",
+      "sourceUrl": "https://dvsinfohub.dps.mn.gov/resources/Documents/FAQ-NewDesign.pdf",
+      "publisherClass": "jurisdiction",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "status": "failed",
+      "httpStatus": null
+    },
+    {
+      "id": "al-star-id-flyer",
+      "jurisdiction": "AL",
+      "capturedAt": "2026-10-25",
+      "resolvedUrl": "https://www.alea.gov/sites/default/files/inline-files/STAR%20ID%20NFFI%20Flyer%20%2802%29_0.pdf",
+      "error": "404 Client Error: Not Found for url: https://www.alea.gov/sites/default/files/inline-files/STAR%20ID%20NFFI%20Flyer%20%2802%29_0.pdf",
+      "sourceUrl": "https://www.alea.gov/sites/default/files/inline-files/STAR%20ID%20NFFI%20Flyer%20%2802%29_0.pdf",
+      "publisherClass": "jurisdiction",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "status": "failed",
+      "httpStatus": 404
+    },
+    {
+      "id": "ms-2024-design",
+      "jurisdiction": "MS",
+      "capturedAt": "2026-10-25",
+      "resolvedUrl": "https://www.dps.ms.gov/node/1518",
+      "sha256": "ddbe8ec02218ccd9e66d310a6b599a5a7d71ddb50df4cd83c45c12baf3d24ace",
+      "bytes": 54932,
+      "sourceUrl": "https://www.dps.ms.gov/node/1518",
+      "publisherClass": "jurisdiction",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "status": "downloaded",
+      "path": "sources/ms-2024-design.html",
+      "kind": "official-page"
+    },
+    {
+      "id": "me-real-id",
+      "jurisdiction": "ME",
+      "capturedAt": "2026-10-25",
+      "resolvedUrl": "https://www3.maine.gov/sos/bmv/driver-licenses-and-ids/real-id",
+      "sha256": "1965704ada1dddc763e60ab6ffc95cbbeebb07a73b72297e4360804fa686ebef",
+      "bytes": 113560,
+      "sourceUrl": "https://www3.maine.gov/sos/bmv/driver-licenses-and-ids/real-id",
+      "publisherClass": "jurisdiction",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "status": "excluded-after-review",
+      "acquisitionStatus": "downloaded",
+      "exclusionReason": "No additional in-scope public specimen or normative reference retained."
+    },
+    {
+      "id": "me-checklist-brochure",
+      "jurisdiction": "ME",
+      "capturedAt": "2026-10-25",
+      "resolvedUrl": "https://www.maine.gov/sos/bmv/licenses/MVL-9Checklist%20Brochure.pdf",
+      "error": "403 Client Error: Forbidden for url: https://www.maine.gov/sos/bmv/licenses/MVL-9Checklist%20Brochure.pdf",
+      "sourceUrl": "https://www.maine.gov/sos/bmv/licenses/MVL-9Checklist%20Brochure.pdf",
+      "publisherClass": "jurisdiction",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "status": "failed",
+      "httpStatus": 403
+    },
+    {
+      "id": "md-archive",
+      "jurisdiction": "MD",
+      "capturedAt": "2026-10-25",
+      "resolvedUrl": "https://msa.maryland.gov/megafile/msa/speccol/sc5300/sc5339/000113/002000/002409/unrestricted/20063630e.pdf",
+      "sha256": "58e98308ea9fe7608564463ebdb8dbc7b196afce199f29783d2a783707716e6e",
+      "bytes": 17928,
+      "pages": 1,
+      "sourceUrl": "https://msa.maryland.gov/megafile/msa/speccol/sc5300/sc5339/000113/002000/002409/unrestricted/20063630e.pdf",
+      "publisherClass": "jurisdiction",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "status": "excluded-after-review",
+      "acquisitionStatus": "downloaded",
+      "exclusionReason": "No additional in-scope public specimen or normative reference retained."
+    },
+    {
+      "id": "ut-legislature-2012",
+      "jurisdiction": "UT",
+      "capturedAt": "2026-10-25",
+      "resolvedUrl": "https://le.utah.gov/interim/2012/pdf/00001322.pdf",
+      "sha256": "15140e1e46e293580d6a1058f956a930a51f9247b69bcb575cb36f0b65a3f3b8",
+      "bytes": 223281,
+      "pages": 30,
+      "sourceUrl": "https://le.utah.gov/interim/2012/pdf/00001322.pdf",
+      "publisherClass": "jurisdiction",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "status": "excluded-after-review",
+      "acquisitionStatus": "downloaded",
+      "exclusionReason": "No additional in-scope public specimen or normative reference retained."
+    },
+    {
+      "id": "ut-legislature-2016",
+      "jurisdiction": "UT",
+      "capturedAt": "2026-10-25",
+      "resolvedUrl": "https://le.utah.gov/interim/2016/pdf/00003067.pdf",
+      "sha256": "79bd3b62eb5ea81734e5df9c090e0d91ae1202a43e8c7e1459fac6a8be0460ca",
+      "bytes": 951812,
+      "pages": 28,
+      "sourceUrl": "https://le.utah.gov/interim/2016/pdf/00003067.pdf",
+      "publisherClass": "jurisdiction",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "status": "excluded-after-review",
+      "acquisitionStatus": "downloaded",
+      "exclusionReason": "No additional in-scope public specimen or normative reference retained."
+    },
+    {
+      "id": "hi-new-design-county",
+      "jurisdiction": "HI",
+      "capturedAt": "2026-10-25",
+      "resolvedUrl": "https://www.vrl.hawaiicounty.gov/driver-s-licensing/new-driver-s-license-and-state-id-design",
+      "error": "403 Client Error: Forbidden for url: https://www.vrl.hawaiicounty.gov/driver-s-licensing/new-driver-s-license-and-state-id-design",
+      "sourceUrl": "https://www.vrl.hawaiicounty.gov/driver-s-licensing/new-driver-s-license-and-state-id-design",
+      "publisherClass": "jurisdiction",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "status": "failed",
+      "httpStatus": 403
+    },
+    {
+      "id": "il-central-brochure",
+      "jurisdiction": "IL",
+      "capturedAt": "2026-10-25",
+      "resolvedUrl": "https://www.ilsos.gov/content/dam/publications/pdf_publications/dsd_a301.pdf",
+      "sha256": "141826f38d3c39b2bc748ccfc3dc2bbca7323f03f5fc28c4e248ecb0fb78df0c",
+      "bytes": 2604338,
+      "pages": 2,
+      "sourceUrl": "https://www.ilsos.gov/publications/pdf_publications/dsd_a301.pdf",
+      "publisherClass": "jurisdiction",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "status": "downloaded",
+      "path": "sources/il-central-brochure.pdf",
+      "kind": "official-pdf",
+      "pageCount": 2
+    },
+    {
+      "id": "e-verify-idaho",
+      "jurisdiction": "ID",
+      "capturedAt": "2026-10-25",
+      "resolvedUrl": "https://www.e-verify.gov/sites/default/files/everify/factsheets/IdahoRIDEFactSheet.pdf",
+      "sha256": "fd4f5eb926220e9a8de22aaa93467f5e850cf4b0d725a9e39512434988c2f5d1",
+      "bytes": 413794,
+      "pages": 1,
+      "sourceUrl": "https://www.uscis.gov/sites/default/files/USCIS/Verification/E-Verify/E-Verify_Native_Documents/Idaho_RIDE_Fact_Sheet.pdf",
+      "publisherClass": "federal-republication",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "status": "downloaded",
+      "path": "sources/e-verify-idaho.pdf",
+      "kind": "official-pdf",
+      "pageCount": 1
+    },
+    {
+      "id": "e-verify-wisconsin-bulletin",
+      "jurisdiction": "WI",
+      "capturedAt": "2026-10-25",
+      "resolvedUrl": "https://content.govdelivery.com/accounts/USDHSCIS/bulletins/125811c",
+      "sha256": "7bbc8337521f6b53789f7471c1cf6eef77c54b9993a750a04dc4a9b9dc5bce2a",
+      "bytes": 22155,
+      "sourceUrl": "https://content.govdelivery.com/accounts/USDHSCIS/bulletins/125811c",
+      "publisherClass": "federal-republication",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "status": "excluded-after-review",
+      "acquisitionStatus": "downloaded",
+      "exclusionReason": "No additional in-scope public specimen or normative reference retained."
     }
   ],
   "images": [
@@ -5080,6 +5817,675 @@
       "height": 1407,
       "reviewStatus": "visually-reviewed-public-specimen",
       "intakeRevision": 2
+    },
+    {
+      "id": "il-central-brochure-p001-im06",
+      "sourceId": "il-central-brochure",
+      "jurisdiction": "IL",
+      "sourceUrl": "https://www.ilsos.gov/publications/pdf_publications/dsd_a301.pdf",
+      "sourcePage": 1,
+      "path": "images/il-central-brochure-p001-im06.jpeg",
+      "width": 751,
+      "height": 474,
+      "sha256": "81aabb3c2ccb40a52fd846d6b5a35175f0c4ee4151d70084b293c6133f36da09",
+      "kind": "pdf-native-image",
+      "reviewStatus": "visually-reviewed-public-specimen",
+      "capturedAt": "2026-10-25",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "decodedPayloads": [],
+      "method": "Original PDF-embedded image or original publisher download; no content changes.",
+      "publisherClass": "jurisdiction",
+      "intakeRevision": 3
+    },
+    {
+      "id": "il-central-brochure-p002-im03",
+      "sourceId": "il-central-brochure",
+      "jurisdiction": "IL",
+      "sourceUrl": "https://www.ilsos.gov/publications/pdf_publications/dsd_a301.pdf",
+      "sourcePage": 2,
+      "path": "images/il-central-brochure-p002-im03.jpeg",
+      "width": 941,
+      "height": 296,
+      "sha256": "be003f52b8bf5608753b6b1413638ee7136b6d71c3c93ed7882519087f04188a",
+      "kind": "pdf-native-image",
+      "reviewStatus": "visually-reviewed-public-specimen",
+      "capturedAt": "2026-10-25",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "decodedPayloads": [],
+      "method": "Original PDF-embedded image or original publisher download; no content changes.",
+      "publisherClass": "jurisdiction",
+      "intakeRevision": 3
+    },
+    {
+      "id": "il-central-brochure-p002-im09",
+      "sourceId": "il-central-brochure",
+      "jurisdiction": "IL",
+      "sourceUrl": "https://www.ilsos.gov/publications/pdf_publications/dsd_a301.pdf",
+      "sourcePage": 2,
+      "path": "images/il-central-brochure-p002-im09.png",
+      "width": 882,
+      "height": 556,
+      "sha256": "1c2cedc6e6500666e1e7c9be8ba6f33f3b8fbcc178fb4d2c8a3da48b4e564bab",
+      "kind": "pdf-native-image",
+      "reviewStatus": "visually-reviewed-public-specimen",
+      "capturedAt": "2026-10-25",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "decodedPayloads": ["0811ac04c918b89e878d5e342b355c677f09be60ddf652c2d6a96c22e1cfa0a0"],
+      "method": "Original PDF-embedded image or original publisher download; no content changes.",
+      "publisherClass": "jurisdiction",
+      "intakeRevision": 3
+    },
+    {
+      "id": "il-central-brochure-p002-im12",
+      "sourceId": "il-central-brochure",
+      "jurisdiction": "IL",
+      "sourceUrl": "https://www.ilsos.gov/publications/pdf_publications/dsd_a301.pdf",
+      "sourcePage": 2,
+      "path": "images/il-central-brochure-p002-im12.jpeg",
+      "width": 588,
+      "height": 934,
+      "sha256": "f481102b9759b7de53a625fd9218b173b6123f33c33faa49ba1e6655998fb706",
+      "kind": "pdf-native-image",
+      "reviewStatus": "visually-reviewed-public-specimen",
+      "capturedAt": "2026-10-25",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "decodedPayloads": [],
+      "method": "Original PDF-embedded image or original publisher download; no content changes.",
+      "publisherClass": "jurisdiction",
+      "intakeRevision": 3
+    },
+    {
+      "id": "e-verify-idaho-p001-im03",
+      "sourceId": "e-verify-idaho",
+      "jurisdiction": "ID",
+      "sourceUrl": "https://www.uscis.gov/sites/default/files/USCIS/Verification/E-Verify/E-Verify_Native_Documents/Idaho_RIDE_Fact_Sheet.pdf",
+      "sourcePage": 1,
+      "path": "images/e-verify-idaho-p001-im03.jpeg",
+      "width": 683,
+      "height": 243,
+      "sha256": "e79f347584a35f1e2b485e6a61433210006ff16331a51dbbd7531400cbed4dbe",
+      "kind": "pdf-native-image",
+      "reviewStatus": "visually-reviewed-public-specimen",
+      "capturedAt": "2026-10-25",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "decodedPayloads": [],
+      "method": "Original PDF-embedded image or original publisher download; no content changes.",
+      "publisherClass": "federal-republication",
+      "intakeRevision": 3
+    },
+    {
+      "id": "e-verify-idaho-p001-im04",
+      "sourceId": "e-verify-idaho",
+      "jurisdiction": "ID",
+      "sourceUrl": "https://www.uscis.gov/sites/default/files/USCIS/Verification/E-Verify/E-Verify_Native_Documents/Idaho_RIDE_Fact_Sheet.pdf",
+      "sourcePage": 1,
+      "path": "images/e-verify-idaho-p001-im04.jpeg",
+      "width": 508,
+      "height": 437,
+      "sha256": "b3a1f6a8e1b70a1fc24ff1ed8e12254092cf0b9c286dd670a3d06a503c43ec35",
+      "kind": "pdf-native-image",
+      "reviewStatus": "visually-reviewed-public-specimen",
+      "capturedAt": "2026-10-25",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "decodedPayloads": [],
+      "method": "Original PDF-embedded image or original publisher download; no content changes.",
+      "publisherClass": "federal-republication",
+      "intakeRevision": 3
+    },
+    {
+      "id": "e-verify-idaho-p001-im05",
+      "sourceId": "e-verify-idaho",
+      "jurisdiction": "ID",
+      "sourceUrl": "https://www.uscis.gov/sites/default/files/USCIS/Verification/E-Verify/E-Verify_Native_Documents/Idaho_RIDE_Fact_Sheet.pdf",
+      "sourcePage": 1,
+      "path": "images/e-verify-idaho-p001-im05.jpeg",
+      "width": 657,
+      "height": 479,
+      "sha256": "ab4252e681043f2770dac9793def580cd720fb92de333a32ef7d14a03e3fb3bf",
+      "kind": "pdf-native-image",
+      "reviewStatus": "visually-reviewed-public-specimen",
+      "capturedAt": "2026-10-25",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "decodedPayloads": [],
+      "method": "Original PDF-embedded image or original publisher download; no content changes.",
+      "publisherClass": "federal-republication",
+      "intakeRevision": 3
+    },
+    {
+      "id": "mn-new-design-county-p001-im01",
+      "sourceId": "mn-new-design-county",
+      "jurisdiction": "MN",
+      "sourceUrl": "https://cms3.revize.com/revize/pipestonecomn/Document%20Center/Government/Department/Treasurer/Driver%20License/DL%20new%20designs.pdf",
+      "sourcePage": 1,
+      "path": "images/mn-new-design-county-p001-im01.jpeg",
+      "width": 1074,
+      "height": 1365,
+      "sha256": "a14bfe7607ce21833d7820eb6aa17e088d34e542350ada93ac187e3cd74c4973",
+      "kind": "pdf-native-image",
+      "reviewStatus": "visually-reviewed-public-specimen",
+      "capturedAt": "2026-10-25",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "decodedPayloads": [],
+      "method": "Original PDF-embedded image or original publisher download; no content changes.",
+      "publisherClass": "county-republication-of-state-samples",
+      "intakeRevision": 3
+    },
+    {
+      "id": "mn-all-info-p002-im03",
+      "sourceId": "mn-all-info",
+      "jurisdiction": "MN",
+      "sourceUrl": "https://assets.dps.mn.gov/files/dvs/Drivers-License-for-All-info-sheet.pdf",
+      "sourcePage": 2,
+      "path": "images/mn-all-info-p002-im03.jpeg",
+      "width": 440,
+      "height": 281,
+      "sha256": "fe45d11343b171e1599b9870b56bd1c08eec98da8808db7152088243d6a9c24f",
+      "kind": "pdf-native-image",
+      "reviewStatus": "visually-reviewed-public-specimen",
+      "capturedAt": "2026-10-25",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "decodedPayloads": [],
+      "method": "Original PDF-embedded image or original publisher download; no content changes.",
+      "publisherClass": "jurisdiction",
+      "intakeRevision": 3
+    },
+    {
+      "id": "mn-all-info-p002-im04",
+      "sourceId": "mn-all-info",
+      "jurisdiction": "MN",
+      "sourceUrl": "https://assets.dps.mn.gov/files/dvs/Drivers-License-for-All-info-sheet.pdf",
+      "sourcePage": 2,
+      "path": "images/mn-all-info-p002-im04.jpeg",
+      "width": 210,
+      "height": 331,
+      "sha256": "e0b3362fbb40d660ea5dac36a62db0bb2abc45ee0443e2acab639810005c2c99",
+      "kind": "pdf-native-image",
+      "reviewStatus": "visually-reviewed-public-specimen",
+      "capturedAt": "2026-10-25",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "decodedPayloads": [],
+      "method": "Original PDF-embedded image or original publisher download; no content changes.",
+      "publisherClass": "jurisdiction",
+      "intakeRevision": 3
+    },
+    {
+      "id": "e-verify-wisconsin-p001-im03",
+      "sourceId": "e-verify-wisconsin",
+      "jurisdiction": "WI",
+      "sourceUrl": "https://www.uscis.gov/sites/default/files/USCIS/Verification/E-Verify/E-Verify_Native_Documents/Wisconsin_RIDE_Fact_Sheet.pdf",
+      "sourcePage": 1,
+      "path": "images/e-verify-wisconsin-p001-im03.jpeg",
+      "width": 507,
+      "height": 321,
+      "sha256": "1a244dd731a308b10e3669168e56c5df8352be13cef5216574b05022bdb24c64",
+      "kind": "pdf-native-image",
+      "reviewStatus": "visually-reviewed-public-specimen",
+      "capturedAt": "2026-10-25",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "decodedPayloads": [],
+      "method": "Original PDF-embedded image or original publisher download; no content changes.",
+      "publisherClass": "federal-republication",
+      "intakeRevision": 3
+    },
+    {
+      "id": "e-verify-wisconsin-p001-im04",
+      "sourceId": "e-verify-wisconsin",
+      "jurisdiction": "WI",
+      "sourceUrl": "https://www.uscis.gov/sites/default/files/USCIS/Verification/E-Verify/E-Verify_Native_Documents/Wisconsin_RIDE_Fact_Sheet.pdf",
+      "sourcePage": 1,
+      "path": "images/e-verify-wisconsin-p001-im04.jpeg",
+      "width": 507,
+      "height": 323,
+      "sha256": "bd644ac428a5132b6800a76e108956ec393620c027cca085002e115f4c19ef3a",
+      "kind": "pdf-native-image",
+      "reviewStatus": "visually-reviewed-public-specimen",
+      "capturedAt": "2026-10-25",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "decodedPayloads": [],
+      "method": "Original PDF-embedded image or original publisher download; no content changes.",
+      "publisherClass": "federal-republication",
+      "intakeRevision": 3
+    },
+    {
+      "id": "e-verify-wisconsin-p001-im05",
+      "sourceId": "e-verify-wisconsin",
+      "jurisdiction": "WI",
+      "sourceUrl": "https://www.uscis.gov/sites/default/files/USCIS/Verification/E-Verify/E-Verify_Native_Documents/Wisconsin_RIDE_Fact_Sheet.pdf",
+      "sourcePage": 1,
+      "path": "images/e-verify-wisconsin-p001-im05.jpeg",
+      "width": 312,
+      "height": 495,
+      "sha256": "339d36b27615a9c617070d8ff2bc95929b0eddca114377e58b9c8f897a2009f6",
+      "kind": "pdf-native-image",
+      "reviewStatus": "visually-reviewed-public-specimen",
+      "capturedAt": "2026-10-25",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "decodedPayloads": [],
+      "method": "Original PDF-embedded image or original publisher download; no content changes.",
+      "publisherClass": "federal-republication",
+      "intakeRevision": 3
+    },
+    {
+      "id": "e-verify-wisconsin-p001-im06",
+      "sourceId": "e-verify-wisconsin",
+      "jurisdiction": "WI",
+      "sourceUrl": "https://www.uscis.gov/sites/default/files/USCIS/Verification/E-Verify/E-Verify_Native_Documents/Wisconsin_RIDE_Fact_Sheet.pdf",
+      "sourcePage": 1,
+      "path": "images/e-verify-wisconsin-p001-im06.jpeg",
+      "width": 313,
+      "height": 499,
+      "sha256": "c8083f68ff57391a79eb75fcbcfae664130e59f2a4b00d2af629422c337ba96e",
+      "kind": "pdf-native-image",
+      "reviewStatus": "visually-reviewed-public-specimen",
+      "capturedAt": "2026-10-25",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "decodedPayloads": [],
+      "method": "Original PDF-embedded image or original publisher download; no content changes.",
+      "publisherClass": "federal-republication",
+      "intakeRevision": 3
+    },
+    {
+      "id": "e-verify-wisconsin-p001-im07",
+      "sourceId": "e-verify-wisconsin",
+      "jurisdiction": "WI",
+      "sourceUrl": "https://www.uscis.gov/sites/default/files/USCIS/Verification/E-Verify/E-Verify_Native_Documents/Wisconsin_RIDE_Fact_Sheet.pdf",
+      "sourcePage": 1,
+      "path": "images/e-verify-wisconsin-p001-im07.jpeg",
+      "width": 497,
+      "height": 271,
+      "sha256": "c23bdc5e033215c7dd74c70ccd02e8b071c218a99839e3df38dd1316713670dc",
+      "kind": "pdf-native-image",
+      "reviewStatus": "visually-reviewed-public-specimen",
+      "capturedAt": "2026-10-25",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "decodedPayloads": [],
+      "method": "Original PDF-embedded image or original publisher download; no content changes.",
+      "publisherClass": "federal-republication",
+      "intakeRevision": 3
+    },
+    {
+      "id": "tn-university-real-id-p003-im01",
+      "sourceId": "tn-university-real-id",
+      "jurisdiction": "TN",
+      "sourceUrl": "https://www.mtas.tennessee.edu/system/files/mrln/mknowledge/main/MTAS%20Tennessee%20REAL%20ID%202025.pdf",
+      "sourcePage": 3,
+      "path": "images/tn-university-real-id-p003-im01.jpeg",
+      "width": 562,
+      "height": 354,
+      "sha256": "d569b1c13cefd31f195e1e1c877541c41b01f59bc61ab6ceea47e4dd0fcd3971",
+      "kind": "pdf-native-image",
+      "reviewStatus": "visually-reviewed-public-specimen",
+      "capturedAt": "2026-10-25",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "decodedPayloads": [],
+      "method": "Original PDF-embedded image or original publisher download; no content changes.",
+      "publisherClass": "public-university-republication",
+      "intakeRevision": 3
+    },
+    {
+      "id": "tn-university-real-id-p003-im02",
+      "sourceId": "tn-university-real-id",
+      "jurisdiction": "TN",
+      "sourceUrl": "https://www.mtas.tennessee.edu/system/files/mrln/mknowledge/main/MTAS%20Tennessee%20REAL%20ID%202025.pdf",
+      "sourcePage": 3,
+      "path": "images/tn-university-real-id-p003-im02.jpeg",
+      "width": 422,
+      "height": 266,
+      "sha256": "b3d561e5e3cbe6c156bbcd2e3c4fbffa916760c3727d969a2f4a0c97e1798963",
+      "kind": "pdf-native-image",
+      "reviewStatus": "visually-reviewed-public-specimen",
+      "capturedAt": "2026-10-25",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "decodedPayloads": [],
+      "method": "Original PDF-embedded image or original publisher download; no content changes.",
+      "publisherClass": "public-university-republication",
+      "intakeRevision": 3
+    },
+    {
+      "id": "tn-university-real-id-p006-im01",
+      "sourceId": "tn-university-real-id",
+      "jurisdiction": "TN",
+      "sourceUrl": "https://www.mtas.tennessee.edu/system/files/mrln/mknowledge/main/MTAS%20Tennessee%20REAL%20ID%202025.pdf",
+      "sourcePage": 6,
+      "path": "images/tn-university-real-id-p006-im01.jpeg",
+      "width": 721,
+      "height": 258,
+      "sha256": "dd3fc894234215f42253852315e1eb23ca3a6db368f67fbce3ee156dcecd1ad3",
+      "kind": "pdf-native-image",
+      "reviewStatus": "visually-reviewed-public-specimen",
+      "capturedAt": "2026-10-25",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "decodedPayloads": [],
+      "method": "Original PDF-embedded image or original publisher download; no content changes.",
+      "publisherClass": "public-university-republication",
+      "intakeRevision": 3
+    },
+    {
+      "id": "gu-specimen-sheet-1",
+      "jurisdiction": "GU",
+      "sourceId": "gu-new-design-brochure",
+      "sourceUrl": "https://www.guamtax.com/notices/Guam_D500BrochureProd.pdf",
+      "sourcePage": 1,
+      "path": "images/gu-specimen-sheet-1.png",
+      "width": 2700,
+      "height": 2100,
+      "sha256": "a6f268e17b20e702ae1a88f1f94ac26fc88a352889980226fc49cbef0ca52597",
+      "kind": "composed-pdf-page",
+      "method": "Source PDF rendered at 240 dpi; text, sample markings and artwork preserved.",
+      "decodedPayloads": [],
+      "reviewStatus": "visually-reviewed-public-specimen",
+      "capturedAt": "2026-10-25",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "publisherClass": "jurisdiction",
+      "intakeRevision": 3
+    },
+    {
+      "id": "gu-specimen-sheet-2",
+      "jurisdiction": "GU",
+      "sourceId": "gu-new-design-brochure",
+      "sourceUrl": "https://www.guamtax.com/notices/Guam_D500BrochureProd.pdf",
+      "sourcePage": 2,
+      "path": "images/gu-specimen-sheet-2.png",
+      "width": 2700,
+      "height": 2100,
+      "sha256": "d8675c62852becd8495faffdf6f6b0097a213e377158ff300ef4a15d00aafc02",
+      "kind": "composed-pdf-page",
+      "method": "Source PDF rendered at 240 dpi; text, sample markings and artwork preserved.",
+      "decodedPayloads": [],
+      "reviewStatus": "visually-reviewed-public-specimen",
+      "capturedAt": "2026-10-25",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "publisherClass": "jurisdiction",
+      "intakeRevision": 3
+    },
+    {
+      "id": "ar-2018-calibration-reference",
+      "jurisdiction": "AR",
+      "sourceId": "ar-archived-calibration",
+      "sourceUrl": "https://web.archive.org/web/20200919023843id_/http://banking.arkansas.gov/public/userfiles/Important_Info/Arkansas_Barcode_Specifications_2018.pdf",
+      "sourcePage": 2,
+      "path": "images/ar-2018-calibration-reference.png",
+      "width": 2040,
+      "height": 2640,
+      "sha256": "79a6fc0c73c07205f1b4a413b9c7e5ecf01a87efd16bc72816645963bd782f00",
+      "kind": "composed-pdf-page",
+      "method": "Source PDF rendered at 240 dpi; text, sample markings and artwork preserved.",
+      "decodedPayloads": ["92d83454dc2e919dd456e3b067ac8894193aee6b5703f65d3d4ed2664153009f"],
+      "reviewStatus": "visually-reviewed-public-specimen",
+      "capturedAt": "2026-10-25",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "publisherClass": "archived-jurisdiction-publication",
+      "intakeRevision": 3
+    },
+    {
+      "id": "federal-reference-al-p150",
+      "jurisdiction": "AL",
+      "sourceId": "congress-state-samples",
+      "sourceUrl": "https://www.govinfo.gov/content/pkg/CRPT-118hrpt964/pdf/CRPT-118hrpt964.pdf",
+      "sourcePage": 150,
+      "path": "images/federal-reference-al-p150.png",
+      "width": 1150,
+      "height": 834,
+      "sha256": "e10d08a9d1980e05f5ab21167cb86ca0769376ff0ed23459a7b7afcc3f15161b",
+      "kind": "federal-republication-of-state-specimen",
+      "method": "Source PDF rendered at 240 dpi; text, sample markings and artwork preserved.",
+      "decodedPayloads": [],
+      "sourceClipPoints": [135, 140, 480, 390],
+      "publisherClass": "federal-republication",
+      "notes": [
+        "Federal report republishes an older specimen. The printed caption retains its original attribution. This image supplies visual evidence, not issuer-byte conformance or a current-design claim."
+      ],
+      "reviewStatus": "visually-reviewed-public-specimen",
+      "capturedAt": "2026-10-25",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "intakeRevision": 3
+    },
+    {
+      "id": "federal-reference-az-p151",
+      "jurisdiction": "AZ",
+      "sourceId": "congress-state-samples",
+      "sourceUrl": "https://www.govinfo.gov/content/pkg/CRPT-118hrpt964/pdf/CRPT-118hrpt964.pdf",
+      "sourcePage": 151,
+      "path": "images/federal-reference-az-p151.png",
+      "width": 1150,
+      "height": 718,
+      "sha256": "3ce81335ac951a1dd7ae2077124c947b5c117a96085b2cb205bb9eba553b0ad0",
+      "kind": "federal-republication-of-state-specimen",
+      "method": "Source PDF rendered at 240 dpi; text, sample markings and artwork preserved.",
+      "decodedPayloads": [],
+      "sourceClipPoints": [135, 365, 480, 580],
+      "publisherClass": "federal-republication",
+      "notes": [
+        "Federal report republishes an older specimen. The printed caption retains its original attribution. This image supplies visual evidence, not issuer-byte conformance or a current-design claim."
+      ],
+      "reviewStatus": "visually-reviewed-public-specimen",
+      "capturedAt": "2026-10-25",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "intakeRevision": 3
+    },
+    {
+      "id": "federal-reference-ar-p152",
+      "jurisdiction": "AR",
+      "sourceId": "congress-state-samples",
+      "sourceUrl": "https://www.govinfo.gov/content/pkg/CRPT-118hrpt964/pdf/CRPT-118hrpt964.pdf",
+      "sourcePage": 152,
+      "path": "images/federal-reference-ar-p152.png",
+      "width": 1150,
+      "height": 758,
+      "sha256": "29b0db7a99de213d43163536636731072e13e6edef1eb0d22e0b153f76f82510",
+      "kind": "federal-republication-of-state-specimen",
+      "method": "Source PDF rendered at 240 dpi; text, sample markings and artwork preserved.",
+      "decodedPayloads": [],
+      "sourceClipPoints": [135, 140, 480, 367],
+      "publisherClass": "federal-republication",
+      "notes": [
+        "Federal report republishes an older specimen. The printed caption retains its original attribution. This image supplies visual evidence, not issuer-byte conformance or a current-design claim."
+      ],
+      "reviewStatus": "visually-reviewed-public-specimen",
+      "capturedAt": "2026-10-25",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "intakeRevision": 3
+    },
+    {
+      "id": "federal-reference-la-p160",
+      "jurisdiction": "LA",
+      "sourceId": "congress-state-samples",
+      "sourceUrl": "https://www.govinfo.gov/content/pkg/CRPT-118hrpt964/pdf/CRPT-118hrpt964.pdf",
+      "sourcePage": 160,
+      "path": "images/federal-reference-la-p160.png",
+      "width": 1150,
+      "height": 718,
+      "sha256": "64d1cd99e31143b40e7d0f809b44c9c2a7aea9dadcb336a54d9451aa72a5a7fc",
+      "kind": "federal-republication-of-state-specimen",
+      "method": "Source PDF rendered at 240 dpi; text, sample markings and artwork preserved.",
+      "decodedPayloads": [],
+      "sourceClipPoints": [135, 365, 480, 580],
+      "publisherClass": "federal-republication",
+      "notes": [
+        "Federal report republishes an older specimen. The printed caption retains its original attribution. This image supplies visual evidence, not issuer-byte conformance or a current-design claim."
+      ],
+      "reviewStatus": "visually-reviewed-public-specimen",
+      "capturedAt": "2026-10-25",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "intakeRevision": 3
+    },
+    {
+      "id": "federal-reference-me-p161",
+      "jurisdiction": "ME",
+      "sourceId": "congress-state-samples",
+      "sourceUrl": "https://www.govinfo.gov/content/pkg/CRPT-118hrpt964/pdf/CRPT-118hrpt964.pdf",
+      "sourcePage": 161,
+      "path": "images/federal-reference-me-p161.png",
+      "width": 1150,
+      "height": 834,
+      "sha256": "5099f0a00fcf75f0f0b0867fec7b37bf8f9a60ea5e4c48bed28d39c2bb753404",
+      "kind": "federal-republication-of-state-specimen",
+      "method": "Source PDF rendered at 240 dpi; text, sample markings and artwork preserved.",
+      "decodedPayloads": [],
+      "sourceClipPoints": [135, 140, 480, 390],
+      "publisherClass": "federal-republication",
+      "notes": [
+        "Federal report republishes an older specimen. The printed caption retains its original attribution. This image supplies visual evidence, not issuer-byte conformance or a current-design claim."
+      ],
+      "reviewStatus": "visually-reviewed-public-specimen",
+      "capturedAt": "2026-10-25",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "intakeRevision": 3
+    },
+    {
+      "id": "federal-reference-md-p162",
+      "jurisdiction": "MD",
+      "sourceId": "congress-state-samples",
+      "sourceUrl": "https://www.govinfo.gov/content/pkg/CRPT-118hrpt964/pdf/CRPT-118hrpt964.pdf",
+      "sourcePage": 162,
+      "path": "images/federal-reference-md-p162.png",
+      "width": 1150,
+      "height": 704,
+      "sha256": "fb6e610e6692a1de207fa23641cdc47077ab384842adbdee560bfff042f3bf7b",
+      "kind": "federal-republication-of-state-specimen",
+      "method": "Source PDF rendered at 240 dpi; text, sample markings and artwork preserved.",
+      "decodedPayloads": [],
+      "sourceClipPoints": [135, 140, 480, 351],
+      "publisherClass": "federal-republication",
+      "notes": [
+        "Federal report republishes an older specimen. The printed caption retains its original attribution. This image supplies visual evidence, not issuer-byte conformance or a current-design claim."
+      ],
+      "reviewStatus": "visually-reviewed-public-specimen",
+      "capturedAt": "2026-10-25",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "intakeRevision": 3
+    },
+    {
+      "id": "federal-reference-nh-p166",
+      "jurisdiction": "NH",
+      "sourceId": "congress-state-samples",
+      "sourceUrl": "https://www.govinfo.gov/content/pkg/CRPT-118hrpt964/pdf/CRPT-118hrpt964.pdf",
+      "sourcePage": 166,
+      "path": "images/federal-reference-nh-p166.png",
+      "width": 1150,
+      "height": 651,
+      "sha256": "391c03d3fa054ea7a7cff8fc78be616cbb40591675a1e7685d196782d5892e92",
+      "kind": "federal-republication-of-state-specimen",
+      "method": "Source PDF rendered at 240 dpi; text, sample markings and artwork preserved.",
+      "decodedPayloads": [],
+      "sourceClipPoints": [135, 385, 480, 580],
+      "publisherClass": "federal-republication",
+      "notes": [
+        "Federal report republishes an older specimen. The printed caption retains its original attribution. This image supplies visual evidence, not issuer-byte conformance or a current-design claim."
+      ],
+      "reviewStatus": "visually-reviewed-public-specimen",
+      "capturedAt": "2026-10-25",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "intakeRevision": 3
+    },
+    {
+      "id": "federal-reference-ok-p170",
+      "jurisdiction": "OK",
+      "sourceId": "congress-state-samples",
+      "sourceUrl": "https://www.govinfo.gov/content/pkg/CRPT-118hrpt964/pdf/CRPT-118hrpt964.pdf",
+      "sourcePage": 170,
+      "path": "images/federal-reference-ok-p170.png",
+      "width": 1150,
+      "height": 704,
+      "sha256": "ea7b8b0c1482618821f535c2b5e04c2da26c85c4bb91010403fb45199151734c",
+      "kind": "federal-republication-of-state-specimen",
+      "method": "Source PDF rendered at 240 dpi; text, sample markings and artwork preserved.",
+      "decodedPayloads": [],
+      "sourceClipPoints": [135, 140, 480, 351],
+      "publisherClass": "federal-republication",
+      "notes": [
+        "Federal report republishes an older specimen. The printed caption retains its original attribution. This image supplies visual evidence, not issuer-byte conformance or a current-design claim."
+      ],
+      "reviewStatus": "visually-reviewed-public-specimen",
+      "capturedAt": "2026-10-25",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "intakeRevision": 3
+    },
+    {
+      "id": "federal-reference-ut-p174",
+      "jurisdiction": "UT",
+      "sourceId": "congress-state-samples",
+      "sourceUrl": "https://www.govinfo.gov/content/pkg/CRPT-118hrpt964/pdf/CRPT-118hrpt964.pdf",
+      "sourcePage": 174,
+      "path": "images/federal-reference-ut-p174.png",
+      "width": 1150,
+      "height": 704,
+      "sha256": "506afacfb0dfa8974cbb9abdc127dce1f0fb9ffdab21270f9f80cbf578585df3",
+      "kind": "federal-republication-of-state-specimen",
+      "method": "Source PDF rendered at 240 dpi; text, sample markings and artwork preserved.",
+      "decodedPayloads": [],
+      "sourceClipPoints": [135, 140, 480, 351],
+      "publisherClass": "federal-republication",
+      "notes": [
+        "Federal report republishes an older specimen. The printed caption retains its original attribution. This image supplies visual evidence, not issuer-byte conformance or a current-design claim."
+      ],
+      "reviewStatus": "visually-reviewed-public-specimen",
+      "capturedAt": "2026-10-25",
+      "rightsStatus": "not-cleared-for-redistribution",
+      "intakeRevision": 3
+    },
+    {
+      "id": "ms-design-adult",
+      "jurisdiction": "MS",
+      "sourceUrl": "https://www.dps.ms.gov/node/1518",
+      "assetUrl": "https://www.dps.ms.gov/sites/dps/files/inline-images/AdultDL_LargeScaleImage.jpg",
+      "sourceId": "ms-2024-design",
+      "kind": "issuer-published-image",
+      "capturedAt": "2026-10-25",
+      "reviewStatus": "visually-reviewed-public-specimen",
+      "status": "downloaded",
+      "path": "images/ms-design-adult.jpg",
+      "sha256": "421d7c166f57470aca591b00e657232d46f5732bf2f735de668cc96824921a71",
+      "bytes": 2871073,
+      "width": 2112,
+      "height": 1350,
+      "rightsStatus": "not-cleared-for-redistribution",
+      "decodedPayloads": [],
+      "method": "Original PDF-embedded image or original publisher download; no content changes.",
+      "publisherClass": "jurisdiction",
+      "intakeRevision": 3
+    },
+    {
+      "id": "ms-design-minor",
+      "jurisdiction": "MS",
+      "sourceUrl": "https://www.dps.ms.gov/node/1518",
+      "assetUrl": "https://www.dps.ms.gov/sites/dps/files/inline-images/Minor_DL_300dpi.jpg",
+      "sourceId": "ms-2024-design",
+      "kind": "issuer-published-image",
+      "capturedAt": "2026-10-25",
+      "reviewStatus": "visually-reviewed-public-specimen",
+      "status": "downloaded",
+      "path": "images/ms-design-minor.jpg",
+      "sha256": "f06a0355bd6187a4cb47eed25077c3382fa8efd04ad333143e7d919e5de483ad",
+      "bytes": 492867,
+      "width": 638,
+      "height": 1011,
+      "rightsStatus": "not-cleared-for-redistribution",
+      "decodedPayloads": [],
+      "method": "Original PDF-embedded image or original publisher download; no content changes.",
+      "publisherClass": "jurisdiction",
+      "intakeRevision": 3
+    },
+    {
+      "id": "vi-2025-real-id",
+      "jurisdiction": "VI",
+      "sourceUrl": "https://bmv.vi.gov/",
+      "assetUrl": "https://bmv.vi.gov/wp-content/uploads/2025/03/VI-RealID-DL-1.jpg",
+      "sourceId": "vi-bmv",
+      "kind": "issuer-published-image",
+      "capturedAt": "2026-10-25",
+      "reviewStatus": "visually-reviewed-public-specimen",
+      "status": "downloaded",
+      "path": "images/vi-2025-real-id.jpg",
+      "sha256": "9df59f8a9ce31b96bf995a07112930aee77c2e33d63663b3a5e876cfc7127a04",
+      "bytes": 629800,
+      "width": 2172,
+      "height": 1369,
+      "rightsStatus": "not-cleared-for-redistribution",
+      "decodedPayloads": [],
+      "method": "Original PDF-embedded image or original publisher download; no content changes.",
+      "publisherClass": "jurisdiction",
+      "intakeRevision": 3
     }
   ],
   "payloads": [
@@ -5167,11 +6573,76 @@
       "currentDecoderStatus": "accepted",
       "currentDecoderError": null,
       "generatorAudit": {
-        "status": "different-bytes",
         "generatedByteLength": 295,
-        "firstDifferenceByteOffset": 18,
-        "expectedAtDifference": "202DL00410422ZV04630096DLDCADM2 \nDCBNONE      \nDCDS    \nDBA01052031\nDC",
-        "generatedAtDifference": "001DL00310264DLDCADM2\nDCBNONE\nDCDS\nDBA01052031\nDCSREYES\nDACRICHARD\nDAD"
+        "missingSubfiles": ["ZV"],
+        "omittedSourceCodes": ["DCU", "DDC", "ZVA"],
+        "addedCodes": [],
+        "changedValues": [
+          {
+            "code": "DAU",
+            "source": "072 in",
+            "generated": "072 IN"
+          }
+        ],
+        "widthDifferences": [
+          {
+            "code": "DCA",
+            "source": 4,
+            "generated": 3
+          },
+          {
+            "code": "DCB",
+            "source": 10,
+            "generated": 4
+          },
+          {
+            "code": "DCD",
+            "source": 5,
+            "generated": 1
+          },
+          {
+            "code": "DCS",
+            "source": 40,
+            "generated": 5
+          },
+          {
+            "code": "DAC",
+            "source": 40,
+            "generated": 7
+          },
+          {
+            "code": "DAD",
+            "source": 40,
+            "generated": 8
+          },
+          {
+            "code": "DAG",
+            "source": 35,
+            "generated": 19
+          },
+          {
+            "code": "DAI",
+            "source": 20,
+            "generated": 13
+          },
+          {
+            "code": "DAK",
+            "source": 9,
+            "generated": 11
+          },
+          {
+            "code": "DAQ",
+            "source": 12,
+            "generated": 9
+          },
+          {
+            "code": "DCF",
+            "source": 12,
+            "generated": 9
+          }
+        ],
+        "strictGeneration": "accepted",
+        "status": "different-bytes"
       },
       "notes": [
         "This calibration PDF contains multiple independently encoded sample symbols. Associate bytes with the exact source image, not with neighboring printed fields."
@@ -5226,11 +6697,71 @@
       "currentDecoderStatus": "accepted",
       "currentDecoderError": null,
       "generatorAudit": {
-        "status": "different-bytes",
         "generatedByteLength": 275,
-        "firstDifferenceByteOffset": 28,
-        "expectedAtDifference": "442DLDCAM     \nDCBNONE        \nDCDNONE \nDBA05042029\nDCSJAMES          ",
-        "generatedAtDifference": "244DLDCAM\nDCBNONE\nDCDNONE\nDBA05042029\nDCSJAMES\nDACALYSSA\nDADFAITH\nDBD1"
+        "missingSubfiles": [],
+        "omittedSourceCodes": ["DDH", "DDJ"],
+        "addedCodes": [],
+        "changedValues": [
+          {
+            "code": "DAU",
+            "source": "065 in",
+            "generated": "065 IN"
+          }
+        ],
+        "widthDifferences": [
+          {
+            "code": "DCA",
+            "source": 6,
+            "generated": 1
+          },
+          {
+            "code": "DCB",
+            "source": 12,
+            "generated": 4
+          },
+          {
+            "code": "DCD",
+            "source": 5,
+            "generated": 4
+          },
+          {
+            "code": "DCS",
+            "source": 40,
+            "generated": 5
+          },
+          {
+            "code": "DAC",
+            "source": 40,
+            "generated": 6
+          },
+          {
+            "code": "DAD",
+            "source": 40,
+            "generated": 5
+          },
+          {
+            "code": "DAG",
+            "source": 35,
+            "generated": 22
+          },
+          {
+            "code": "DAI",
+            "source": 20,
+            "generated": 8
+          },
+          {
+            "code": "DAQ",
+            "source": 25,
+            "generated": 9
+          },
+          {
+            "code": "DCF",
+            "source": 25,
+            "generated": 9
+          }
+        ],
+        "strictGeneration": "accepted",
+        "status": "different-bytes"
       },
       "notes": [
         "This calibration PDF contains multiple independently encoded sample symbols. Associate bytes with the exact source image, not with neighboring printed fields.",
@@ -5286,11 +6817,76 @@
       "currentDecoderStatus": "accepted",
       "currentDecoderError": null,
       "generatorAudit": {
-        "status": "different-bytes",
         "generatedByteLength": 306,
-        "firstDifferenceByteOffset": 18,
-        "expectedAtDifference": "202DL00410422ZV04630096DLDCAD   \nDCBNONE      \nDCDNONE \nDBA01192031\nDC",
-        "generatedAtDifference": "001DL00310275DLDCAD\nDCBNONE\nDCDNONE\nDBA01192031\nDCSMALDONADO\nDACJULIAN"
+        "missingSubfiles": ["ZV"],
+        "omittedSourceCodes": ["DCU", "DDC", "ZVA"],
+        "addedCodes": [],
+        "changedValues": [
+          {
+            "code": "DAU",
+            "source": "067 in",
+            "generated": "067 IN"
+          }
+        ],
+        "widthDifferences": [
+          {
+            "code": "DCA",
+            "source": 4,
+            "generated": 1
+          },
+          {
+            "code": "DCB",
+            "source": 10,
+            "generated": 4
+          },
+          {
+            "code": "DCD",
+            "source": 5,
+            "generated": 4
+          },
+          {
+            "code": "DCS",
+            "source": 40,
+            "generated": 9
+          },
+          {
+            "code": "DAC",
+            "source": 40,
+            "generated": 7
+          },
+          {
+            "code": "DAD",
+            "source": 40,
+            "generated": 5
+          },
+          {
+            "code": "DAG",
+            "source": 35,
+            "generated": 27
+          },
+          {
+            "code": "DAI",
+            "source": 20,
+            "generated": 14
+          },
+          {
+            "code": "DAK",
+            "source": 9,
+            "generated": 11
+          },
+          {
+            "code": "DAQ",
+            "source": 12,
+            "generated": 9
+          },
+          {
+            "code": "DCF",
+            "source": 12,
+            "generated": 9
+          }
+        ],
+        "strictGeneration": "accepted",
+        "status": "different-bytes"
       },
       "notes": [
         "This calibration PDF contains multiple independently encoded sample symbols. Associate bytes with the exact source image, not with neighboring printed fields."
@@ -5339,8 +6935,9 @@
       "currentDecoderStatus": "accepted",
       "currentDecoderError": null,
       "generatorAudit": {
-        "status": "rejected-input",
-        "error": "Missing mandatory fields for FL (v09): Eye Color (DAY)"
+        "generationError": "Missing mandatory fields for FL (v09): Eye Color (DAY)",
+        "strictGeneration": "Strict Mode: version 09 does not match FL compliance profile (10)",
+        "status": "rejected-input"
       },
       "notes": [
         "The source symbol omits DAY. The publisher table explicitly states that the eye-color tag and contents are intentionally omitted on all cards for that documented format."
@@ -5389,8 +6986,9 @@
       "currentDecoderStatus": "accepted",
       "currentDecoderError": null,
       "generatorAudit": {
-        "status": "rejected-input",
-        "error": "Invalid field values for TX (v10): Card Revision Date (DDB)"
+        "generationError": "Invalid field values for TX (v10): Card Revision Date (DDB)",
+        "strictGeneration": "Invalid field values for TX (v10): Card Revision Date (DDB)",
+        "status": "rejected-input"
       },
       "notes": [
         "Published specimen symbol contains DDBMMDDCCYY and deliberately filled sample values. These are source placeholders, not valid production values. Do not weaken validation to make them generate."
@@ -5451,8 +7049,9 @@
       "currentDecoderStatus": "accepted",
       "currentDecoderError": null,
       "generatorAudit": {
-        "status": "rejected-input",
-        "error": "Invalid field values for TX (v10): Card Revision Date (DDB)"
+        "generationError": "Invalid field values for TX (v10): Card Revision Date (DDB)",
+        "strictGeneration": "Invalid field values for TX (v10): Card Revision Date (DDB)",
+        "status": "rejected-input"
       },
       "notes": [
         "Published specimen symbol contains DDBMMDDCCYY and deliberately filled sample values. These are source placeholders, not valid production values. Do not weaken validation to make them generate."
@@ -5500,11 +7099,66 @@
       "currentDecoderStatus": "accepted",
       "currentDecoderError": null,
       "generatorAudit": {
-        "status": "different-bytes",
         "generatedByteLength": 461,
-        "firstDifferenceByteOffset": 29,
-        "expectedAtDifference": "96ZN04370070DLDCAD     \nDCBNONE        \nDCDNONE \nDBA08312029\nDCSMOTORI",
-        "generatedAtDifference": "00ZN03410120DLDCAD   \nDCBNONE      \nDCDNONE \nDBA08312029\nDCSMOTORIST  "
+        "missingSubfiles": [],
+        "omittedSourceCodes": [],
+        "addedCodes": [],
+        "changedValues": [
+          {
+            "code": "DAU",
+            "source": "069 in",
+            "generated": "069 IN"
+          }
+        ],
+        "widthDifferences": [
+          {
+            "code": "DCA",
+            "source": 6,
+            "generated": 4
+          },
+          {
+            "code": "DCB",
+            "source": 12,
+            "generated": 10
+          },
+          {
+            "code": "DCS",
+            "source": 40,
+            "generated": 25
+          },
+          {
+            "code": "DAC",
+            "source": 40,
+            "generated": 25
+          },
+          {
+            "code": "DAD",
+            "source": 40,
+            "generated": 25
+          },
+          {
+            "code": "DAG",
+            "source": 35,
+            "generated": 25
+          },
+          {
+            "code": "DAQ",
+            "source": 25,
+            "generated": 9
+          },
+          {
+            "code": "DCF",
+            "source": 25,
+            "generated": 4
+          },
+          {
+            "code": "ZNB",
+            "source": 40,
+            "generated": 90
+          }
+        ],
+        "strictGeneration": "accepted",
+        "status": "different-bytes"
       },
       "notes": [],
       "observedAt": [
@@ -5568,8 +7222,9 @@
       "currentDecoderStatus": "accepted",
       "currentDecoderError": null,
       "generatorAudit": {
-        "status": "rejected-input",
-        "error": "Invalid field values for NY (v07): Customer ID Number (DAQ)"
+        "generationError": "Invalid field values for NY (v07): Customer ID Number (DAQ)",
+        "strictGeneration": "Strict Mode: version 07 does not match NY compliance profile (10)",
+        "status": "rejected-input"
       },
       "notes": [
         "Published older specimen contains DAQNONE and mixed-case name fields. It does not demonstrate a production NY customer-number value."
@@ -5659,11 +7314,14 @@
       "currentDecoderStatus": "accepted",
       "currentDecoderError": null,
       "generatorAudit": {
-        "status": "different-bytes",
-        "generatedByteLength": 295,
-        "firstDifferenceByteOffset": 18,
-        "expectedAtDifference": "102DL00410263ZG03040096DLDAQ999999999\nDCSSAMPLE\nDDEN\nDACIMA\nDDFN\nDADGE",
-        "generatedAtDifference": "001DL00310264DLDCAC\nDCBNONE\nDCDNONE\nDBA02222028\nDCSSAMPLE\nDACIMA\nDADGE"
+        "generatedByteLength": 400,
+        "missingSubfiles": [],
+        "omittedSourceCodes": [],
+        "addedCodes": [],
+        "changedValues": [],
+        "widthDifferences": [],
+        "strictGeneration": "Strict Mode: version 09 does not match GA compliance profile (10)",
+        "status": "exact-match"
       },
       "notes": [],
       "observedAt": [
@@ -5713,8 +7371,9 @@
       "currentDecoderStatus": "accepted",
       "currentDecoderError": null,
       "generatorAudit": {
-        "status": "rejected-input",
-        "error": "Missing mandatory fields for GA (v03): Customer First Name (DAC)"
+        "generationError": "Missing mandatory fields for GA (v03): Customer First Name (DAC)",
+        "strictGeneration": "Strict Mode: version 03 does not match GA compliance profile (10)",
+        "status": "rejected-input"
       },
       "notes": [],
       "observedAt": [
@@ -5761,11 +7420,34 @@
       "currentDecoderStatus": "accepted",
       "currentDecoderError": null,
       "generatorAudit": {
-        "status": "different-bytes",
         "generatedByteLength": 314,
-        "firstDifferenceByteOffset": 20,
-        "expectedAtDifference": "2DL00410288ZG03290149DLDCAC\nDCBB\nDCDNONE\nDBA07012017\nDCSSAMPLE\nDDEU\nDA",
-        "generatedAtDifference": "1DL00310283DLDCAC\nDCBB\nDCDNONE\nDBA07012017\nDCSSAMPLE\nDACJANICE\nDADNONE"
+        "missingSubfiles": ["ZG"],
+        "omittedSourceCodes": [
+          "DDK",
+          "ZGA",
+          "ZGB",
+          "ZGC",
+          "ZGD",
+          "ZGE",
+          "ZGF",
+          "ZGG",
+          "ZGH",
+          "ZGI",
+          "ZGJ",
+          "ZGK",
+          "ZGL"
+        ],
+        "addedCodes": [],
+        "changedValues": [
+          {
+            "code": "DAU",
+            "source": "064 in",
+            "generated": "064 IN"
+          }
+        ],
+        "widthDifferences": [],
+        "strictGeneration": "Strict Mode: version 06 does not match GA compliance profile (10)",
+        "status": "different-bytes"
       },
       "notes": [],
       "observedAt": [
@@ -5848,11 +7530,20 @@
       "currentDecoderStatus": "accepted",
       "currentDecoderError": null,
       "generatorAudit": {
-        "status": "different-bytes",
         "generatedByteLength": 314,
-        "firstDifferenceByteOffset": 20,
-        "expectedAtDifference": "2DL00410288ZG03290093DLDCAC\nDCBB\nDCDNONE\nDBA07012017\nDCSSAMPLE\nDDEU\nDA",
-        "generatedAtDifference": "1DL00310283DLDCAC\nDCBB\nDCDNONE\nDBA07012017\nDCSSAMPLE\nDACJANICE\nDADNONE"
+        "missingSubfiles": ["ZG"],
+        "omittedSourceCodes": ["DDK", "ZGA", "ZGB", "ZGC", "ZGD", "ZGE", "ZGF", "ZGG", "ZGH"],
+        "addedCodes": [],
+        "changedValues": [
+          {
+            "code": "DAU",
+            "source": "064 in",
+            "generated": "064 IN"
+          }
+        ],
+        "widthDifferences": [],
+        "strictGeneration": "Strict Mode: version 06 does not match GA compliance profile (10)",
+        "status": "different-bytes"
       },
       "notes": [],
       "observedAt": [
@@ -5940,11 +7631,20 @@
       "currentDecoderStatus": "accepted",
       "currentDecoderError": null,
       "generatorAudit": {
-        "status": "different-bytes",
         "generatedByteLength": 301,
-        "firstDifferenceByteOffset": 18,
-        "expectedAtDifference": "102DL00410286ZN03270048DLDAQL000000001\nDCSANDERSON\nDDEN\nDACCALEB\nDDFN\n",
-        "generatedAtDifference": "001DL00310270DLDCAO\nDCBBG\nDCDM\nDBA10312034\nDCSANDERSON\nDACCALEB\nDADJAM"
+        "missingSubfiles": ["ZN"],
+        "omittedSourceCodes": ["DCL", "DDJ", "ZNA", "ZNB", "ZNC"],
+        "addedCodes": [],
+        "changedValues": [
+          {
+            "code": "DAU",
+            "source": "070 in",
+            "generated": "070 IN"
+          }
+        ],
+        "widthDifferences": [],
+        "strictGeneration": "Strict Mode: version 11 does not match NE compliance profile (10)",
+        "status": "different-bytes"
       },
       "notes": [
         "Recovered from the 2026 Nebraska calibration JPEG with a 30-pixel white margin and 2x nearest-neighbor scaling. Actual symbol carries AAMVA 11 and jurisdiction version 01. Its text was not reconstructed from the printed table."
@@ -5993,11 +7693,76 @@
       "currentDecoderStatus": "accepted",
       "currentDecoderError": null,
       "generatorAudit": {
-        "status": "different-bytes",
         "generatedByteLength": 280,
-        "firstDifferenceByteOffset": 18,
-        "expectedAtDifference": "202DL00410422ZV04630096DLDCAA   \nDCBB         \nDCDX    \nDBA05012031\nDC",
-        "generatedAtDifference": "001DL00310249DLDCAA\nDCBB\nDCDX\nDBA05012031\nDCSBAILEY\nDACWESTON\nDADCOLE\n"
+        "missingSubfiles": ["ZV"],
+        "omittedSourceCodes": ["DCU", "DDC", "ZVA"],
+        "addedCodes": [],
+        "changedValues": [
+          {
+            "code": "DAU",
+            "source": "074 in",
+            "generated": "074 IN"
+          }
+        ],
+        "widthDifferences": [
+          {
+            "code": "DCA",
+            "source": 4,
+            "generated": 1
+          },
+          {
+            "code": "DCB",
+            "source": 10,
+            "generated": 1
+          },
+          {
+            "code": "DCD",
+            "source": 5,
+            "generated": 1
+          },
+          {
+            "code": "DCS",
+            "source": 40,
+            "generated": 6
+          },
+          {
+            "code": "DAC",
+            "source": 40,
+            "generated": 6
+          },
+          {
+            "code": "DAD",
+            "source": 40,
+            "generated": 4
+          },
+          {
+            "code": "DAG",
+            "source": 35,
+            "generated": 16
+          },
+          {
+            "code": "DAI",
+            "source": 20,
+            "generated": 10
+          },
+          {
+            "code": "DAK",
+            "source": 9,
+            "generated": 11
+          },
+          {
+            "code": "DAQ",
+            "source": 12,
+            "generated": 9
+          },
+          {
+            "code": "DCF",
+            "source": 12,
+            "generated": 9
+          }
+        ],
+        "strictGeneration": "accepted",
+        "status": "different-bytes"
       },
       "notes": [
         "This calibration PDF contains multiple independently encoded sample symbols. Associate bytes with the exact source image, not with neighboring printed fields."
@@ -6046,11 +7811,61 @@
       "currentDecoderStatus": "accepted",
       "currentDecoderError": null,
       "generatorAudit": {
-        "status": "different-bytes",
         "generatedByteLength": 273,
-        "firstDifferenceByteOffset": 18,
-        "expectedAtDifference": "202ID00410422ZV04630096IDDCANONE\nDCBNONE      \nDCDNONE \nDBA01082027\nDC",
-        "generatedAtDifference": "001ID00310242IDDBA01082027\nDCSANDREWS\nDACTAYLOR\nDADLYNN\nDBD05112023\nDB"
+        "missingSubfiles": ["ZV"],
+        "omittedSourceCodes": ["DCA", "DCB", "DCD", "DCU", "DDC", "ZVA"],
+        "addedCodes": [],
+        "changedValues": [
+          {
+            "code": "DAU",
+            "source": "050 in",
+            "generated": "050 IN"
+          }
+        ],
+        "widthDifferences": [
+          {
+            "code": "DCS",
+            "source": 40,
+            "generated": 7
+          },
+          {
+            "code": "DAC",
+            "source": 40,
+            "generated": 6
+          },
+          {
+            "code": "DAD",
+            "source": 40,
+            "generated": 4
+          },
+          {
+            "code": "DAG",
+            "source": 35,
+            "generated": 23
+          },
+          {
+            "code": "DAI",
+            "source": 20,
+            "generated": 10
+          },
+          {
+            "code": "DAK",
+            "source": 9,
+            "generated": 11
+          },
+          {
+            "code": "DAQ",
+            "source": 12,
+            "generated": 9
+          },
+          {
+            "code": "DCF",
+            "source": 12,
+            "generated": 9
+          }
+        ],
+        "strictGeneration": "accepted",
+        "status": "different-bytes"
       },
       "notes": [
         "This calibration PDF contains multiple independently encoded sample symbols. Associate bytes with the exact source image, not with neighboring printed fields."
@@ -6099,11 +7914,61 @@
       "currentDecoderStatus": "accepted",
       "currentDecoderError": null,
       "generatorAudit": {
-        "status": "different-bytes",
         "generatedByteLength": 264,
-        "firstDifferenceByteOffset": 18,
-        "expectedAtDifference": "202ID00410422ZV04630096IDDCANONE\nDCBNONE      \nDCDNONE \nDBA04102031\nDC",
-        "generatedAtDifference": "001ID00310233IDDBA04102031\nDCSZACHARY\nDACMAYA\nDADROSE\nDBD05142023\nDBB0"
+        "missingSubfiles": ["ZV"],
+        "omittedSourceCodes": ["DCA", "DCB", "DCD", "DCU", "DDC", "ZVA"],
+        "addedCodes": [],
+        "changedValues": [
+          {
+            "code": "DAU",
+            "source": "064 in",
+            "generated": "064 IN"
+          }
+        ],
+        "widthDifferences": [
+          {
+            "code": "DCS",
+            "source": 40,
+            "generated": 7
+          },
+          {
+            "code": "DAC",
+            "source": 40,
+            "generated": 4
+          },
+          {
+            "code": "DAD",
+            "source": 40,
+            "generated": 4
+          },
+          {
+            "code": "DAG",
+            "source": 35,
+            "generated": 21
+          },
+          {
+            "code": "DAI",
+            "source": 20,
+            "generated": 5
+          },
+          {
+            "code": "DAK",
+            "source": 9,
+            "generated": 11
+          },
+          {
+            "code": "DAQ",
+            "source": 12,
+            "generated": 9
+          },
+          {
+            "code": "DCF",
+            "source": 12,
+            "generated": 9
+          }
+        ],
+        "strictGeneration": "accepted",
+        "status": "different-bytes"
       },
       "notes": [
         "This calibration PDF contains multiple independently encoded sample symbols. Associate bytes with the exact source image, not with neighboring printed fields."
@@ -6152,11 +8017,61 @@
       "currentDecoderStatus": "accepted",
       "currentDecoderError": null,
       "generatorAudit": {
-        "status": "different-bytes",
         "generatedByteLength": 266,
-        "firstDifferenceByteOffset": 18,
-        "expectedAtDifference": "202ID00410422ZV04630096IDDCANONE\nDCBNONE      \nDCDNONE \nDBA03232031\nDC",
-        "generatedAtDifference": "001ID00310235IDDBA03232031\nDCSSARKO\nDACJAMES\nDADALAN\nDBD05192023\nDBB03"
+        "missingSubfiles": ["ZV"],
+        "omittedSourceCodes": ["DCA", "DCB", "DCD", "DCU", "DDC", "ZVA"],
+        "addedCodes": [],
+        "changedValues": [
+          {
+            "code": "DAU",
+            "source": "070 in",
+            "generated": "070 IN"
+          }
+        ],
+        "widthDifferences": [
+          {
+            "code": "DCS",
+            "source": 40,
+            "generated": 5
+          },
+          {
+            "code": "DAC",
+            "source": 40,
+            "generated": 5
+          },
+          {
+            "code": "DAD",
+            "source": 40,
+            "generated": 4
+          },
+          {
+            "code": "DAG",
+            "source": 35,
+            "generated": 20
+          },
+          {
+            "code": "DAI",
+            "source": 20,
+            "generated": 9
+          },
+          {
+            "code": "DAK",
+            "source": 9,
+            "generated": 11
+          },
+          {
+            "code": "DAQ",
+            "source": 12,
+            "generated": 9
+          },
+          {
+            "code": "DCF",
+            "source": 12,
+            "generated": 9
+          }
+        ],
+        "strictGeneration": "accepted",
+        "status": "different-bytes"
       },
       "notes": [
         "Recovered during final verification of the saved curated image. This is the separate standard-ID calibration symbol on page 5. Preserve its association with that exact symbol; the guide contains multiple different sample payloads."
@@ -6205,8 +8120,9 @@
       "currentDecoderStatus": "accepted",
       "currentDecoderError": null,
       "generatorAudit": {
-        "status": "rejected-input",
-        "error": "Invalid field values for DE (v09): Card Revision Date (DDB)"
+        "generationError": "Invalid field values for DE (v09): Card Revision Date (DDB)",
+        "strictGeneration": "Invalid field values for DE (v09): Card Revision Date (DDB)",
+        "status": "rejected-input"
       },
       "notes": [
         "The official sample encodes DDBMMDDCCYY and expanded placeholder values. Preserve the observed bytes; the generator rejects the invalid sample date."
@@ -6310,8 +8226,9 @@
       "currentDecoderStatus": "accepted",
       "currentDecoderError": null,
       "generatorAudit": {
-        "status": "rejected-input",
-        "error": "Invalid field values for SD (v04): Card Revision Date (DDB)"
+        "generationError": "Invalid field values for SD (v04): Card Revision Date (DDB)",
+        "strictGeneration": "Strict Mode: version 04 does not match SD compliance profile (09)",
+        "status": "rejected-input"
       },
       "notes": [
         "The official sample encodes DDBMMDDCCYY and expanded placeholder values. Preserve the observed bytes; the generator rejects the invalid sample date.",
@@ -6362,8 +8279,9 @@
       "currentDecoderStatus": "accepted",
       "currentDecoderError": null,
       "generatorAudit": {
-        "status": "rejected-input",
-        "error": "Invalid field values for GA (v06): REAL ID / Compliance Type (DDA)"
+        "generationError": "Invalid field values for GA (v06): REAL ID / Compliance Type (DDA)",
+        "strictGeneration": "Strict Mode: version 06 does not match GA compliance profile (10)",
+        "status": "rejected-input"
       },
       "notes": [
         "Recovered from the two-interim-document image in the older public guides using a white margin and 2x nearest-neighbor scaling. The exact image carries AAMVA 06, jurisdiction version 01, DAQ333333333, and a 2013 interim sample. Do not infer its issuance date from the guide link label."
@@ -6383,39 +8301,128 @@
         }
       ],
       "intakeRevision": 2
+    },
+    {
+      "id": "il-published-0811ac04c918",
+      "jurisdiction": "IL",
+      "dataClass": "jurisdiction-published-sample",
+      "sourceId": "il-central-brochure",
+      "sourcePage": 2,
+      "sourceImageId": "il-central-brochure-p002-im09",
+      "sourceUrl": "https://www.ilsos.gov/publications/pdf_publications/dsd_a301.pdf",
+      "sourceSha256": "141826f38d3c39b2bc748ccfc3dc2bbca7323f03f5fc28c4e248ecb0fb78df0c",
+      "capturedAt": "2026-10-25",
+      "decoder": {
+        "name": "zxing-cpp",
+        "version": "3.1.1",
+        "format": "PDF417"
+      },
+      "acquisition": "native-image",
+      "byteLength": 354,
+      "sha256": "0811ac04c918b89e878d5e342b355c677f09be60ddf652c2d6a96c22e1cfa0a0",
+      "imagePath": "evidence/il-published-0811ac04c918.png",
+      "imageSha256": "c324c2acb3ae99ba0d18b8a6a12bc14e8831a2bc2fcd394b63f1bd92976633cd",
+      "rawPath": "evidence/il-published-0811ac04c918.bin",
+      "rawBytesLatin1": "@\n\u001e\rANSI 636035080002DL00410288ZI03290025DLDAQD12345678901\nDCSSAMPLE\nDDEU\nDACBRENDA\nDDFU\nDADNONE\nDDGU\nDCADM\nDCBNONE\nDCDNONE\nDBD08042014\nDBB08041967\nDBA08042018\nDBC1\nDAU066 IN\nDAYBRO\nDAG123 MAIN STREET\nDAISPRINGFIELD\nDAJIL\nDAK627010000  \nDCF20140804123WW4567\nDCGUSA\nDAW150\nDCK14001ILD123456780600\nDDAF\nDDB01022014\nDDD1\nDDK1\nDDL1\n\rZIZIAORG\nZIBSBP CLASS X\n\r",
+      "independentExpectedFields": {
+        "DAQ": "D12345678901",
+        "DCS": "SAMPLE",
+        "DAC": "BRENDA",
+        "DAJ": "IL",
+        "DBB": "08041967",
+        "DDB": "01022014"
+      },
+      "independentSubfiles": ["DL", "ZI"],
+      "currentDecoderStatus": "accepted",
+      "currentDecoderError": null,
+      "generatorAudit": {
+        "generatedByteLength": 354,
+        "missingSubfiles": [],
+        "omittedSourceCodes": [],
+        "addedCodes": [],
+        "changedValues": [],
+        "widthDifferences": [],
+        "strictGeneration": "Strict Mode: version 08 does not match IL compliance profile (10)",
+        "status": "exact-match"
+      },
+      "notes": [
+        "The barcode carries version 08 and different personal details and dates from the nearby updated card front; its recovered bytes remain unchanged."
+      ],
+      "intakeRevision": 3
+    },
+    {
+      "id": "ar-published-92d83454dc2e",
+      "jurisdiction": "AR",
+      "dataClass": "jurisdiction-published-sample",
+      "sourceId": "ar-archived-calibration",
+      "sourcePage": 2,
+      "sourceImageId": "ar-archived-calibration-p002-render",
+      "sourceUrl": "https://web.archive.org/web/20200919023843id_/http://banking.arkansas.gov/public/userfiles/Important_Info/Arkansas_Barcode_Specifications_2018.pdf",
+      "sourceSha256": "4ab40a3d81aea6c6f8ffcaa9f94421c7d0a9664f1192e7c1d57290521381bf17",
+      "capturedAt": "2026-10-25",
+      "decoder": {
+        "name": "zxing-cpp",
+        "version": "3.1.1",
+        "format": "PDF417"
+      },
+      "acquisition": "pdf-render-300dpi",
+      "byteLength": 310,
+      "sha256": "92d83454dc2e919dd456e3b067ac8894193aee6b5703f65d3d4ed2664153009f",
+      "imagePath": "evidence/ar-published-92d83454dc2e.png",
+      "imageSha256": "1b7fc902931692ab9d8ef729d70144d0ea04f26fa4887fe6b06a3114afda1ce1",
+      "rawPath": "evidence/ar-published-92d83454dc2e.bin",
+      "rawBytesLatin1": "@\n\u001e\rANSI 636021090002DL00410261ZA03020008DLDAQ999999999\nDCSSAMPLE\nDDEU\nDACNICK\nDDFU\nDADNONE\nDDGU\nDCAD\nDCBNONE\nDCDNONE\nDBD03052018\nDBB03051960\nDBA03052026\nDBC1\nDAU070 in\nDAYBRO\nDAG123 NORTH STREET\nDAIANYTOWN\nDAJAR\nDAK123450000  \nDCF8888888888 1234\nDCGUSA\nDCK9260007198999999\nDDAF\nDDB09192016\nDDK1\nDDL1\n\rZAZAAH\n\r",
+      "independentExpectedFields": {
+        "DAQ": "999999999",
+        "DCS": "SAMPLE",
+        "DAC": "NICK",
+        "DAJ": "AR",
+        "DBB": "03051960",
+        "DDB": "09192016"
+      },
+      "independentSubfiles": ["DL", "ZA"],
+      "currentDecoderStatus": "accepted",
+      "currentDecoderError": null,
+      "generatorAudit": {
+        "generatedByteLength": 310,
+        "missingSubfiles": [],
+        "omittedSourceCodes": [],
+        "addedCodes": [],
+        "changedValues": [],
+        "widthDifferences": [],
+        "strictGeneration": "accepted",
+        "status": "exact-match"
+      },
+      "notes": [
+        "Archived 2020-09-19 capture of an official 2018 calibration publication. Live source URL now returns 404."
+      ],
+      "intakeRevision": 3
     }
   ],
-  "revision": 2,
-  "previousManifestSha256": "01f954ac12eeb99ba2fd8b7ee7fbd3e4d76e7c459024df4565560482f791954b",
+  "revision": 3,
+  "previousManifestSha256": "bf6abb6f96c33fc9a59daffd6661b546929e3ca6d5f17744d117634bf4fa0167",
   "revisionDelta": {
-    "imageAssetsAdded": 132,
-    "imageJurisdictionsAdded": [
-      "AK",
-      "CO",
-      "CT",
-      "DE",
-      "HI",
-      "IA",
-      "ID",
-      "IN",
-      "KS",
-      "KY",
-      "MA",
-      "MI",
-      "MT",
-      "ND",
-      "NJ",
-      "NM",
-      "OH",
-      "PA",
-      "RI",
-      "SD",
-      "VT",
-      "WA",
-      "WY"
+    "newImageAssets": 33,
+    "newImageJurisdictions": [
+      "AL",
+      "AR",
+      "AZ",
+      "GU",
+      "IL",
+      "LA",
+      "MD",
+      "ME",
+      "MN",
+      "MS",
+      "NH",
+      "OK",
+      "TN",
+      "UT",
+      "VI"
     ],
-    "payloadsAdded": 4,
-    "payloadJurisdictionsAdded": ["DE", "NJ", "SD"]
+    "newDistinctPayloads": 2,
+    "newPayloadIds": ["il-published-0811ac04c918", "ar-published-92d83454dc2e"],
+    "newPassingReferenceJurisdictions": ["AR", "GA", "IL"]
   },
   "acquisitionBatches": [
     {
@@ -6488,5 +8495,11 @@
         "payloadJurisdictionsAdded": ["DE", "NJ", "SD"]
       }
     }
-  ]
+  ],
+  "comparisonContext": "Base commit plus the version-scoped AR/GA/IL encoding profiles in this package; engine source hashes identify the compared working tree. Final repository commit is recorded separately in reports/repository-update.json.",
+  "comparisonEngineSources": {
+    "src/core/generator.ts": "a9758597871a2e2771323a78e17cd10abcafea39a3670c90aa16021179386381",
+    "src/core/schema.ts": "6fef54ca101082a2fa12411844899506b25c3f90183379fc0ff5139ac2d6c9ff",
+    "src/core/jurisdictionRules.ts": "fcf31191bbfa0ac6d8418f73282d1acaae1f5d9e387a546b4c9909c09d89302b"
+  }
 }

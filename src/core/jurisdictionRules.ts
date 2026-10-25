@@ -104,6 +104,8 @@ export interface JurisdictionEncodingProfile {
    * drops that final separator, making each of its subfiles one byte shorter.
    */
   omitFinalSeparator?: boolean;
+  /** Elements whose already validated value keeps its source letter case. */
+  preserveValueCase?: string[];
   /** Jurisdiction-specific subfile emitted after the DL/ID subfile. */
   jurisdictionSubfile?: JurisdictionSubfileProfile;
   /** Where the profile came from. */
@@ -124,6 +126,8 @@ export interface JurisdictionRulePack {
   classMinimumAges?: Record<string, number>;
   /** Observed wire-format deviations from the spec defaults. */
   encoding?: JurisdictionEncodingProfile;
+  /** Observed layouts scoped to an AAMVA version, without changing other editions. */
+  encodingByVersion?: Record<string, JurisdictionEncodingProfile>;
   /** Free-form description shown in tooling. */
   description?: string;
 }
@@ -207,7 +211,49 @@ export const JURISDICTION_RULE_PACKS: Record<string, JurisdictionRulePack> = {
       }
     ],
     dateRules: { maxValidityYears: 8, minIssuanceAge: 16 },
-    classMinimumAges: { ...COMMON_CDL_MIN_AGES, D: 16, M: 16 }
+    classMinimumAges: { ...COMMON_CDL_MIN_AGES, D: 16, M: 16 },
+    encodingByVersion: {
+      "09": {
+        source:
+          "Arkansas DFA 2018 Barcode Specifications, page 2, published by the State Bank Department and preserved in the Internet Archive's 2020-09-19 capture; payload SHA-256 92d83454dc2e919dd456e3b067ac8894193aee6b5703f65d3d4ed2664153009f, independently scanned 2026-10-25.",
+        preserveValueCase: ["DAU"],
+        elementOrder: [
+          "DAQ",
+          "DCS",
+          "DDE",
+          "DAC",
+          "DDF",
+          "DAD",
+          "DDG",
+          "DCA",
+          "DCB",
+          "DCD",
+          "DBD",
+          "DBB",
+          "DBA",
+          "DBC",
+          "DAU",
+          "DAY",
+          "DAG",
+          "DAI",
+          "DAJ",
+          "DAK",
+          "DCF",
+          "DCG",
+          "DCK",
+          "DDA",
+          "DDB",
+          "DDK",
+          "DDL"
+        ],
+        jurisdictionSubfile: {
+          type: "ZA",
+          source:
+            "Same archived public calibration sample; ZAA is preserved without interpreting it.",
+          elements: [{ code: "ZAA", label: "Arkansas element ZAA" }]
+        }
+      }
+    }
   },
   CA: {
     state: "CA",
@@ -354,7 +400,63 @@ export const JURISDICTION_RULE_PACKS: Record<string, JurisdictionRulePack> = {
       }
     ],
     dateRules: { maxValidityYears: 8, minIssuanceAge: 16 },
-    classMinimumAges: { ...COMMON_CDL_MIN_AGES, C: 16, M: 17 }
+    classMinimumAges: { ...COMMON_CDL_MIN_AGES, C: 16, M: 17 },
+    encodingByVersion: {
+      "09": {
+        source:
+          "Georgia DDS License Printed beginning June 2019 public barcode guide; payload SHA-256 5bfecea361b91164960970ee51d48f0d01d8cbde97514adb32f0cc3a910a7d1f, independently scanned 2026-10-25; https://dds.georgia.gov/document/publication/license-printed-beginning-june-2019/download",
+        jurisdictionVersion: "01",
+        preserveValueCase: ["DAU"],
+        omitFinalSeparator: true,
+        elementOrder: [
+          "DAQ",
+          "DCS",
+          "DDE",
+          "DAC",
+          "DDF",
+          "DAD",
+          "DDG",
+          "DCA",
+          "DCB",
+          "DCD",
+          "DBD",
+          "DBB",
+          "DBA",
+          "DBC",
+          "DAU",
+          "DAY",
+          "DAG",
+          "DAI",
+          "DAJ",
+          "DAK",
+          "DCF",
+          "DCG",
+          "DCK",
+          "DDA",
+          "DDB",
+          "DAW",
+          "DDK"
+        ],
+        jurisdictionSubfile: {
+          type: "ZG",
+          source: "Same published v09 sample; codes are opaque and ZGC is absent from this layout.",
+          elements: [
+            { code: "ZGA", label: "Georgia element ZGA" },
+            { code: "ZGB", label: "Georgia element ZGB" },
+            { code: "ZGD", label: "Georgia element ZGD" },
+            { code: "ZGE", label: "Georgia element ZGE" },
+            { code: "ZGF", label: "Georgia element ZGF" },
+            { code: "ZGG", label: "Georgia element ZGG" },
+            { code: "ZGH", label: "Georgia element ZGH" },
+            { code: "ZGI", label: "Georgia element ZGI" },
+            { code: "ZGJ", label: "Georgia element ZGJ" },
+            { code: "ZGK", label: "Georgia element ZGK" },
+            { code: "ZGL", label: "Georgia element ZGL" },
+            { code: "ZGM", label: "Georgia element ZGM" }
+          ]
+        }
+      }
+    }
   },
   HI: {
     state: "HI",
@@ -396,7 +498,53 @@ export const JURISDICTION_RULE_PACKS: Record<string, JurisdictionRulePack> = {
       }
     ],
     dateRules: { maxValidityYears: 4, minIssuanceAge: 16 },
-    classMinimumAges: { D: 18, A: 21, B: 21, M: 16 }
+    classMinimumAges: { D: 18, A: 21, B: 21, M: 16 },
+    encodingByVersion: {
+      "08": {
+        source:
+          "Illinois Secretary of State Central Issuance brochure DSD A 301, page 2 sample barcode (SHA-256 0811ac04c918b89e878d5e342b355c677f09be60ddf652c2d6a96c22e1cfa0a0), independently scanned 2026-10-25; https://www.ilsos.gov/content/dam/publications/pdf_publications/dsd_a301.pdf",
+        elementOrder: [
+          "DAQ",
+          "DCS",
+          "DDE",
+          "DAC",
+          "DDF",
+          "DAD",
+          "DDG",
+          "DCA",
+          "DCB",
+          "DCD",
+          "DBD",
+          "DBB",
+          "DBA",
+          "DBC",
+          "DAU",
+          "DAY",
+          "DAG",
+          "DAI",
+          "DAJ",
+          "DAK",
+          "DCF",
+          "DCG",
+          "DAW",
+          "DCK",
+          "DDA",
+          "DDB",
+          "DDD",
+          "DDK",
+          "DDL"
+        ],
+        jurisdictionSubfile: {
+          type: "ZI",
+          source:
+            "Same published v08 sample. Values are opaque; labels identify the codes without assigning undocumented meanings.",
+          elements: [
+            { code: "ZIA", label: "Illinois element ZIA" },
+            { code: "ZIB", label: "Illinois element ZIB" }
+          ]
+        }
+      }
+    }
   },
   IN: {
     state: "IN",
@@ -1069,17 +1217,22 @@ export function getDefaultDateRules(): JurisdictionDateRules {
  * not that the spec reading has been confirmed against a real credential.
  */
 export function getJurisdictionEncoding(
-  stateCode: string
+  stateCode: string,
+  version?: string
 ): JurisdictionEncodingProfile | undefined {
-  return JURISDICTION_RULE_PACKS[stateCode]?.encoding;
+  const pack = JURISDICTION_RULE_PACKS[stateCode];
+  return (version ? pack?.encodingByVersion?.[version] : undefined) ?? pack?.encoding;
 }
 
 /** Jurisdiction-specific subfile elements for `stateCode` (empty when none). */
-export function getJurisdictionSubfileElements(stateCode: string): JurisdictionSubfileElement[] {
-  return JURISDICTION_RULE_PACKS[stateCode]?.encoding?.jurisdictionSubfile?.elements ?? [];
+export function getJurisdictionSubfileElements(
+  stateCode: string,
+  version?: string
+): JurisdictionSubfileElement[] {
+  return getJurisdictionEncoding(stateCode, version)?.jurisdictionSubfile?.elements ?? [];
 }
 
 /** True when DAK should be space-filled to its fixed 11-character width. */
-export function shouldPadPostalCode(stateCode: string): boolean {
-  return JURISDICTION_RULE_PACKS[stateCode]?.encoding?.padPostalCode !== false;
+export function shouldPadPostalCode(stateCode: string, version?: string): boolean {
+  return getJurisdictionEncoding(stateCode, version)?.padPostalCode !== false;
 }
