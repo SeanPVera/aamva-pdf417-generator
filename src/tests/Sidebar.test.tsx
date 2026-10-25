@@ -123,6 +123,11 @@ describe("Sidebar Component", () => {
     expect(screen.getByText(/Strict validation/)).toBeInTheDocument();
     expect(screen.getByText("Schema notes & version reference")).toBeInTheDocument();
 
+    // Check summary element tooltip and class
+    const summary = screen.getByText("Schema notes & version reference");
+    expect(summary).toHaveAttribute("title", "Toggle schema notes & version reference");
+    expect(summary).toHaveClass("focus-visible:ring-2");
+
     // Check specific interactive elements (they should have the default values)
     // The jurisdiction combobox sets aria-labelledby implicitly via the label's htmlFor="state-select",
     // but testing-library often needs explicit naming or we can just grab it by role.

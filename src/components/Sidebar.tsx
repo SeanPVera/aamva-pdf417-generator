@@ -86,7 +86,12 @@ export const Sidebar: React.FC<{ mobileHidden?: boolean; children?: React.ReactN
         </label>
       </div>
       <details className="schema-details">
-        <summary>Schema notes & version reference</summary>
+        <summary
+          className="rounded-k focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          title="Toggle schema notes & version reference"
+        >
+          Schema notes & version reference
+        </summary>
         <div className="schema-detail-content">
           <p>
             This is the application's field model, not a certification of conformance. Jurisdiction
