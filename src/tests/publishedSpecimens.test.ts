@@ -31,9 +31,9 @@ describe("independently scanned published specimens", () => {
   const specimens = intake.payloads;
 
   it("keeps the acquired set distinct and traceable to downloaded source documents", () => {
-    expect(specimens).toHaveLength(20);
+    expect(specimens).toHaveLength(24);
     expect(new Set(specimens.map((s) => s.sha256)).size).toBe(specimens.length);
-    expect(new Set(specimens.map((s) => s.jurisdiction)).size).toBe(7);
+    expect(new Set(specimens.map((s) => s.jurisdiction)).size).toBe(10);
     const sourceById = new Map(intake.sources.map((source) => [source.id, source]));
     for (const specimen of specimens) {
       expect(specimen.dataClass).toBe("jurisdiction-published-sample");
