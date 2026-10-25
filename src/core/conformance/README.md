@@ -50,6 +50,12 @@ Current coverage — run any time, and printed in CI:
 npm run conformance:report
 ```
 
+The [published specimen intake](published/README.md) additionally records 20
+independently scanned public sample payloads and a source manifest for specimen
+images. These observations include source placeholders, legacy formats and
+generator mismatches. They are kept outside the passing encoder vectors so the
+coverage report continues to describe demonstrated parity.
+
 ## Vector format
 
 Each vector is a JSON file under `vectors/`:
