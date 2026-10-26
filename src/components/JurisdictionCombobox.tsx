@@ -65,6 +65,7 @@ export const JurisdictionCombobox: React.FC<JurisdictionComboboxProps> = ({
 
   const selected = AAMVA_STATES[value];
   const listboxId = `${id}-listbox`;
+  const hintId = `${id}-hint`;
 
   const groups: OptionGroup[] = React.useMemo(() => {
     const filtered = ALL_OPTIONS.filter((o) => matches(o, query));
@@ -163,6 +164,7 @@ export const JurisdictionCombobox: React.FC<JurisdictionComboboxProps> = ({
           aria-expanded={open}
           aria-controls={listboxId}
           aria-autocomplete="list"
+          aria-describedby={hintId}
           aria-activedescendant={
             open && flat[safeActiveIndex] ? `${id}-opt-${flat[safeActiveIndex]!.code}` : undefined
           }
@@ -211,6 +213,9 @@ export const JurisdictionCombobox: React.FC<JurisdictionComboboxProps> = ({
         >
           <ChevronsUpDown size={14} />
         </button>
+        <span id={hintId} className="sr-only">
+          Search by state name or 2-letter postal code
+        </span>
       </div>
 
       {open && (
