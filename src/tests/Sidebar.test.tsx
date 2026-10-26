@@ -139,4 +139,14 @@ describe("Sidebar Component", () => {
     const strictModeCheckbox = screen.getByRole("checkbox", { name: /Strict validation/ });
     expect(strictModeCheckbox).not.toBeChecked();
   });
+
+  test("jurisdiction combobox includes aria-describedby accessibility hint", async () => {
+    render(<Sidebar />);
+    expect(await screen.findByTestId("version-browser-mock")).toBeInTheDocument();
+
+    const comboboxes = screen.getAllByRole("combobox");
+    const stateCombobox = comboboxes[0];
+    expect(stateCombobox).toHaveAttribute("aria-describedby", "state-select-hint");
+    expect(screen.getByText("Search by state name or 2-letter postal code")).toBeInTheDocument();
+  });
 });
