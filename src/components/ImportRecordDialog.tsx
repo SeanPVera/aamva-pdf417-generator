@@ -60,7 +60,7 @@ export function ImportRecordDialog({ onClose }: { onClose: () => void }) {
     onClose();
   };
   return (
-    <div className="modal-backdrop">
+    <div className="modal-backdrop" onClick={onClose}>
       <div
         ref={ref}
         className="wb-dialog"
@@ -68,6 +68,7 @@ export function ImportRecordDialog({ onClose }: { onClose: () => void }) {
         aria-modal="true"
         aria-labelledby="import-title"
         tabIndex={-1}
+        onClick={(e) => e.stopPropagation()}
       >
         <div className="dialog-heading">
           <div>

@@ -267,13 +267,14 @@ export function WebcamScanner({ onClose }: WebcamScannerProps) {
   };
 
   return (
-    <div className="modal-backdrop">
+    <div className="modal-backdrop" onClick={onClose}>
       <div
         ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-label="Scan DL/ID Barcode"
         className="wb-dialog scanner-dialog relative"
+        onClick={(e) => e.stopPropagation()}
       >
         <button
           data-autofocus
