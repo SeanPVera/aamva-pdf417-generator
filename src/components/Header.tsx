@@ -233,7 +233,7 @@ import { useModalShell } from "../hooks/useModalShell";
 function EraseDialog({ onCancel, onErase }: { onCancel: () => void; onErase: () => void }) {
   const ref = useModalShell({ open: true, onClose: onCancel });
   return (
-    <div className="modal-backdrop">
+    <div className="modal-backdrop" onClick={onCancel}>
       <div
         ref={ref}
         className="wb-dialog compact-dialog"
@@ -241,6 +241,7 @@ function EraseDialog({ onCancel, onErase }: { onCancel: () => void; onErase: () 
         aria-modal="true"
         aria-labelledby="erase-title"
         tabIndex={-1}
+        onClick={(e) => e.stopPropagation()}
       >
         <h2 id="erase-title">Erase this record?</h2>
         <p>
