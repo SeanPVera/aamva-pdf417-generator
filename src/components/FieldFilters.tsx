@@ -101,16 +101,28 @@ export const FieldFilters: React.FC<FieldFiltersProps> = (p) => {
           Next empty →
         </button>
         <details className="field-tools">
-          <summary>Fill tools</summary>
+          <summary
+            className="cursor-pointer rounded-k focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            title="Toggle sample record and auto-fill tools"
+          >
+            Fill tools
+          </summary>
           <div className="tool-popover">
             <button
+              type="button"
               onClick={p.onGenerateAutoFields}
               aria-label="Generate auto fields (DCF, DAQ, DDB)"
+              title="Generate auto fields (DCF, DAQ, DDB)"
             >
               Generate identifiers
             </button>
             {p.onFillSample && (
-              <button onClick={p.onFillSample} aria-label="Fill all fields with demo data">
+              <button
+                type="button"
+                onClick={p.onFillSample}
+                aria-label="Fill all fields with demo data"
+                title="Fill all fields with demo data"
+              >
                 Fill synthetic sample
               </button>
             )}
