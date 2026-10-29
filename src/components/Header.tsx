@@ -160,22 +160,17 @@ export const Header: React.FC<HeaderProps> = ({
               Tools <ChevronDown size={14} aria-hidden />
             </button>
             {toolsOpen && (
-              <div
-                className="tool-popover"
-                id="workspace-tools"
-                role="menu"
-                aria-label="Workspace tools"
-              >
-                <button type="button" role="menuitem" onClick={() => run(exportRecord)}>
+              <div className="tool-popover" id="workspace-tools" aria-label="Workspace tools">
+                <button type="button" onClick={() => run(exportRecord)}>
                   Export record JSON
                 </button>
-                <button type="button" role="menuitem" onClick={() => run(onOpenCompare)}>
+                <button type="button" onClick={() => run(onOpenCompare)}>
                   Compare payloads
                 </button>
-                <button type="button" role="menuitem" onClick={() => run(onOpenBatch)}>
+                <button type="button" onClick={() => run(onOpenBatch)}>
                   Batch CSV processing
                 </button>
-                <button type="button" role="menuitem" onClick={() => run(onOpenShortcuts)}>
+                <button type="button" onClick={() => run(onOpenShortcuts)}>
                   Keyboard shortcuts & help
                 </button>
                 <label className="menu-setting">
@@ -195,7 +190,6 @@ export const Header: React.FC<HeaderProps> = ({
                   {presets.map((preset) => (
                     <button
                       type="button"
-                      role="menuitem"
                       key={preset.id}
                       onClick={() =>
                         run(() => {
@@ -217,7 +211,6 @@ export const Header: React.FC<HeaderProps> = ({
                 </details>
                 <button
                   type="button"
-                  role="menuitem"
                   className="danger-text"
                   onClick={() => {
                     setToolsOpen(false);
