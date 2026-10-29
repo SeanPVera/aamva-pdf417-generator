@@ -133,6 +133,7 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
           </div>
           <button
+            type="button"
             className="wb-button"
             onClick={() => setImportOpen(true)}
             title="Import record from JSON or barcode data"
@@ -140,6 +141,7 @@ export const Header: React.FC<HeaderProps> = ({
             Import
           </button>
           <button
+            type="button"
             className="wb-button primary"
             onClick={onStartScan}
             title="Scan barcode using camera or image file"
@@ -158,11 +160,24 @@ export const Header: React.FC<HeaderProps> = ({
               Tools <ChevronDown size={14} aria-hidden />
             </button>
             {toolsOpen && (
-              <div className="tool-popover" id="workspace-tools" aria-label="Workspace tools">
-                <button onClick={() => run(exportRecord)}>Export record JSON</button>
-                <button onClick={() => run(onOpenCompare)}>Compare payloads</button>
-                <button onClick={() => run(onOpenBatch)}>Batch CSV processing</button>
-                <button onClick={() => run(onOpenShortcuts)}>Keyboard shortcuts & help</button>
+              <div
+                className="tool-popover"
+                id="workspace-tools"
+                role="menu"
+                aria-label="Workspace tools"
+              >
+                <button type="button" role="menuitem" onClick={() => run(exportRecord)}>
+                  Export record JSON
+                </button>
+                <button type="button" role="menuitem" onClick={() => run(onOpenCompare)}>
+                  Compare payloads
+                </button>
+                <button type="button" role="menuitem" onClick={() => run(onOpenBatch)}>
+                  Batch CSV processing
+                </button>
+                <button type="button" role="menuitem" onClick={() => run(onOpenShortcuts)}>
+                  Keyboard shortcuts & help
+                </button>
                 <label className="menu-setting">
                   Appearance
                   <select
@@ -179,6 +194,8 @@ export const Header: React.FC<HeaderProps> = ({
                   <summary>Synthetic sample records</summary>
                   {presets.map((preset) => (
                     <button
+                      type="button"
+                      role="menuitem"
                       key={preset.id}
                       onClick={() =>
                         run(() => {
@@ -199,6 +216,8 @@ export const Header: React.FC<HeaderProps> = ({
                   ))}
                 </details>
                 <button
+                  type="button"
+                  role="menuitem"
                   className="danger-text"
                   onClick={() => {
                     setToolsOpen(false);
