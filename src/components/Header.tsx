@@ -159,10 +159,34 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
             {toolsOpen && (
               <div className="tool-popover" id="workspace-tools" aria-label="Workspace tools">
-                <button onClick={() => run(exportRecord)}>Export record JSON</button>
-                <button onClick={() => run(onOpenCompare)}>Compare payloads</button>
-                <button onClick={() => run(onOpenBatch)}>Batch CSV processing</button>
-                <button onClick={() => run(onOpenShortcuts)}>Keyboard shortcuts & help</button>
+                <button
+                  type="button"
+                  title="Save current workspace record as a JSON file"
+                  onClick={() => run(exportRecord)}
+                >
+                  Export record JSON
+                </button>
+                <button
+                  type="button"
+                  title="Side-by-side payload comparison tool"
+                  onClick={() => run(onOpenCompare)}
+                >
+                  Compare payloads
+                </button>
+                <button
+                  type="button"
+                  title="Process multiple records from a CSV file"
+                  onClick={() => run(onOpenBatch)}
+                >
+                  Batch CSV processing
+                </button>
+                <button
+                  type="button"
+                  title="View keyboard shortcuts and documentation"
+                  onClick={() => run(onOpenShortcuts)}
+                >
+                  Keyboard shortcuts & help
+                </button>
                 <label className="menu-setting">
                   Appearance
                   <select
@@ -180,6 +204,8 @@ export const Header: React.FC<HeaderProps> = ({
                   {presets.map((preset) => (
                     <button
                       key={preset.id}
+                      type="button"
+                      title={`Load synthetic sample record for ${preset.label}`}
                       onClick={() =>
                         run(() => {
                           loadJson({
@@ -199,6 +225,8 @@ export const Header: React.FC<HeaderProps> = ({
                   ))}
                 </details>
                 <button
+                  type="button"
+                  title="Clear all fields and reset workspace state"
                   className="danger-text"
                   onClick={() => {
                     setToolsOpen(false);
@@ -233,7 +261,7 @@ import { useModalShell } from "../hooks/useModalShell";
 function EraseDialog({ onCancel, onErase }: { onCancel: () => void; onErase: () => void }) {
   const ref = useModalShell({ open: true, onClose: onCancel });
   return (
-    <div className="modal-backdrop">
+    <div className="modal-backdrop" onClick={onCancel}>
       <div
         ref={ref}
         className="wb-dialog compact-dialog"
@@ -241,6 +269,7 @@ function EraseDialog({ onCancel, onErase }: { onCancel: () => void; onErase: () 
         aria-modal="true"
         aria-labelledby="erase-title"
         tabIndex={-1}
+        onClick={(e) => e.stopPropagation()}
       >
         <h2 id="erase-title">Erase this record?</h2>
         <p>
@@ -248,10 +277,10 @@ function EraseDialog({ onCancel, onErase }: { onCancel: () => void; onErase: () 
           cannot be undone.
         </p>
         <div className="dialog-actions">
-          <button className="wb-button" onClick={onCancel}>
+          <button type="button" className="wb-button" onClick={onCancel}>
             Keep record
           </button>
-          <button className="wb-button danger" onClick={onErase}>
+          <button type="button" className="wb-button danger" onClick={onErase}>
             Erase record
           </button>
         </div>
