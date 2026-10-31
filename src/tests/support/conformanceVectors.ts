@@ -54,6 +54,8 @@ export interface VectorProvenance {
   payloadSha256?: string;
   evidenceImageSha256?: string;
   notes?: string;
+  /** Mechanical framing corrections to an independently retained source. */
+  transformations?: Array<{ offset: number; removeLength: number; insert: string }>;
 }
 
 export interface ConformanceVector {
@@ -61,6 +63,7 @@ export interface ConformanceVector {
   state: string;
   version: string;
   subfileType: "DL" | "ID";
+  encodingProfileId?: string;
   description: string;
   provenance: VectorProvenance;
   input: Record<string, string>;

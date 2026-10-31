@@ -20,7 +20,7 @@ import {
  * synthetic baselines or no passing reference. Coverage applies to the observed
  * layouts, not every edition or document type issued by these jurisdictions.
  */
-const MIN_REAL_WORLD_JURISDICTIONS = 5;
+const MIN_REAL_WORLD_JURISDICTIONS = 13;
 
 describe("conformance vector provenance", () => {
   const vectors = loadVectors();
@@ -50,9 +50,9 @@ describe("conformance vector provenance", () => {
   it("keeps source-byte parity distinct from transformed layouts", () => {
     const report = computeCoverage(vectors, Object.keys(AAMVA_STATES));
     expect(report.byFidelity).toEqual({
-      "unmodified-source": 3,
+      "unmodified-source": 21,
       anonymized: 2,
-      canonicalized: 1
+      canonicalized: 3
     });
     const ct = vectors.find((vector) => vector.id === "ct-v09-dl-issued")!;
     expect(ct.provenance.fidelity).toBe("canonicalized");

@@ -23,10 +23,19 @@ Only `published` and `issued` count as evidence about the outside world. The
 schema and the rules below are enforced by
 `src/tests/conformanceProvenance.test.ts`.
 
-Five jurisdictions now have external reference layouts. The three unmodified
-published payloads cover Arkansas v09, Georgia v09 and Illinois v08. Each was
-scanned independently with ZXing-C++ and is compared directly with the normal
-generator. Their version-scoped profiles do not change other editions.
+Thirteen jurisdictions now have external reference layouts: AR, CT, FL, GA,
+IL, KS, MO, NE, NY, PA, SC, VA, and WA. The 26 references comprise 21
+unmodified source payloads, two anonymized issued layouts, and three
+canonicalized layouts. The ratchet is 13/55. Forty-two jurisdictions still lack
+a passing external fixture. Scope and source qualifications appear in the
+[October 31 ledger](COVERAGE-2026-10-31.md).
+
+Named variants live in `observed-profiles.json`, with separate source evidence
+in `observed-profile-provenance.json`. Supply `encodingProfileId` to both schema
+selection and generation. A retained imported source can identify its matching
+profile in the UI; profile recognition does not establish issuer authenticity.
+Strict mode still enforces the configured default edition. Historical and v12
+standards tests use standard validation with strict mode disabled.
 
 Connecticut
 (`ct-v09-dl-issued.json`), decoded from an issued credential. It is the vector
@@ -58,13 +67,18 @@ Current coverage — run any time, and printed in CI:
 npm run conformance:report
 ```
 
-The [published specimen intake](published/README.md) additionally records 26
-independently scanned public sample payloads and a source manifest for specimen
-images. These observations include source placeholders, legacy formats and
-generator mismatches. They are kept outside the passing encoder vectors so the
-coverage report continues to describe demonstrated parity. Three observations
-also appear in `vectors/` now that their encoder comparisons pass. See the
-[coverage investigation](COVERAGE-2026-10-25.md) for scope, findings and open gaps.
+The [published specimen intake](published/README.md) records 35 independently
+scanned public payload observations across the October 25 and October 31
+manifests. The manifests preserve original source bytes. Invalid published
+placeholders and quarantined source conflicts remain outside positive encoder
+references. Canonicalized vectors list byte offsets and exact framing edits.
+
+Version 12 uses the AAMVA 2026 field tables and supports Latin-1 wire bytes,
+SIG/SCV validation, canonicalization, and supplied-key ECDSA verification.
+`normative-v12-oracle.json` contains 110 synthetic expectations assembled by a
+separate Python script, then compared against the encoder and rendered-symbol
+read-back. They contribute zero external jurisdiction coverage. No default
+issuer edition was changed and no signed issuer v12 payload has been verified.
 
 ## Vector format
 
@@ -123,8 +137,8 @@ accidental regressions.
 Real-world vectors are sourced from AAMVA-published test cards or actual
 credentials. **Never check in real PII.** When adding one:
 
-1. Decode the source barcode and inspect every field.
-2. Replace PII (`DAA`, `DCS`, `DAC`, `DAD`, `DAG`, `DAI`, `DAQ`, `DCF`, `DBB`,
+1. Decode the source barcode independently and inspect every field. Public marked specimens retain their original dummy bytes.
+2. For authorized issued sources, replace PII (`DAA`, `DCS`, `DAC`, `DAD`, `DAG`, `DAI`, `DAQ`, `DCF`, `DBB`,
    `DBA`, `DBD`) with synthetic placeholders that **preserve byte length and
    character class** so the encoded output's byte layout is unchanged.
 3. Hand-verify the resulting `expectedBytes` matches the decoded structure of

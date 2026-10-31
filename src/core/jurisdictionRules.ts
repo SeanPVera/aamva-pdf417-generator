@@ -66,6 +66,8 @@ export interface JurisdictionSubfileProfile {
  * reading, and this is where an observed deviation from it gets recorded.
  */
 export interface JurisdictionEncodingProfile {
+  /** Source-backed v01 framing, before the jurisdiction-version token existed. */
+  legacyHeader?: boolean;
   /**
    * Two-digit Jurisdiction Version Number written into the header. It counts
    * the issuer's own revisions of its implementation, independently of the
@@ -1221,6 +1223,9 @@ export function getJurisdictionEncoding(
   version?: string
 ): JurisdictionEncodingProfile | undefined {
   const pack = JURISDICTION_RULE_PACKS[stateCode];
+  // No retained issued layout establishes a v12 jurisdiction-specific format.
+  // An older CT/NY profile must not silently carry its widths/order into CDS 2026.
+  if (version === "12") return pack?.encodingByVersion?.[version];
   return (version ? pack?.encodingByVersion?.[version] : undefined) ?? pack?.encoding;
 }
 

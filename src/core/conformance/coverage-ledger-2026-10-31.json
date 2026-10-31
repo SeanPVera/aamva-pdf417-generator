@@ -1,0 +1,983 @@
+{
+  "asOf": "2026-10-31",
+  "sourceRegistry": "iin-registry-2026-10-31.json",
+  "externalCoverage": {
+    "jurisdictions": 13,
+    "total": 55,
+    "references": 26,
+    "byFidelity": {
+      "anonymized": 2,
+      "canonicalized": 3,
+      "unmodified-source": 21
+    }
+  },
+  "v12Oracle": "normative-v12-oracle.json",
+  "v12IssuerAdoption": "unverified",
+  "jurisdictions": [
+    {
+      "code": "AL",
+      "name": "Alabama",
+      "iin": "636033",
+      "iinVerified": true,
+      "configuredVersion": "09",
+      "version12SyntheticOracle": ["DL", "ID"],
+      "externalFixtureCount": 0,
+      "unmodifiedSourceCount": 0,
+      "combinations": [],
+      "fidelities": [],
+      "references": [],
+      "remaining": "Independently sourced marked specimen payload and passing byte comparison."
+    },
+    {
+      "code": "AK",
+      "name": "Alaska",
+      "iin": "636059",
+      "iinVerified": true,
+      "configuredVersion": "09",
+      "version12SyntheticOracle": ["DL", "ID"],
+      "externalFixtureCount": 0,
+      "unmodifiedSourceCount": 0,
+      "combinations": [],
+      "fidelities": [],
+      "references": [],
+      "remaining": "Independently sourced marked specimen payload and passing byte comparison."
+    },
+    {
+      "code": "AZ",
+      "name": "Arizona",
+      "iin": "636026",
+      "iinVerified": true,
+      "configuredVersion": "10",
+      "version12SyntheticOracle": ["DL", "ID"],
+      "externalFixtureCount": 0,
+      "unmodifiedSourceCount": 0,
+      "combinations": [],
+      "fidelities": [],
+      "references": [],
+      "remaining": "Independently sourced marked specimen payload and passing byte comparison."
+    },
+    {
+      "code": "AR",
+      "name": "Arkansas",
+      "iin": "636021",
+      "iinVerified": true,
+      "configuredVersion": "09",
+      "version12SyntheticOracle": ["DL", "ID"],
+      "externalFixtureCount": 1,
+      "unmodifiedSourceCount": 1,
+      "combinations": ["v09 DL"],
+      "fidelities": ["unmodified-source"],
+      "references": [
+        {
+          "id": "ar-v09-dl-published",
+          "version": "09",
+          "type": "DL",
+          "fidelity": "unmodified-source",
+          "source": "https://web.archive.org/web/20200919023843id_/http://banking.arkansas.gov/public/userfiles/Important_Info/Arkansas_Barcode_Specifications_2018.pdf"
+        }
+      ],
+      "remaining": "Additional editions and document types; independently sourced v12 signed issuer payload."
+    },
+    {
+      "code": "CA",
+      "name": "California",
+      "iin": "636014",
+      "iinVerified": true,
+      "configuredVersion": "10",
+      "version12SyntheticOracle": ["DL", "ID"],
+      "externalFixtureCount": 0,
+      "unmodifiedSourceCount": 0,
+      "combinations": [],
+      "fidelities": [],
+      "references": [],
+      "remaining": "Independently sourced marked specimen payload and passing byte comparison."
+    },
+    {
+      "code": "CO",
+      "name": "Colorado",
+      "iin": "636020",
+      "iinVerified": true,
+      "configuredVersion": "10",
+      "version12SyntheticOracle": ["DL", "ID"],
+      "externalFixtureCount": 0,
+      "unmodifiedSourceCount": 0,
+      "combinations": [],
+      "fidelities": [],
+      "references": [],
+      "remaining": "Independently sourced marked specimen payload and passing byte comparison."
+    },
+    {
+      "code": "CT",
+      "name": "Connecticut",
+      "iin": "636006",
+      "iinVerified": true,
+      "configuredVersion": "09",
+      "version12SyntheticOracle": ["DL", "ID"],
+      "externalFixtureCount": 1,
+      "unmodifiedSourceCount": 0,
+      "combinations": ["v09 DL"],
+      "fidelities": ["canonicalized"],
+      "references": [
+        {
+          "id": "ct-v09-dl-issued",
+          "version": "09",
+          "type": "DL",
+          "fidelity": "canonicalized",
+          "source": "PDF417 barcode decoded from an issued Connecticut driver's license (AAMVA v09, IIN 636006)"
+        }
+      ],
+      "remaining": "Additional editions and document types; independently sourced v12 signed issuer payload."
+    },
+    {
+      "code": "DE",
+      "name": "Delaware",
+      "iin": "636011",
+      "iinVerified": true,
+      "configuredVersion": "09",
+      "version12SyntheticOracle": ["DL", "ID"],
+      "externalFixtureCount": 0,
+      "unmodifiedSourceCount": 0,
+      "combinations": [],
+      "fidelities": [],
+      "references": [],
+      "remaining": "Valid external encoder reference; published observations have explicit source defects or unresolved format differences."
+    },
+    {
+      "code": "FL",
+      "name": "Florida",
+      "iin": "636010",
+      "iinVerified": true,
+      "configuredVersion": "10",
+      "version12SyntheticOracle": ["DL", "ID"],
+      "externalFixtureCount": 2,
+      "unmodifiedSourceCount": 2,
+      "combinations": ["v01 DL", "v09 DL"],
+      "fidelities": ["unmodified-source"],
+      "references": [
+        {
+          "id": "fl-v01-dl-published-488fa2962926",
+          "version": "01",
+          "type": "DL",
+          "fidelity": "unmodified-source",
+          "source": "https://www.flhsmv.gov/pdf/newdl/retailguide.pdf"
+        },
+        {
+          "id": "fl-v09-dl-published-b1981be3f0b3",
+          "version": "09",
+          "type": "DL",
+          "fidelity": "unmodified-source",
+          "source": "https://www.flhsmv.gov/pdf/newdl/fl_2dbarcodecalibration.pdf"
+        }
+      ],
+      "remaining": "Additional editions and document types; independently sourced v12 signed issuer payload."
+    },
+    {
+      "code": "GA",
+      "name": "Georgia",
+      "iin": "636055",
+      "iinVerified": true,
+      "configuredVersion": "10",
+      "version12SyntheticOracle": ["DL", "ID"],
+      "externalFixtureCount": 5,
+      "unmodifiedSourceCount": 5,
+      "combinations": ["v03 DL", "v06 DL", "v09 DL"],
+      "fidelities": ["unmodified-source"],
+      "references": [
+        {
+          "id": "ga-v03-dl-published-73c3c904d70a",
+          "version": "03",
+          "type": "DL",
+          "fidelity": "unmodified-source",
+          "source": "https://dds.georgia.gov/document/publication/license-printed-beginning-june-2019/download"
+        },
+        {
+          "id": "ga-v06-dl-published-47ddb17df100",
+          "version": "06",
+          "type": "DL",
+          "fidelity": "unmodified-source",
+          "source": "https://dds.georgia.gov/document/publication/license-printed-beginning-june-2019/download"
+        },
+        {
+          "id": "ga-v06-dl-published-be90490c2643",
+          "version": "06",
+          "type": "DL",
+          "fidelity": "unmodified-source",
+          "source": "https://dds.georgia.gov/document/document/barcode-sheet-printed-prior-november-2012pdf/download"
+        },
+        {
+          "id": "ga-v06-dl-published-fb2a15fd6f64",
+          "version": "06",
+          "type": "DL",
+          "fidelity": "unmodified-source",
+          "source": "https://dds.georgia.gov/document/document/license-printed-prior-november-2012pdf/download"
+        },
+        {
+          "id": "ga-v09-dl-published",
+          "version": "09",
+          "type": "DL",
+          "fidelity": "unmodified-source",
+          "source": "https://dds.georgia.gov/document/publication/license-printed-beginning-june-2019/download"
+        }
+      ],
+      "remaining": "Additional editions and document types; independently sourced v12 signed issuer payload."
+    },
+    {
+      "code": "HI",
+      "name": "Hawaii",
+      "iin": "636047",
+      "iinVerified": true,
+      "configuredVersion": "10",
+      "version12SyntheticOracle": ["DL", "ID"],
+      "externalFixtureCount": 0,
+      "unmodifiedSourceCount": 0,
+      "combinations": [],
+      "fidelities": [],
+      "references": [],
+      "remaining": "Valid external encoder reference; published observations have explicit source defects or unresolved format differences."
+    },
+    {
+      "code": "ID",
+      "name": "Idaho",
+      "iin": "636050",
+      "iinVerified": true,
+      "configuredVersion": "09",
+      "version12SyntheticOracle": ["DL", "ID"],
+      "externalFixtureCount": 0,
+      "unmodifiedSourceCount": 0,
+      "combinations": [],
+      "fidelities": [],
+      "references": [],
+      "remaining": "Independently sourced marked specimen payload and passing byte comparison."
+    },
+    {
+      "code": "IL",
+      "name": "Illinois",
+      "iin": "636035",
+      "iinVerified": true,
+      "configuredVersion": "10",
+      "version12SyntheticOracle": ["DL", "ID"],
+      "externalFixtureCount": 1,
+      "unmodifiedSourceCount": 1,
+      "combinations": ["v08 DL"],
+      "fidelities": ["unmodified-source"],
+      "references": [
+        {
+          "id": "il-v08-dl-published",
+          "version": "08",
+          "type": "DL",
+          "fidelity": "unmodified-source",
+          "source": "https://www.ilsos.gov/content/dam/publications/pdf_publications/dsd_a301.pdf"
+        }
+      ],
+      "remaining": "Additional editions and document types; independently sourced v12 signed issuer payload."
+    },
+    {
+      "code": "IN",
+      "name": "Indiana",
+      "iin": "636037",
+      "iinVerified": true,
+      "configuredVersion": "09",
+      "version12SyntheticOracle": ["DL", "ID"],
+      "externalFixtureCount": 0,
+      "unmodifiedSourceCount": 0,
+      "combinations": [],
+      "fidelities": [],
+      "references": [],
+      "remaining": "Valid external encoder reference; published observations have explicit source defects or unresolved format differences."
+    },
+    {
+      "code": "IA",
+      "name": "Iowa",
+      "iin": "636018",
+      "iinVerified": true,
+      "configuredVersion": "09",
+      "version12SyntheticOracle": ["DL", "ID"],
+      "externalFixtureCount": 0,
+      "unmodifiedSourceCount": 0,
+      "combinations": [],
+      "fidelities": [],
+      "references": [],
+      "remaining": "Independently sourced marked specimen payload and passing byte comparison."
+    },
+    {
+      "code": "KS",
+      "name": "Kansas",
+      "iin": "636022",
+      "iinVerified": true,
+      "configuredVersion": "09",
+      "version12SyntheticOracle": ["DL", "ID"],
+      "externalFixtureCount": 1,
+      "unmodifiedSourceCount": 1,
+      "combinations": ["v09 DL"],
+      "fidelities": ["unmodified-source"],
+      "references": [
+        {
+          "id": "ks-v09-dl-published-982331e750a8",
+          "version": "09",
+          "type": "DL",
+          "fidelity": "unmodified-source",
+          "source": "https://raw.githubusercontent.com/marcdacosta/clearid/master/example%20license%20barcodes/Kansas_Transportation_Testimony_2017-01-18_39b96711f6bc3447.pdf"
+        }
+      ],
+      "remaining": "Additional editions and document types; independently sourced v12 signed issuer payload."
+    },
+    {
+      "code": "KY",
+      "name": "Kentucky",
+      "iin": "636046",
+      "iinVerified": true,
+      "configuredVersion": "09",
+      "version12SyntheticOracle": ["DL", "ID"],
+      "externalFixtureCount": 0,
+      "unmodifiedSourceCount": 0,
+      "combinations": [],
+      "fidelities": [],
+      "references": [],
+      "remaining": "Independently sourced marked specimen payload and passing byte comparison."
+    },
+    {
+      "code": "LA",
+      "name": "Louisiana",
+      "iin": "636007",
+      "iinVerified": true,
+      "configuredVersion": "09",
+      "version12SyntheticOracle": ["DL", "ID"],
+      "externalFixtureCount": 0,
+      "unmodifiedSourceCount": 0,
+      "combinations": [],
+      "fidelities": [],
+      "references": [],
+      "remaining": "Independently sourced marked specimen payload and passing byte comparison."
+    },
+    {
+      "code": "ME",
+      "name": "Maine",
+      "iin": "636041",
+      "iinVerified": true,
+      "configuredVersion": "09",
+      "version12SyntheticOracle": ["DL", "ID"],
+      "externalFixtureCount": 0,
+      "unmodifiedSourceCount": 0,
+      "combinations": [],
+      "fidelities": [],
+      "references": [],
+      "remaining": "Independently sourced marked specimen payload and passing byte comparison."
+    },
+    {
+      "code": "MD",
+      "name": "Maryland",
+      "iin": "636003",
+      "iinVerified": true,
+      "configuredVersion": "10",
+      "version12SyntheticOracle": ["DL", "ID"],
+      "externalFixtureCount": 0,
+      "unmodifiedSourceCount": 0,
+      "combinations": [],
+      "fidelities": [],
+      "references": [],
+      "remaining": "Independently sourced marked specimen payload and passing byte comparison."
+    },
+    {
+      "code": "MA",
+      "name": "Massachusetts",
+      "iin": "636002",
+      "iinVerified": true,
+      "configuredVersion": "09",
+      "version12SyntheticOracle": ["DL", "ID"],
+      "externalFixtureCount": 0,
+      "unmodifiedSourceCount": 0,
+      "combinations": [],
+      "fidelities": [],
+      "references": [],
+      "remaining": "Independently sourced marked specimen payload and passing byte comparison."
+    },
+    {
+      "code": "MI",
+      "name": "Michigan",
+      "iin": "636032",
+      "iinVerified": true,
+      "configuredVersion": "10",
+      "version12SyntheticOracle": ["DL", "ID"],
+      "externalFixtureCount": 0,
+      "unmodifiedSourceCount": 0,
+      "combinations": [],
+      "fidelities": [],
+      "references": [],
+      "remaining": "Valid external encoder reference; published observations have explicit source defects or unresolved format differences."
+    },
+    {
+      "code": "MN",
+      "name": "Minnesota",
+      "iin": "636038",
+      "iinVerified": true,
+      "configuredVersion": "09",
+      "version12SyntheticOracle": ["DL", "ID"],
+      "externalFixtureCount": 0,
+      "unmodifiedSourceCount": 0,
+      "combinations": [],
+      "fidelities": [],
+      "references": [],
+      "remaining": "Independently sourced marked specimen payload and passing byte comparison."
+    },
+    {
+      "code": "MS",
+      "name": "Mississippi",
+      "iin": "636051",
+      "iinVerified": true,
+      "configuredVersion": "09",
+      "version12SyntheticOracle": ["DL", "ID"],
+      "externalFixtureCount": 0,
+      "unmodifiedSourceCount": 0,
+      "combinations": [],
+      "fidelities": [],
+      "references": [],
+      "remaining": "Valid external encoder reference; published observations have explicit source defects or unresolved format differences."
+    },
+    {
+      "code": "MO",
+      "name": "Missouri",
+      "iin": "636030",
+      "iinVerified": true,
+      "configuredVersion": "09",
+      "version12SyntheticOracle": ["DL", "ID"],
+      "externalFixtureCount": 1,
+      "unmodifiedSourceCount": 1,
+      "combinations": ["v05 DL"],
+      "fidelities": ["unmodified-source"],
+      "references": [
+        {
+          "id": "mo-v05-dl-published-8d3a544800b4",
+          "version": "05",
+          "type": "DL",
+          "fidelity": "unmodified-source",
+          "source": "https://dor.mo.gov/forms/5443.pdf"
+        }
+      ],
+      "remaining": "Additional editions and document types; independently sourced v12 signed issuer payload."
+    },
+    {
+      "code": "MT",
+      "name": "Montana",
+      "iin": "636008",
+      "iinVerified": true,
+      "configuredVersion": "09",
+      "version12SyntheticOracle": ["DL", "ID"],
+      "externalFixtureCount": 0,
+      "unmodifiedSourceCount": 0,
+      "combinations": [],
+      "fidelities": [],
+      "references": [],
+      "remaining": "Independently sourced marked specimen payload and passing byte comparison."
+    },
+    {
+      "code": "NE",
+      "name": "Nebraska",
+      "iin": "636054",
+      "iinVerified": true,
+      "configuredVersion": "10",
+      "version12SyntheticOracle": ["DL", "ID"],
+      "externalFixtureCount": 1,
+      "unmodifiedSourceCount": 1,
+      "combinations": ["v11 DL"],
+      "fidelities": ["unmodified-source"],
+      "references": [
+        {
+          "id": "ne-v11-dl-published-d9de456eceac",
+          "version": "11",
+          "type": "DL",
+          "fidelity": "unmodified-source",
+          "source": "https://dmv.nebraska.gov/sites/default/files/doc/dls/2026_Barcode_Calibration.pdf"
+        }
+      ],
+      "remaining": "Additional editions and document types; independently sourced v12 signed issuer payload."
+    },
+    {
+      "code": "NV",
+      "name": "Nevada",
+      "iin": "636049",
+      "iinVerified": true,
+      "configuredVersion": "09",
+      "version12SyntheticOracle": ["DL", "ID"],
+      "externalFixtureCount": 0,
+      "unmodifiedSourceCount": 0,
+      "combinations": [],
+      "fidelities": [],
+      "references": [],
+      "remaining": "Independently sourced marked specimen payload and passing byte comparison."
+    },
+    {
+      "code": "NH",
+      "name": "New Hampshire",
+      "iin": "636039",
+      "iinVerified": true,
+      "configuredVersion": "09",
+      "version12SyntheticOracle": ["DL", "ID"],
+      "externalFixtureCount": 0,
+      "unmodifiedSourceCount": 0,
+      "combinations": [],
+      "fidelities": [],
+      "references": [],
+      "remaining": "Independently sourced marked specimen payload and passing byte comparison."
+    },
+    {
+      "code": "NJ",
+      "name": "New Jersey",
+      "iin": "636036",
+      "iinVerified": true,
+      "configuredVersion": "10",
+      "version12SyntheticOracle": ["DL", "ID"],
+      "externalFixtureCount": 0,
+      "unmodifiedSourceCount": 0,
+      "combinations": [],
+      "fidelities": [],
+      "references": [],
+      "remaining": "Valid external encoder reference; published observations have explicit source defects or unresolved format differences."
+    },
+    {
+      "code": "NM",
+      "name": "New Mexico",
+      "iin": "636009",
+      "iinVerified": true,
+      "configuredVersion": "09",
+      "version12SyntheticOracle": ["DL", "ID"],
+      "externalFixtureCount": 0,
+      "unmodifiedSourceCount": 0,
+      "combinations": [],
+      "fidelities": [],
+      "references": [],
+      "remaining": "Independently sourced marked specimen payload and passing byte comparison."
+    },
+    {
+      "code": "NY",
+      "name": "New York",
+      "iin": "636001",
+      "iinVerified": true,
+      "configuredVersion": "10",
+      "version12SyntheticOracle": ["DL", "ID"],
+      "externalFixtureCount": 3,
+      "unmodifiedSourceCount": 1,
+      "combinations": ["v10 DL"],
+      "fidelities": ["anonymized", "unmodified-source"],
+      "references": [
+        {
+          "id": "ny-v10-dl-issued-znb-fill",
+          "version": "10",
+          "type": "DL",
+          "fidelity": "anonymized",
+          "source": "PDF417 barcode decoded from a scan of the back of an issued New York driver's license (AAMVA v10, IIN 636001)"
+        },
+        {
+          "id": "ny-v10-dl-issued",
+          "version": "10",
+          "type": "DL",
+          "fidelity": "anonymized",
+          "source": "PDF417 barcode decoded from an issued New York driver's license (AAMVA v10, IIN 636001)"
+        },
+        {
+          "id": "ny-v10-dl-published-1cf488347e2b",
+          "version": "10",
+          "type": "DL",
+          "fidelity": "unmodified-source",
+          "source": "https://www.ejustice.ny.gov/LawEnforcement/docs/dmv/P2M32022.pdf"
+        }
+      ],
+      "remaining": "Additional editions and document types; independently sourced v12 signed issuer payload."
+    },
+    {
+      "code": "NC",
+      "name": "North Carolina",
+      "iin": "636004",
+      "iinVerified": true,
+      "configuredVersion": "10",
+      "version12SyntheticOracle": ["DL", "ID"],
+      "externalFixtureCount": 0,
+      "unmodifiedSourceCount": 0,
+      "combinations": [],
+      "fidelities": [],
+      "references": [],
+      "remaining": "Independently sourced marked specimen payload and passing byte comparison."
+    },
+    {
+      "code": "ND",
+      "name": "North Dakota",
+      "iin": "636034",
+      "iinVerified": true,
+      "configuredVersion": "09",
+      "version12SyntheticOracle": ["DL", "ID"],
+      "externalFixtureCount": 0,
+      "unmodifiedSourceCount": 0,
+      "combinations": [],
+      "fidelities": [],
+      "references": [],
+      "remaining": "Independently sourced marked specimen payload and passing byte comparison."
+    },
+    {
+      "code": "OH",
+      "name": "Ohio",
+      "iin": "636023",
+      "iinVerified": true,
+      "configuredVersion": "10",
+      "version12SyntheticOracle": ["DL", "ID"],
+      "externalFixtureCount": 0,
+      "unmodifiedSourceCount": 0,
+      "combinations": [],
+      "fidelities": [],
+      "references": [],
+      "remaining": "Independently sourced marked specimen payload and passing byte comparison."
+    },
+    {
+      "code": "OK",
+      "name": "Oklahoma",
+      "iin": "636058",
+      "iinVerified": true,
+      "configuredVersion": "09",
+      "version12SyntheticOracle": ["DL", "ID"],
+      "externalFixtureCount": 0,
+      "unmodifiedSourceCount": 0,
+      "combinations": [],
+      "fidelities": [],
+      "references": [],
+      "remaining": "Independently sourced marked specimen payload and passing byte comparison."
+    },
+    {
+      "code": "OR",
+      "name": "Oregon",
+      "iin": "636029",
+      "iinVerified": true,
+      "configuredVersion": "10",
+      "version12SyntheticOracle": ["DL", "ID"],
+      "externalFixtureCount": 0,
+      "unmodifiedSourceCount": 0,
+      "combinations": [],
+      "fidelities": [],
+      "references": [],
+      "remaining": "Independently sourced marked specimen payload and passing byte comparison."
+    },
+    {
+      "code": "PA",
+      "name": "Pennsylvania",
+      "iin": "636025",
+      "iinVerified": true,
+      "configuredVersion": "10",
+      "version12SyntheticOracle": ["DL", "ID"],
+      "externalFixtureCount": 1,
+      "unmodifiedSourceCount": 0,
+      "combinations": ["v08 DL"],
+      "fidelities": ["canonicalized"],
+      "references": [
+        {
+          "id": "pa-v08-dl-published-ffbde827c006-canonicalized",
+          "version": "08",
+          "type": "DL",
+          "fidelity": "canonicalized",
+          "source": "https://web.archive.org/web/20201017140738id_/http://www.dot.state.pa.us/public/dvspubsforms/BDL/BDL%20Publications/PUB%20802.pdf"
+        }
+      ],
+      "remaining": "Additional editions and document types; independently sourced v12 signed issuer payload."
+    },
+    {
+      "code": "RI",
+      "name": "Rhode Island",
+      "iin": "636052",
+      "iinVerified": true,
+      "configuredVersion": "09",
+      "version12SyntheticOracle": ["DL", "ID"],
+      "externalFixtureCount": 0,
+      "unmodifiedSourceCount": 0,
+      "combinations": [],
+      "fidelities": [],
+      "references": [],
+      "remaining": "Independently sourced marked specimen payload and passing byte comparison."
+    },
+    {
+      "code": "SC",
+      "name": "South Carolina",
+      "iin": "636005",
+      "iinVerified": true,
+      "configuredVersion": "10",
+      "version12SyntheticOracle": ["DL", "ID"],
+      "externalFixtureCount": 1,
+      "unmodifiedSourceCount": 0,
+      "combinations": ["v01 DL"],
+      "fidelities": ["canonicalized"],
+      "references": [
+        {
+          "id": "sc-v01-dl-published-1a6e922373c1-canonicalized",
+          "version": "01",
+          "type": "DL",
+          "fidelity": "canonicalized",
+          "source": "https://dmv.sc.gov/sites/scdmv/files/media/Files/DL-Barcode-Reatiler-%28002%29.pdf"
+        }
+      ],
+      "remaining": "Additional editions and document types; independently sourced v12 signed issuer payload."
+    },
+    {
+      "code": "SD",
+      "name": "South Dakota",
+      "iin": "636042",
+      "iinVerified": true,
+      "configuredVersion": "09",
+      "version12SyntheticOracle": ["DL", "ID"],
+      "externalFixtureCount": 0,
+      "unmodifiedSourceCount": 0,
+      "combinations": [],
+      "fidelities": [],
+      "references": [],
+      "remaining": "Valid external encoder reference; published observations have explicit source defects or unresolved format differences."
+    },
+    {
+      "code": "TN",
+      "name": "Tennessee",
+      "iin": "636053",
+      "iinVerified": true,
+      "configuredVersion": "09",
+      "version12SyntheticOracle": ["DL", "ID"],
+      "externalFixtureCount": 0,
+      "unmodifiedSourceCount": 0,
+      "combinations": [],
+      "fidelities": [],
+      "references": [],
+      "remaining": "Independently sourced marked specimen payload and passing byte comparison."
+    },
+    {
+      "code": "TX",
+      "name": "Texas",
+      "iin": "636015",
+      "iinVerified": true,
+      "configuredVersion": "10",
+      "version12SyntheticOracle": ["DL", "ID"],
+      "externalFixtureCount": 0,
+      "unmodifiedSourceCount": 0,
+      "combinations": [],
+      "fidelities": [],
+      "references": [],
+      "remaining": "Valid external encoder reference; published observations have explicit source defects or unresolved format differences."
+    },
+    {
+      "code": "UT",
+      "name": "Utah",
+      "iin": "636040",
+      "iinVerified": true,
+      "configuredVersion": "09",
+      "version12SyntheticOracle": ["DL", "ID"],
+      "externalFixtureCount": 0,
+      "unmodifiedSourceCount": 0,
+      "combinations": [],
+      "fidelities": [],
+      "references": [],
+      "remaining": "Independently sourced marked specimen payload and passing byte comparison."
+    },
+    {
+      "code": "VT",
+      "name": "Vermont",
+      "iin": "636024",
+      "iinVerified": true,
+      "configuredVersion": "09",
+      "version12SyntheticOracle": ["DL", "ID"],
+      "externalFixtureCount": 0,
+      "unmodifiedSourceCount": 0,
+      "combinations": [],
+      "fidelities": [],
+      "references": [],
+      "remaining": "Independently sourced marked specimen payload and passing byte comparison."
+    },
+    {
+      "code": "VA",
+      "name": "Virginia",
+      "iin": "636000",
+      "iinVerified": true,
+      "configuredVersion": "10",
+      "version12SyntheticOracle": ["DL", "ID"],
+      "externalFixtureCount": 7,
+      "unmodifiedSourceCount": 7,
+      "combinations": ["v10 DL", "v10 ID"],
+      "fidelities": ["unmodified-source"],
+      "references": [
+        {
+          "id": "va-v10-dl-published-000cd50105ad",
+          "version": "10",
+          "type": "DL",
+          "fidelity": "unmodified-source",
+          "source": "https://www.dmv.virginia.gov/sites/default/files/documents/barcode_calibration.pdf"
+        },
+        {
+          "id": "va-v10-dl-published-015e93067f14",
+          "version": "10",
+          "type": "DL",
+          "fidelity": "unmodified-source",
+          "source": "https://www.dmv.virginia.gov/sites/default/files/documents/barcode_calibration.pdf"
+        },
+        {
+          "id": "va-v10-dl-published-093b70f9cd7e",
+          "version": "10",
+          "type": "DL",
+          "fidelity": "unmodified-source",
+          "source": "https://www.dmv.virginia.gov/sites/default/files/documents/barcode_calibration.pdf"
+        },
+        {
+          "id": "va-v10-dl-published-a9e7e64f6022",
+          "version": "10",
+          "type": "DL",
+          "fidelity": "unmodified-source",
+          "source": "https://www.dmv.virginia.gov/sites/default/files/documents/barcode_calibration.pdf"
+        },
+        {
+          "id": "va-v10-id-published-0c900e490239",
+          "version": "10",
+          "type": "ID",
+          "fidelity": "unmodified-source",
+          "source": "https://www.dmv.virginia.gov/sites/default/files/documents/barcode_calibration.pdf"
+        },
+        {
+          "id": "va-v10-id-published-4635bc4159fb",
+          "version": "10",
+          "type": "ID",
+          "fidelity": "unmodified-source",
+          "source": "https://www.dmv.virginia.gov/sites/default/files/documents/barcode_calibration.pdf"
+        },
+        {
+          "id": "va-v10-id-published-91e87b7a2de5",
+          "version": "10",
+          "type": "ID",
+          "fidelity": "unmodified-source",
+          "source": "https://www.dmv.virginia.gov/sites/default/files/documents/barcode_calibration.pdf"
+        }
+      ],
+      "remaining": "Additional editions and document types; independently sourced v12 signed issuer payload."
+    },
+    {
+      "code": "WA",
+      "name": "Washington",
+      "iin": "636045",
+      "iinVerified": true,
+      "configuredVersion": "10",
+      "version12SyntheticOracle": ["DL", "ID"],
+      "externalFixtureCount": 1,
+      "unmodifiedSourceCount": 1,
+      "combinations": ["v08 DL"],
+      "fidelities": ["unmodified-source"],
+      "references": [
+        {
+          "id": "wa-v08-dl-published-2802ccec6eb5",
+          "version": "08",
+          "type": "DL",
+          "fidelity": "unmodified-source",
+          "source": "https://web.archive.org/web/20230408225942id_/https://www.dol.wa.gov/driverslicense/docs/barcodeCalibration-EDLEID-2017.pdf"
+        }
+      ],
+      "remaining": "Additional editions and document types; independently sourced v12 signed issuer payload."
+    },
+    {
+      "code": "WV",
+      "name": "West Virginia",
+      "iin": "636061",
+      "iinVerified": true,
+      "configuredVersion": "09",
+      "version12SyntheticOracle": ["DL", "ID"],
+      "externalFixtureCount": 0,
+      "unmodifiedSourceCount": 0,
+      "combinations": [],
+      "fidelities": [],
+      "references": [],
+      "remaining": "Independently sourced marked specimen payload and passing byte comparison."
+    },
+    {
+      "code": "WI",
+      "name": "Wisconsin",
+      "iin": "636031",
+      "iinVerified": true,
+      "configuredVersion": "10",
+      "version12SyntheticOracle": ["DL", "ID"],
+      "externalFixtureCount": 0,
+      "unmodifiedSourceCount": 0,
+      "combinations": [],
+      "fidelities": [],
+      "references": [],
+      "remaining": "Independently sourced marked specimen payload and passing byte comparison."
+    },
+    {
+      "code": "WY",
+      "name": "Wyoming",
+      "iin": "636060",
+      "iinVerified": true,
+      "configuredVersion": "09",
+      "version12SyntheticOracle": ["DL", "ID"],
+      "externalFixtureCount": 0,
+      "unmodifiedSourceCount": 0,
+      "combinations": [],
+      "fidelities": [],
+      "references": [],
+      "remaining": "Independently sourced marked specimen payload and passing byte comparison."
+    },
+    {
+      "code": "DC",
+      "name": "District of Columbia",
+      "iin": "636043",
+      "iinVerified": true,
+      "configuredVersion": "10",
+      "version12SyntheticOracle": ["DL", "ID"],
+      "externalFixtureCount": 0,
+      "unmodifiedSourceCount": 0,
+      "combinations": [],
+      "fidelities": [],
+      "references": [],
+      "remaining": "Valid external encoder reference; published observations have explicit source defects or unresolved format differences."
+    },
+    {
+      "code": "AS",
+      "name": "American Samoa",
+      "iin": "604427",
+      "iinVerified": true,
+      "configuredVersion": "09",
+      "version12SyntheticOracle": ["DL", "ID"],
+      "externalFixtureCount": 0,
+      "unmodifiedSourceCount": 0,
+      "combinations": [],
+      "fidelities": [],
+      "references": [],
+      "remaining": "Independently sourced marked specimen payload and passing byte comparison."
+    },
+    {
+      "code": "GU",
+      "name": "Guam",
+      "iin": "636019",
+      "iinVerified": true,
+      "configuredVersion": "09",
+      "version12SyntheticOracle": ["DL", "ID"],
+      "externalFixtureCount": 0,
+      "unmodifiedSourceCount": 0,
+      "combinations": [],
+      "fidelities": [],
+      "references": [],
+      "remaining": "Independently sourced marked specimen payload and passing byte comparison."
+    },
+    {
+      "code": "VI",
+      "name": "US Virgin Islands",
+      "iin": "636062",
+      "iinVerified": true,
+      "configuredVersion": "09",
+      "version12SyntheticOracle": ["DL", "ID"],
+      "externalFixtureCount": 0,
+      "unmodifiedSourceCount": 0,
+      "combinations": [],
+      "fidelities": [],
+      "references": [],
+      "remaining": "Independently sourced marked specimen payload and passing byte comparison."
+    },
+    {
+      "code": "PR",
+      "name": "Puerto Rico",
+      "iin": "604431",
+      "iinVerified": true,
+      "configuredVersion": "09",
+      "version12SyntheticOracle": ["DL", "ID"],
+      "externalFixtureCount": 0,
+      "unmodifiedSourceCount": 0,
+      "combinations": [],
+      "fidelities": [],
+      "references": [],
+      "remaining": "Independently sourced marked specimen payload and passing byte comparison."
+    }
+  ]
+}

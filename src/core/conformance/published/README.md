@@ -71,3 +71,7 @@ The [coverage investigation](../COVERAGE-2026-10-25.md) documents parser gaps,
 issuer-specific layouts, source placeholders, the newly published version 12
 standard, and discrepancies in that standard's example. None of those open
 items is counted as passing conformance.
+
+## October 31 expansion
+
+`2026-10-31.json` adds nine unique public payloads. The combined intake has 35 unique payloads across 21 jurisdictions. A separate Delaware reobservation corroborates an existing payload from a different source file and contributes zero unique payloads. Source defects and publisher conflicts remain recorded; passing encoder coverage is counted only from `../vectors/`.

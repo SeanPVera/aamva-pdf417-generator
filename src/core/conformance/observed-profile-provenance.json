@@ -1,0 +1,201 @@
+[
+  {
+    "id": "va-2023-revision02",
+    "sourcePayloadHashes": [
+      "093b70f9cd7efcd248eafa6199097697da138a437ce3ab19c3874c9778de1370",
+      "015e93067f14081363e11c48201ccf73d9b97da6cb40c3cee7abd39e4d3798ad",
+      "a9e7e64f602207fbf1029fa284bfaf82b8ee8cad59c8a7e21b92951c61386ff3",
+      "91e87b7a2de595721a45c08cdaf81b3ab9280f89cfadc389273c78ab215e616f",
+      "4635bc4159fbc057dc425fd997298e873b7026d697dc4b625d17ad8921e91c96",
+      "0c900e490239ed81c4b2ba4d87ff60b1856c36780bff37a07698f5352205db46"
+    ],
+    "sourceRecords": [
+      {
+        "url": "https://www.dmv.virginia.gov/sites/default/files/documents/barcode_calibration.pdf",
+        "sourceSha256": "5b2335a9d181eb7ad9e6793ea5d1c35a0a0ed2e7698908b8b9570e09c351a2e8",
+        "payloadSha256": "093b70f9cd7efcd248eafa6199097697da138a437ce3ab19c3874c9778de1370"
+      },
+      {
+        "url": "https://www.dmv.virginia.gov/sites/default/files/documents/barcode_calibration.pdf",
+        "sourceSha256": "5b2335a9d181eb7ad9e6793ea5d1c35a0a0ed2e7698908b8b9570e09c351a2e8",
+        "payloadSha256": "015e93067f14081363e11c48201ccf73d9b97da6cb40c3cee7abd39e4d3798ad"
+      },
+      {
+        "url": "https://www.dmv.virginia.gov/sites/default/files/documents/barcode_calibration.pdf",
+        "sourceSha256": "5b2335a9d181eb7ad9e6793ea5d1c35a0a0ed2e7698908b8b9570e09c351a2e8",
+        "payloadSha256": "a9e7e64f602207fbf1029fa284bfaf82b8ee8cad59c8a7e21b92951c61386ff3"
+      },
+      {
+        "url": "https://www.dmv.virginia.gov/sites/default/files/documents/barcode_calibration.pdf",
+        "sourceSha256": "5b2335a9d181eb7ad9e6793ea5d1c35a0a0ed2e7698908b8b9570e09c351a2e8",
+        "payloadSha256": "91e87b7a2de595721a45c08cdaf81b3ab9280f89cfadc389273c78ab215e616f"
+      },
+      {
+        "url": "https://www.dmv.virginia.gov/sites/default/files/documents/barcode_calibration.pdf",
+        "sourceSha256": "5b2335a9d181eb7ad9e6793ea5d1c35a0a0ed2e7698908b8b9570e09c351a2e8",
+        "payloadSha256": "4635bc4159fbc057dc425fd997298e873b7026d697dc4b625d17ad8921e91c96"
+      },
+      {
+        "url": "https://www.dmv.virginia.gov/sites/default/files/documents/barcode_calibration.pdf",
+        "sourceSha256": "5b2335a9d181eb7ad9e6793ea5d1c35a0a0ed2e7698908b8b9570e09c351a2e8",
+        "payloadSha256": "0c900e490239ed81c4b2ba4d87ff60b1856c36780bff37a07698f5352205db46"
+      }
+    ]
+  },
+  {
+    "id": "va-2023-revision00",
+    "sourcePayloadHashes": ["000cd50105add9d2f18b469ce632f9453a1e89a10484e9fdb6e75b978ce6594f"],
+    "sourceRecords": [
+      {
+        "url": "https://www.dmv.virginia.gov/sites/default/files/documents/barcode_calibration.pdf",
+        "sourceSha256": "5b2335a9d181eb7ad9e6793ea5d1c35a0a0ed2e7698908b8b9570e09c351a2e8",
+        "payloadSha256": "000cd50105add9d2f18b469ce632f9453a1e89a10484e9fdb6e75b978ce6594f"
+      }
+    ]
+  },
+  {
+    "id": "ga-2012-version06",
+    "sourcePayloadHashes": [
+      "47ddb17df100ec4f73fc6b0bce627982e10f8cd6fb06a1d7350dea9543e434f0",
+      "be90490c2643276cde2ae2dc5ce138877c1296a1d5bd836b50b937bf49570720"
+    ],
+    "sourceRecords": [
+      {
+        "url": "https://dds.georgia.gov/document/publication/license-printed-beginning-june-2019/download",
+        "sourceSha256": "faadb8f9977c127c1e2c9fa7c14c880395e02c753ed232947358747207c98af2",
+        "payloadSha256": "47ddb17df100ec4f73fc6b0bce627982e10f8cd6fb06a1d7350dea9543e434f0"
+      },
+      {
+        "url": "https://dds.georgia.gov/document/document/barcode-sheet-printed-prior-november-2012pdf/download",
+        "sourceSha256": "3d9ef4b4b20059f76ed1cb503e433c1e440cead83c91892754ba8eec8cdc41b7",
+        "payloadSha256": "be90490c2643276cde2ae2dc5ce138877c1296a1d5bd836b50b937bf49570720"
+      }
+    ]
+  },
+  {
+    "id": "ga-2013-interim",
+    "sourcePayloadHashes": ["fb2a15fd6f64db61d33cd134de2994186384ac3b06aae7737c2f86eb4c5a6cb3"],
+    "sourceRecords": [
+      {
+        "url": "https://dds.georgia.gov/document/document/license-printed-prior-november-2012pdf/download",
+        "sourceSha256": "dc53b5c4bfe1deee1ca4e03b65afe15050a61ec5ebe61ec6dc6af42f1fc56dad",
+        "payloadSha256": "fb2a15fd6f64db61d33cd134de2994186384ac3b06aae7737c2f86eb4c5a6cb3"
+      }
+    ]
+  },
+  {
+    "id": "ga-2005-version03",
+    "sourcePayloadHashes": ["73c3c904d70a761ab2d22da67c232490f48f283f4ae08622bbd0260d88233556"],
+    "sourceRecords": [
+      {
+        "url": "https://dds.georgia.gov/document/publication/license-printed-beginning-june-2019/download",
+        "sourceSha256": "faadb8f9977c127c1e2c9fa7c14c880395e02c753ed232947358747207c98af2",
+        "payloadSha256": "73c3c904d70a761ab2d22da67c232490f48f283f4ae08622bbd0260d88233556"
+      }
+    ]
+  },
+  {
+    "id": "ne-2026-version11",
+    "sourcePayloadHashes": ["d9de456eceac29b3fde609c7b52c73de603580fdac203fc469bc8fec909a1402"],
+    "sourceRecords": [
+      {
+        "url": "https://dmv.nebraska.gov/sites/default/files/doc/dls/2026_Barcode_Calibration.pdf",
+        "sourceSha256": "1af187a0786c41aa14a326870ab52ec998cd3b0a4419ccc29dded9fed4b5c9aa",
+        "payloadSha256": "d9de456eceac29b3fde609c7b52c73de603580fdac203fc469bc8fec909a1402"
+      }
+    ]
+  },
+  {
+    "id": "fl-2019-version09",
+    "sourcePayloadHashes": ["b1981be3f0b3f21436845cbbdb9b908640572ba43c2a0edc48cc29b638c58ff1"],
+    "sourceRecords": [
+      {
+        "url": "https://www.flhsmv.gov/pdf/newdl/fl_2dbarcodecalibration.pdf",
+        "sourceSha256": "990649b45ae430b0a5c8b8cdf2d313e3434c7aaae55176d05536daca2207c088",
+        "payloadSha256": "b1981be3f0b3f21436845cbbdb9b908640572ba43c2a0edc48cc29b638c58ff1"
+      }
+    ]
+  },
+  {
+    "id": "ny-2022-published",
+    "sourcePayloadHashes": ["1cf488347e2b44776eceec2f9f5d4d9e9e98dd2d81805bfdeac45e49ad27e8eb"],
+    "sourceRecords": [
+      {
+        "url": "https://www.ejustice.ny.gov/LawEnforcement/docs/dmv/P2M32022.pdf",
+        "sourceSha256": "cc04ed937ccf2940688646ba036e22d7475177b56cd2e2aad580f3856b6686da",
+        "payloadSha256": "1cf488347e2b44776eceec2f9f5d4d9e9e98dd2d81805bfdeac45e49ad27e8eb"
+      }
+    ]
+  },
+  {
+    "id": "ms-public-driver-manual-v10",
+    "sourcePayloadHashes": ["fd86a289088dad9c824ed0d4f884ca20c57eac78812a9946b1499f8b2b2e8623"],
+    "sourceRecords": []
+  },
+  {
+    "id": "wa-archived-edl-v08",
+    "sourcePayloadHashes": ["2802ccec6eb5b1c533daf19cf243b5f6112b06299f6aaf571d680467a76df279"],
+    "sourceRecords": [
+      {
+        "url": "https://web.archive.org/web/20230408225942id_/https://www.dol.wa.gov/driverslicense/docs/barcodeCalibration-EDLEID-2017.pdf",
+        "sourceSha256": "e81699e13232cd1cc0c5e080041bdd0ab45d9c5b258044ff2b12c0602b5efb1b",
+        "payloadSha256": "2802ccec6eb5b1c533daf19cf243b5f6112b06299f6aaf571d680467a76df279"
+      }
+    ]
+  },
+  {
+    "id": "fl-published-legacy-v01",
+    "sourcePayloadHashes": ["488fa2962926131e2602f1eb415d475a7592171b1eba0ac9f68caef21be7b7fe"],
+    "sourceRecords": [
+      {
+        "url": "https://www.flhsmv.gov/pdf/newdl/retailguide.pdf",
+        "sourceSha256": "4b0bb285c6e88fdd3144d50ecacb4ab9a4f6a0b56614629423ed29b075b7a1b4",
+        "payloadSha256": "488fa2962926131e2602f1eb415d475a7592171b1eba0ac9f68caef21be7b7fe"
+      }
+    ]
+  },
+  {
+    "id": "ks-published-v09",
+    "sourcePayloadHashes": ["982331e750a88459bbd31f7ca423a674d197e2f870582821494642a5f7db1aa0"],
+    "sourceRecords": [
+      {
+        "url": "https://raw.githubusercontent.com/marcdacosta/clearid/master/example%20license%20barcodes/Kansas_Transportation_Testimony_2017-01-18_39b96711f6bc3447.pdf",
+        "sourceSha256": "d1fd565c8dfc55e2557e24669b22661b60b655afc8334ce297c92382bcf5fbf2",
+        "payloadSha256": "982331e750a88459bbd31f7ca423a674d197e2f870582821494642a5f7db1aa0"
+      }
+    ]
+  },
+  {
+    "id": "mo-published-v05",
+    "sourcePayloadHashes": ["8d3a544800b4de415f72a6348748a11ce23f3bb15a58c099887af7572addbeb8"],
+    "sourceRecords": [
+      {
+        "url": "https://dor.mo.gov/forms/5443.pdf",
+        "sourceSha256": "6a8d19a16c4419f466dc8d1ad6ea535557951412d6e8fc4132773c10eff5239e",
+        "payloadSha256": "8d3a544800b4de415f72a6348748a11ce23f3bb15a58c099887af7572addbeb8"
+      }
+    ]
+  },
+  {
+    "id": "pa-published-v08",
+    "sourcePayloadHashes": ["ffbde827c006e15246ef102f5c25e29de3e1c874bf81d734034181266a997895"],
+    "sourceRecords": [
+      {
+        "url": "https://web.archive.org/web/20201017140738id_/http://www.dot.state.pa.us/public/dvspubsforms/BDL/BDL%20Publications/PUB%20802.pdf",
+        "sourceSha256": "4dc287a84a72a26cc95e3696c6eb17bf324e707d99347e10db88f936d0ec60f3",
+        "payloadSha256": "ffbde827c006e15246ef102f5c25e29de3e1c874bf81d734034181266a997895"
+      }
+    ]
+  },
+  {
+    "id": "sc-public-retailer-legacy-v01",
+    "sourcePayloadHashes": ["1a6e922373c1c4d697ab75dcd047fa6a47ea94a09c9d696a1b1a23cd1fd433fc"],
+    "sourceRecords": [
+      {
+        "url": "https://dmv.sc.gov/sites/scdmv/files/media/Files/DL-Barcode-Reatiler-%28002%29.pdf",
+        "sourceSha256": "972f1aae462e222e2135be607d8b7e70aa3cdd7ef9ebba6458ba8c2b259c96db",
+        "payloadSha256": "1a6e922373c1c4d697ab75dcd047fa6a47ea94a09c9d696a1b1a23cd1fd433fc"
+      }
+    ]
+  }
+]

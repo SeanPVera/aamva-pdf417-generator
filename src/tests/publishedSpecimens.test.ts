@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 
 import { decodeAAMVAFormat } from "../core/decoder";
 import intakeData from "../core/conformance/published/2026-10-25.json";
+import additions from "../core/conformance/published/2026-10-31.json";
 import { loadVectors } from "./support/conformanceVectors";
 
 interface PublishedSpecimen {
@@ -48,12 +49,27 @@ describe("independently scanned published specimens", () => {
   });
 
   it("promotes source bytes into positive vectors without changing their evidence", () => {
-    const byHash = new Map(specimens.map((specimen) => [specimen.sha256, specimen]));
+    const byHash = new Map(
+      [...specimens, ...additions.payloads].map((specimen) => [specimen.sha256, specimen])
+    );
     for (const vector of loadVectors().filter((entry) => entry.provenance.tier === "published")) {
       const source = byHash.get(vector.provenance.payloadSha256 ?? "");
       expect(source, `${vector.id}: source observation must remain in the intake`).toBeDefined();
-      expect(vector.expectedBytes).toBe(source?.rawBytesLatin1);
-      expect(vector.provenance.fidelity).toBe("unmodified-source");
+      if (vector.provenance.fidelity === "canonicalized") {
+        let expected = source!.rawBytesLatin1;
+        expect(vector.provenance.transformations?.length).toBeGreaterThan(0);
+        for (const edit of [...vector.provenance.transformations!].sort(
+          (a, b) => b.offset - a.offset
+        ))
+          expected =
+            expected.slice(0, edit.offset) +
+            edit.insert +
+            expected.slice(edit.offset + edit.removeLength);
+        expect(vector.expectedBytes).toBe(expected);
+      } else {
+        expect(vector.expectedBytes).toBe(source?.rawBytesLatin1);
+        expect(vector.provenance.fidelity).toBe("unmodified-source");
+      }
       expect(vector.provenance.sourceSha256).toBe(source?.sourceSha256);
       expect(vector.provenance.evidenceImageSha256).toBe(source?.imageSha256);
     }

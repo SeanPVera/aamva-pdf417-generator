@@ -22,6 +22,18 @@ export { AAMVA_STATES, isJurisdictionSupported, getVersionForState } from "./sta
 // Generation
 export type { GenerateOptions } from "./generator";
 export {
+  OBSERVED_ENCODING_PROFILES,
+  identifyObservedEncodingProfile,
+  activeObservedEncodingProfile
+} from "./observedProfiles";
+export { canonicalizeAamvaSignature, verifyAamvaSignature, signAamvaPayload } from "./signature";
+export {
+  encodeSignatureAscii85,
+  decodeSignatureAscii85,
+  parseSignatureCoverage
+} from "./signatureEncoding";
+export type { SignatureVerification } from "./signature";
+export {
   generateAAMVAPayload,
   generateDocumentDiscriminator,
   generateStateDiscriminator,

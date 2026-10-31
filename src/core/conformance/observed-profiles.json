@@ -1,0 +1,1581 @@
+[
+  {
+    "id": "va-2023-revision02",
+    "state": "VA",
+    "iin": "636000",
+    "version": "10",
+    "subfileTypes": ["DL", "ID"],
+    "source": "https://www.dmv.virginia.gov/sites/default/files/documents/barcode_calibration.pdf",
+    "notes": [
+      "Public specimen layout; this profile does not establish current issuance practice.",
+      "Published ID cards retain driving-privilege elements as NONE; modern generic ID schema omits them.",
+      "DDC=00000000 is retained as an observed absence sentinel."
+    ],
+    "encoding": {
+      "jurisdictionVersion": "02",
+      "elementOrder": [
+        "DCA",
+        "DCB",
+        "DCD",
+        "DBA",
+        "DCS",
+        "DAC",
+        "DAD",
+        "DBD",
+        "DBB",
+        "DBC",
+        "DAY",
+        "DAU",
+        "DAG",
+        "DAI",
+        "DAJ",
+        "DAK",
+        "DAQ",
+        "DCF",
+        "DCG",
+        "DDE",
+        "DDF",
+        "DDG",
+        "DCK",
+        "DCU",
+        "DDA",
+        "DDB",
+        "DDC",
+        "DDD"
+      ],
+      "fieldWidths": {
+        "DCA": 4,
+        "DCB": 10,
+        "DCD": 5,
+        "DCS": 40,
+        "DAC": 40,
+        "DAD": 40,
+        "DAG": 35,
+        "DAI": 20,
+        "DAQ": 12,
+        "DCF": 12,
+        "DCU": 5,
+        "ZVA": 90,
+        "DAK": 9
+      },
+      "preserveValueCase": ["DAU"],
+      "padPostalCode": false,
+      "omitFinalSeparator": true,
+      "source": "https://www.dmv.virginia.gov/sites/default/files/documents/barcode_calibration.pdf",
+      "jurisdictionSubfile": {
+        "type": "ZV",
+        "source": "https://www.dmv.virginia.gov/sites/default/files/documents/barcode_calibration.pdf",
+        "elements": [
+          {
+            "code": "ZVA",
+            "label": "ZVA (opaque source element)"
+          }
+        ]
+      }
+    },
+    "extraFields": [
+      {
+        "code": "DCK",
+        "label": "DCK (source edition)",
+        "type": "string"
+      },
+      {
+        "code": "DDC",
+        "label": "Hazmat Endorsement Expiration",
+        "type": "date"
+      },
+      {
+        "code": "DDD",
+        "label": "DDD (source edition)",
+        "type": "string"
+      },
+      {
+        "code": "DCA",
+        "label": "DCA (published ID compatibility)",
+        "type": "string"
+      },
+      {
+        "code": "DCB",
+        "label": "DCB (published ID compatibility)",
+        "type": "string"
+      },
+      {
+        "code": "DCD",
+        "label": "DCD (published ID compatibility)",
+        "type": "string"
+      }
+    ],
+    "optionalFields": [],
+    "excludedFields": [],
+    "emitEmptyFields": ["DCU"],
+    "retainDrivingFieldsOnId": true,
+    "preservePostalHyphen": false,
+    "allowValues": {
+      "DDC": ["00000000"]
+    }
+  },
+  {
+    "id": "va-2023-revision00",
+    "state": "VA",
+    "iin": "636000",
+    "version": "10",
+    "subfileTypes": ["DL"],
+    "source": "https://www.dmv.virginia.gov/sites/default/files/documents/barcode_calibration.pdf",
+    "notes": ["Public specimen layout; this profile does not establish current issuance practice."],
+    "encoding": {
+      "jurisdictionVersion": "00",
+      "elementOrder": [
+        "DCA",
+        "DCB",
+        "DCD",
+        "DBA",
+        "DCS",
+        "DAC",
+        "DAD",
+        "DBD",
+        "DBB",
+        "DBC",
+        "DAY",
+        "DAU",
+        "DAG",
+        "DAI",
+        "DAJ",
+        "DAK",
+        "DAQ",
+        "DCF",
+        "DCG",
+        "DDE",
+        "DDF",
+        "DDG",
+        "DDA",
+        "DDB",
+        "DDD",
+        "DDH",
+        "DDJ",
+        "DDK"
+      ],
+      "fieldWidths": {
+        "DCA": 6,
+        "DCB": 12,
+        "DCD": 5,
+        "DCS": 40,
+        "DAC": 40,
+        "DAD": 40,
+        "DAG": 35,
+        "DAI": 20,
+        "DAK": 11,
+        "DAQ": 25,
+        "DCF": 25
+      },
+      "preserveValueCase": ["DAU"],
+      "padPostalCode": false,
+      "omitFinalSeparator": true,
+      "source": "https://www.dmv.virginia.gov/sites/default/files/documents/barcode_calibration.pdf"
+    },
+    "extraFields": [
+      {
+        "code": "DDD",
+        "label": "DDD (source edition)",
+        "type": "string"
+      },
+      {
+        "code": "DDH",
+        "label": "Under 18 Until",
+        "type": "date"
+      },
+      {
+        "code": "DDJ",
+        "label": "Under 21 Until",
+        "type": "date"
+      },
+      {
+        "code": "DDK",
+        "label": "DDK (source edition)",
+        "type": "string"
+      }
+    ],
+    "optionalFields": [],
+    "excludedFields": [],
+    "emitEmptyFields": [],
+    "retainDrivingFieldsOnId": false,
+    "preservePostalHyphen": false,
+    "allowValues": {}
+  },
+  {
+    "id": "ga-2012-version06",
+    "state": "GA",
+    "iin": "636055",
+    "version": "06",
+    "subfileTypes": ["DL"],
+    "source": "https://dds.georgia.gov/document/publication/license-printed-beginning-june-2019/download",
+    "notes": ["Public specimen layout; this profile does not establish current issuance practice."],
+    "encoding": {
+      "jurisdictionVersion": "00",
+      "elementOrder": [
+        "DCA",
+        "DCB",
+        "DCD",
+        "DBA",
+        "DCS",
+        "DDE",
+        "DAC",
+        "DDF",
+        "DAD",
+        "DDG",
+        "DBD",
+        "DBB",
+        "DBC",
+        "DAY",
+        "DAU",
+        "DAG",
+        "DAI",
+        "DAJ",
+        "DAK",
+        "DAQ",
+        "DAW",
+        "DCF",
+        "DCG",
+        "DCU",
+        "DCK",
+        "DDA",
+        "DDB",
+        "DDK"
+      ],
+      "fieldWidths": {
+        "DAK": 11
+      },
+      "preserveValueCase": ["DAU"],
+      "padPostalCode": false,
+      "omitFinalSeparator": false,
+      "source": "https://dds.georgia.gov/document/publication/license-printed-beginning-june-2019/download",
+      "jurisdictionSubfile": {
+        "type": "ZG",
+        "source": "https://dds.georgia.gov/document/publication/license-printed-beginning-june-2019/download",
+        "elements": [
+          {
+            "code": "ZGA",
+            "label": "ZGA (opaque source element)"
+          },
+          {
+            "code": "ZGB",
+            "label": "ZGB (opaque source element)"
+          },
+          {
+            "code": "ZGC",
+            "label": "ZGC (opaque source element)"
+          },
+          {
+            "code": "ZGD",
+            "label": "ZGD (opaque source element)"
+          },
+          {
+            "code": "ZGE",
+            "label": "ZGE (opaque source element)"
+          },
+          {
+            "code": "ZGF",
+            "label": "ZGF (opaque source element)"
+          },
+          {
+            "code": "ZGG",
+            "label": "ZGG (opaque source element)"
+          },
+          {
+            "code": "ZGH",
+            "label": "ZGH (opaque source element)"
+          },
+          {
+            "code": "ZGI",
+            "label": "ZGI (opaque source element)"
+          },
+          {
+            "code": "ZGJ",
+            "label": "ZGJ (opaque source element)"
+          },
+          {
+            "code": "ZGK",
+            "label": "ZGK (opaque source element)"
+          },
+          {
+            "code": "ZGL",
+            "label": "ZGL (opaque source element)"
+          }
+        ]
+      }
+    },
+    "extraFields": [
+      {
+        "code": "DCK",
+        "label": "DCK (source edition)",
+        "type": "string"
+      },
+      {
+        "code": "DDK",
+        "label": "DDK (source edition)",
+        "type": "string"
+      }
+    ],
+    "optionalFields": [],
+    "excludedFields": [],
+    "emitEmptyFields": [],
+    "retainDrivingFieldsOnId": false,
+    "preservePostalHyphen": false,
+    "allowValues": {}
+  },
+  {
+    "id": "ga-2013-interim",
+    "state": "GA",
+    "iin": "636055",
+    "version": "06",
+    "subfileTypes": ["DL"],
+    "source": "https://dds.georgia.gov/document/document/license-printed-prior-november-2012pdf/download",
+    "notes": [
+      "Public specimen layout; this profile does not establish current issuance practice.",
+      "DDA=M occurs in the published historical source; modern F/N semantics are not inferred."
+    ],
+    "encoding": {
+      "jurisdictionVersion": "01",
+      "elementOrder": [
+        "DAQ",
+        "DCS",
+        "DDE",
+        "DAC",
+        "DDF",
+        "DAD",
+        "DDG",
+        "DCA",
+        "DCB",
+        "DCD",
+        "DBD",
+        "DBB",
+        "DBA",
+        "DBC",
+        "DAU",
+        "DAY",
+        "DAG",
+        "DAI",
+        "DAJ",
+        "DAK",
+        "DCF",
+        "DCG",
+        "DAW",
+        "DDA",
+        "DDB",
+        "DDD",
+        "DDJ",
+        "DDK"
+      ],
+      "fieldWidths": {
+        "DAK": 11
+      },
+      "preserveValueCase": ["DAU"],
+      "padPostalCode": false,
+      "omitFinalSeparator": true,
+      "source": "https://dds.georgia.gov/document/document/license-printed-prior-november-2012pdf/download",
+      "jurisdictionSubfile": {
+        "type": "ZG",
+        "source": "https://dds.georgia.gov/document/document/license-printed-prior-november-2012pdf/download",
+        "elements": [
+          {
+            "code": "ZGA",
+            "label": "ZGA (opaque source element)"
+          },
+          {
+            "code": "ZGB",
+            "label": "ZGB (opaque source element)"
+          },
+          {
+            "code": "ZGC",
+            "label": "ZGC (opaque source element)"
+          },
+          {
+            "code": "ZGD",
+            "label": "ZGD (opaque source element)"
+          },
+          {
+            "code": "ZGE",
+            "label": "ZGE (opaque source element)"
+          },
+          {
+            "code": "ZGF",
+            "label": "ZGF (opaque source element)"
+          },
+          {
+            "code": "ZGG",
+            "label": "ZGG (opaque source element)"
+          },
+          {
+            "code": "ZGH",
+            "label": "ZGH (opaque source element)"
+          },
+          {
+            "code": "ZGI",
+            "label": "ZGI (opaque source element)"
+          },
+          {
+            "code": "ZGJ",
+            "label": "ZGJ (opaque source element)"
+          },
+          {
+            "code": "ZGK",
+            "label": "ZGK (opaque source element)"
+          },
+          {
+            "code": "ZGL",
+            "label": "ZGL (opaque source element)"
+          }
+        ]
+      }
+    },
+    "extraFields": [
+      {
+        "code": "DDD",
+        "label": "DDD (source edition)",
+        "type": "string"
+      },
+      {
+        "code": "DDJ",
+        "label": "Under 21 Until",
+        "type": "date"
+      },
+      {
+        "code": "DDK",
+        "label": "DDK (source edition)",
+        "type": "string"
+      },
+      {
+        "code": "DDA",
+        "label": "Compliance Type (historical source)",
+        "type": "string",
+        "options": [
+          {
+            "value": "F",
+            "label": "F"
+          },
+          {
+            "value": "N",
+            "label": "N"
+          },
+          {
+            "value": "M",
+            "label": "M"
+          }
+        ]
+      }
+    ],
+    "optionalFields": [],
+    "excludedFields": [],
+    "emitEmptyFields": ["ZGE", "ZGI", "ZGJ", "ZGK", "ZGL"],
+    "retainDrivingFieldsOnId": false,
+    "preservePostalHyphen": true,
+    "allowValues": {}
+  },
+  {
+    "id": "ga-2005-version03",
+    "state": "GA",
+    "iin": "636055",
+    "version": "03",
+    "subfileTypes": ["DL"],
+    "source": "https://dds.georgia.gov/document/publication/license-printed-beginning-june-2019/download",
+    "notes": [
+      "Public specimen layout; this profile does not establish current issuance practice.",
+      "The historical source uses DCT given names rather than DAC."
+    ],
+    "encoding": {
+      "jurisdictionVersion": "00",
+      "elementOrder": [
+        "DCA",
+        "DCB",
+        "DCD",
+        "DBA",
+        "DCS",
+        "DCT",
+        "DBD",
+        "DBB",
+        "DBC",
+        "DAY",
+        "DAU",
+        "DAG",
+        "DAI",
+        "DAJ",
+        "DAK",
+        "DAQ",
+        "DCE",
+        "DCF",
+        "DCG",
+        "DCH",
+        "DCU",
+        "DCJ",
+        "DCK"
+      ],
+      "fieldWidths": {
+        "DCA": 8,
+        "DCB": 10,
+        "DCD": 5,
+        "DCS": 40,
+        "DCT": 80,
+        "DAG": 35,
+        "DAI": 20,
+        "DAK": 11,
+        "DAQ": 25,
+        "ZGD": 1
+      },
+      "preserveValueCase": ["DAU"],
+      "padPostalCode": false,
+      "omitFinalSeparator": false,
+      "source": "https://dds.georgia.gov/document/publication/license-printed-beginning-june-2019/download",
+      "jurisdictionSubfile": {
+        "type": "ZG",
+        "source": "https://dds.georgia.gov/document/publication/license-printed-beginning-june-2019/download",
+        "elements": [
+          {
+            "code": "ZGA",
+            "label": "ZGA (opaque source element)"
+          },
+          {
+            "code": "ZGB",
+            "label": "ZGB (opaque source element)"
+          },
+          {
+            "code": "ZGC",
+            "label": "ZGC (opaque source element)"
+          },
+          {
+            "code": "ZGD",
+            "label": "ZGD (opaque source element)"
+          },
+          {
+            "code": "ZGE",
+            "label": "ZGE (opaque source element)"
+          },
+          {
+            "code": "ZGF",
+            "label": "ZGF (opaque source element)"
+          },
+          {
+            "code": "ZGG",
+            "label": "ZGG (opaque source element)"
+          },
+          {
+            "code": "ZGH",
+            "label": "ZGH (opaque source element)"
+          },
+          {
+            "code": "ZGI",
+            "label": "ZGI (opaque source element)"
+          },
+          {
+            "code": "ZGJ",
+            "label": "ZGJ (opaque source element)"
+          },
+          {
+            "code": "ZGK",
+            "label": "ZGK (opaque source element)"
+          },
+          {
+            "code": "ZGL",
+            "label": "ZGL (opaque source element)"
+          },
+          {
+            "code": "ZGM",
+            "label": "ZGM (opaque source element)"
+          }
+        ]
+      }
+    },
+    "extraFields": [
+      {
+        "code": "DCT",
+        "label": "Given Names",
+        "type": "string",
+        "required": true
+      },
+      {
+        "code": "DCE",
+        "label": "DCE (source edition)",
+        "type": "string"
+      },
+      {
+        "code": "DCH",
+        "label": "DCH (source edition)",
+        "type": "string"
+      },
+      {
+        "code": "DCJ",
+        "label": "DCJ (source edition)",
+        "type": "string"
+      },
+      {
+        "code": "DCK",
+        "label": "DCK (source edition)",
+        "type": "string"
+      }
+    ],
+    "optionalFields": ["DAC"],
+    "excludedFields": [],
+    "emitEmptyFields": ["ZGD"],
+    "retainDrivingFieldsOnId": false,
+    "preservePostalHyphen": false,
+    "allowValues": {}
+  },
+  {
+    "id": "ne-2026-version11",
+    "state": "NE",
+    "iin": "636054",
+    "version": "11",
+    "subfileTypes": ["DL"],
+    "source": "https://dmv.nebraska.gov/sites/default/files/doc/dls/2026_Barcode_Calibration.pdf",
+    "notes": [
+      "Public specimen layout; this profile does not establish current issuance practice.",
+      "The source carries DCL although CDS 2025 reserves that code. This profile records the conflict."
+    ],
+    "encoding": {
+      "jurisdictionVersion": "01",
+      "elementOrder": [
+        "DAQ",
+        "DCS",
+        "DDE",
+        "DAC",
+        "DDF",
+        "DAD",
+        "DDG",
+        "DCA",
+        "DCB",
+        "DCD",
+        "DBD",
+        "DBB",
+        "DBA",
+        "DBC",
+        "DAU",
+        "DAY",
+        "DAG",
+        "DAI",
+        "DAJ",
+        "DAK",
+        "DCF",
+        "DCG",
+        "DCU",
+        "DCK",
+        "DDA",
+        "DDB",
+        "DAZ",
+        "DCL",
+        "DAW",
+        "DDJ",
+        "DDK"
+      ],
+      "fieldWidths": {},
+      "preserveValueCase": ["DAU"],
+      "padPostalCode": false,
+      "omitFinalSeparator": true,
+      "source": "https://dmv.nebraska.gov/sites/default/files/doc/dls/2026_Barcode_Calibration.pdf",
+      "jurisdictionSubfile": {
+        "type": "ZN",
+        "source": "https://dmv.nebraska.gov/sites/default/files/doc/dls/2026_Barcode_Calibration.pdf",
+        "elements": [
+          {
+            "code": "ZNA",
+            "label": "ZNA (opaque source element)"
+          },
+          {
+            "code": "ZNB",
+            "label": "ZNB (opaque source element)"
+          },
+          {
+            "code": "ZNC",
+            "label": "ZNC (opaque source element)"
+          }
+        ]
+      }
+    },
+    "extraFields": [
+      {
+        "code": "DCK",
+        "label": "DCK (source edition)",
+        "type": "string"
+      },
+      {
+        "code": "DCL",
+        "label": "DCL (source edition)",
+        "type": "string",
+        "options": [
+          {
+            "value": "A",
+            "label": "Source code A (meaning unverified)"
+          }
+        ]
+      },
+      {
+        "code": "DDJ",
+        "label": "Under 21 Until",
+        "type": "date"
+      },
+      {
+        "code": "DDK",
+        "label": "DDK (source edition)",
+        "type": "string"
+      }
+    ],
+    "optionalFields": [],
+    "excludedFields": [],
+    "emitEmptyFields": [],
+    "retainDrivingFieldsOnId": false,
+    "preservePostalHyphen": false,
+    "allowValues": {}
+  },
+  {
+    "id": "fl-2019-version09",
+    "state": "FL",
+    "iin": "636010",
+    "version": "09",
+    "subfileTypes": ["DL"],
+    "source": "https://www.flhsmv.gov/pdf/newdl/fl_2dbarcodecalibration.pdf",
+    "notes": [
+      "Public specimen layout; this profile does not establish current issuance practice.",
+      "The published barcode omits DAY. This is an explicit issuer-sample compatibility exception."
+    ],
+    "encoding": {
+      "jurisdictionVersion": "00",
+      "elementOrder": [
+        "DAQ",
+        "DCS",
+        "DDE",
+        "DAC",
+        "DDF",
+        "DAD",
+        "DDG",
+        "DCA",
+        "DCB",
+        "DCD",
+        "DBD",
+        "DBB",
+        "DBA",
+        "DBC",
+        "DAU",
+        "DAG",
+        "DAI",
+        "DAJ",
+        "DAK",
+        "DCF",
+        "DCG",
+        "DCK",
+        "DDA",
+        "DDB"
+      ],
+      "fieldWidths": {
+        "DAK": 11
+      },
+      "preserveValueCase": ["DAU"],
+      "padPostalCode": false,
+      "omitFinalSeparator": false,
+      "source": "https://www.flhsmv.gov/pdf/newdl/fl_2dbarcodecalibration.pdf",
+      "jurisdictionSubfile": {
+        "type": "ZF",
+        "source": "https://www.flhsmv.gov/pdf/newdl/fl_2dbarcodecalibration.pdf",
+        "elements": [
+          {
+            "code": "ZFA",
+            "label": "ZFA (opaque source element)"
+          },
+          {
+            "code": "ZFB",
+            "label": "ZFB (opaque source element)"
+          },
+          {
+            "code": "ZFC",
+            "label": "ZFC (opaque source element)"
+          },
+          {
+            "code": "ZFD",
+            "label": "ZFD (opaque source element)"
+          },
+          {
+            "code": "ZFE",
+            "label": "ZFE (opaque source element)"
+          },
+          {
+            "code": "ZFF",
+            "label": "ZFF (opaque source element)"
+          },
+          {
+            "code": "ZFG",
+            "label": "ZFG (opaque source element)"
+          },
+          {
+            "code": "ZFH",
+            "label": "ZFH (opaque source element)"
+          },
+          {
+            "code": "ZFI",
+            "label": "ZFI (opaque source element)"
+          },
+          {
+            "code": "ZFJ",
+            "label": "ZFJ (opaque source element)"
+          },
+          {
+            "code": "ZFK",
+            "label": "ZFK (opaque source element)"
+          }
+        ]
+      }
+    },
+    "extraFields": [
+      {
+        "code": "DCK",
+        "label": "DCK (source edition)",
+        "type": "string"
+      }
+    ],
+    "optionalFields": ["DAY"],
+    "excludedFields": [],
+    "emitEmptyFields": ["ZFA", "ZFB", "ZFD", "ZFE", "ZFF", "ZFG", "ZFH", "ZFI", "ZFJ", "ZFK"],
+    "retainDrivingFieldsOnId": false,
+    "preservePostalHyphen": false,
+    "allowValues": {}
+  },
+  {
+    "id": "ny-2022-published",
+    "state": "NY",
+    "iin": "636001",
+    "version": "10",
+    "subfileTypes": ["DL"],
+    "source": "https://www.ejustice.ny.gov/LawEnforcement/docs/dmv/P2M32022.pdf",
+    "notes": ["Public specimen layout; this profile does not establish current issuance practice."],
+    "encoding": {
+      "jurisdictionVersion": "04",
+      "elementOrder": [
+        "DCA",
+        "DCB",
+        "DCD",
+        "DBA",
+        "DCS",
+        "DAC",
+        "DAD",
+        "DBD",
+        "DBB",
+        "DBC",
+        "DAY",
+        "DAU",
+        "DAG",
+        "DAI",
+        "DAJ",
+        "DAK",
+        "DAQ",
+        "DCF",
+        "DCG",
+        "DDE",
+        "DDF",
+        "DDG",
+        "DDK"
+      ],
+      "fieldWidths": {
+        "DCA": 6,
+        "DCB": 12,
+        "DCD": 5,
+        "DCS": 40,
+        "DAC": 40,
+        "DAD": 40,
+        "DAG": 35,
+        "DAI": 20,
+        "DAK": 11,
+        "DAQ": 25,
+        "DCF": 25,
+        "ZNA": 20,
+        "ZNB": 40
+      },
+      "preserveValueCase": ["DAU"],
+      "padPostalCode": false,
+      "omitFinalSeparator": true,
+      "source": "https://www.ejustice.ny.gov/LawEnforcement/docs/dmv/P2M32022.pdf",
+      "jurisdictionSubfile": {
+        "type": "ZN",
+        "source": "https://www.ejustice.ny.gov/LawEnforcement/docs/dmv/P2M32022.pdf",
+        "elements": [
+          {
+            "code": "ZNA",
+            "label": "ZNA (opaque source element)"
+          },
+          {
+            "code": "ZNB",
+            "label": "ZNB (opaque source element)"
+          }
+        ]
+      }
+    },
+    "extraFields": [
+      {
+        "code": "DDK",
+        "label": "DDK (source edition)",
+        "type": "string"
+      }
+    ],
+    "optionalFields": [],
+    "excludedFields": [],
+    "emitEmptyFields": [],
+    "retainDrivingFieldsOnId": false,
+    "preservePostalHyphen": false,
+    "allowValues": {}
+  },
+  {
+    "id": "ms-public-driver-manual-v10",
+    "state": "MS",
+    "iin": "636051",
+    "version": "10",
+    "subfileTypes": ["DL"],
+    "source": "https://www.sos.ms.gov/adminsearch/ACCode/00000830c.pdf",
+    "notes": [
+      "Public SAMPLE layout in the Mississippi driver manual; current issuance adoption is not inferred."
+    ],
+    "encoding": {
+      "jurisdictionVersion": "00",
+      "elementOrder": [
+        "DAQ",
+        "DCS",
+        "DDE",
+        "DAC",
+        "DDF",
+        "DAD",
+        "DDG",
+        "DCA",
+        "DCB",
+        "DCD",
+        "DBD",
+        "DBB",
+        "DBA",
+        "DBC",
+        "DAU",
+        "DAY",
+        "DAG",
+        "DAI",
+        "DAJ",
+        "DAK",
+        "DCF",
+        "DCG",
+        "DCK",
+        "DDA",
+        "DDB",
+        "DDH",
+        "DDJ",
+        "DDK"
+      ],
+      "fieldWidths": {
+        "DAK": 11,
+        "ZMG": 11
+      },
+      "preserveValueCase": ["DAU"],
+      "padPostalCode": false,
+      "omitFinalSeparator": false,
+      "source": "https://www.sos.ms.gov/adminsearch/ACCode/00000830c.pdf",
+      "jurisdictionSubfile": {
+        "type": "ZM",
+        "source": "https://www.sos.ms.gov/adminsearch/ACCode/00000830c.pdf",
+        "elements": [
+          {
+            "code": "ZMA",
+            "label": "ZMA (opaque source element)"
+          },
+          {
+            "code": "ZMB",
+            "label": "ZMB (opaque source element)"
+          },
+          {
+            "code": "ZMC",
+            "label": "ZMC (opaque source element)"
+          },
+          {
+            "code": "ZMD",
+            "label": "ZMD (opaque source element)"
+          },
+          {
+            "code": "ZME",
+            "label": "ZME (opaque source element)"
+          },
+          {
+            "code": "ZMF",
+            "label": "ZMF (opaque source element)"
+          },
+          {
+            "code": "ZMG",
+            "label": "ZMG (opaque source element)"
+          }
+        ]
+      }
+    },
+    "extraFields": [
+      {
+        "code": "DDH",
+        "label": "DDH (source edition)",
+        "type": "date"
+      },
+      {
+        "code": "DDJ",
+        "label": "DDJ (source edition)",
+        "type": "date"
+      }
+    ],
+    "optionalFields": [],
+    "excludedFields": [],
+    "emitEmptyFields": ["ZMA", "ZMB", "ZMC"]
+  },
+  {
+    "id": "wa-archived-edl-v08",
+    "state": "WA",
+    "iin": "636045",
+    "version": "08",
+    "subfileTypes": ["DL"],
+    "source": "https://web.archive.org/web/20230408225942id_/https://www.dol.wa.gov/driverslicense/docs/barcodeCalibration-EDLEID-2017.pdf",
+    "notes": [
+      "Archived government calibration specimen captured by Internet Archive on 2023-04-08; live source is unavailable. Current issuance layout is unverified."
+    ],
+    "encoding": {
+      "jurisdictionVersion": "01",
+      "elementOrder": [
+        "DCA",
+        "DCB",
+        "DCD",
+        "DBA",
+        "DCS",
+        "DAC",
+        "DAD",
+        "DBD",
+        "DBB",
+        "DBC",
+        "DAY",
+        "DAU",
+        "DAG",
+        "DAI",
+        "DAJ",
+        "DAK",
+        "DAQ",
+        "DCF",
+        "DCG",
+        "DDE",
+        "DDF",
+        "DDG",
+        "DCJ",
+        "DDB",
+        "DAW",
+        "DDK",
+        "DDL"
+      ],
+      "fieldWidths": {
+        "DAK": 11
+      },
+      "padPostalCode": false,
+      "preserveValueCase": ["DAU"],
+      "omitFinalSeparator": true,
+      "source": "https://web.archive.org/web/20230408225942id_/https://www.dol.wa.gov/driverslicense/docs/barcodeCalibration-EDLEID-2017.pdf"
+    },
+    "extraFields": [
+      {
+        "code": "DCJ",
+        "label": "DCJ (source edition)",
+        "type": "string"
+      }
+    ],
+    "optionalFields": [],
+    "excludedFields": [],
+    "emitEmptyFields": []
+  },
+  {
+    "id": "fl-published-legacy-v01",
+    "state": "FL",
+    "iin": "636010",
+    "version": "01",
+    "subfileTypes": ["DL"],
+    "source": "https://www.flhsmv.gov/pdf/newdl/retailguide.pdf",
+    "notes": [
+      "Public Florida specimen uses the legacy 19-byte header, numeric sex code, three-digit height, and a hyphenated postal code. These exceptions apply only to this observed variant."
+    ],
+    "encoding": {
+      "legacyHeader": true,
+      "jurisdictionVersion": "",
+      "elementOrder": [
+        "DAA",
+        "DAG",
+        "DAI",
+        "DAJ",
+        "DAK",
+        "DAQ",
+        "DAR",
+        "DAS",
+        "DAT",
+        "DBA",
+        "DBB",
+        "DBC",
+        "DBD",
+        "DBH",
+        "DAU"
+      ],
+      "fieldWidths": {
+        "DAK": 11,
+        "DAR": 4,
+        "DAS": 10
+      },
+      "padPostalCode": false,
+      "preserveValueCase": ["DAU"],
+      "omitFinalSeparator": true,
+      "source": "https://www.flhsmv.gov/pdf/newdl/retailguide.pdf",
+      "jurisdictionSubfile": {
+        "type": "ZF",
+        "source": "https://www.flhsmv.gov/pdf/newdl/retailguide.pdf",
+        "elements": [
+          {
+            "code": "ZFA",
+            "label": "ZFA (opaque source element)"
+          },
+          {
+            "code": "ZFB",
+            "label": "ZFB (opaque source element)"
+          },
+          {
+            "code": "ZFC",
+            "label": "ZFC (opaque source element)"
+          },
+          {
+            "code": "ZFD",
+            "label": "ZFD (opaque source element)"
+          },
+          {
+            "code": "ZFE",
+            "label": "ZFE (opaque source element)"
+          },
+          {
+            "code": "ZFF",
+            "label": "ZFF (opaque source element)"
+          }
+        ]
+      }
+    },
+    "extraFields": [
+      {
+        "code": "DBC",
+        "label": "Sex (source edition)",
+        "type": "char",
+        "required": true,
+        "options": [
+          {
+            "value": "1",
+            "label": "1"
+          },
+          {
+            "value": "2",
+            "label": "2"
+          },
+          {
+            "value": "9",
+            "label": "9"
+          }
+        ]
+      },
+      {
+        "code": "DBH",
+        "label": "DBH (historical source)",
+        "type": "char"
+      }
+    ],
+    "optionalFields": [],
+    "excludedFields": [],
+    "emitEmptyFields": ["ZFB", "ZFD", "ZFF"],
+    "preservePostalHyphen": true
+  },
+  {
+    "id": "ks-published-v09",
+    "state": "KS",
+    "iin": "636022",
+    "version": "09",
+    "subfileTypes": ["DL"],
+    "source": "https://raw.githubusercontent.com/marcdacosta/clearid/master/example%20license%20barcodes/Kansas_Transportation_Testimony_2017-01-18_39b96711f6bc3447.pdf",
+    "notes": [
+      "Government SAMPLE publication. Source bytes remain unchanged.",
+      "High-resolution copy rehosted by marcdacosta/clearid. Government document origin is corroborated by the Kansas State Library publication; original legislature URL now returns 404. The library copy has different file bytes and lower-resolution artwork."
+    ],
+    "encoding": {
+      "jurisdictionVersion": "00",
+      "elementOrder": [
+        "DAQ",
+        "DCS",
+        "DDE",
+        "DAC",
+        "DDF",
+        "DAD",
+        "DDG",
+        "DCA",
+        "DCB",
+        "DCD",
+        "DBD",
+        "DBB",
+        "DBA",
+        "DBC",
+        "DAU",
+        "DAY",
+        "DAG",
+        "DAI",
+        "DAJ",
+        "DAK",
+        "DCF",
+        "DCG",
+        "DCU",
+        "DAW",
+        "DAH",
+        "DCK",
+        "DDA",
+        "DDB",
+        "DDK",
+        "DDL"
+      ],
+      "fieldWidths": {
+        "DAK": 11
+      },
+      "padPostalCode": false,
+      "preserveValueCase": ["DAU"],
+      "omitFinalSeparator": false,
+      "source": "https://raw.githubusercontent.com/marcdacosta/clearid/master/example%20license%20barcodes/Kansas_Transportation_Testimony_2017-01-18_39b96711f6bc3447.pdf",
+      "jurisdictionSubfile": {
+        "type": "ZK",
+        "source": "https://raw.githubusercontent.com/marcdacosta/clearid/master/example%20license%20barcodes/Kansas_Transportation_Testimony_2017-01-18_39b96711f6bc3447.pdf",
+        "elements": [
+          {
+            "code": "ZKA",
+            "label": "ZKA (opaque source element)"
+          }
+        ]
+      }
+    },
+    "extraFields": [
+      {
+        "code": "DCK",
+        "label": "DCK (source edition)",
+        "type": "string"
+      },
+      {
+        "code": "DDK",
+        "label": "DDK (source edition)",
+        "type": "string"
+      }
+    ],
+    "optionalFields": [],
+    "excludedFields": [],
+    "emitEmptyFields": ["ZKA"],
+    "allowValues": {}
+  },
+  {
+    "id": "mo-published-v05",
+    "state": "MO",
+    "iin": "636030",
+    "version": "05",
+    "subfileTypes": ["DL"],
+    "source": "https://dor.mo.gov/forms/5443.pdf",
+    "notes": [
+      "Government SAMPLE publication. Source bytes remain unchanged.",
+      "Historical DDA=B and DDB=00000000 are retained in an explicit compatibility profile. The meaning of B is unverified; the zero revision date is not treated as a known calendar date."
+    ],
+    "encoding": {
+      "jurisdictionVersion": "01",
+      "elementOrder": [
+        "DAQ",
+        "DCS",
+        "DDE",
+        "DAC",
+        "DDF",
+        "DAD",
+        "DDG",
+        "DCA",
+        "DCB",
+        "DCD",
+        "DBD",
+        "DBB",
+        "DBA",
+        "DBC",
+        "DAU",
+        "DAY",
+        "DAG",
+        "DAI",
+        "DAJ",
+        "DAK",
+        "DCF",
+        "DCG",
+        "DCU",
+        "DAW",
+        "DAH",
+        "DCK",
+        "DDA",
+        "DDB",
+        "DDD",
+        "DDJ"
+      ],
+      "fieldWidths": {
+        "DAK": 11
+      },
+      "padPostalCode": false,
+      "preserveValueCase": ["DAU"],
+      "omitFinalSeparator": false,
+      "source": "https://dor.mo.gov/forms/5443.pdf",
+      "jurisdictionSubfile": {
+        "type": "ZM",
+        "source": "https://dor.mo.gov/forms/5443.pdf",
+        "elements": [
+          {
+            "code": "ZMA",
+            "label": "ZMA (opaque source element)"
+          },
+          {
+            "code": "ZMB",
+            "label": "ZMB (opaque source element)"
+          },
+          {
+            "code": "ZMC",
+            "label": "ZMC (opaque source element)"
+          },
+          {
+            "code": "ZMD",
+            "label": "ZMD (opaque source element)"
+          },
+          {
+            "code": "ZME",
+            "label": "ZME (opaque source element)"
+          },
+          {
+            "code": "ZMF",
+            "label": "ZMF (opaque source element)"
+          },
+          {
+            "code": "ZMG",
+            "label": "ZMG (opaque source element)"
+          },
+          {
+            "code": "ZMH",
+            "label": "ZMH (opaque source element)"
+          },
+          {
+            "code": "ZMI",
+            "label": "ZMI (opaque source element)"
+          },
+          {
+            "code": "ZMJ",
+            "label": "ZMJ (opaque source element)"
+          }
+        ]
+      }
+    },
+    "extraFields": [
+      {
+        "code": "DCK",
+        "label": "DCK (source edition)",
+        "type": "string"
+      },
+      {
+        "code": "DDD",
+        "label": "DDD (source edition)",
+        "type": "string"
+      },
+      {
+        "code": "DDJ",
+        "label": "DDJ (source edition)",
+        "type": "date"
+      },
+      {
+        "code": "DDA",
+        "label": "Compliance Type (historical B)",
+        "type": "string",
+        "options": [
+          {
+            "value": "F",
+            "label": "F"
+          },
+          {
+            "value": "N",
+            "label": "N"
+          },
+          {
+            "value": "B",
+            "label": "B"
+          }
+        ]
+      }
+    ],
+    "optionalFields": [],
+    "excludedFields": [],
+    "emitEmptyFields": [],
+    "allowValues": {
+      "DDB": ["00000000"]
+    }
+  },
+  {
+    "id": "pa-published-v08",
+    "state": "PA",
+    "iin": "636025",
+    "version": "08",
+    "subfileTypes": ["DL"],
+    "source": "https://web.archive.org/web/20201017140738id_/http://www.dot.state.pa.us/public/dvspubsforms/BDL/BDL%20Publications/PUB%20802.pdf",
+    "notes": [
+      "Government SAMPLE publication. Source bytes remain unchanged.",
+      "Government publication PUB 802 (7-17), recovered through Internet Archive capture dated 2020-10-17. Live source paths are unavailable.",
+      "Source ZP contains an extra segment terminator before ZPD. The positive fixture will explicitly canonicalize that framing byte and update the directory length; raw source remains unchanged in intake."
+    ],
+    "encoding": {
+      "jurisdictionVersion": "00",
+      "elementOrder": [
+        "DAQ",
+        "DCS",
+        "DDE",
+        "DAC",
+        "DDF",
+        "DAD",
+        "DDG",
+        "DCA",
+        "DCB",
+        "DCD",
+        "DBD",
+        "DBB",
+        "DBA",
+        "DBC",
+        "DAU",
+        "DAY",
+        "DAG",
+        "DAI",
+        "DAJ",
+        "DAK",
+        "DCF",
+        "DCG",
+        "DCK",
+        "DDB",
+        "DDK",
+        "DDL"
+      ],
+      "fieldWidths": {
+        "DAK": 11
+      },
+      "padPostalCode": false,
+      "preserveValueCase": ["DAU"],
+      "omitFinalSeparator": false,
+      "source": "https://web.archive.org/web/20201017140738id_/http://www.dot.state.pa.us/public/dvspubsforms/BDL/BDL%20Publications/PUB%20802.pdf",
+      "jurisdictionSubfile": {
+        "type": "ZP",
+        "source": "https://web.archive.org/web/20201017140738id_/http://www.dot.state.pa.us/public/dvspubsforms/BDL/BDL%20Publications/PUB%20802.pdf",
+        "elements": [
+          {
+            "code": "ZPA",
+            "label": "ZPA (opaque source element)"
+          },
+          {
+            "code": "ZPB",
+            "label": "ZPB (opaque source element)"
+          },
+          {
+            "code": "ZPC",
+            "label": "ZPC (opaque source element)"
+          },
+          {
+            "code": "ZPD",
+            "label": "ZPD (opaque source element)"
+          }
+        ]
+      }
+    },
+    "extraFields": [
+      {
+        "code": "DCK",
+        "label": "DCK (source edition)",
+        "type": "string"
+      },
+      {
+        "code": "DDK",
+        "label": "DDK (source edition)",
+        "type": "string"
+      }
+    ],
+    "optionalFields": [],
+    "excludedFields": [],
+    "emitEmptyFields": [],
+    "allowValues": {}
+  },
+  {
+    "id": "sc-public-retailer-legacy-v01",
+    "state": "SC",
+    "iin": "636005",
+    "version": "01",
+    "subfileTypes": ["DL"],
+    "source": "https://dmv.sc.gov/sites/scdmv/files/media/Files/DL-Barcode-Reatiler-%28002%29.pdf",
+    "notes": [
+      "Public retailer specimen uses the historical 19-byte header and numeric sex code. Source 0x1c record separator and inconsistent directory are preserved in intake; the canonicalized fixture repairs only framing. Numeric sex interpretation remains scoped to the published specimen."
+    ],
+    "encoding": {
+      "legacyHeader": true,
+      "jurisdictionVersion": "",
+      "elementOrder": [
+        "DAQ",
+        "DAA",
+        "DAG",
+        "DAI",
+        "DAJ",
+        "DAK",
+        "DAR",
+        "DAS",
+        "DAT",
+        "DAU",
+        "DAW",
+        "DAY",
+        "DAZ",
+        "DBA",
+        "DBB",
+        "DBC",
+        "DBD",
+        "DBG",
+        "DBH"
+      ],
+      "fieldWidths": {
+        "DAK": 11,
+        "DAR": 4,
+        "DAS": 10,
+        "DAT": 5,
+        "DAY": 3,
+        "DAZ": 3
+      },
+      "padPostalCode": false,
+      "omitFinalSeparator": true,
+      "source": "https://dmv.sc.gov/sites/scdmv/files/media/Files/DL-Barcode-Reatiler-%28002%29.pdf"
+    },
+    "extraFields": [
+      {
+        "code": "DBC",
+        "label": "Sex (source edition)",
+        "type": "char",
+        "required": true,
+        "options": [
+          {
+            "value": "1",
+            "label": "1"
+          },
+          {
+            "value": "2",
+            "label": "2"
+          },
+          {
+            "value": "9",
+            "label": "9"
+          }
+        ]
+      },
+      {
+        "code": "DAZ",
+        "label": "DAZ (historical source)",
+        "type": "string"
+      },
+      {
+        "code": "DBG",
+        "label": "DBG (historical source)",
+        "type": "string"
+      },
+      {
+        "code": "DBH",
+        "label": "DBH (historical source)",
+        "type": "string"
+      }
+    ],
+    "optionalFields": [],
+    "excludedFields": [],
+    "emitEmptyFields": ["DAS", "DAT", "DAY", "DAZ"]
+  }
+]

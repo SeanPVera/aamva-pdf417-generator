@@ -3,6 +3,10 @@ import bwipjs from "bwip-js";
 import { Maximize2 } from "lucide-react";
 import { useFormStore } from "../hooks/useFormStore";
 import { getFieldsForStateAndVersion } from "../core/schema";
+import {
+  activeObservedEncodingProfile,
+  OBSERVED_ENCODING_PROFILES
+} from "../core/observedProfiles";
 import { decodeAAMVA } from "../core/decoder";
 import { getValidationIssues } from "../core/validation";
 import { getQuickFixes, type QuickFix } from "../core/quickFix";
@@ -328,7 +332,13 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
     : [];
 
   // Validation report
-  const schemaFields = getFieldsForStateAndVersion(state, version, subfileType);
+  const encodingProfileId = activeObservedEncodingProfile(
+    sourcePayload,
+    state,
+    version,
+    subfileType
+  );
+  const schemaFields = getFieldsForStateAndVersion(state, version, subfileType, encodingProfileId);
   const issues = getValidationIssues(schemaFields, fields, state, strictMode, subfileType);
 
   const emptyRequired = schemaFields.filter((f) => f.required && !(fields[f.code] || "").trim());
@@ -467,6 +477,24 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
             </button>
           </div>
         </div>
+
+        {encodingProfileId && (
+          <details className="m-3 rounded border border-amber-300 p-3 text-sm">
+            <summary>Using the scanned document's observed layout</summary>
+            <p>{encodingProfileId}</p>
+            {OBSERVED_ENCODING_PROFILES.find(
+              (profile) => profile.id === encodingProfileId
+            )?.notes.map((note) => (
+              <p key={note}>{note}</p>
+            ))}
+          </details>
+        )}
+        {version === "12" && fields.SIG && (
+          <p className="m-3 text-sm">
+            This signature has not been verified against an issuer certificate. Editing covered data
+            requires a new signature.
+          </p>
+        )}
 
         <BarcodeCanvas
           canvasRef={canvasRef}

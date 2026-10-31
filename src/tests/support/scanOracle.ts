@@ -17,15 +17,23 @@
  * the shipped bundle.
  */
 import bwipjs from "bwip-js";
+import { TextDecoder as NodeTextDecoder } from "node:util";
 import {
   BinaryBitmap,
   DecodeHintType,
   HybridBinarizer,
   PDF417Reader,
-  RGBLuminanceSource
+  RGBLuminanceSource,
+  ZXingStringEncoding
 } from "@zxing/library";
 
 import { PDF417_ENCODER_OPTIONS } from "../../core/barcodeDimensions";
+
+// ZXing-JS's legacy Node fallback routes Latin-1 through decodeURIComponent,
+// which rejects valid single-byte accents. Use its documented decoder hook for
+// the character-set conversion; PDF417 symbol recovery remains independent.
+ZXingStringEncoding.customDecoder = (bytes, encoding) =>
+  new NodeTextDecoder(encoding).decode(bytes);
 
 /** A PDF417 symbol as a grid of 1 (bar) / 0 (space) modules, row-major. */
 export interface ModuleMatrix {

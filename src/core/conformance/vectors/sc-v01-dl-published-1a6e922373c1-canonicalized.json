@@ -1,0 +1,58 @@
+{
+  "id": "sc-v01-dl-published-1a6e922373c1-canonicalized",
+  "state": "SC",
+  "version": "01",
+  "subfileType": "DL",
+  "encodingProfileId": "sc-public-retailer-legacy-v01",
+  "description": "Public retailer specimen with explicitly documented framing repairs.",
+  "provenance": {
+    "tier": "published",
+    "source": "https://dmv.sc.gov/sites/scdmv/files/media/Files/DL-Barcode-Reatiler-%28002%29.pdf",
+    "capturedAt": "2026-10-31",
+    "verifiedBy": "Codex: fresh ZXing-C++ 3.1.1 image decode; source and payload hashes match original capture; recorded framing edits independently checked.",
+    "fidelity": "canonicalized",
+    "sourceSha256": "972f1aae462e222e2135be607d8b7e70aa3cdd7ef9ebba6458ba8c2b259c96db",
+    "payloadSha256": "1a6e922373c1c4d697ab75dcd047fa6a47ea94a09c9d696a1b1a23cd1fd433fc",
+    "evidenceImageSha256": "12193c89e72511c2f2481fcec7bac79ebc55553b193a95d09c8c5d1c9606cb00",
+    "notes": "Original 0x1c record separator, declared offset 0030, and length 0201 remain unchanged in intake. Fixture uses 0x1e, actual offset 0029, and actual subfile length 0203. All field bytes are unchanged. Numeric sex code is a scoped source-compatibility exception.",
+    "transformations": [
+      {
+        "offset": 2,
+        "removeLength": 1,
+        "insert": "\u001e"
+      },
+      {
+        "offset": 21,
+        "removeLength": 4,
+        "insert": "0029"
+      },
+      {
+        "offset": 25,
+        "removeLength": 4,
+        "insert": "0203"
+      }
+    ]
+  },
+  "input": {
+    "DAQ": "102245737",
+    "DAA": "SAMPLE,DRIVER,CREDENTIAL,",
+    "DAG": "1500 PARK ST",
+    "DAI": "COLUMBIA",
+    "DAJ": "SC",
+    "DAK": "292012731",
+    "DAR": "D",
+    "DAS": "",
+    "DAT": "",
+    "DAU": "600",
+    "DAW": "200",
+    "DAY": "",
+    "DAZ": "",
+    "DBA": "20190928",
+    "DBB": "19780928",
+    "DBC": "1",
+    "DBD": "20091026",
+    "DBG": "2",
+    "DBH": "1"
+  },
+  "expectedBytes": "@\n\u001e\rANSI 6360050101DL00290203DLDAQ102245737\nDAASAMPLE,DRIVER,CREDENTIAL,\nDAG1500 PARK ST\nDAICOLUMBIA\nDAJSC\nDAK292012731  \nDARD   \nDAS          \nDAT     \nDAU600\nDAW200\nDAY   \nDAZ   \nDBA20190928\nDBB19780928\nDBC1\nDBD20091026\nDBG2\nDBH1\r"
+}

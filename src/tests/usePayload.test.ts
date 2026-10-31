@@ -3,6 +3,7 @@ import { act, renderHook } from "@testing-library/react";
 import { usePayload } from "../hooks/usePayload";
 import { useFormStore } from "../hooks/useFormStore";
 import { decodeAAMVA } from "../core/decoder";
+import intake from "../core/conformance/published/2026-10-25.json";
 
 /** A complete, explicitly entered CA v10 form. */
 const CA_FORM: Record<string, string> = {
@@ -44,6 +45,7 @@ describe("usePayload", () => {
       version: "10",
       strictMode: true,
       subfileType: "DL",
+      sourcePayload: null,
       fields: {}
     });
   });
@@ -59,6 +61,21 @@ describe("usePayload", () => {
     });
     return result.current;
   }
+
+  it("uses the source's recognized observed layout for a scanned Virginia ID", async () => {
+    const source = intake.payloads.find(
+      (payload) => payload.id === "va-published-91e87b7a2de5"
+    )!.rawBytesLatin1;
+    const decoded = decodeAAMVA(source);
+    act(() => {
+      useFormStore.getState().loadJson(decoded.json!, source);
+      useFormStore.getState().setStrictMode(false);
+    });
+    const { result } = renderHook(() => usePayload());
+    expect((await settle(result)).payload).toBe(source);
+    act(() => useFormStore.getState().setStateVersion("CA", "10"));
+    expect((await settle(result)).payload).not.toBe(source);
+  });
 
   it("keeps an explicitly entered discriminator stable across edits", async () => {
     // The generator minted a new DCF on every debounced re-encode, so the

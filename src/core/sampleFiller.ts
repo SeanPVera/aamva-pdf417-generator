@@ -69,20 +69,30 @@ export function buildSampleFill(
   stateCode?: string
 ): Record<string, string> {
   const out: Record<string, string> = {};
+  const isVersion12 = schemaFields.some((field) => field.code === "SIG");
+  const issueDate = isVersion12 ? "10312026" : SAMPLE_ISSUE_DATE;
 
   const licenseNumber = stateCode ? AAMVA_STATE_RULES[stateCode]?.generators?.DAQ?.() : undefined;
 
   // Keep the sample's validity window inside the jurisdiction's own cap; 5
   // years is the app's default term where the jurisdiction allows at least that.
   const maxValidity = getEffectiveDateRules(stateCode ?? "").maxValidityYears ?? 5;
-  const expiry = addYears(SAMPLE_ISSUE_DATE, Math.min(5, maxValidity));
+  const expiry = addYears(issueDate, Math.min(5, maxValidity));
 
   for (const field of schemaFields) {
     let value = SAMPLE_FILL_VALUES[field.code];
     if (field.code === "DAQ" && licenseNumber) value = licenseNumber;
     if (field.code === "DBA") value = expiry;
+    if (isVersion12 && field.code === "DBD") value = issueDate;
+    if (isVersion12 && field.code === "DDB") value = "10012026";
     if (field.code === "DAJ" && stateCode) value = stateCode;
     if (field.code === "DCA" && stateCode) value = regularClassFor(stateCode);
+    if (
+      value !== undefined &&
+      field.options?.length &&
+      !field.options.some((option) => option.value === value)
+    )
+      continue;
     if (value !== undefined && value !== "") out[field.code] = value;
   }
   return out;

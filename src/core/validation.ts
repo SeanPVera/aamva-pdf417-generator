@@ -1,6 +1,8 @@
 import { AAMVAField, AAMVA_FIELD_OPTIONS, getEffectiveMaxLength } from "./schema";
 import { AAMVA_STATES } from "./states";
 import { secureGetRandomInt } from "./crypto";
+import { decodeSignatureAscii85, parseSignatureCoverage } from "./signatureEncoding";
+import { isPrintableWireValue } from "./wireEncoding";
 
 // ---------------------------------------------------------------------------
 // Static regex patterns — hoisted once at module load to avoid per-call
@@ -105,6 +107,7 @@ const alnum = (n: number) => {
 };
 
 const VERSION_ERA_RANGES: Record<string, [number, number]> = {
+  "12": [2026, 2031],
   "11": [2025, 2030],
   "10": [2019, 2024],
   "09": [2015, 2020],
@@ -289,8 +292,19 @@ export const AAMVA_STATE_RULES: Record<string, StateRules> = (() => {
 export function validateFieldValue(field: AAMVAField, value: string, stateCode?: string): boolean {
   if (field.required && !value.trim()) return false;
   if (!value) return true;
-  if (/[^\x20-\x7e]/.test(value)) return false;
+  if (!isPrintableWireValue(value, field.characterSet === "latin1")) return false;
   if (field.code === "DAJ" && !/^[A-Z]{2}$/.test(value)) return false;
+  if (field.allowedSentinels?.includes(value)) return true;
+  if (field.fixedLength !== undefined && value.length !== field.fixedLength) return false;
+  if (field.pattern && !new RegExp(field.pattern).test(value)) return false;
+  if (field.code === "SIG" || field.code === "SCV") {
+    try {
+      if (field.code === "SIG") decodeSignatureAscii85(value);
+      else parseSignatureCoverage(value);
+    } catch {
+      return false;
+    }
+  }
 
   const allowedValues = getAllowedSet(field);
   if (allowedValues && !allowedValues.has(value)) return false;
@@ -417,6 +431,16 @@ export function validateCrossFieldConsistency(
   subfileType: "DL" | "ID" = "DL"
 ): CrossFieldValidationIssue[] {
   const issues: CrossFieldValidationIssue[] = [];
+
+  if (fields.some((field) => field.code === "DDM") && dataObj.DDN && dataObj.DDM !== "1") {
+    issues.push({
+      code: "DDN",
+      label: "Non-Domiciled Indicator",
+      kind: "invalid",
+      severity: "error",
+      message: "DDN requires the CDL indicator DDM=1."
+    });
+  }
 
   // Single-pass Map built once; replaces 4 separate Array.find() calls.
   const dateFormats = buildDateFormatMap(fields);
@@ -616,12 +640,11 @@ export function evaluateFieldValue(
     return { ok: false, severity: "error", message: "Required field is empty." };
   }
   if (!value) return { ok: true, severity: "info" };
-  if (/[^\x20-\x7e]/.test(value)) {
+  if (!isPrintableWireValue(value, field.characterSet === "latin1")) {
     return {
       ok: false,
       severity: "error",
-      message:
-        "This generator supports printable ASCII. Edit unsupported characters explicitly; input is kept unchanged."
+      message: `This edition supports printable ${field.characterSet === "latin1" ? "ISO-8859-1" : "ASCII"}. Edit unsupported characters explicitly; input is kept unchanged.`
     };
   }
 

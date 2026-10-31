@@ -1,44 +1,23 @@
-# AAMVA Compliance Matrix (Implementation-Focused)
+# AAMVA compliance evidence
 
-This matrix tracks implementation coverage in this repository. It is **not** a certification artifact.
+As of October 31, 2026, the implementation has passing external fixtures for **13/55 jurisdictions**, plus standards-based version 12 checks across all 55. The all-jurisdiction issuer-reference objective remains open. This is an implementation evidence matrix; certification has not been established.
 
-## Current gates implemented
+| Check | Evidence | Limit |
+| --- | --- | --- |
+| IIN assignments | All 55 match the captured primary AAMVA registry | Default edition values remain application profile assumptions |
+| External byte comparisons | 26 references, 13 jurisdictions, 17 state/version/type combinations | 21 source-exact, 2 anonymized, 3 canonicalized |
+| Public observation intake | 35 unique decoded payloads from 21 jurisdictions | Source defects remain visible and excluded from passing claims |
+| Version 12 | 2026 active fields, DL/ID applicability, Latin-1 wire bytes, SIG/SCV handling | Zero independently sourced issuer v12 references |
+| Independent normative oracle | Python-built v12 DL and ID expectations for every jurisdiction | Synthetic standards evidence |
+| Rendered symbols | ZXing read-back for corpus fixtures, default strict profiles, and all 110 v12 expectations | Ideal digital images; no device or printed-card certification |
+| Signatures | P-256/SHA-256, 64-byte raw signatures, 80-character ASCII85, full and partial coverage | Caller-supplied key only; issuer certificate trust remains external |
+| Legacy decoding | v01 headers, observed separator, prefix space, directory drift, recorded source diagnostics | Strict validation preserves malformed-source rejection |
+| Preservation | Original corpus inputs and expected bytes retained; source framing transformations explicit | Anonymized and canonicalized layouts remain distinct from raw source parity |
 
-- [x] Payload framing and directory structure validation in strict mode.
-- [x] Required field presence by schema version.
-- [x] Jurisdiction profile version enforcement in strict mode.
-- [x] Cross-field date chronology checks (birth/issue/expiry).
-- [x] Strict-mode blocking of warning-level cross-field issues.
-- [x] Supported-jurisdiction strict generation smoke test coverage.
-- [x] Independent read-back of the rendered symbol: every jurisdiction's barcode is decoded by ZXing (an implementation unrelated to ours) and compared byte-for-byte with the payload. See `src/tests/scanOracle.test.ts`.
-- [x] Provenance tiers on every conformance vector, so self-generated baselines cannot be mistaken for external evidence. See `src/core/conformance/README.md`.
-- [x] Multi-subfile payloads: the header directory is written and read for N entries, not one, including jurisdiction-defined `Z*` subfiles. Connecticut ships one.
-- [x] Per-jurisdiction encoding profiles recording where an issuer's wire format departs from the spec default (jurisdiction version, element order, postal-code padding, jurisdiction subfile). See `encoding` in `src/core/jurisdictionRules.ts`. Profiles exist for CT and NY, both from decoded cards.
-- [x] Jurisdiction version number written from the issuer's profile rather than a hardcoded `00`.
-- [x] Byte-level accounting for any payload: declared vs. accounted vs. unaccounted bytes per subfile, values that arrived space-filled, and elements outside the version's field table. See `src/core/inspect.ts` and the Wire Ledger panel.
+See the [55-jurisdiction coverage ledger and source qualifications](../src/core/conformance/COVERAGE-2026-10-31.md) and [machine-readable ledger](../src/core/conformance/coverage-ledger-2026-10-31.json). The [October 25 investigation](../src/core/conformance/COVERAGE-2026-10-25.md) remains a historical snapshot.
 
-## Remaining work to approach certification-readiness
+Named observed encoding profiles apply only to their matching issuer, edition, and document type. They preserve unusual field order, fixed padding, empty elements, historical fields, and opaque jurisdiction subfiles without replacing generic defaults. Compatibility exceptions appear in their notes.
 
-- [ ] Jurisdiction-specific required/optional field overrides validated against authoritative source docs.
-- [ ] Jurisdiction-specific format validators (e.g., ID patterns, edge-case date semantics).
-- [ ] **Conformance vectors sourced from outside this implementation** (AAMVA-published test cards or anonymised issued credentials). Currently 2 of 55 jurisdictions — Connecticut and New York, from anonymized decoded issued layouts; `npm run conformance:report` prints the live figure. For the other 53, no test in this repo can distinguish "our encoder is correct" from "our encoder is unchanged".
-- [ ] Provenance and as-of dates on the jurisdiction data itself (IINs and default AAMVA version in `states.ts`, rule packs in `jurisdictionRules.ts`), which currently carry no source citations.
-- [x] A reproducible byte layout for the decoded New York card. **Fixture reproduction verified; not an issuer-wide certification.** The wire ledger measured the card's own bytes: 100 bytes of space fill across ten elements, at widths that are mostly New York's own rather than AAMVA's (names to 25 where the spec allows 40, vehicle class to 4 where it allows 6), plus a final element in each subfile closed by the segment terminator alone with no separator before it. With those in NY's encoding profile the generator reproduces the card's directory exactly — DL at 41 declaring 323, ZN at 364 declaring 120, 484 bytes total. The earlier falsification result held up: padding to *AAMVA* widths was correctly ruled out, because the widths are NY's own. A second card (2026-09-27, `ny-v10-dl-issued-znb-fill.json`) matched that layout exactly and added one width: its `ZNB` held 89 characters and a space, so NY space-fills `ZNB` to 90.
-- [ ] A third reading of `DAK` padding. Connecticut emits a bare 9-digit ZIP; New York space-fills to the spec's 11. Two issuers, two behaviours, so the spec default stands and each is recorded from its own card — but the sample is still two.
-- [ ] Scanner interoperability matrix across major decoding engines and mobile/desktop devices (the ZXing oracle covers one engine, in software, at ideal contrast).
-- [ ] Formal release evidence package (traceability from requirement -> test -> release).
-- [ ] External legal/compliance review and acceptance criteria sign-off.
+Remaining evidence work includes passing source references for the other 42 jurisdictions, additional editions and ID cards within covered jurisdictions, signed issuer v12 payloads with trusted public certificates, scanner/device interoperability, and physical print assessment. The current corpus contains one ID combination, Virginia v10. A passing DL fixture establishes no ID layout.
 
-## How to run current compliance checks
-
-```bash
-npx vitest run src/tests/complianceProfile.test.ts
-npx vitest run src/tests/strictComplianceMatrix.test.ts
-npx vitest run src/tests/scanOracle.test.ts          # independent barcode read-back
-npx vitest run src/tests/conformanceProvenance.test.ts
-npm run conformance:report                           # real-world coverage figure
-```
-
-## September 2026 audit boundary
-
-See [the engineering and design audit](AUDIT_2026-09-24.md) for evidence and remaining uncertainty. Confirmed repairs include independent address jurisdiction (DAJ), v10/v11 ID exclusion of DL-only DCA/DCB/DCD, strict directory accounting, truncation/duplicate rejection, and preservation of opaque extension bytes. The current generator deliberately rejects unsupported non-ASCII input instead of silently deleting it. Full ISO-8859-1 generation and older-version ID field distinctions remain unverified. The app's strict issuer/version rule is a profile assumption, not an AAMVA prohibition on older cards.
+Run `npm run conformance:report` for the current inventory, then `npm run test:run` and `npm run test:coverage` for exercised comparisons. Static validation, production build, formatting, and bundle budgets are separate release checks.

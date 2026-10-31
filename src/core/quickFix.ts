@@ -182,7 +182,12 @@ interface Candidate {
  * more specific; the first one that validates wins.
  */
 function buildCandidates(field: AAMVAField, value: string): Candidate[] {
-  if (field.subfile === "jurisdiction" || field.code.startsWith("Z") || /[^\x20-\x7e]/.test(value))
+  if (
+    field.opaque ||
+    field.subfile === "jurisdiction" ||
+    field.code.startsWith("Z") ||
+    /[^\x20-\x7e]/.test(value)
+  )
     return [];
   const candidates: Candidate[] = [];
   const clean = sanitize(value);
