@@ -289,6 +289,12 @@ export const AAMVA_STATE_RULES: Record<string, StateRules> = (() => {
  * accepted, forwarded by two callers, and then completely ignored. Severity and
  * strict-mode promotion live in `evaluateFieldValue`.
  */
+function matchesJurisdictionFormat(field: AAMVAField, value: string, stateCode?: string): boolean {
+  if (field.jurisdictionPattern) return new RegExp(field.jurisdictionPattern).test(value);
+  const validator = stateCode ? AAMVA_STATE_RULES[stateCode]?.validators?.[field.code] : undefined;
+  return validator ? validator(value) : true;
+}
+
 export function validateFieldValue(field: AAMVAField, value: string, stateCode?: string): boolean {
   if (field.required && !value.trim()) return false;
   if (!value) return true;
@@ -312,12 +318,7 @@ export function validateFieldValue(field: AAMVAField, value: string, stateCode?:
   const maxLen = getMaxLength(field);
   if (maxLen && value.length > maxLen) return false;
 
-  if (stateCode && AAMVA_STATE_RULES[stateCode]?.validators) {
-    const validator = AAMVA_STATE_RULES[stateCode].validators![field.code];
-    if (validator && !validator(value)) {
-      return false;
-    }
-  }
+  if (!matchesJurisdictionFormat(field, value, stateCode)) return false;
 
   switch (field.type) {
     case "date": {
@@ -666,15 +667,12 @@ export function evaluateFieldValue(
     };
   }
 
-  if (stateCode) {
-    const stateValidator = AAMVA_STATE_RULES[stateCode]?.validators?.[field.code];
-    if (stateValidator && !stateValidator(value)) {
-      return {
-        ok: false,
-        severity: "error",
-        message: `Invalid format for ${stateCode} ${field.label}.`
-      };
-    }
+  if (!matchesJurisdictionFormat(field, value, stateCode)) {
+    return {
+      ok: false,
+      severity: "error",
+      message: `Invalid format for ${stateCode ? `${stateCode} ` : ""}${field.label}.`
+    };
   }
 
   if (!validateFieldValue(field, value, stateCode)) {
@@ -701,6 +699,10 @@ export function evaluateFieldValue(
       let worst: FieldEvaluation | null = null;
       for (const c of pack.constraints) {
         if (c.field !== field.code) continue;
+        // A named observed edition replaces the shared current format for
+        // this element only. Size, required fields, and cross-field rules
+        // continue to apply; the edition's regex was checked above.
+        if (c.pattern && field.jurisdictionPattern) continue;
         if (c.pattern && !c.pattern.test(value)) {
           if (c.severity === "error") {
             return { ok: false, severity: "error", message: c.message };

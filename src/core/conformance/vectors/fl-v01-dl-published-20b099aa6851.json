@@ -1,0 +1,42 @@
+{
+  "id": "fl-v01-dl-published-20b099aa6851",
+  "state": "FL",
+  "version": "01",
+  "subfileType": "DL",
+  "encodingProfileId": "fl-public-training-legacy-v01",
+  "description": "Independent public training template, with explicit publisher qualification.",
+  "provenance": {
+    "tier": "published",
+    "source": "https://wolnekonopie.org/wp-content/uploads/2020/06/Police-ID-Guide-to-Security-Features.pdf",
+    "capturedAt": "2026-10-31",
+    "verifiedBy": "Codex: independent ZXing-C++ 3.1.1 image decode, Python directory/field inspection and byte comparison.",
+    "fidelity": "unmodified-source",
+    "sourceSha256": "5d2c4f6b45a15dd7d85b64cc699075513dbfee82322e1c0016ff5f22a87ba395",
+    "payloadSha256": "20b099aa68510505c12503da1bc120215c2ebe3285926eb11cb59a7652192b9f",
+    "evidenceImageSha256": "bcf038a41004a0e2d8d3311550948d06205ae22eccc1a6c3d7b9bb2e66c4d8f5",
+    "notes": "PDF page 30. Public training image with literal dummy names and sequence identifiers. Third-party rehost; direct issuer source is unverified. Only the dummy barcode crop is redistributed."
+  },
+  "input": {
+    "DAQ": "S514-172-80-844-0",
+    "DAA": "LASTNAME,FIRSTNAME,MIDDLENAME",
+    "DAG": "3456 SOMEWHERE AVE",
+    "DAI": "TALLAHASSEE",
+    "DAJ": "FL",
+    "DAK": "32399-0000",
+    "DAR": "D",
+    "DAS": "BF",
+    "DAT": "P",
+    "DAU": "508",
+    "DBD": "20030816",
+    "DBA": "20070816",
+    "DBB": "19800816",
+    "DBC": "1",
+    "DBH": "Y",
+    "ZFA": "DUPLICATE: 08-16-2003",
+    "ZFB": "IGNITION INTERLOCK UNTIL: 00-00-00",
+    "ZFC": "EMPLOYMENT ONLY UNTIL: 00-00-00",
+    "ZFD": "Q123456789000",
+    "ZFE": "MOTORCYCLE ALSO"
+  },
+  "expectedBytes": "@\n\u001e\rANSI 6360100102DL00390243ZF02820137DLDAQS514-172-80-844-0        \nDAALASTNAME,FIRSTNAME,MIDDLENAME \nDAG3456 SOMEWHERE AVE                 \nDAITALLAHASSEE         \nDAJFL\nDAK32399-0000 \nDARD   \nDASBF        \nDATP    \nDAU508\nDBD20030816\nDBA20070816\nDBB19800816\nDBC1\nDBHY         \n\rZFZFADUPLICATE: 08-16-2003\nZFBIGNITION INTERLOCK UNTIL: 00-00-00\nZFCEMPLOYMENT ONLY UNTIL: 00-00-00\nZFDQ123456789000\nZFEMOTORCYCLE ALSO\n\r"
+}

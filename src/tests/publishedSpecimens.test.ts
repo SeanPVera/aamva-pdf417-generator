@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import { decodeAAMVAFormat } from "../core/decoder";
 import intakeData from "../core/conformance/published/2026-10-25.json";
 import additions from "../core/conformance/published/2026-10-31.json";
+import continuation from "../core/conformance/published/2026-10-31-continuation.json";
 import { loadVectors } from "./support/conformanceVectors";
 
 interface PublishedSpecimen {
@@ -50,7 +51,10 @@ describe("independently scanned published specimens", () => {
 
   it("promotes source bytes into positive vectors without changing their evidence", () => {
     const byHash = new Map(
-      [...specimens, ...additions.payloads].map((specimen) => [specimen.sha256, specimen])
+      [...specimens, ...additions.payloads, ...continuation.payloads].map((specimen) => [
+        specimen.sha256,
+        specimen
+      ])
     );
     for (const vector of loadVectors().filter((entry) => entry.provenance.tier === "published")) {
       const source = byHash.get(vector.provenance.payloadSha256 ?? "");

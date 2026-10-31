@@ -20,7 +20,7 @@ import {
  * synthetic baselines or no passing reference. Coverage applies to the observed
  * layouts, not every edition or document type issued by these jurisdictions.
  */
-const MIN_REAL_WORLD_JURISDICTIONS = 13;
+const MIN_REAL_WORLD_JURISDICTIONS = 15;
 
 describe("conformance vector provenance", () => {
   const vectors = loadVectors();
@@ -50,7 +50,7 @@ describe("conformance vector provenance", () => {
   it("keeps source-byte parity distinct from transformed layouts", () => {
     const report = computeCoverage(vectors, Object.keys(AAMVA_STATES));
     expect(report.byFidelity).toEqual({
-      "unmodified-source": 21,
+      "unmodified-source": 24,
       anonymized: 2,
       canonicalized: 3
     });

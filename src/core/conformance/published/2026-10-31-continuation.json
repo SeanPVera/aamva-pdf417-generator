@@ -1,0 +1,441 @@
+{
+  "schemaVersion": 1,
+  "capturedAt": "2026-10-31",
+  "scope": "Continuation: independently decoded public specimens with explicit source qualifications. Source-layout fixtures do not establish issuer or standards certification.",
+  "sources": [
+    {
+      "id": "mt-retailer-2016",
+      "jurisdiction": "MT",
+      "sourceUrl": "https://www.idscanner.com/wp-content/uploads/2016/02/MT-DL-Brochure.pdf",
+      "capturedAt": "2026-10-31",
+      "resolvedUrl": "https://www.idscanner.com/wp-content/uploads/2016/02/MT-DL-Brochure.pdf",
+      "sha256": "0077db96e45ade43242226b84e08ea91e7a29732deb6fa4a95e4bb6ff91feb5a",
+      "bytes": 1367460,
+      "pages": 2,
+      "status": "downloaded",
+      "publisherClass": "government-specimen-rehosted",
+      "corroboratingPublication": "https://dojmt.gov/535623b46b968b7dd9fa6769a31de46b/"
+    },
+    {
+      "id": "co-university-2024",
+      "jurisdiction": "CO",
+      "sourceUrl": "https://www.du.edu/sites/default/files/2024-08/Section%202%20%20-%20Supervisor%20Verification%20Process%20Manual%208.1.2024.pdf",
+      "capturedAt": "2026-10-31",
+      "resolvedUrl": "https://www.du.edu/sites/default/files/2024-08/Section%202%20%20-%20Supervisor%20Verification%20Process%20Manual%208.1.2024.pdf",
+      "sha256": "c69d8b60ec05a26f6ff90736e9e7c9b76406a7164a1e870d0668130a4fff1862",
+      "bytes": 994997,
+      "pages": 6,
+      "status": "downloaded",
+      "publisherClass": "public-education-specimen-rehost",
+      "corroboratingPublication": "https://content.leg.colorado.gov/sites/default/files/images/dmv_update_to_tlrc_sep_20_2022_v2.pdf"
+    },
+    {
+      "id": "ca-ssj-2021",
+      "sourceUrl": "https://ssjlaw.com/wp-content/uploads/SSJ_Fake_ID_Guide.pdf",
+      "capturedAt": "2026-10-31",
+      "resolvedUrl": "https://ssjlaw.com/wp-content/uploads/SSJ_Fake_ID_Guide.pdf",
+      "sha256": "f08543cbdd34a5a8fd262e535df60298b797048d9f8df7895e0ed62f39415de7",
+      "bytes": 8370803,
+      "pages": 10,
+      "jurisdiction": "CA",
+      "status": "downloaded",
+      "publisherClass": "third-party-training-specimen",
+      "sourceArtifactRetained": false
+    },
+    {
+      "id": "public-id-security-guide",
+      "sourceUrl": "https://wolnekonopie.org/wp-content/uploads/2020/06/Police-ID-Guide-to-Security-Features.pdf",
+      "capturedAt": "2026-10-31",
+      "resolvedUrl": "https://wolnekonopie.org/wp-content/uploads/2020/06/Police-ID-Guide-to-Security-Features.pdf",
+      "sha256": "5d2c4f6b45a15dd7d85b64cc699075513dbfee82322e1c0016ff5f22a87ba395",
+      "bytes": 2766276,
+      "pages": 53,
+      "jurisdiction": "FL",
+      "status": "downloaded",
+      "publisherClass": "third-party-training-specimen",
+      "sourceArtifactRetained": false
+    },
+    {
+      "id": "il-public-gallery-legacy",
+      "sourceUrl": "https://usid.fyi/uploads/879fd9a171aca509fccebead295a5f15.webp?v=1782407560",
+      "capturedAt": "2026-10-31",
+      "resolvedUrl": "https://usid.fyi/uploads/879fd9a171aca509fccebead295a5f15.webp?v=1782407560",
+      "sha256": "1a66a0009d10b1b61ecb8ebcd34445d1da2173e46c386b814e88d65238700bee",
+      "bytes": 45486,
+      "pages": 1,
+      "jurisdiction": "IL",
+      "status": "downloaded",
+      "publisherClass": "public-gallery-unverified-issuer-origin"
+    }
+  ],
+  "payloads": [
+    {
+      "id": "mt-published-fdecdc5308f0",
+      "jurisdiction": "MT",
+      "sourceId": "mt-retailer-2016",
+      "sourceUrl": "https://www.idscanner.com/wp-content/uploads/2016/02/MT-DL-Brochure.pdf",
+      "sourceSha256": "0077db96e45ade43242226b84e08ea91e7a29732deb6fa4a95e4bb6ff91feb5a",
+      "sourcePage": 2,
+      "acquisition": {
+        "page": 2,
+        "method": "render",
+        "dpi": 300
+      },
+      "byteLength": 386,
+      "sha256": "fdecdc5308f0e1294774c5239724f56b0e5cbf1fe05c6b896e79300522fd36e7",
+      "rawBytesLatin1": "@\n\u001e\rANSI 636008080002DL00410291ZM03320054DLDAQ0812319684104\nDCSSAMPLE\nDDEU\nDACBRENDA\nDDFU\nDADLYNN\nDDGU\nDCAD\nDCBYES\nDCDNONE\nDBD02152015\nDBB08041968\nDBA08042023\nDBC2\nDAU067 IN\nDAYBRO\nDAG123 MAIN STREET\nDAIHELENA\nDAJMT\nDAK596010000  \nDCF123456789012345678901234567890\nDCGUSA\nDAW150\nDCK6DXOKOA9MTW6XM01\nDDAF\nDDB03012015\nDDD1\nDDK1\nDDL1\n\rZMZMA1\nZMB123456789012345\nZMCLIVING WILL\nZMD\nZME\nZMF\n\r",
+      "imageSha256": "a50d92f33b50368a53713eb316da894041ca15869fcd6ad9a84a9f4f55c8b7eb",
+      "imagePath": "mt-retailer-2016-fdecdc5308f0.png",
+      "rawPath": "mt-retailer-2016-fdecdc5308f0.bin",
+      "privacyReview": "Public marked SAMPLE source; decoded name is SAMPLE and details are the same dummy identity family. No actual personal credential is retained.",
+      "currentDecoderStatus": "accepted",
+      "independentExpectedFields": {
+        "DAQ": "0812319684104",
+        "DCS": "SAMPLE",
+        "DDE": "U",
+        "DAC": "BRENDA",
+        "DDF": "U",
+        "DAD": "LYNN",
+        "DDG": "U",
+        "DCA": "D",
+        "DCB": "YES",
+        "DCD": "NONE",
+        "DBD": "02152015",
+        "DBB": "08041968",
+        "DBA": "08042023",
+        "DBC": "2",
+        "DAU": "067 IN",
+        "DAY": "BRO",
+        "DAG": "123 MAIN STREET",
+        "DAI": "HELENA",
+        "DAJ": "MT",
+        "DAK": "596010000",
+        "DCF": "123456789012345678901234567890",
+        "DCG": "USA",
+        "DAW": "150",
+        "DCK": "6DXOKOA9MTW6XM01",
+        "DDA": "F",
+        "DDB": "03012015",
+        "DDD": "1",
+        "DDK": "1",
+        "DDL": "1",
+        "ZMA": "1",
+        "ZMB": "123456789012345",
+        "ZMC": "LIVING WILL",
+        "ZMD": "",
+        "ZME": "",
+        "ZMF": ""
+      },
+      "independentDirectory": [
+        {
+          "type": "DL",
+          "offset": 41,
+          "length": 291
+        },
+        {
+          "type": "ZM",
+          "offset": 332,
+          "length": 54
+        }
+      ],
+      "notes": [
+        "Montana DOJ public SAMPLE brochure rehosted by IDScanner. The issuer-hosted brochure corroborates the artwork, but its different, lower-resolution file did not yield bytes.",
+        "The published DCF is 30 characters. This source-specific schema permits that observed width; the generic 25-character limit remains unchanged. This is source-layout parity, not proof of standard compliance.",
+        "The barcode height and restriction text differ from the adjacent card face. No identity or face-to-barcode consistency is inferred."
+      ],
+      "capturedAt": "2026-10-31"
+    },
+    {
+      "id": "co-published-37b4574bf3aa",
+      "jurisdiction": "CO",
+      "sourceId": "co-university-2024",
+      "sourceUrl": "https://www.du.edu/sites/default/files/2024-08/Section%202%20%20-%20Supervisor%20Verification%20Process%20Manual%208.1.2024.pdf",
+      "sourceSha256": "c69d8b60ec05a26f6ff90736e9e7c9b76406a7164a1e870d0668130a4fff1862",
+      "sourcePage": 3,
+      "acquisition": {
+        "page": 3,
+        "method": "render",
+        "dpi": 600
+      },
+      "byteLength": 318,
+      "sha256": "37b4574bf3aac0e2437e7f062d5e466a0ebb2223a0bcb9df4eeee76c075e8202",
+      "rawBytesLatin1": "@\n\u001e\rANSI 636020100102DL00410267ZC03080010DLDAQ170558141\nDCSSAMPLE\nDDEN\nDACJOHN\nDDFN\nDADDRIVERLICENSE\nDDGN\nDCAR\nDCBNONE\nDCDNONE\nDBD03042020\nDBB06081976\nDBA03042023\nDBC1\nDAU072 in\nDAYBLK\nDAG1881 PIERCE ST\nDAILAKEWOOD\nDAJCO\nDAK802140000  \nDCF9374\nDCGUSA\nDDAN\nDDB03012022\nDAZBRO\nDCJCDOR_DL_0_010722_05184\nDAW210\rZCZCANONE\r",
+      "imageSha256": "50e25a5c0d842491f1b7579f78b69cf700c8797a83fe15ac76fce0e91534ada0",
+      "imagePath": "co-university-2024-37b4574bf3aa.png",
+      "rawPath": "co-university-2024-37b4574bf3aa.bin",
+      "privacyReview": "Public marked SAMPLE source; decoded name is SAMPLE and details are the same dummy identity family. No actual personal credential is retained.",
+      "currentDecoderStatus": "accepted",
+      "independentExpectedFields": {
+        "DAQ": "170558141",
+        "DCS": "SAMPLE",
+        "DDE": "N",
+        "DAC": "JOHN",
+        "DDF": "N",
+        "DAD": "DRIVERLICENSE",
+        "DDG": "N",
+        "DCA": "R",
+        "DCB": "NONE",
+        "DCD": "NONE",
+        "DBD": "03042020",
+        "DBB": "06081976",
+        "DBA": "03042023",
+        "DBC": "1",
+        "DAU": "072 in",
+        "DAY": "BLK",
+        "DAG": "1881 PIERCE ST",
+        "DAI": "LAKEWOOD",
+        "DAJ": "CO",
+        "DAK": "802140000",
+        "DCF": "9374",
+        "DCG": "USA",
+        "DDA": "N",
+        "DDB": "03012022",
+        "DAZ": "BRO",
+        "DCJ": "CDOR_DL_0_010722_05184",
+        "DAW": "210",
+        "ZCA": "NONE"
+      },
+      "independentDirectory": [
+        {
+          "type": "DL",
+          "offset": 41,
+          "length": 267
+        },
+        {
+          "type": "ZC",
+          "offset": 308,
+          "length": 10
+        }
+      ],
+      "notes": [
+        "Public SAMPLE credential photograph in the University of Denver verification manual. The Colorado DMV legislative presentation independently corroborates the John Driverlicense specimen artwork.",
+        "The captured back declares v10 revision 01 and a March 2022 revision date. The neighboring face carries older dates; this reference establishes the recovered back layout only.",
+        "The publishing source is a university rehost. A direct issuer-hosted copy of these barcode bytes has not been recovered."
+      ],
+      "capturedAt": "2026-10-31"
+    },
+    {
+      "id": "mt-published-0691eccde2d2",
+      "jurisdiction": "MT",
+      "sourceId": "mt-retailer-2016",
+      "sourceUrl": "https://www.idscanner.com/wp-content/uploads/2016/02/MT-DL-Brochure.pdf",
+      "sourceSha256": "0077db96e45ade43242226b84e08ea91e7a29732deb6fa4a95e4bb6ff91feb5a",
+      "sourcePage": 1,
+      "capturedAt": "2026-10-31",
+      "acquisition": {
+        "page": 1,
+        "method": "render",
+        "dpi": 300
+      },
+      "byteLength": 636,
+      "sha256": "0691eccde2d223f1a6c6e5c3829fadb49af1e1c6ebda0220c792f3aed9c2da4e",
+      "rawBytesLatin1": "@\n\u001e\rANSI 636008080002DL00410522ZM05630073DLDAQ12345678901231XY1XY1XY1XY\nDCSLASTNAME XY1XY1XY1XY1XY1XY1XY1XY1XY1XY1X\nDDEU\nDACFIRSTNAME XY1XY1XY1XY1XY1XY1XY1XY1XY1XY1\nDDFU\nDADMIDDLENAMEXY1XY1XY1XY1XY1XY1XY1XY1XY1XY1\nDDGU\nDCAXY1XY1\nDCBXY1XY1XY1XY1\nDCDXY1XY\nDBD08042015\nDBB08041998\nDBA08042023\nDBC2\nDAU067 IN\nDAYBRO\nDAG123 NORTH MAIN STREET XY1XY1XY1XY1X\nDAIWEST YELLOWSTONE XY1\nDAJMT\nDAK597580000  \nDCF123456789012345678XY1XY1XY1XY1\nDCGUSA\nDCUJR XY\nDAW150\nDAHAPT 1XY1XY1XY1XY1XY1\nDCKXY1XY1XY1XY1XY1XY1XY1XY1X\nDDAF\nDDBMMDDCCYY\nDDD1\nDDHMMDDCCYY\nDDJMMDDCCYY\nDDK1\nDDL1\n\rZMZMA1\nZMB123456789012345\nZMCLIVING WILL\nZMDINTRASTATE\nZMENON DOMICILED\n\r",
+      "imageSha256": "2b253d671f2991f0c0b9a3e58ff8006d63ed0f2ec92eb815b40e18043c288063",
+      "imagePath": "mt-retailer-2016-0691eccde2d2.png",
+      "rawPath": "mt-retailer-2016-0691eccde2d2.bin",
+      "privacyReview": "Decoded dummy names and template values inspected. No actual personal credential retained.",
+      "currentDecoderStatus": "accepted",
+      "independentExpectedFields": {
+        "DAQ": "12345678901231XY1XY1XY1XY",
+        "DCS": "LASTNAME XY1XY1XY1XY1XY1XY1XY1XY1XY1XY1X",
+        "DDE": "U",
+        "DAC": "FIRSTNAME XY1XY1XY1XY1XY1XY1XY1XY1XY1XY1",
+        "DDF": "U",
+        "DAD": "MIDDLENAMEXY1XY1XY1XY1XY1XY1XY1XY1XY1XY1",
+        "DDG": "U",
+        "DCA": "XY1XY1",
+        "DCB": "XY1XY1XY1XY1",
+        "DCD": "XY1XY",
+        "DBD": "08042015",
+        "DBB": "08041998",
+        "DBA": "08042023",
+        "DBC": "2",
+        "DAU": "067 IN",
+        "DAY": "BRO",
+        "DAG": "123 NORTH MAIN STREET XY1XY1XY1XY1X",
+        "DAI": "WEST YELLOWSTONE XY1",
+        "DAJ": "MT",
+        "DAK": "597580000",
+        "DCF": "123456789012345678XY1XY1XY1XY1",
+        "DCG": "USA",
+        "DCU": "JR XY",
+        "DAW": "150",
+        "DAH": "APT 1XY1XY1XY1XY1XY1",
+        "DCK": "XY1XY1XY1XY1XY1XY1XY1XY1X",
+        "DDA": "F",
+        "DDB": "MMDDCCYY",
+        "DDD": "1",
+        "DDH": "MMDDCCYY",
+        "DDJ": "MMDDCCYY",
+        "DDK": "1",
+        "DDL": "1",
+        "ZMA": "1",
+        "ZMB": "123456789012345",
+        "ZMC": "LIVING WILL",
+        "ZMD": "INTRASTATE",
+        "ZME": "NON DOMICILED"
+      },
+      "independentDirectory": [
+        {
+          "type": "DL",
+          "offset": 41,
+          "length": 522
+        },
+        {
+          "type": "ZM",
+          "offset": 563,
+          "length": 73
+        }
+      ],
+      "notes": [
+        "The temporary-card symbol contains the literal placeholder DDB=MMDDCCYY. It remains negative encoder evidence."
+      ]
+    },
+    {
+      "id": "ca-published-e875813da685",
+      "jurisdiction": "CA",
+      "sourceId": "ca-ssj-2021",
+      "sourceUrl": "https://ssjlaw.com/wp-content/uploads/SSJ_Fake_ID_Guide.pdf",
+      "sourceSha256": "f08543cbdd34a5a8fd262e535df60298b797048d9f8df7895e0ed62f39415de7",
+      "sourcePage": 6,
+      "capturedAt": "2026-10-31",
+      "acquisition": {
+        "page": 6,
+        "embeddedImage": 3,
+        "method": "native image"
+      },
+      "byteLength": 607,
+      "sha256": "e875813da68594d369b13424244174950f23cd3f1fb765e549d77282e54c7f88",
+      "rawBytesLatin1": " @\n\u001e\rANSI 636014040002DL00410477ZC05180089DLDAQD1234562 XYXYXYXYXYXYXYXYX\nDCSLASTNAMEXYXYXYXYXYXYXYXYXXYXYXYXYXYXYXYX\nDDEU\nDACFIRSTXYXYXYXYXYXYXYXYXXYXYXYXYXYXYXYXXYX\nDDFU\nDADXYXYXYXYXYXYXYXYXXYXYXYXYXYXYXYXXYXYXYXY\nDDGU\nDCAA XYXY\nDCBNONEY1XY1XY1\nDCDNONEX\nDBD10312009\nDBB10311977\nDBA10312014\nDBC1\nDAU068 IN\nDAYBRO\nDAG1234 ANY STREET XY1XY1XY1XY1XY1XY1X\nDAICITY XY1XY1XY1XY1XY1\nDAJCA\nDAK000000000  \nDCF00/00/0000NNNAN/ANFD/YY X\nDCGUSA\nDCUSUFIX\nDAW150\nDAZBLK XY1XY1XY\nDCKXY1XY1XY1XY1XY1XY1XY1XY1X\nDDAF\nDDBMMDDCCYY\nDDD1\n\rZCZCAY\nZCBCORR LENS\nZCCBRN\nZCDXYX\nZCEXYXYXYXYXYXYXY\nZCFXY1XY1XY1XY1XY1XY1XYXYXYXYXYXYXY\n\r",
+      "imageSha256": "54dfa6e3bbf0612a0f5f1343bcaf57e75abd52ce5b3b607b0f2f280a6d713a5b",
+      "imagePath": "ca-ssj-2021-e875813da685.png",
+      "rawPath": "ca-ssj-2021-e875813da685.bin",
+      "privacyReview": "Decoded dummy names and template values inspected. No actual personal credential retained.",
+      "currentDecoderStatus": "accepted",
+      "independentExpectedFields": {
+        "DAQ": "D1234562 XYXYXYXYXYXYXYXYX",
+        "DCS": "LASTNAMEXYXYXYXYXYXYXYXYXXYXYXYXYXYXYXYX",
+        "DDB": "MMDDCCYY",
+        "DAZ": "BLK XY1XY1XY"
+      },
+      "independentDirectory": [
+        {
+          "type": "DL",
+          "offset": 41,
+          "length": 477
+        },
+        {
+          "type": "ZC",
+          "offset": 518,
+          "length": 89,
+          "observedAbsoluteStart": 518
+        }
+      ],
+      "notes": [
+        "Long dummy-template record. The revision date is MMDDCCYY, and several field values are invalid. The unrelated personal-data symbol from this publication was excluded; only the safe template crop is retained.",
+        "The ZC marker starts one byte before its declared offset after accounting for the scanner prefix. Field assertions are limited to unambiguous primary elements; raw framing stays unchanged."
+      ]
+    },
+    {
+      "id": "fl-published-20b099aa6851",
+      "jurisdiction": "FL",
+      "sourceId": "public-id-security-guide",
+      "sourceUrl": "https://wolnekonopie.org/wp-content/uploads/2020/06/Police-ID-Guide-to-Security-Features.pdf",
+      "sourceSha256": "5d2c4f6b45a15dd7d85b64cc699075513dbfee82322e1c0016ff5f22a87ba395",
+      "sourcePage": 30,
+      "capturedAt": "2026-10-31",
+      "acquisition": {
+        "page": 30,
+        "embeddedImage": 8,
+        "method": "native image"
+      },
+      "byteLength": 419,
+      "sha256": "20b099aa68510505c12503da1bc120215c2ebe3285926eb11cb59a7652192b9f",
+      "rawBytesLatin1": "@\n\u001e\rANSI 6360100102DL00390243ZF02820137DLDAQS514-172-80-844-0        \nDAALASTNAME,FIRSTNAME,MIDDLENAME \nDAG3456 SOMEWHERE AVE                 \nDAITALLAHASSEE         \nDAJFL\nDAK32399-0000 \nDARD   \nDASBF        \nDATP    \nDAU508\nDBD20030816\nDBA20070816\nDBB19800816\nDBC1\nDBHY         \n\rZFZFADUPLICATE: 08-16-2003\nZFBIGNITION INTERLOCK UNTIL: 00-00-00\nZFCEMPLOYMENT ONLY UNTIL: 00-00-00\nZFDQ123456789000\nZFEMOTORCYCLE ALSO\n\r",
+      "imageSha256": "bcf038a41004a0e2d8d3311550948d06205ae22eccc1a6c3d7b9bb2e66c4d8f5",
+      "imagePath": "public-id-security-guide-20b099aa6851.png",
+      "rawPath": "public-id-security-guide-20b099aa6851.bin",
+      "privacyReview": "Decoded dummy names and template values inspected. No actual personal credential retained.",
+      "currentDecoderStatus": "accepted",
+      "independentExpectedFields": {
+        "DAQ": "S514-172-80-844-0",
+        "DAA": "LASTNAME,FIRSTNAME,MIDDLENAME",
+        "DAG": "3456 SOMEWHERE AVE",
+        "DAI": "TALLAHASSEE",
+        "DAJ": "FL",
+        "DAK": "32399-0000",
+        "DAR": "D",
+        "DAS": "BF",
+        "DAT": "P",
+        "DAU": "508",
+        "DBD": "20030816",
+        "DBA": "20070816",
+        "DBB": "19800816",
+        "DBC": "1",
+        "DBH": "Y",
+        "ZFA": "DUPLICATE: 08-16-2003",
+        "ZFB": "IGNITION INTERLOCK UNTIL: 00-00-00",
+        "ZFC": "EMPLOYMENT ONLY UNTIL: 00-00-00",
+        "ZFD": "Q123456789000",
+        "ZFE": "MOTORCYCLE ALSO"
+      },
+      "independentDirectory": [
+        {
+          "type": "DL",
+          "offset": 39,
+          "length": 243
+        },
+        {
+          "type": "ZF",
+          "offset": 282,
+          "length": 137
+        }
+      ],
+      "notes": [
+        "Public training image with literal LASTNAME,FIRSTNAME,MIDDLENAME dummy data. The source is a third-party rehost; direct issuer publication is unverified."
+      ]
+    },
+    {
+      "id": "il-published-7973a415943d",
+      "jurisdiction": "IL",
+      "sourceId": "il-public-gallery-legacy",
+      "sourceUrl": "https://usid.fyi/uploads/879fd9a171aca509fccebead295a5f15.webp?v=1782407560",
+      "sourceSha256": "1a66a0009d10b1b61ecb8ebcd34445d1da2173e46c386b814e88d65238700bee",
+      "sourcePage": 1,
+      "capturedAt": "2026-10-31",
+      "acquisition": {
+        "page": 1,
+        "method": "original public image; independent ZXing-C++ decode",
+        "scale": 1
+      },
+      "byteLength": 207,
+      "sha256": "7973a415943dfa96ba36a405ddac6bbea62546ad23197869319361e6b2cc948f",
+      "rawBytesLatin1": "@\n\u001c\rANSI 6360350101DL00290178DLDAACDL,SAMPLE,CARD\nDAQC34078360601\nDBA20120101\nDBB19600101\nHMK%>?84_MAD@I,GX\u0006HUEMBM,XCCB\u0006HUFE@\u001eHMG\"<:8$,,,4,,\u0006PM^M\u001eHM_^=>,4,,,4,\u0006HUXO\\GT&\u0006PNH>$<;<,=?\u0006PNOJ\u001eHMY!<;\u0006PM[=!<\u0006HUUN@A\u0001",
+      "imageSha256": "66a11b6c08dada195eac9330ee23cff5cfb3292b00cde54338912e14ff16005c",
+      "imagePath": "illinois-2006-7973a415943d.png",
+      "rawPath": "illinois-2006-7973a415943d.bin",
+      "privacyReview": "Decoded dummy names and template values inspected. No actual personal credential retained.",
+      "currentDecoderStatus": "unsupported-or-malformed",
+      "independentExpectedFields": {},
+      "independentDirectory": [
+        {
+          "type": "DL",
+          "offset": 29,
+          "length": 178
+        }
+      ],
+      "notes": [
+        "Historical dummy CDL record. Source contains 0x1c and omits the final segment terminator. It remains malformed evidence; no inferred byte repair is promoted."
+      ]
+    }
+  ],
+  "reobservations": [],
+  "excludedObservations": [
+    {
+      "sourceUrl": "https://ssjlaw.com/wp-content/uploads/SSJ_Fake_ID_Guide.pdf",
+      "sourceSha256": "f08543cbdd34a5a8fd262e535df60298b797048d9f8df7895e0ed62f39415de7",
+      "payloadSha256": "4ba1261ee4620412f4d34491d0bb96d97f4c6a15213fb9447fbca0da534d93b9",
+      "disposition": "Hash-only exclusion: personal data concealed behind displayed dummy card. No source PDF or private payload retained."
+    }
+  ]
+}

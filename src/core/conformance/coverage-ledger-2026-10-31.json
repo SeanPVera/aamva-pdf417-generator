@@ -2,14 +2,32 @@
   "asOf": "2026-10-31",
   "sourceRegistry": "iin-registry-2026-10-31.json",
   "externalCoverage": {
-    "jurisdictions": 13,
+    "jurisdictions": 15,
     "total": 55,
-    "references": 26,
+    "references": 29,
     "byFidelity": {
       "anonymized": 2,
       "canonicalized": 3,
-      "unmodified-source": 21
+      "unmodified-source": 24
+    },
+    "meaning": "Passing observed source layouts; current issuer adoption and standards certification remain unverified."
+  },
+  "publicIntake": {
+    "uniquePayloads": 41,
+    "jurisdictions": 24,
+    "parserAccepted": 37,
+    "encoderOutcomes": {
+      "canonicalized-match": 2,
+      "field-rejected": 11,
+      "parser-rejected": 2,
+      "quarantined": 2,
+      "source-exact": 24
     }
+  },
+  "research": {
+    "acquisitionRecords": 245,
+    "jurisdictionsWithAttempts": 55,
+    "countingRule": "Acquisition records include repeated sources and gallery reobservations. This is not a unique-publication count."
   },
   "v12Oracle": "normative-v12-oracle.json",
   "v12IssuerAdoption": "unverified",
@@ -20,12 +38,41 @@
       "iin": "636033",
       "iinVerified": true,
       "configuredVersion": "09",
+      "version12IssuerAdoption": "unverified",
       "version12SyntheticOracle": ["DL", "ID"],
       "externalFixtureCount": 0,
       "unmodifiedSourceCount": 0,
       "combinations": [],
       "fidelities": [],
       "references": [],
+      "observations": [],
+      "sourceAttempts": [
+        {
+          "id": "al-star-id-primary-page",
+          "url": "https://www.alea.gov/dps/driver-license/star-id",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "9fdf84abe8c95fa9a81a60f139126f29a04ee145d34569deefd37c3230137bdf",
+          "symbols": 0
+        },
+        {
+          "id": "al-manual-2024",
+          "url": "https://www.alea.gov/sites/default/files/Updated%20ALEA%20Driver%27s%20Manual%2012-5-24.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "4f19f3c755231a7695cd1f08aed6636dbc07b2208ac27b5f79746119dcafa252",
+          "symbols": 0
+        }
+      ],
+      "priorSources": [
+        {
+          "id": "al-star-id-flyer",
+          "url": "https://www.alea.gov/sites/default/files/inline-files/STAR%20ID%20NFFI%20Flyer%20%2802%29_0.pdf",
+          "status": "failed"
+        }
+      ],
       "remaining": "Independently sourced marked specimen payload and passing byte comparison."
     },
     {
@@ -34,12 +81,58 @@
       "iin": "636059",
       "iinVerified": true,
       "configuredVersion": "09",
+      "version12IssuerAdoption": "unverified",
       "version12SyntheticOracle": ["DL", "ID"],
       "externalFixtureCount": 0,
       "unmodifiedSourceCount": 0,
       "combinations": [],
       "fidelities": [],
       "references": [],
+      "observations": [],
+      "sourceAttempts": [
+        {
+          "id": "ak-2017-commerce-public-meeting",
+          "url": "https://www.commerce.alaska.gov/web/Portals/9/pub/MCB/Minutes/2017/7.12/Tab13.pdf",
+          "status": 404,
+          "error": "404 Client Error: Not Found for url: https://www.commerce.alaska.gov/web/Portals/9/pub/MCB/Minutes/2017/7.12/Tab13.pdf",
+          "excluded": null,
+          "symbols": 0
+        },
+        {
+          "id": "ak-2018-features",
+          "url": "https://dmv.alaska.gov/media/szxjxo0b/onepager_alaska-hd.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "ea15daf6db693f67205eb61472fdcddec4e7af54c510b45e1f0ae1ff6fccb7ff",
+          "symbols": 0
+        },
+        {
+          "id": "ak-manual-2025",
+          "url": "https://dmv.alaska.gov/media/t5ef5vi2/dlman.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "779ca2b672e248b9373effcd1381726aac1979fc19c20c4d9e767476b7bb1ebd",
+          "symbols": 0
+        },
+        {
+          "id": "ak-old-brochure-archive",
+          "url": "https://web.archive.org/web/20250101000000id_/https://www.commerce.alaska.gov/web/Portals/9/pub/MCB/Minutes/2017/7.12/Tab13.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "8fddaa9a9f783312375e4f288a076fbe4a03dc0456862d57f181f6b5b3833c52",
+          "symbols": 0
+        }
+      ],
+      "priorSources": [
+        {
+          "id": "ak-2024-security",
+          "url": "https://dmv.alaska.gov/media/szxjxo0b/onepager_alaska-hd.pdf",
+          "status": "downloaded"
+        }
+      ],
       "remaining": "Independently sourced marked specimen payload and passing byte comparison."
     },
     {
@@ -48,12 +141,77 @@
       "iin": "636026",
       "iinVerified": true,
       "configuredVersion": "10",
+      "version12IssuerAdoption": "unverified",
       "version12SyntheticOracle": ["DL", "ID"],
       "externalFixtureCount": 0,
       "unmodifiedSourceCount": 0,
       "combinations": [],
       "fidelities": [],
       "references": [],
+      "observations": [],
+      "sourceAttempts": [
+        {
+          "id": "az-2023-primary-design-news",
+          "url": "https://azdot.gov/adot-news/arizona-license-and-id-cards-are-getting-updated-look",
+          "status": 403,
+          "error": "403 Client Error: Forbidden for url: https://azdot.gov/adot-news/arizona-license-and-id-cards-are-getting-updated-look",
+          "excluded": null,
+          "symbols": 0
+        },
+        {
+          "id": "az-manual-highres",
+          "url": "https://apps.azdot.gov/files/mvd/mvd-forms-lib/99-0117-print.pdf",
+          "status": 403,
+          "error": "403 Client Error: Forbidden for url: https://apps.azdot.gov/files/mvd/mvd-forms-lib/99-0117-print.pdf",
+          "excluded": null,
+          "symbols": 0
+        },
+        {
+          "id": "az-mvd-courts-memo-t6204",
+          "url": "https://www.azcourts.gov/Portals/0/27/ASU/MVDmemos/MVD%20updates/T6204.pdf?timestamp=1511201956066",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "fb2b7a37538444a8c5870fba15e78e62154ecafd6cd7afb552c99341fca4586e",
+          "symbols": 0
+        },
+        {
+          "id": "az-retailer-training",
+          "url": "https://arizona.aacea.com/images/aacea-student-manual.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "e34c0361ffad58b7e8f57073e5014cb601b2dd9535adf3b9f94904ca2575b077",
+          "symbols": 0
+        }
+      ],
+      "priorSources": [
+        {
+          "id": "az-central-issuance",
+          "url": "https://azdot.gov/sites/default/files/2019/07/central-credential-issuance-mvd-English.pdf",
+          "status": "failed"
+        },
+        {
+          "id": "az-license-history",
+          "url": "https://azdot.gov/adot-blog/evolution-arizonas-driver-license",
+          "status": "failed"
+        },
+        {
+          "id": "az-evolution",
+          "url": "https://azdot.gov/adot-blog/evolution-arizonas-driver-license",
+          "status": "failed"
+        },
+        {
+          "id": "az-new-design",
+          "url": "https://azdot.gov/adot-news/arizona-license-and-id-cards-are-getting-updated-look",
+          "status": "failed"
+        },
+        {
+          "id": "az-new-design-2014",
+          "url": "https://azdot.gov/blog-article/adot-launch-new-driver-license-process-and-design",
+          "status": "failed"
+        }
+      ],
       "remaining": "Independently sourced marked specimen payload and passing byte comparison."
     },
     {
@@ -62,6 +220,7 @@
       "iin": "636021",
       "iinVerified": true,
       "configuredVersion": "09",
+      "version12IssuerAdoption": "unverified",
       "version12SyntheticOracle": ["DL", "ID"],
       "externalFixtureCount": 1,
       "unmodifiedSourceCount": 1,
@@ -76,6 +235,65 @@
           "source": "https://web.archive.org/web/20200919023843id_/http://banking.arkansas.gov/public/userfiles/Important_Info/Arkansas_Barcode_Specifications_2018.pdf"
         }
       ],
+      "observations": [
+        {
+          "id": "ar-published-92d83454dc2e",
+          "version": "09",
+          "parser": {
+            "accepted": true,
+            "state": "AR",
+            "diagnostics": []
+          },
+          "encoder": {
+            "status": "source-exact",
+            "sha256": "92d83454dc2e919dd456e3b067ac8894193aee6b5703f65d3d4ed2664153009f",
+            "byteLength": 310
+          }
+        }
+      ],
+      "sourceAttempts": [
+        {
+          "id": "recheck-ar-v09-dl-published",
+          "url": "https://web.archive.org/web/20200919023843id_/http://banking.arkansas.gov/public/userfiles/Important_Info/Arkansas_Barcode_Specifications_2018.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "4ab40a3d81aea6c6f8ffcaa9f94421c7d0a9664f1192e7c1d57290521381bf17",
+          "symbols": 1
+        }
+      ],
+      "priorSources": [
+        {
+          "id": "ar-2018-calibration",
+          "url": "https://banking.arkansas.gov/public/userfiles/Important_Info/Arkansas_Barcode_Specifications_2018.pdf",
+          "status": "failed"
+        },
+        {
+          "id": "ar-archived-calibration",
+          "url": "https://web.archive.org/web/20200919023843id_/http://banking.arkansas.gov/public/userfiles/Important_Info/Arkansas_Barcode_Specifications_2018.pdf",
+          "status": "downloaded"
+        },
+        {
+          "id": "ar-current-calibration",
+          "url": "https://banking.arkansas.gov/wp-content/uploads/2026/02/Arkansas_Barcode_Specifications_2018.pdf",
+          "status": "failed"
+        },
+        {
+          "id": "ar-institution-info",
+          "url": "https://banking.arkansas.gov/financial-institution-info/information-for-financial-institutions/",
+          "status": "excluded-after-review"
+        },
+        {
+          "id": "ar-media-search",
+          "url": "https://banking.arkansas.gov/wp-json/wp/v2/media?search=barcode&per_page=20",
+          "status": "excluded-after-review"
+        },
+        {
+          "id": "ar-banking-home",
+          "url": "https://banking.arkansas.gov/",
+          "status": "excluded-after-review"
+        }
+      ],
       "remaining": "Additional editions and document types; independently sourced v12 signed issuer payload."
     },
     {
@@ -84,13 +302,86 @@
       "iin": "636014",
       "iinVerified": true,
       "configuredVersion": "10",
+      "version12IssuerAdoption": "unverified",
       "version12SyntheticOracle": ["DL", "ID"],
       "externalFixtureCount": 0,
       "unmodifiedSourceCount": 0,
       "combinations": [],
       "fidelities": [],
       "references": [],
-      "remaining": "Independently sourced marked specimen payload and passing byte comparison."
+      "observations": [
+        {
+          "id": "ca-published-e875813da685",
+          "version": "04",
+          "parser": {
+            "accepted": true,
+            "state": "CA",
+            "diagnostics": [
+              "One leading space precedes the compliance indicator; directory offsets are relative to @.",
+              "Directory boundary drift was tolerated; inspect the original bytes."
+            ]
+          },
+          "encoder": {
+            "status": "field-rejected",
+            "error": "Invalid field values for CA (v04): Customer ID Number (DAQ), Hair Color (DAZ), Card Revision Date (DDB)"
+          }
+        }
+      ],
+      "sourceAttempts": [
+        {
+          "id": "ca-2025-olin09-fresh",
+          "url": "https://www.dmv.ca.gov/portal/file/25olin09-pdf/",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "6564f5788dc41cb3e6af4d37ef1eb3c0bcdc8b143cd65420a7333f2eebcf0697",
+          "symbols": 0
+        },
+        {
+          "id": "ca-id-retail-summary",
+          "url": "https://www.fraudfighter.com/hubfs/PDFs/california%20and%20idaho%20real%20id.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "8c2d7adb2254c0e7358d61400358c9d873077348bd0c7089f3a3e49878ab0859",
+          "symbols": 0
+        },
+        {
+          "id": "ca-notary-2015",
+          "url": "https://www.nationalnotary.org/file%20library/nna/the-national-notary/archive/2015-december.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "d6d0d8882d0953544a2f3f6ed93690aa05584e55855bd9dc2172e3b6599de3ce",
+          "symbols": 0
+        },
+        {
+          "id": "ca-smc-design-guide",
+          "url": "https://www.smc.edu/student-support/international-education/documents/Information/Apply_for_a_CA_Drivers_License.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "2d66482011d34e4ad0593c77164116bfb2d8c9ab6db016790ace7970683c0cba",
+          "symbols": 0
+        },
+        {
+          "id": "ca-ssj-2021",
+          "url": "https://ssjlaw.com/wp-content/uploads/SSJ_Fake_ID_Guide.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "f08543cbdd34a5a8fd262e535df60298b797048d9f8df7895e0ed62f39415de7",
+          "symbols": 2
+        }
+      ],
+      "priorSources": [
+        {
+          "id": "ca-2025-olin09",
+          "url": "https://www.dmv.ca.gov/portal/file/25olin09-pdf/",
+          "status": "downloaded"
+        }
+      ],
+      "remaining": "Valid external encoder reference; published observations have explicit source defects or unresolved format differences."
     },
     {
       "code": "CO",
@@ -98,13 +389,88 @@
       "iin": "636020",
       "iinVerified": true,
       "configuredVersion": "10",
+      "version12IssuerAdoption": "unverified",
       "version12SyntheticOracle": ["DL", "ID"],
-      "externalFixtureCount": 0,
-      "unmodifiedSourceCount": 0,
-      "combinations": [],
-      "fidelities": [],
-      "references": [],
-      "remaining": "Independently sourced marked specimen payload and passing byte comparison."
+      "externalFixtureCount": 1,
+      "unmodifiedSourceCount": 1,
+      "combinations": ["v10 DL"],
+      "fidelities": ["unmodified-source"],
+      "references": [
+        {
+          "id": "co-v10-dl-published-37b4574bf3aa",
+          "version": "10",
+          "type": "DL",
+          "fidelity": "unmodified-source",
+          "source": "https://www.du.edu/sites/default/files/2024-08/Section%202%20%20-%20Supervisor%20Verification%20Process%20Manual%208.1.2024.pdf"
+        }
+      ],
+      "observations": [
+        {
+          "id": "co-published-37b4574bf3aa",
+          "version": "10",
+          "parser": {
+            "accepted": true,
+            "state": "CO",
+            "diagnostics": []
+          },
+          "encoder": {
+            "status": "source-exact",
+            "sha256": "37b4574bf3aac0e2437e7f062d5e466a0ebb2223a0bcb9df4eeee76c075e8202",
+            "byteLength": 318
+          }
+        }
+      ],
+      "sourceAttempts": [
+        {
+          "id": "co-2021-legislature",
+          "url": "https://content.leg.colorado.gov/sites/default/files/images/dmv_tlrc_presentation_october_5_2021.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "2daae2a333505a9ef06fa64909063637e4cd6bf7faf6f9a63da1ee770b664526",
+          "symbols": 0
+        },
+        {
+          "id": "co-2016-poster",
+          "url": "https://tokenworks-com.s3.amazonaws.com/wp-content/uploads/2016/03/09172516/Colorado-DL-Poster.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "09178fc357d5c65da6da67e6b66a8099c5c2984cb07b240e9aecb5a0513d00dd",
+          "symbols": 1
+        },
+        {
+          "id": "co-dmv-leg-2022",
+          "url": "https://content.leg.colorado.gov/sites/default/files/images/dmv_update_to_tlrc_sep_20_2022_v2.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "3e62b6c8f5c0529a90950fac1fe1739e32934fa7a9516d95d5b30038452319a3",
+          "symbols": 0
+        },
+        {
+          "id": "co-university-2024",
+          "url": "https://www.du.edu/sites/default/files/2024-08/Section%202%20%20-%20Supervisor%20Verification%20Process%20Manual%208.1.2024.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "c69d8b60ec05a26f6ff90736e9e7c9b76406a7164a1e870d0668130a4fff1862",
+          "symbols": 1
+        }
+      ],
+      "priorSources": [
+        {
+          "id": "co-2021-legislature",
+          "url": "https://content.leg.colorado.gov/sites/default/files/images/dmv_tlrc_presentation_october_5_2021.pdf",
+          "status": "downloaded"
+        },
+        {
+          "id": "co-iconic-card",
+          "url": "https://dmv.colorado.gov/newcard",
+          "status": "failed"
+        }
+      ],
+      "remaining": "Additional editions and document types; independently sourced v12 signed issuer payload."
     },
     {
       "code": "CT",
@@ -112,6 +478,7 @@
       "iin": "636006",
       "iinVerified": true,
       "configuredVersion": "09",
+      "version12IssuerAdoption": "unverified",
       "version12SyntheticOracle": ["DL", "ID"],
       "externalFixtureCount": 1,
       "unmodifiedSourceCount": 0,
@@ -126,6 +493,33 @@
           "source": "PDF417 barcode decoded from an issued Connecticut driver's license (AAMVA v09, IIN 636006)"
         }
       ],
+      "observations": [],
+      "sourceAttempts": [
+        {
+          "id": "ct-2017-legislature-specimens",
+          "url": "https://cga.ct.gov/2017/gaedata/TMY/2017HB-05079-R000222-Waggner%2C%20Matthew%2C%20Registrar-Town%20of%20Fairfield-TMY.PDF",
+          "status": null,
+          "error": "HTTPSConnectionPool(host='cga.ct.gov', port=443): Max retries exceeded with url: /2017/gaedata/TMY/2017HB-05079-R000222-Waggner%2C%20Matthew%2C%20Registrar-Town%20of%20Fairfield-TMY.PDF (Caused by SSLError(SSLCertVerificationError(1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)')))",
+          "excluded": null,
+          "symbols": 0
+        },
+        {
+          "id": "ct-2017-public-brochure",
+          "url": "https://business.ct.gov/-/media/dmv/centralissuancebrochurepdf.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "e4cc5d2ed48ac1e27d515680bfa77b04bfc7d315ccdd89582c61133bc9793c87",
+          "symbols": 0
+        }
+      ],
+      "priorSources": [
+        {
+          "id": "ct-central-issuance",
+          "url": "https://portal.ct.gov/-/media/dmv/centralissuancebrochurepdf.pdf",
+          "status": "downloaded"
+        }
+      ],
       "remaining": "Additional editions and document types; independently sourced v12 signed issuer payload."
     },
     {
@@ -134,12 +528,73 @@
       "iin": "636011",
       "iinVerified": true,
       "configuredVersion": "09",
+      "version12IssuerAdoption": "unverified",
       "version12SyntheticOracle": ["DL", "ID"],
       "externalFixtureCount": 0,
       "unmodifiedSourceCount": 0,
       "combinations": [],
       "fidelities": [],
       "references": [],
+      "observations": [
+        {
+          "id": "de-published-a0b97b7910a7",
+          "version": "09",
+          "parser": {
+            "accepted": true,
+            "state": "DE",
+            "diagnostics": []
+          },
+          "encoder": {
+            "status": "field-rejected",
+            "error": "Invalid field values for DE (v09): Card Revision Date (DDB)"
+          }
+        }
+      ],
+      "sourceAttempts": [
+        {
+          "id": "de-2023-senior-manual",
+          "url": "https://services.dmv.de.gov/DriverServices/senior/pdfs/DE_Senior_Driver_Manual.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "050cd03e78deb9a03664e31d907b7a245de7da3be7f064ce0f742d64ac4e4562",
+          "symbols": 1
+        },
+        {
+          "id": "de-secureid-guide-fresh",
+          "url": "https://dmv.de.gov/DriverServices/drivers_license/secureID/pdfs/SecureID_brochure.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "0a00b12b68b80e2e790f6766e6d0b2c4eadb9f86cef3fa34e1e978ca0ae5796a",
+          "symbols": 1
+        },
+        {
+          "id": "de-manual-2025",
+          "url": "https://citizen.dmv.de.gov/forms/driver_serv_forms/pdfs/dr_frm_manual.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "5c38a86535ccdf1df7f96afef4f7277146c1d4125daa847745e44b2eb5184e03",
+          "symbols": 0
+        },
+        {
+          "id": "delaware-2022",
+          "url": "https://usid.fyi/uploads/61b9af81604f7b6bb2a475634f2e52d2.webp?v=1782332778",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "24bac59464a87e9181e0d245f12bbb278cac0d845488528a54411d1e21de054b",
+          "symbols": 1
+        }
+      ],
+      "priorSources": [
+        {
+          "id": "de-secureid-guide",
+          "url": "https://dmv.de.gov/DriverServices/drivers_license/secureID/pdfs/SecureID_brochure.pdf",
+          "status": "downloaded"
+        }
+      ],
       "remaining": "Valid external encoder reference; published observations have explicit source defects or unresolved format differences."
     },
     {
@@ -148,12 +603,20 @@
       "iin": "636010",
       "iinVerified": true,
       "configuredVersion": "10",
+      "version12IssuerAdoption": "unverified",
       "version12SyntheticOracle": ["DL", "ID"],
-      "externalFixtureCount": 2,
-      "unmodifiedSourceCount": 2,
+      "externalFixtureCount": 3,
+      "unmodifiedSourceCount": 3,
       "combinations": ["v01 DL", "v09 DL"],
       "fidelities": ["unmodified-source"],
       "references": [
+        {
+          "id": "fl-v01-dl-published-20b099aa6851",
+          "version": "01",
+          "type": "DL",
+          "fidelity": "unmodified-source",
+          "source": "https://wolnekonopie.org/wp-content/uploads/2020/06/Police-ID-Guide-to-Security-Features.pdf"
+        },
         {
           "id": "fl-v01-dl-published-488fa2962926",
           "version": "01",
@@ -169,6 +632,100 @@
           "source": "https://www.flhsmv.gov/pdf/newdl/fl_2dbarcodecalibration.pdf"
         }
       ],
+      "observations": [
+        {
+          "id": "fl-published-b1981be3f0b3",
+          "version": "09",
+          "parser": {
+            "accepted": true,
+            "state": "FL",
+            "diagnostics": []
+          },
+          "encoder": {
+            "status": "source-exact",
+            "sha256": "b1981be3f0b3f21436845cbbdb9b908640572ba43c2a0edc48cc29b638c58ff1",
+            "byteLength": 348
+          }
+        },
+        {
+          "id": "fl-published-488fa2962926",
+          "version": "01",
+          "parser": {
+            "accepted": true,
+            "state": "FL",
+            "diagnostics": ["Legacy v01 header omits the jurisdiction-version token."]
+          },
+          "encoder": {
+            "status": "source-exact",
+            "sha256": "488fa2962926131e2602f1eb415d475a7592171b1eba0ac9f68caef21be7b7fe",
+            "byteLength": 284
+          }
+        },
+        {
+          "id": "fl-published-20b099aa6851",
+          "version": "01",
+          "parser": {
+            "accepted": true,
+            "state": "FL",
+            "diagnostics": ["Legacy v01 header omits the jurisdiction-version token."]
+          },
+          "encoder": {
+            "status": "source-exact",
+            "sha256": "20b099aa68510505c12503da1bc120215c2ebe3285926eb11cb59a7652192b9f",
+            "byteLength": 419
+          }
+        }
+      ],
+      "sourceAttempts": [
+        {
+          "id": "fl-legacy-source",
+          "url": "https://www.flhsmv.gov/pdf/newdl/retailguide.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "4b0bb285c6e88fdd3144d50ecacb4ab9a4f6a0b56614629423ed29b075b7a1b4",
+          "symbols": 1
+        },
+        {
+          "id": "recheck-fl-2019-version09",
+          "url": "https://www.flhsmv.gov/pdf/newdl/fl_2dbarcodecalibration.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "990649b45ae430b0a5c8b8cdf2d313e3434c7aaae55176d05536daca2207c088",
+          "symbols": 1
+        },
+        {
+          "id": "florida-2018",
+          "url": "https://usid.fyi/uploads/581a8cbdf06b3f3904d26678a06aa107.webp?v=1782327116",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "d4d2fabbd3a26a889c00b3094b0d505685912709d608b52bd05ec3cd6c048c63",
+          "symbols": 0
+        },
+        {
+          "id": "florida-2016",
+          "url": "https://usid.fyi/uploads/91db62b72a05acf948e50c770aaafe8f.webp?v=1782326702",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "6836194d3979f061b40fb7337df1428f4ef834a8e22264e29d93af28f642d907",
+          "symbols": 0
+        }
+      ],
+      "priorSources": [
+        {
+          "id": "fl-2019-calibration",
+          "url": "https://www.flhsmv.gov/pdf/newdl/fl_2dbarcodecalibration.pdf",
+          "status": "downloaded"
+        },
+        {
+          "id": "fl-retail-guide",
+          "url": "https://www.flhsmv.gov/pdf/newdl/retailguide.pdf",
+          "status": "downloaded"
+        }
+      ],
       "remaining": "Additional editions and document types; independently sourced v12 signed issuer payload."
     },
     {
@@ -177,6 +734,7 @@
       "iin": "636055",
       "iinVerified": true,
       "configuredVersion": "10",
+      "version12IssuerAdoption": "unverified",
       "version12SyntheticOracle": ["DL", "ID"],
       "externalFixtureCount": 5,
       "unmodifiedSourceCount": 5,
@@ -219,6 +777,157 @@
           "source": "https://dds.georgia.gov/document/publication/license-printed-beginning-june-2019/download"
         }
       ],
+      "observations": [
+        {
+          "id": "ga-published-5bfecea361b9",
+          "version": "09",
+          "parser": {
+            "accepted": true,
+            "state": "GA",
+            "diagnostics": []
+          },
+          "encoder": {
+            "status": "source-exact",
+            "sha256": "5bfecea361b91164960970ee51d48f0d01d8cbde97514adb32f0cc3a910a7d1f",
+            "byteLength": 400
+          }
+        },
+        {
+          "id": "ga-published-73c3c904d70a",
+          "version": "03",
+          "parser": {
+            "accepted": true,
+            "state": "GA",
+            "diagnostics": []
+          },
+          "encoder": {
+            "status": "source-exact",
+            "sha256": "73c3c904d70a761ab2d22da67c232490f48f283f4ae08622bbd0260d88233556",
+            "byteLength": 645
+          }
+        },
+        {
+          "id": "ga-published-47ddb17df100",
+          "version": "06",
+          "parser": {
+            "accepted": true,
+            "state": "GA",
+            "diagnostics": []
+          },
+          "encoder": {
+            "status": "source-exact",
+            "sha256": "47ddb17df100ec4f73fc6b0bce627982e10f8cd6fb06a1d7350dea9543e434f0",
+            "byteLength": 478
+          }
+        },
+        {
+          "id": "ga-published-be90490c2643",
+          "version": "06",
+          "parser": {
+            "accepted": true,
+            "state": "GA",
+            "diagnostics": []
+          },
+          "encoder": {
+            "status": "source-exact",
+            "sha256": "be90490c2643276cde2ae2dc5ce138877c1296a1d5bd836b50b937bf49570720",
+            "byteLength": 422
+          }
+        },
+        {
+          "id": "ga-published-fb2a15fd6f64",
+          "version": "06",
+          "parser": {
+            "accepted": true,
+            "state": "GA",
+            "diagnostics": []
+          },
+          "encoder": {
+            "status": "source-exact",
+            "sha256": "fb2a15fd6f64db61d33cd134de2994186384ac3b06aae7737c2f86eb4c5a6cb3",
+            "byteLength": 395
+          }
+        }
+      ],
+      "sourceAttempts": [
+        {
+          "id": "recheck-ga-2012-version06",
+          "url": "https://dds.georgia.gov/document/publication/license-printed-beginning-june-2019/download",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "faadb8f9977c127c1e2c9fa7c14c880395e02c753ed232947358747207c98af2",
+          "symbols": 3
+        },
+        {
+          "id": "recheck-ga-2013-interim",
+          "url": "https://dds.georgia.gov/document/document/license-printed-prior-november-2012pdf/download",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "dc53b5c4bfe1deee1ca4e03b65afe15050a61ec5ebe61ec6dc6af42f1fc56dad",
+          "symbols": 2
+        },
+        {
+          "id": "recheck-ga-v06-additional",
+          "url": "https://dds.georgia.gov/document/document/barcode-sheet-printed-prior-november-2012pdf/download",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "3d9ef4b4b20059f76ed1cb503e433c1e440cead83c91892754ba8eec8cdc41b7",
+          "symbols": 1
+        },
+        {
+          "id": "georgia-2017",
+          "url": "https://usid.fyi/uploads/b724431087260265f49d3804492824c1.webp?v=1782333639",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "517a71b823b8f981843148a8b28e9dd3c70fc25062eccae611631b2546187407",
+          "symbols": 1
+        },
+        {
+          "id": "georgia-2005",
+          "url": "https://usid.fyi/uploads/dfca38e2ad1ae926b0f026d3b0cc0597.webp?v=1782333691",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "5a5d0db17c578168530fe893e93167fdf962eb05fbc31994ae312a581669721b",
+          "symbols": 0
+        }
+      ],
+      "priorSources": [
+        {
+          "id": "ga-card-information",
+          "url": "https://dds.georgia.gov/license-card-information",
+          "status": "downloaded"
+        },
+        {
+          "id": "ga-2019-barcode",
+          "url": "https://dds.georgia.gov/document/publication/license-printed-beginning-june-2019/download",
+          "status": "downloaded"
+        },
+        {
+          "id": "ga-2012-before-calibration",
+          "url": "https://dds.georgia.gov/document/document/barcode-sheet-printed-prior-november-2012pdf/download",
+          "status": "downloaded"
+        },
+        {
+          "id": "ga-2012-after-calibration",
+          "url": "https://dds.georgia.gov/document/document/barcode-sheet-printed-after-october-2012pdf/download",
+          "status": "downloaded"
+        },
+        {
+          "id": "ga-before2012-guide",
+          "url": "https://dds.georgia.gov/document/document/license-printed-prior-november-2012pdf/download",
+          "status": "downloaded"
+        },
+        {
+          "id": "ga-after2012-guide",
+          "url": "https://dds.georgia.gov/document/document/license-printed-after-october-2012pdf/download",
+          "status": "downloaded"
+        }
+      ],
       "remaining": "Additional editions and document types; independently sourced v12 signed issuer payload."
     },
     {
@@ -227,12 +936,60 @@
       "iin": "636047",
       "iinVerified": true,
       "configuredVersion": "10",
+      "version12IssuerAdoption": "unverified",
       "version12SyntheticOracle": ["DL", "ID"],
       "externalFixtureCount": 0,
       "unmodifiedSourceCount": 0,
       "combinations": [],
       "fidelities": [],
       "references": [],
+      "observations": [
+        {
+          "id": "hi-published-1136dcb68d24",
+          "version": "04",
+          "parser": {
+            "accepted": false,
+            "error": "Subfile marker at offset must be DL or ID",
+            "diagnostics": []
+          },
+          "encoder": {
+            "status": "quarantined",
+            "error": "Hawaii artwork contains IIN 636039 (assigned to New Hampshire), plus two subfile designators despite a count of 01. Preserve this source inconsistency. Not a positive Hawaii or New Hampshire fixture."
+          }
+        }
+      ],
+      "sourceAttempts": [
+        {
+          "id": "hi-2013-testimony",
+          "url": "https://data.capitol.hawaii.gov/sessions/session2013/Testimony/HB1287_TESTIMONY_TEC-CPN_03-27-13.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "cc94c08417d1a9f3e8421580e8e043e05b6536dc7945e4cecc576052d63c5e81",
+          "symbols": 1
+        },
+        {
+          "id": "hi-2023-printing-example-full",
+          "url": "https://hidot.hawaii.gov/wp-content/uploads/2023/03/licenses.png",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "b7198675a1789dc900d7709de757b6f386ad117f7cd845f2990377b0e2b9f8e5",
+          "symbols": 0
+        }
+      ],
+      "priorSources": [
+        {
+          "id": "hi-2023-printing-example",
+          "url": "https://hidot.hawaii.gov/highways/error-discovered-on-hawaii-driver-licenses-and-state-identification-cards-printed-in-february/",
+          "status": "downloaded"
+        },
+        {
+          "id": "hi-new-design-county",
+          "url": "https://www.vrl.hawaiicounty.gov/driver-s-licensing/new-driver-s-license-and-state-id-design",
+          "status": "failed"
+        }
+      ],
       "remaining": "Valid external encoder reference; published observations have explicit source defects or unresolved format differences."
     },
     {
@@ -241,12 +998,60 @@
       "iin": "636050",
       "iinVerified": true,
       "configuredVersion": "09",
+      "version12IssuerAdoption": "unverified",
       "version12SyntheticOracle": ["DL", "ID"],
       "externalFixtureCount": 0,
       "unmodifiedSourceCount": 0,
       "combinations": [],
       "fidelities": [],
       "references": [],
+      "observations": [],
+      "sourceAttempts": [
+        {
+          "id": "e-verify-idaho-fresh",
+          "url": "https://www.uscis.gov/sites/default/files/USCIS/Verification/E-Verify/E-Verify_Native_Documents/Idaho_RIDE_Fact_Sheet.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "fd4f5eb926220e9a8de22aaa93467f5e850cf4b0d725a9e39512434988c2f5d1",
+          "symbols": 0
+        },
+        {
+          "id": "id-2023-itd-faq-fresh",
+          "url": "https://itd.idaho.gov/wp-content/uploads/2023/03/DMV_New_Drivers_License_2023_FAQ.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "595e02e42466b211964142c38cef2168ab7aaf1df366ce8fa9adda2d7544ae68",
+          "symbols": 0
+        },
+        {
+          "id": "id-manual-2025",
+          "url": "https://itd.idaho.gov/wp-content/uploads/2025/10/driver_manual.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "e5102efdeb257cac4a527846eb475ed9c86ea4b17f7805d5e99893ee206499a8",
+          "symbols": 0
+        }
+      ],
+      "priorSources": [
+        {
+          "id": "id-2023-faq",
+          "url": "https://isp.idaho.gov/wp-content/uploads/ABC/Resources/DMV-Drivers-License-2023-FAQ.pdf",
+          "status": "failed"
+        },
+        {
+          "id": "id-2023-itd-faq",
+          "url": "https://itd.idaho.gov/wp-content/uploads/2023/03/DMV_New_Drivers_License_2023_FAQ.pdf",
+          "status": "downloaded"
+        },
+        {
+          "id": "e-verify-idaho",
+          "url": "https://www.uscis.gov/sites/default/files/USCIS/Verification/E-Verify/E-Verify_Native_Documents/Idaho_RIDE_Fact_Sheet.pdf",
+          "status": "downloaded"
+        }
+      ],
       "remaining": "Independently sourced marked specimen payload and passing byte comparison."
     },
     {
@@ -255,6 +1060,7 @@
       "iin": "636035",
       "iinVerified": true,
       "configuredVersion": "10",
+      "version12IssuerAdoption": "unverified",
       "version12SyntheticOracle": ["DL", "ID"],
       "externalFixtureCount": 1,
       "unmodifiedSourceCount": 1,
@@ -269,6 +1075,76 @@
           "source": "https://www.ilsos.gov/content/dam/publications/pdf_publications/dsd_a301.pdf"
         }
       ],
+      "observations": [
+        {
+          "id": "il-published-0811ac04c918",
+          "version": "08",
+          "parser": {
+            "accepted": true,
+            "state": "IL",
+            "diagnostics": []
+          },
+          "encoder": {
+            "status": "source-exact",
+            "sha256": "0811ac04c918b89e878d5e342b355c677f09be60ddf652c2d6a96c22e1cfa0a0",
+            "byteLength": 354
+          }
+        },
+        {
+          "id": "il-published-7973a415943d",
+          "version": "01",
+          "parser": {
+            "accepted": false,
+            "error": "Invalid record separator",
+            "diagnostics": []
+          },
+          "encoder": {
+            "status": "parser-rejected",
+            "error": "Invalid record separator"
+          }
+        }
+      ],
+      "sourceAttempts": [
+        {
+          "id": "recheck-il-v08-dl-published",
+          "url": "https://www.ilsos.gov/content/dam/publications/pdf_publications/dsd_a301.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "141826f38d3c39b2bc748ccfc3dc2bbca7323f03f5fc28c4e248ecb0fb78df0c",
+          "symbols": 1
+        },
+        {
+          "id": "illinois-2022",
+          "url": "https://usid.fyi/uploads/622fbd6287bf1e75e53ce59d20eaa1ba.webp?v=1782407547",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "9dd47ba5500e4b04094e6a5d9bae7ee8a35264c772b4a93bc9965d566f0318c5",
+          "symbols": 1
+        },
+        {
+          "id": "illinois-2006",
+          "url": "https://usid.fyi/uploads/879fd9a171aca509fccebead295a5f15.webp?v=1782407560",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "1a66a0009d10b1b61ecb8ebcd34445d1da2173e46c386b814e88d65238700bee",
+          "symbols": 1
+        }
+      ],
+      "priorSources": [
+        {
+          "id": "il-central-issuance",
+          "url": "https://www.ilsos.gov/departments/drivers/drivers-license/central-issuance/cifaq.html",
+          "status": "failed"
+        },
+        {
+          "id": "il-central-brochure",
+          "url": "https://www.ilsos.gov/publications/pdf_publications/dsd_a301.pdf",
+          "status": "downloaded"
+        }
+      ],
       "remaining": "Additional editions and document types; independently sourced v12 signed issuer payload."
     },
     {
@@ -277,12 +1153,64 @@
       "iin": "636037",
       "iinVerified": true,
       "configuredVersion": "09",
+      "version12IssuerAdoption": "unverified",
       "version12SyntheticOracle": ["DL", "ID"],
       "externalFixtureCount": 0,
       "unmodifiedSourceCount": 0,
       "combinations": [],
       "fidelities": [],
       "references": [],
+      "observations": [
+        {
+          "id": "in-published-95100717baa0",
+          "version": "04",
+          "parser": {
+            "accepted": true,
+            "state": "IN",
+            "diagnostics": []
+          },
+          "encoder": {
+            "status": "field-rejected",
+            "error": "Invalid field values for IN (v04): Card Revision Date (DDB)"
+          }
+        }
+      ],
+      "sourceAttempts": [
+        {
+          "id": "in-security-flyer",
+          "url": "https://secure.in.gov/bmv/resources/files/DL_Security_and_Authenticity_flyer.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "6b1b362bc085044b304e21add2b9e8c9fe5e4f866a2fb94fccf5a6a8376b4d1d",
+          "symbols": 0
+        },
+        {
+          "id": "mirror-in-public-guide",
+          "url": "https://raw.githubusercontent.com/marcdacosta/clearid/master/example%20license%20barcodes/indiana.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "c90d1282187685169c5e4d4e85f10e6796ec1fd555f491408fe79791d5660d8f",
+          "symbols": 1
+        },
+        {
+          "id": "in-driver-manual",
+          "url": "https://www.in.gov/bmv/licenses-permits-ids/files/drivers-manual.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "6e60b06a2e4837b01ab27aec8f4053da23bc2d5f50582cb8229e0432717ebfdd",
+          "symbols": 0
+        }
+      ],
+      "priorSources": [
+        {
+          "id": "in-security-guide",
+          "url": "https://www.in.gov/bmv/resources/files/DL_Security_and_Authenticity_flyer.pdf",
+          "status": "downloaded"
+        }
+      ],
       "remaining": "Valid external encoder reference; published observations have explicit source defects or unresolved format differences."
     },
     {
@@ -291,12 +1219,51 @@
       "iin": "636018",
       "iinVerified": true,
       "configuredVersion": "09",
+      "version12IssuerAdoption": "unverified",
       "version12SyntheticOracle": ["DL", "ID"],
       "externalFixtureCount": 0,
       "unmodifiedSourceCount": 0,
       "combinations": [],
       "fidelities": [],
       "references": [],
+      "observations": [],
+      "sourceAttempts": [
+        {
+          "id": "ia-everify-specimens-fresh",
+          "url": "https://www.e-verify.gov/sites/default/files/everify/factsheets/factsheetsArchive/IowaRIDEFactSheet.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "807782c6317b94533233595ffa7c61684a67615f9cb305729f894a44a4784469",
+          "symbols": 0
+        },
+        {
+          "id": "ia-driver-manual-current",
+          "url": "https://iowadot.gov/media/7308/download?inline",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "d63dc18471cc5e345ebd5919b0ac019a76af77f012ced96438e481ef795dfb80",
+          "symbols": 0
+        }
+      ],
+      "priorSources": [
+        {
+          "id": "ia-design-guide",
+          "url": "https://revenue.iowa.gov/media/2153/download?inline=",
+          "status": "failed"
+        },
+        {
+          "id": "ia-public-design-guide",
+          "url": "https://nextest.dps.state.ia.us/launchpad/cjisdocs/docs.cgi?ID=456&TYPE=DOCS&cmd=FS",
+          "status": "failed"
+        },
+        {
+          "id": "ia-everify-specimens",
+          "url": "https://www.e-verify.gov/sites/default/files/everify/factsheets/factsheetsArchive/IowaRIDEFactSheet.pdf",
+          "status": "downloaded"
+        }
+      ],
       "remaining": "Independently sourced marked specimen payload and passing byte comparison."
     },
     {
@@ -305,6 +1272,7 @@
       "iin": "636022",
       "iinVerified": true,
       "configuredVersion": "09",
+      "version12IssuerAdoption": "unverified",
       "version12SyntheticOracle": ["DL", "ID"],
       "externalFixtureCount": 1,
       "unmodifiedSourceCount": 1,
@@ -319,6 +1287,79 @@
           "source": "https://raw.githubusercontent.com/marcdacosta/clearid/master/example%20license%20barcodes/Kansas_Transportation_Testimony_2017-01-18_39b96711f6bc3447.pdf"
         }
       ],
+      "observations": [
+        {
+          "id": "ks-published-982331e750a8",
+          "version": "09",
+          "parser": {
+            "accepted": true,
+            "state": "KS",
+            "diagnostics": []
+          },
+          "encoder": {
+            "status": "source-exact",
+            "sha256": "982331e750a88459bbd31f7ca423a674d197e2f870582821494642a5f7db1aa0",
+            "byteLength": 348
+          }
+        }
+      ],
+      "sourceAttempts": [
+        {
+          "id": "ks-2006-legislature",
+          "url": "https://kslegislature.gov/historical_data/minutes/2006/2006_S_Min_TRA_0222.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "b6e9d9ab67b1e856afa9b8f98f517a26da2c36c2c777fa597130ba8fc39ad307",
+          "symbols": 0
+        },
+        {
+          "id": "ks-2017-archived-legislature",
+          "url": "https://web.archive.org/web/20190000000000id_/http://www.kslegislature.org/li/b2017_18/committees/ctte_s_trnsprt_1/documents/testimony/20170118_03.pdf",
+          "status": 404,
+          "error": "404 Client Error: NOT FOUND for url: https://web.archive.org/web/20190000000000id_/http://www.kslegislature.org/li/b2017_18/committees/ctte_s_trnsprt_1/documents/testimony/20170118_03.pdf",
+          "excluded": null,
+          "symbols": 0
+        },
+        {
+          "id": "ks-2017-government-testimony",
+          "url": "https://kslegislature.gov/li/b2017_18/committees/ctte_s_trnsprt_1/documents/testimony/20170118_03.pdf",
+          "status": 404,
+          "error": "404 Client Error: Not Found for url: https://kslegislature.gov/b2025_26/b2017_18/committees/ctte_s_trnsprt_1/documents/testimony/20170118_03.pdf",
+          "excluded": null,
+          "symbols": 0
+        },
+        {
+          "id": "ks-2017-state-library",
+          "url": "https://kgi.contentdm.oclc.org/digital/api/collection/p16884coll67/id/326/download",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "755f3a7b2cf74142b8ac3c4ab00b10c664fe1513f5066d4e1b21dc74b37e81cf",
+          "symbols": 0
+        },
+        {
+          "id": "mirror-ks-2017-testimony",
+          "url": "https://raw.githubusercontent.com/marcdacosta/clearid/master/example%20license%20barcodes/Kansas_Transportation_Testimony_2017-01-18_39b96711f6bc3447.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "d1fd565c8dfc55e2557e24669b22661b60b655afc8334ce297c92382bcf5fbf2",
+          "symbols": 1
+        }
+      ],
+      "priorSources": [
+        {
+          "id": "ks-2017-legislature",
+          "url": "https://kslegislature.gov/li/b2017_18/committees/ctte_s_trnsprt_1/documents/testimony/20170118_03.pdf",
+          "status": "failed"
+        },
+        {
+          "id": "ks-2017-state-library",
+          "url": "https://kgi.contentdm.oclc.org/digital/api/collection/p16884coll67/id/326/download",
+          "status": "downloaded"
+        }
+      ],
       "remaining": "Additional editions and document types; independently sourced v12 signed issuer payload."
     },
     {
@@ -327,12 +1368,62 @@
       "iin": "636046",
       "iinVerified": true,
       "configuredVersion": "09",
+      "version12IssuerAdoption": "unverified",
       "version12SyntheticOracle": ["DL", "ID"],
       "externalFixtureCount": 0,
       "unmodifiedSourceCount": 0,
       "combinations": [],
       "fidelities": [],
       "references": [],
+      "observations": [],
+      "sourceAttempts": [
+        {
+          "id": "ky-2019-legislature-fresh",
+          "url": "https://apps.legislature.ky.gov/CommitteeDocuments/163/11618/022519-3-ConfIDentKY.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "79aa48c3a2e7900cb86525ed46217d59d481c08313f34a17872c371d2051672e",
+          "symbols": 0
+        },
+        {
+          "id": "ky-realid-samples-01",
+          "url": "https://drive.ky.gov/RealID/PublishingImages/Standard-DL.png",
+          "status": 403,
+          "error": "403 Client Error: Forbidden for url: https://drive.ky.gov/RealID/PublishingImages/Standard-DL.png",
+          "excluded": null,
+          "symbols": 0
+        },
+        {
+          "id": "ky-realid-samples-02",
+          "url": "https://drive.ky.gov/RealID/PublishingImages/REAL-ID.png",
+          "status": 403,
+          "error": "403 Client Error: Forbidden for url: https://drive.ky.gov/RealID/PublishingImages/REAL-ID.png",
+          "excluded": null,
+          "symbols": 0
+        },
+        {
+          "id": "ky-driver-manual-2026",
+          "url": "https://wp.kentuckystatepolice.ky.gov/wp-content/uploads/2026/07/Kentucky-Driver-Manual_Updated_7-23-26.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "fa511c13651ede502d8d77cd71c192e5b72e4002ad2564d0544f7afe82658064",
+          "symbols": 0
+        }
+      ],
+      "priorSources": [
+        {
+          "id": "ky-2019-legislature",
+          "url": "https://apps.legislature.ky.gov/CommitteeDocuments/163/11618/022519-3-ConfIDentKY.pdf",
+          "status": "downloaded"
+        },
+        {
+          "id": "ky-realid-samples",
+          "url": "https://drive.ky.gov/RealID/Pages/What-is-Changing.aspx",
+          "status": "downloaded"
+        }
+      ],
       "remaining": "Independently sourced marked specimen payload and passing byte comparison."
     },
     {
@@ -341,12 +1432,35 @@
       "iin": "636007",
       "iinVerified": true,
       "configuredVersion": "09",
+      "version12IssuerAdoption": "unverified",
       "version12SyntheticOracle": ["DL", "ID"],
       "externalFixtureCount": 0,
       "unmodifiedSourceCount": 0,
       "combinations": [],
       "fidelities": [],
       "references": [],
+      "observations": [],
+      "sourceAttempts": [
+        {
+          "id": "la-2023-primary-realid-brochure",
+          "url": "https://www.expresslane.org/media/3h0f2qsc/real-id-brochure-printable.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "193160f180cabab29043616b27fa47f617d1fa98115c578f57ac1b25d8f5c9c0",
+          "symbols": 0
+        },
+        {
+          "id": "la-driver-guide-2025",
+          "url": "https://public.powerdms.com/LADPSC/documents/347039",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "3b3e094d39d16bb69685c9541db24486fdf1f38d09a4ca1158578a715da9d702",
+          "symbols": 0
+        }
+      ],
+      "priorSources": [],
       "remaining": "Independently sourced marked specimen payload and passing byte comparison."
     },
     {
@@ -355,12 +1469,59 @@
       "iin": "636041",
       "iinVerified": true,
       "configuredVersion": "09",
+      "version12IssuerAdoption": "unverified",
       "version12SyntheticOracle": ["DL", "ID"],
       "externalFixtureCount": 0,
       "unmodifiedSourceCount": 0,
       "combinations": [],
       "fidelities": [],
       "references": [],
+      "observations": [],
+      "sourceAttempts": [
+        {
+          "id": "me-primary-realid-brochure",
+          "url": "https://www.maine.gov/sos/bmv/licenses/realidbrochure.pdf",
+          "status": 403,
+          "error": "403 Client Error: Forbidden for url: https://www.maine.gov/sos/bmv/licenses/realidbrochure.pdf",
+          "excluded": null,
+          "symbols": 0
+        },
+        {
+          "id": "me-manual-current",
+          "url": "https://www.maine.gov/sos/sites/maine.gov.sos/files/inline-files/Maine%20Driver%20License%20Manual_2.pdf",
+          "status": 403,
+          "error": "403 Client Error: Forbidden for url: https://www.maine.gov/sos/sites/maine.gov.sos/files/inline-files/Maine%20Driver%20License%20Manual_2.pdf",
+          "excluded": null,
+          "symbols": 0
+        }
+      ],
+      "priorSources": [
+        {
+          "id": "me-brochure-migrated-host",
+          "url": "https://www3.maine.gov/sos/sites/maine.gov.sos/files/inline-files/MVL-8%20Rev%2012-22_0.pdf",
+          "status": "excluded-after-review"
+        },
+        {
+          "id": "me-checklist-current",
+          "url": "https://www.maine.gov/sos/sites/maine.gov.sos/files/inline-files/MVL-9Checklist%20Brochure%20Revised%207-2022.pdf",
+          "status": "failed"
+        },
+        {
+          "id": "me-real-id-brochure",
+          "url": "https://www.maine.gov/sos/sites/maine.gov.sos/files/inline-files/MVL-8%20Rev%2012-22_0.pdf",
+          "status": "failed"
+        },
+        {
+          "id": "me-real-id",
+          "url": "https://www3.maine.gov/sos/bmv/driver-licenses-and-ids/real-id",
+          "status": "excluded-after-review"
+        },
+        {
+          "id": "me-checklist-brochure",
+          "url": "https://www.maine.gov/sos/bmv/licenses/MVL-9Checklist%20Brochure.pdf",
+          "status": "failed"
+        }
+      ],
       "remaining": "Independently sourced marked specimen payload and passing byte comparison."
     },
     {
@@ -369,12 +1530,54 @@
       "iin": "636003",
       "iinVerified": true,
       "configuredVersion": "10",
+      "version12IssuerAdoption": "unverified",
       "version12SyntheticOracle": ["DL", "ID"],
       "externalFixtureCount": 0,
       "unmodifiedSourceCount": 0,
       "combinations": [],
       "fidelities": [],
       "references": [],
+      "observations": [],
+      "sourceAttempts": [
+        {
+          "id": "md-2016-secure-card-features",
+          "url": "https://mva.maryland.gov/documents/secureid-card-features.pdf",
+          "status": 404,
+          "error": "404 Client Error: Not Found for url: https://mva.maryland.gov/documents/secureid-card-features.pdf",
+          "excluded": null,
+          "symbols": 0
+        },
+        {
+          "id": "md-manual-current",
+          "url": "https://mva.maryland.gov/media/148/download",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "8ff4eed753b4dcb8571bf93350d6a3444872e87523bb124aae3704be6233ccf2",
+          "symbols": 0
+        },
+        {
+          "id": "md-secure-card-archive",
+          "url": "https://web.archive.org/web/20250101000000id_/https://mva.maryland.gov/documents/secureid-card-features.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "04df9aa99bc51fa80544470e9f6418232b1152ebaf03b2882aa6055657979253",
+          "symbols": 0
+        }
+      ],
+      "priorSources": [
+        {
+          "id": "md-real-id-toolkit",
+          "url": "https://mva.maryland.gov/pages/realid-toolkit.aspx",
+          "status": "failed"
+        },
+        {
+          "id": "md-archive",
+          "url": "https://msa.maryland.gov/megafile/msa/speccol/sc5300/sc5339/000113/002000/002409/unrestricted/20063630e.pdf",
+          "status": "excluded-after-review"
+        }
+      ],
       "remaining": "Independently sourced marked specimen payload and passing byte comparison."
     },
     {
@@ -383,12 +1586,54 @@
       "iin": "636002",
       "iinVerified": true,
       "configuredVersion": "09",
+      "version12IssuerAdoption": "unverified",
       "version12SyntheticOracle": ["DL", "ID"],
       "externalFixtureCount": 0,
       "unmodifiedSourceCount": 0,
       "combinations": [],
       "fidelities": [],
       "references": [],
+      "observations": [],
+      "sourceAttempts": [
+        {
+          "id": "ma-2016-direct-fresh",
+          "url": "https://www.mass.gov/files/documents/2018/02/02/Accessible_E-Brochure.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "934fcf1e5d65d8881895795a034c915222093f39c430548e72463c3f1dbfe535",
+          "symbols": 0
+        },
+        {
+          "id": "ma-2016-security-guide",
+          "url": "https://www.mass.gov/doc/a-guide-to-the-new-license-and-identification-card/download",
+          "status": 403,
+          "error": "403 Client Error: Forbidden for url: https://www.mass.gov/doc/a-guide-to-the-new-license-and-identification-card/download",
+          "excluded": null,
+          "symbols": 0
+        },
+        {
+          "id": "ma-guide-archive",
+          "url": "https://web.archive.org/web/20250501000000id_/https://www.mass.gov/files/documents/2018/02/02/Accessible_E-Brochure.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "934fcf1e5d65d8881895795a034c915222093f39c430548e72463c3f1dbfe535",
+          "symbols": 0
+        }
+      ],
+      "priorSources": [
+        {
+          "id": "ma-2016-security",
+          "url": "https://www.mass.gov/doc/a-guide-to-the-new-license-and-identification-card/download",
+          "status": "failed"
+        },
+        {
+          "id": "ma-2016-direct",
+          "url": "https://www.mass.gov/files/documents/2018/02/02/Accessible_E-Brochure.pdf",
+          "status": "downloaded"
+        }
+      ],
       "remaining": "Independently sourced marked specimen payload and passing byte comparison."
     },
     {
@@ -397,12 +1642,117 @@
       "iin": "636032",
       "iinVerified": true,
       "configuredVersion": "10",
+      "version12IssuerAdoption": "unverified",
       "version12SyntheticOracle": ["DL", "ID"],
       "externalFixtureCount": 0,
       "unmodifiedSourceCount": 0,
       "combinations": [],
       "fidelities": [],
       "references": [],
+      "observations": [
+        {
+          "id": "mi-published-94fcb2b14bf1",
+          "version": "10",
+          "parser": {
+            "accepted": true,
+            "state": "MI",
+            "diagnostics": []
+          },
+          "encoder": {
+            "status": "field-rejected",
+            "error": "Missing mandatory fields for MI (v10): Vehicle Class (DCA), Restriction Codes (DCB), Endorsement Codes (DCD), Eye Color (DAY), Height (DAU), Document Discriminator (DCF), Country Identification (DCG)"
+          }
+        }
+      ],
+      "sourceAttempts": [
+        {
+          "id": "mi-2023-retailer-calibration",
+          "url": "https://www.michigan.gov/cra/-/media/Project/Websites/cra/Link-Page/1_MI_D100_2DCalibratorSheet-Retailers.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "16527f6a8591feee4721b6e1ee26597ab389a3dec28e4dac2c0a0b3ad9c267e8",
+          "symbols": 1
+        },
+        {
+          "id": "mi-2024-public-poster-fresh",
+          "url": "https://www.michigan.gov/sos/-/media/Project/Websites/sos/License-and-ID/Informational/Branch_NewLicenseIDPoster_85x11.pdf?hash=E21010E6FB12BFA98375C94D01462703&rev=03dc34029ce74e75808be91c878b2fe5",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "debb351938c245c8a93c200329586c1e6d13f73511bd8ee680dee9f4d9b2df8d",
+          "symbols": 0
+        },
+        {
+          "id": "mi-license-information-01",
+          "url": "https://www.michigan.gov/sos/-/media/Project/Websites/sos/License-and-ID/Images/StandardID_Shadow.jpg?rev=3ac2d25fc63740a3bc586612b69cbd11&hash=F4D40F56E85C968940EAFE0EEA43F9C6&mw=1024",
+          "status": 403,
+          "error": "403 Client Error: Forbidden for url: https://www.michigan.gov/sos/-/media/Project/Websites/sos/License-and-ID/Images/StandardID_Shadow.jpg?rev=3ac2d25fc63740a3bc586612b69cbd11&hash=F4D40F56E85C968940EAFE0EEA43F9C6&mw=1024",
+          "excluded": null,
+          "symbols": 0
+        },
+        {
+          "id": "mi-license-information-02",
+          "url": "https://www.michigan.gov/sos/-/media/Project/Websites/sos/License-and-ID/Images/DriversLicense_Shadow.jpg?rev=9a8d613600b344b09107fc5ece1c84b3&hash=E504F28FF5BAC5A06A473715633C307E&mw=1024",
+          "status": 403,
+          "error": "403 Client Error: Forbidden for url: https://www.michigan.gov/sos/-/media/Project/Websites/sos/License-and-ID/Images/DriversLicense_Shadow.jpg?rev=9a8d613600b344b09107fc5ece1c84b3&hash=E504F28FF5BAC5A06A473715633C307E&mw=1024",
+          "excluded": null,
+          "symbols": 0
+        },
+        {
+          "id": "mi-license-information-03",
+          "url": "https://www.michigan.gov/sos/-/media/Project/Websites/sos/License-and-ID/Images/License_Enhanced_Shadow.jpg?rev=a90ddaf076d144278790c11d588203e6&hash=68FBD84BDE5E2A9C72C58DF42A3F9566&mw=1024",
+          "status": 403,
+          "error": "403 Client Error: Forbidden for url: https://www.michigan.gov/sos/-/media/Project/Websites/sos/License-and-ID/Images/License_Enhanced_Shadow.jpg?rev=a90ddaf076d144278790c11d588203e6&hash=68FBD84BDE5E2A9C72C58DF42A3F9566&mw=1024",
+          "excluded": null,
+          "symbols": 0
+        },
+        {
+          "id": "mi-license-information-04",
+          "url": "https://www.michigan.gov/sos/-/media/Project/Websites/sos/License-and-ID/Images/CDL_Shadow.jpg?rev=b70ced6ab9604793bb0179a41ba9c982&hash=BBBD94BC72C47103EA53AF9DBC939568&mw=1024",
+          "status": 403,
+          "error": "403 Client Error: Forbidden for url: https://www.michigan.gov/sos/-/media/Project/Websites/sos/License-and-ID/Images/CDL_Shadow.jpg?rev=b70ced6ab9604793bb0179a41ba9c982&hash=BBBD94BC72C47103EA53AF9DBC939568&mw=1024",
+          "excluded": null,
+          "symbols": 0
+        },
+        {
+          "id": "mi-license-information-05",
+          "url": "https://www.michigan.gov/sos/-/media/Project/Websites/sos/License-and-ID/Images/ChauffeursLicense_Shadow.jpg?rev=bf5d1ce78cbc447c868260ee0c81e214&hash=0D505DEF587E442C01D877F63D3052CC&mw=1024",
+          "status": 403,
+          "error": "403 Client Error: Forbidden for url: https://www.michigan.gov/sos/-/media/Project/Websites/sos/License-and-ID/Images/ChauffeursLicense_Shadow.jpg?rev=bf5d1ce78cbc447c868260ee0c81e214&hash=0D505DEF587E442C01D877F63D3052CC&mw=1024",
+          "excluded": null,
+          "symbols": 0
+        },
+        {
+          "id": "mi-license-information-06",
+          "url": "https://www.michigan.gov/sos/-/media/Project/Websites/sos/License-and-ID/Images/MopedLicense_Shadow.jpg?rev=efad36bf64764c0b9ea407ef9b5fec55&hash=292CDE5DCE39DEAB9232FE25E775EB83&mw=1024",
+          "status": 403,
+          "error": "403 Client Error: Forbidden for url: https://www.michigan.gov/sos/-/media/Project/Websites/sos/License-and-ID/Images/MopedLicense_Shadow.jpg?rev=efad36bf64764c0b9ea407ef9b5fec55&hash=292CDE5DCE39DEAB9232FE25E775EB83&mw=1024",
+          "excluded": null,
+          "symbols": 0
+        },
+        {
+          "id": "mi-manual-2025",
+          "url": "https://www.michigan.gov/sos/-/media/Project/Websites/sos/Resources/Forms-and-publications/WEDMK/WEDMK.pdf-1",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "d7afd04a7270cf908fa47ba68b56712856b7c313c4751a4f9cd1c575281a7c11",
+          "symbols": 0
+        }
+      ],
+      "priorSources": [
+        {
+          "id": "mi-2024-public-poster",
+          "url": "https://www.michigan.gov/sos/-/media/Project/Websites/sos/License-and-ID/Informational/Branch_NewLicenseIDPoster_85x11.pdf?hash=E21010E6FB12BFA98375C94D01462703&rev=03dc34029ce74e75808be91c878b2fe5",
+          "status": "downloaded"
+        },
+        {
+          "id": "mi-license-information",
+          "url": "https://www.michigan.gov/sos/license-id/license-and-id-information",
+          "status": "downloaded"
+        }
+      ],
       "remaining": "Valid external encoder reference; published observations have explicit source defects or unresolved format differences."
     },
     {
@@ -411,12 +1761,82 @@
       "iin": "636038",
       "iinVerified": true,
       "configuredVersion": "09",
+      "version12IssuerAdoption": "unverified",
       "version12SyntheticOracle": ["DL", "ID"],
       "externalFixtureCount": 0,
       "unmodifiedSourceCount": 0,
       "combinations": [],
       "fidelities": [],
       "references": [],
+      "observations": [],
+      "sourceAttempts": [
+        {
+          "id": "mn-2010-commercial-manual",
+          "url": "https://rosap.ntl.bts.gov/view/dot/39742/dot_39742_DS1.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "5d00865a11cf3db3a3825e6e153b4dd11b8b1f4c9f81d054ca4fcab7bd8f8707",
+          "symbols": 0
+        },
+        {
+          "id": "mn-2026-dvs-public-handouts",
+          "url": "https://assets.dps.mn.gov/files/dvs/dvs-dr-dla-training-handouts-2026-3.pdf",
+          "status": 403,
+          "error": "403 Client Error: Forbidden for url: https://assets.dps.mn.gov/files/dvs/dvs-dr-dla-training-handouts-2026-3.pdf",
+          "excluded": null,
+          "symbols": 0
+        },
+        {
+          "id": "mn-all-info-fresh",
+          "url": "https://assets.dps.mn.gov/files/dvs/Drivers-License-for-All-info-sheet.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "bd8a137f7f42d2b0eb5e28dc217286e4d7f2b274e0060a7c4becb3c018eb89ef",
+          "symbols": 0
+        },
+        {
+          "id": "mn-new-design-county-fresh",
+          "url": "https://cms3.revize.com/revize/pipestonecomn/Document%20Center/Government/Department/Treasurer/Driver%20License/DL%20new%20designs.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "b704c4d7fbcb81f19afe0f4878cb975c3bd33a8ff6847088b8119eaba226198c",
+          "symbols": 0
+        },
+        {
+          "id": "mn-manual-2026",
+          "url": "https://www.lrl.mn.gov/docs/2026/other/261377.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "b3b4a6f10f0ed15b6ac2f609d9ff4b8ae260c0767c3883b6f806b489796cd1e1",
+          "symbols": 0
+        }
+      ],
+      "priorSources": [
+        {
+          "id": "mn-new-design-county",
+          "url": "https://cms3.revize.com/revize/pipestonecomn/Document%20Center/Government/Department/Treasurer/Driver%20License/DL%20new%20designs.pdf",
+          "status": "downloaded"
+        },
+        {
+          "id": "mn-all-info",
+          "url": "https://assets.dps.mn.gov/files/dvs/Drivers-License-for-All-info-sheet.pdf",
+          "status": "downloaded"
+        },
+        {
+          "id": "mn-agent-training-2026",
+          "url": "https://assets.dps.mn.gov/files/dvs/dvs-dr-dla-training-handouts-2026-1.pdf",
+          "status": "failed"
+        },
+        {
+          "id": "mn-new-design-faq",
+          "url": "https://dvsinfohub.dps.mn.gov/resources/Documents/FAQ-NewDesign.pdf",
+          "status": "failed"
+        }
+      ],
       "remaining": "Independently sourced marked specimen payload and passing byte comparison."
     },
     {
@@ -425,12 +1845,73 @@
       "iin": "636051",
       "iinVerified": true,
       "configuredVersion": "09",
+      "version12IssuerAdoption": "unverified",
       "version12SyntheticOracle": ["DL", "ID"],
       "externalFixtureCount": 0,
       "unmodifiedSourceCount": 0,
       "combinations": [],
       "fidelities": [],
       "references": [],
+      "observations": [
+        {
+          "id": "ms-published-fd86a289088d",
+          "version": "10",
+          "parser": {
+            "accepted": true,
+            "state": "MS",
+            "diagnostics": []
+          },
+          "encoder": {
+            "status": "field-rejected",
+            "error": "Invalid field values for MS (v10): Card Revision Date (DDB)"
+          }
+        }
+      ],
+      "sourceAttempts": [
+        {
+          "id": "ms-design-adult",
+          "url": "https://www.dps.ms.gov/sites/dps/files/inline-images/AdultDL_LargeScaleImage.jpg",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "421d7c166f57470aca591b00e657232d46f5732bf2f735de668cc96824921a71",
+          "symbols": 0
+        },
+        {
+          "id": "ms-design-minor",
+          "url": "https://www.dps.ms.gov/sites/dps/files/inline-images/Minor_DL_300dpi.jpg",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "f06a0355bd6187a4cb47eed25077c3382fa8efd04ad333143e7d919e5de483ad",
+          "symbols": 0
+        },
+        {
+          "id": "ms-manual-00000830c",
+          "url": "https://www.sos.ms.gov/adminsearch/ACCode/00000830c.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "505daaefdc3c4afe85ef77a94ecd67be578c5da6596610a1caf2e0d38d2ec883",
+          "symbols": 1
+        },
+        {
+          "id": "ms-manual-2025",
+          "url": "https://www.driverservicebureau.dps.ms.gov/sites/default/files/2025-02/1.15.2025%20Revised%20MDPS%20Driver%27s%20Manual.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "6fd2b3dda657c340fd6a0a571ec5f91e33cb54d529eaef531774007620b4f3e0",
+          "symbols": 0
+        }
+      ],
+      "priorSources": [
+        {
+          "id": "ms-2024-design",
+          "url": "https://www.dps.ms.gov/node/1518",
+          "status": "downloaded"
+        }
+      ],
       "remaining": "Valid external encoder reference; published observations have explicit source defects or unresolved format differences."
     },
     {
@@ -439,6 +1920,7 @@
       "iin": "636030",
       "iinVerified": true,
       "configuredVersion": "09",
+      "version12IssuerAdoption": "unverified",
       "version12SyntheticOracle": ["DL", "ID"],
       "externalFixtureCount": 1,
       "unmodifiedSourceCount": 1,
@@ -453,6 +1935,67 @@
           "source": "https://dor.mo.gov/forms/5443.pdf"
         }
       ],
+      "observations": [
+        {
+          "id": "mo-published-8d3a544800b4",
+          "version": "05",
+          "parser": {
+            "accepted": true,
+            "state": "MO",
+            "diagnostics": []
+          },
+          "encoder": {
+            "status": "source-exact",
+            "sha256": "8d3a544800b4de415f72a6348748a11ce23f3bb15a58c099887af7572addbeb8",
+            "byteLength": 641
+          }
+        }
+      ],
+      "sourceAttempts": [
+        {
+          "id": "mirror-mo-public-guide",
+          "url": "https://raw.githubusercontent.com/marcdacosta/clearid/master/example%20license%20barcodes/missouri.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "6a8d19a16c4419f466dc8d1ad6ea535557951412d6e8fc4132773c10eff5239e",
+          "symbols": 1
+        },
+        {
+          "id": "mo-2013-newlicense-government",
+          "url": "https://dor.mo.gov/pdf/newlicense.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "e319d0c1b8a55be21843a58e7fd3dfcc1eb76cbe2e6f5284813b1f32cccf38e4",
+          "symbols": 1
+        },
+        {
+          "id": "mo-2017-5443-government",
+          "url": "https://dor.mo.gov/forms/5443.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "6a8d19a16c4419f466dc8d1ad6ea535557951412d6e8fc4132773c10eff5239e",
+          "symbols": 1
+        },
+        {
+          "id": "missouri-2020",
+          "url": "https://usid.fyi/uploads/4862d47ce1b6d69731ad9ac1f1142335.webp?v=1782944182",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "3addd662da2804524c148eaaa3dfc64572c7699944a2c4e747ca30f7c6b1f6fe",
+          "symbols": 0
+        }
+      ],
+      "priorSources": [
+        {
+          "id": "mo-2020-brochure",
+          "url": "https://dor.mo.gov/forms/Driver%20License%20Brochure.pdf",
+          "status": "downloaded"
+        }
+      ],
       "remaining": "Additional editions and document types; independently sourced v12 signed issuer payload."
     },
     {
@@ -461,13 +2004,119 @@
       "iin": "636008",
       "iinVerified": true,
       "configuredVersion": "09",
+      "version12IssuerAdoption": "unverified",
       "version12SyntheticOracle": ["DL", "ID"],
-      "externalFixtureCount": 0,
-      "unmodifiedSourceCount": 0,
-      "combinations": [],
-      "fidelities": [],
-      "references": [],
-      "remaining": "Independently sourced marked specimen payload and passing byte comparison."
+      "externalFixtureCount": 1,
+      "unmodifiedSourceCount": 1,
+      "combinations": ["v08 DL"],
+      "fidelities": ["unmodified-source"],
+      "references": [
+        {
+          "id": "mt-v08-dl-published-fdecdc5308f0",
+          "version": "08",
+          "type": "DL",
+          "fidelity": "unmodified-source",
+          "source": "https://www.idscanner.com/wp-content/uploads/2016/02/MT-DL-Brochure.pdf"
+        }
+      ],
+      "observations": [
+        {
+          "id": "mt-published-fdecdc5308f0",
+          "version": "08",
+          "parser": {
+            "accepted": true,
+            "state": "MT",
+            "diagnostics": []
+          },
+          "encoder": {
+            "status": "source-exact",
+            "sha256": "fdecdc5308f0e1294774c5239724f56b0e5cbf1fe05c6b896e79300522fd36e7",
+            "byteLength": 386
+          }
+        },
+        {
+          "id": "mt-published-0691eccde2d2",
+          "version": "08",
+          "parser": {
+            "accepted": true,
+            "state": "MT",
+            "diagnostics": []
+          },
+          "encoder": {
+            "status": "field-rejected",
+            "error": "Invalid field values for MT (v08): Document Discriminator (DCF), Card Revision Date (DDB)"
+          }
+        }
+      ],
+      "sourceAttempts": [
+        {
+          "id": "mt-2015-brochure",
+          "url": "https://dojmt.gov/wp-content/uploads/2024/10/MT-DL-Brochure-1.pdf",
+          "status": 404,
+          "error": "404 Client Error: Not Found for url: https://dojmt.gov/wp-content/uploads/2024/10/MT-DL-Brochure-1.pdf",
+          "excluded": null,
+          "symbols": 0
+        },
+        {
+          "id": "mt-2015-legacy-brochure",
+          "url": "https://www.dojmt.gov/wp-content/uploads/MT-DL-Brochure-1.pdf",
+          "status": 404,
+          "error": "404 Client Error: Not Found for url: https://www.dojmt.gov/wp-content/uploads/MT-DL-Brochure-1.pdf",
+          "excluded": null,
+          "symbols": 0
+        },
+        {
+          "id": "mt-new-card-full",
+          "url": "https://mvdmt.gov/wp-content/uploads/2025/12/New-Credential-Key-for-Website.png",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "e6170665db9c83a035c4edbe89c71944c965a25403a8c86c50ce552b077f44d2",
+          "symbols": 0
+        },
+        {
+          "id": "mt-primary-current",
+          "url": "https://dojmt.gov/wp-content/uploads/2024/10/MT-DL-Brochure.pdf",
+          "status": 404,
+          "error": "404 Client Error: Not Found for url: https://dojmt.gov/wp-content/uploads/2024/10/MT-DL-Brochure.pdf",
+          "excluded": null,
+          "symbols": 0
+        },
+        {
+          "id": "mt-primary-document",
+          "url": "https://dojmt.gov/535623b46b968b7dd9fa6769a31de46b/",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "b416a59ae9ac092c02582c899290d0c2b0e90daa441bce0384d6da012dc81fec",
+          "symbols": 0
+        },
+        {
+          "id": "mt-primary-media",
+          "url": "https://media.dojmt.gov/wp-content/uploads/MT-DL-Brochure-1.pdf",
+          "status": null,
+          "error": "HTTPSConnectionPool(host='media.dojmt.gov', port=443): Max retries exceeded with url: /wp-content/uploads/MT-DL-Brochure-1.pdf (Caused by NameResolutionError(\"HTTPSConnection(host='media.dojmt.gov', port=443): Failed to resolve 'media.dojmt.gov' ([Errno 8] nodename nor servname provided, or not known)\"))",
+          "excluded": null,
+          "symbols": 0
+        },
+        {
+          "id": "mt-retailer-2016",
+          "url": "https://www.idscanner.com/wp-content/uploads/2016/02/MT-DL-Brochure.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "0077db96e45ade43242226b84e08ea91e7a29732deb6fa4a95e4bb6ff91feb5a",
+          "symbols": 2
+        }
+      ],
+      "priorSources": [
+        {
+          "id": "mt-new-card",
+          "url": "https://mvdmt.gov/new-driver-license/",
+          "status": "downloaded"
+        }
+      ],
+      "remaining": "Additional editions and document types; independently sourced v12 signed issuer payload."
     },
     {
       "code": "NE",
@@ -475,6 +2124,7 @@
       "iin": "636054",
       "iinVerified": true,
       "configuredVersion": "10",
+      "version12IssuerAdoption": "unverified",
       "version12SyntheticOracle": ["DL", "ID"],
       "externalFixtureCount": 1,
       "unmodifiedSourceCount": 1,
@@ -489,6 +2139,67 @@
           "source": "https://dmv.nebraska.gov/sites/default/files/doc/dls/2026_Barcode_Calibration.pdf"
         }
       ],
+      "observations": [
+        {
+          "id": "ne-published-1e3c7419dcd6",
+          "version": "09",
+          "parser": {
+            "accepted": false,
+            "error": "Malformed data element in ZN",
+            "diagnostics": []
+          },
+          "encoder": {
+            "status": "parser-rejected",
+            "error": "Malformed data element in ZN"
+          }
+        },
+        {
+          "id": "ne-published-d9de456eceac",
+          "version": "11",
+          "parser": {
+            "accepted": true,
+            "state": "NE",
+            "diagnostics": []
+          },
+          "encoder": {
+            "status": "source-exact",
+            "sha256": "d9de456eceac29b3fde609c7b52c73de603580fdac203fc469bc8fec909a1402",
+            "byteLength": 375
+          }
+        }
+      ],
+      "sourceAttempts": [
+        {
+          "id": "recheck-ne-2026-version11",
+          "url": "https://dmv.nebraska.gov/sites/default/files/doc/dls/2026_Barcode_Calibration.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "1af187a0786c41aa14a326870ab52ec998cd3b0a4419ccc29dded9fed4b5c9aa",
+          "symbols": 1
+        },
+        {
+          "id": "ne-2021-fresh-followup",
+          "url": "https://dmv.nebraska.gov/sites/dmv.nebraska.gov/files/doc/dls/NE_BarcodeCalibration_2021.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "6307d98986137f4787a3b044dc03a70422a849962689da951140b72e527722b4",
+          "symbols": 1
+        }
+      ],
+      "priorSources": [
+        {
+          "id": "ne-2026-calibration",
+          "url": "https://dmv.nebraska.gov/sites/default/files/doc/dls/2026_Barcode_Calibration.pdf",
+          "status": "downloaded"
+        },
+        {
+          "id": "ne-2021-calibration",
+          "url": "https://dmv.nebraska.gov/sites/dmv.nebraska.gov/files/doc/dls/NE_BarcodeCalibration_2021.pdf",
+          "status": "downloaded"
+        }
+      ],
       "remaining": "Additional editions and document types; independently sourced v12 signed issuer payload."
     },
     {
@@ -497,12 +2208,68 @@
       "iin": "636049",
       "iinVerified": true,
       "configuredVersion": "09",
+      "version12IssuerAdoption": "unverified",
       "version12SyntheticOracle": ["DL", "ID"],
       "externalFixtureCount": 0,
       "unmodifiedSourceCount": 0,
       "combinations": [],
       "fidelities": [],
       "references": [],
+      "observations": [],
+      "sourceAttempts": [
+        {
+          "id": "nv-2023-public-health-verification",
+          "url": "https://gethealthyclarkcounty.org/wp-content/uploads/2024/05/Identification-Verification_PIO-KT.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "ddace899b8cb103b2efc2f270ec4e7ff856dfc42d8940a7dec6dc8f0f243a7b3",
+          "symbols": 0
+        },
+        {
+          "id": "nv-designs-04",
+          "url": "https://dmv.nv.gov/images/dldesign/realidadult.png",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "cc041d0ff46f12552206bd7af8ce5e8b029f7605a933d4b30c40957c6942f210",
+          "symbols": 0
+        },
+        {
+          "id": "nv-designs-07",
+          "url": "https://dmv.nv.gov/images/dldesign/bighorn2014to2021.png",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "de532d98fd2e714fa581beb673e8eb00719e9737422210f103f126f9dfc478fd",
+          "symbols": 0
+        },
+        {
+          "id": "nv-manual-2024",
+          "url": "https://dmv.nv.gov/pdfforms/dlbook.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "0119999c0e6469aaf2e6408db4fcc414f1a9fd0994bf29d1a1a6265fdd4dd899",
+          "symbols": 0
+        },
+        {
+          "id": "nv-retailer-2016",
+          "url": "https://www.alcoholdaddy.com/wp-content/uploads/2016/07/Alcohol-Daddy%C2%AE-Participant-Manual.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "7a00394c4b033fde0aeec1b68adb8185ee50c5a04b43b132b5f93a3965a03cb7",
+          "symbols": 0
+        }
+      ],
+      "priorSources": [
+        {
+          "id": "nv-designs",
+          "url": "https://dmv.nv.gov/dldesign.htm",
+          "status": "downloaded"
+        }
+      ],
       "remaining": "Independently sourced marked specimen payload and passing byte comparison."
     },
     {
@@ -511,12 +2278,71 @@
       "iin": "636039",
       "iinVerified": true,
       "configuredVersion": "09",
+      "version12IssuerAdoption": "unverified",
       "version12SyntheticOracle": ["DL", "ID"],
       "externalFixtureCount": 0,
       "unmodifiedSourceCount": 0,
       "combinations": [],
       "fidelities": [],
       "references": [],
+      "observations": [],
+      "sourceAttempts": [
+        {
+          "id": "nh-primary-driver-manual",
+          "url": "https://www.dmv.nh.gov/sites/g/files/ehbemt416/files/inline-documents/nhdm.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "4af2af2ac8115a1a8c4a3a8dab50739998b3e159a37fc280addd10d05e737902",
+          "symbols": 0
+        },
+        {
+          "id": "nh-public-patent-drawings",
+          "url": "https://patentimages.storage.googleapis.com/30/49/ae/f8c59f659a7831/EP1811472A1.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "75ae15da0340d6e7e018a1b3e15f70a528d538383ede1fc64ee2ddfb74117a8f",
+          "symbols": 0
+        },
+        {
+          "id": "nh-unh-handheld-retrieval",
+          "url": "https://web.archive.org/web/20110331235655id_/http://project54.unh.edu/Project54/Research/Technical%20Reports/Retrieving%20data%20using%20a%20handheld%202d%20barcode%20scanner.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "31a90bd76aa40c0be721093352ea5ae01e049ae8d822aaf5f8921b71cf494cdb",
+          "symbols": 0
+        },
+        {
+          "id": "nh-unh-license-report",
+          "url": "https://web.archive.org/web/20110331234724id_/http://project54.unh.edu/Project54/Research/Technical%20Reports/Drivers%20license%20canner%20pocket%20PC%20application.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "2aeb7965476f1ac7822fa61a9197c07bd55bcdf2323761cacf0f59dfdf4756a1",
+          "symbols": 0
+        },
+        {
+          "id": "nh-unh-mobile-scanner",
+          "url": "https://web.archive.org/web/20110401000215id_/http://project54.unh.edu/Project54/Research/Technical%20Reports/The%20scanner%20applciation%20for%20the%20mobile%20p54%20software%20system.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "19b9b0617cef0536217a8e0db714f12cfc6aa0aa0e18eb71452bd6aee0b9dcc1",
+          "symbols": 0
+        },
+        {
+          "id": "nh-unh-prototype-barcode",
+          "url": "https://web.archive.org/web/20110331235218id_/http://project54.unh.edu/Project54/Research/Technical%20Reports/Prototype%202D%20barcode%20scanning%20system.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "5e56b2d2d60f9bb0be9e58490662666b2618908ae04e48adda98edeabef6e861",
+          "symbols": 1
+        }
+      ],
+      "priorSources": [],
       "remaining": "Independently sourced marked specimen payload and passing byte comparison."
     },
     {
@@ -525,12 +2351,88 @@
       "iin": "636036",
       "iinVerified": true,
       "configuredVersion": "10",
+      "version12IssuerAdoption": "unverified",
       "version12SyntheticOracle": ["DL", "ID"],
       "externalFixtureCount": 0,
       "unmodifiedSourceCount": 0,
       "combinations": [],
       "fidelities": [],
       "references": [],
+      "observations": [
+        {
+          "id": "nj-published-0c47325e2b05",
+          "version": "04",
+          "parser": {
+            "accepted": true,
+            "state": "NJ",
+            "diagnostics": [
+              "One leading space precedes the compliance indicator; directory offsets are relative to @.",
+              "Directory boundary drift was tolerated; inspect the original bytes."
+            ]
+          },
+          "encoder": {
+            "status": "field-rejected",
+            "error": "Invalid field values for NJ (v04): Vehicle Class (DCA), Restriction Codes (DCB), Endorsement Codes (DCD), Card Revision Date (DDB)"
+          }
+        }
+      ],
+      "sourceAttempts": [
+        {
+          "id": "nj-2004-assessment",
+          "url": "https://nj.gov/mvc/pdf/about/assess_2004_0330.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "b4663dd29c0ed8d3ab3923ec9172c91677879e13cb2c4cbfa3af4493bcbfb255",
+          "symbols": 0
+        },
+        {
+          "id": "nj-2020-public-retailer-training",
+          "url": "https://njlba.org/pdfs/NJDL-NEW%20LICENSE-TRAINING-2020.pdf",
+          "status": 404,
+          "error": "404 Client Error: Not Found for url: https://njlba.org/pdfs/NJDL-NEW%20LICENSE-TRAINING-2020.pdf",
+          "excluded": null,
+          "symbols": 0
+        },
+        {
+          "id": "nj-inspection-manual-fresh",
+          "url": "https://nj.gov/mvc/pdf/business/pif-manual.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "218dac3fedd127e4d8fe9eebef5856fb5366af01474e39037e9306c9bcddb861",
+          "symbols": 2
+        },
+        {
+          "id": "nj-manual-2026",
+          "url": "https://www.nj.gov/mvc/pdf/license/drivermanuals.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "58fe9577e5e5ab7f545539a5c32aa7c1b364886e51d56824b9866ab9c570c98f",
+          "symbols": 0
+        },
+        {
+          "id": "nj-notary-2018",
+          "url": "https://www.nationalnotary.org/file%20library/nna/conference/2018/identifying_fraudulent_id_documents_for_notaries.pdf",
+          "status": 404,
+          "error": "404 Client Error: Not Found for url: https://www.nationalnotary.org/file%20library/nna/conference/2018/identifying_fraudulent_id_documents_for_notaries.pdf",
+          "excluded": null,
+          "symbols": 0
+        }
+      ],
+      "priorSources": [
+        {
+          "id": "nj-driver-manual",
+          "url": "https://www.nj.gov/mvc/pdf/license/drivermanual.pdf",
+          "status": "failed"
+        },
+        {
+          "id": "nj-inspection-manual",
+          "url": "https://nj.gov/mvc/pdf/business/pif-manual.pdf",
+          "status": "downloaded"
+        }
+      ],
       "remaining": "Valid external encoder reference; published observations have explicit source defects or unresolved format differences."
     },
     {
@@ -539,12 +2441,41 @@
       "iin": "636009",
       "iinVerified": true,
       "configuredVersion": "09",
+      "version12IssuerAdoption": "unverified",
       "version12SyntheticOracle": ["DL", "ID"],
       "externalFixtureCount": 0,
       "unmodifiedSourceCount": 0,
       "combinations": [],
       "fidelities": [],
       "references": [],
+      "observations": [],
+      "sourceAttempts": [
+        {
+          "id": "nm-mvd-home-01",
+          "url": "https://www.mvd.newmexico.gov/wp-content/uploads/2021/04/NM_Adult_DL_front_RID.jpg",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "62cfd82b6546fb1e1428ccc4db2541501d5929d9eab581cf4f8ec66474e154ae",
+          "symbols": 0
+        },
+        {
+          "id": "nm-driver-manual",
+          "url": "https://realfile.tax.newmexico.gov/English%20Drivers%20Manualver11.19.19.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "3612b1745ada55d5e1cf18aadc6b9efe921f6b3da873c37753e5134331f95da9",
+          "symbols": 0
+        }
+      ],
+      "priorSources": [
+        {
+          "id": "nm-mvd-home",
+          "url": "https://www.mvd.newmexico.gov/",
+          "status": "downloaded"
+        }
+      ],
       "remaining": "Independently sourced marked specimen payload and passing byte comparison."
     },
     {
@@ -553,6 +2484,7 @@
       "iin": "636001",
       "iinVerified": true,
       "configuredVersion": "10",
+      "version12IssuerAdoption": "unverified",
       "version12SyntheticOracle": ["DL", "ID"],
       "externalFixtureCount": 3,
       "unmodifiedSourceCount": 1,
@@ -581,6 +2513,99 @@
           "source": "https://www.ejustice.ny.gov/LawEnforcement/docs/dmv/P2M32022.pdf"
         }
       ],
+      "observations": [
+        {
+          "id": "ny-published-1cf488347e2b",
+          "version": "10",
+          "parser": {
+            "accepted": true,
+            "state": "NY",
+            "diagnostics": []
+          },
+          "encoder": {
+            "status": "source-exact",
+            "sha256": "1cf488347e2b44776eceec2f9f5d4d9e9e98dd2d81805bfdeac45e49ad27e8eb",
+            "byteLength": 507
+          }
+        },
+        {
+          "id": "ny-published-b217155b6b20",
+          "version": "07",
+          "parser": {
+            "accepted": true,
+            "state": "NY",
+            "diagnostics": []
+          },
+          "encoder": {
+            "status": "field-rejected",
+            "error": "Invalid field values for NY (v07): Customer ID Number (DAQ)"
+          }
+        }
+      ],
+      "sourceAttempts": [
+        {
+          "id": "recheck-ny-2022-published",
+          "url": "https://www.ejustice.ny.gov/LawEnforcement/docs/dmv/P2M32022.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "cc04ed937ccf2940688646ba036e22d7475177b56cd2e2aad580f3856b6686da",
+          "symbols": 1
+        },
+        {
+          "id": "ny-2013-fresh-followup",
+          "url": "https://www.ejustice.ny.gov/LawEnforcement/docs/dmv/P2-M1-Changes-to-the-NYS-Driver-License.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "813895f77f8100248e956f6cdfbb61b65eb88435c0d14505094ecc260c8791e5",
+          "symbols": 1
+        },
+        {
+          "id": "new-york-2013",
+          "url": "https://usid.fyi/uploads/75a508161b2fbaf31f81cf17f03a953b.webp?v=1784823154",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "67df3639195b40a22d0440fbbeae4113f90ac029fa82c92631e12efce15c2d9a",
+          "symbols": 1
+        },
+        {
+          "id": "new-york-2008",
+          "url": "https://usid.fyi/uploads/13a789312422d2f0206790be2a8826ba.webp?v=1784823116",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "21aca0fbd189e651cb68e348dafc740b8b4550757eff4a2570c4fe0e297352c2",
+          "symbols": 0
+        },
+        {
+          "id": "new-york-2005",
+          "url": "https://usid.fyi/uploads/ad58d099f1b34f3c93b545cd4694135d.webp?v=1784823078",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "bb6757c8af52251dd83ac21b0457a2cb394b1355ac76bbd89628b57ca9b5b7f9",
+          "symbols": 0
+        }
+      ],
+      "priorSources": [
+        {
+          "id": "ny-2022-bulletin",
+          "url": "https://www.ejustice.ny.gov/LawEnforcement/docs/dmv/P2M32022.pdf",
+          "status": "downloaded"
+        },
+        {
+          "id": "ny-2013-bulletin",
+          "url": "https://www.ejustice.ny.gov/LawEnforcement/docs/dmv/P2-M1-Changes-to-the-NYS-Driver-License.pdf",
+          "status": "downloaded"
+        },
+        {
+          "id": "ny-photo-documents",
+          "url": "https://dmv.ny.gov/driver-license/sample-photo-documents",
+          "status": "downloaded"
+        }
+      ],
       "remaining": "Additional editions and document types; independently sourced v12 signed issuer payload."
     },
     {
@@ -589,12 +2614,76 @@
       "iin": "636004",
       "iinVerified": true,
       "configuredVersion": "10",
+      "version12IssuerAdoption": "unverified",
       "version12SyntheticOracle": ["DL", "ID"],
       "externalFixtureCount": 0,
       "unmodifiedSourceCount": 0,
       "combinations": [],
       "fidelities": [],
       "references": [],
+      "observations": [],
+      "sourceAttempts": [
+        {
+          "id": "nc-2017-public-alr",
+          "url": "https://connect.ncdot.gov/groups/echs/Documents/2017/Administrative%20License%20Revocation%20%289-8-17%29.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "85988d5bcfe975e41ade2fa86546986b4bb8701fa0bfa4b967c55defc6548c95",
+          "symbols": 0
+        },
+        {
+          "id": "nc-2025-performance-audit",
+          "url": "https://files.nc.gov/nc-auditor/documents/2025-08/PER-2025-4200..pdf?VersionId=3MtWYjixSNbEqzdcUEUfjCGpKhKtk1He",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "ea206d9bb6628153d5e47b2da5782f0c2110b5fdc13184205b6701505c091b0a",
+          "symbols": 0
+        },
+        {
+          "id": "nc-new-design-01",
+          "url": "https://www.ncdot.gov/dmv/license-id/PublishingImages/front-back-id.jpg?RenditionID=28",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "4a48f4dbca01b145af9e32e52dfd1902754c4087e5b34463e07357d37670ed89",
+          "symbols": 0
+        },
+        {
+          "id": "nc-new-design-02",
+          "url": "https://www.ncdot.gov/dmv/license-id/PublishingImages/driver-license-under-21.jpg",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "a739f566a0dd4e8f0837e9aa4483fb124a18edfe935753d5f7c18eef8b8560e5",
+          "symbols": 0
+        },
+        {
+          "id": "nc-new-design-enlarged",
+          "url": "https://www.ncdot.gov/dmv/license-id/PublishingImages/back-front-id.jpg",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "6876f3e1dedb0ac2c88b921eaf2d22f7336616503232ec6bac827cb8f6fc2bd6",
+          "symbols": 0
+        },
+        {
+          "id": "nc-driver-handbook-current",
+          "url": "https://www.ncdot.gov/dmv/license-id/driver-licenses/new-drivers/Documents/driver-handbook.pdf",
+          "status": 404,
+          "error": "404 Client Error: NOT FOUND for url: https://www.ncdot.gov/dmv/license-id/driver-licenses/new-drivers/Documents/driver-handbook.pdf",
+          "excluded": null,
+          "symbols": 0
+        }
+      ],
+      "priorSources": [
+        {
+          "id": "nc-new-design",
+          "url": "https://www.ncdot.gov/dmv/license-id/Pages/new-license-id-cards.aspx",
+          "status": "downloaded"
+        }
+      ],
       "remaining": "Independently sourced marked specimen payload and passing byte comparison."
     },
     {
@@ -603,12 +2692,347 @@
       "iin": "636034",
       "iinVerified": true,
       "configuredVersion": "09",
+      "version12IssuerAdoption": "unverified",
       "version12SyntheticOracle": ["DL", "ID"],
       "externalFixtureCount": 0,
       "unmodifiedSourceCount": 0,
       "combinations": [],
       "fidelities": [],
       "references": [],
+      "observations": [],
+      "sourceAttempts": [
+        {
+          "id": "nd-2019-public-server-training",
+          "url": "https://download.fargond.gov/0/server_training_presentation_9-3-19.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "0d9663bf196e56ace1bc5c3a8bfd7d558b7e6d14426e49d0cb037788d225b1a6",
+          "symbols": 0
+        },
+        {
+          "id": "nd-license-designs-01",
+          "url": "https://www.dot.nd.gov/sites/www/files/documents/Images/Driving%20and%20Drives/REAL%20ID%20-%20Under%2018%20-%20ND_D100_PR_Minor_13_DL_Compliant_NLT-SAMPLE.png",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "6db9c9268c5c4e52efb5b70dd8fb03891563d02df059aa72f2df8d1e8221d2af",
+          "symbols": 0
+        },
+        {
+          "id": "nd-license-designs-02",
+          "url": "https://www.dot.nd.gov/sites/www/files/documents/Images/Driving%20and%20Drives/REAL%20ID%20-%2018%20to%2021%20-%20ND_D100_PR_Minor_16_CDL_Compliant_NLT-SAMPLE.png",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "ed5d0d6d023f6098c99f5cae9b0e38fede140279b4c9797019715572102f0c96",
+          "symbols": 0
+        },
+        {
+          "id": "nd-license-designs-03",
+          "url": "https://www.dot.nd.gov/sites/www/files/documents/Images/Driving%20and%20Drives/REAL%20ID%20-%20Under%2018%20-%20ND_D100_PR_Minor_10_ID_Compliant_NLT-SAMPLE.png",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "0d7f7e655fae522f6e6261ea173f91ba47d08f719ea71dbc8658f75d8bbe5287",
+          "symbols": 0
+        },
+        {
+          "id": "nd-license-designs-04",
+          "url": "https://www.dot.nd.gov/sites/www/files/documents/Images/Driving%20and%20Drives/REAL%20ID%20-%20Under%2018%20Operator%20Permit%20-%20ND_D100_PR_Minor_11_OP_Compliant_NLT-SAMPLE.png",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "f8ef0c0c8d2d9b75463ea7361448e15f92b5398096d63d7809add6ba12f11ac5",
+          "symbols": 0
+        },
+        {
+          "id": "nd-license-designs-05",
+          "url": "https://www.dot.nd.gov/sites/www/files/documents/Images/Driving%20and%20Drives/Non-Federal%20-%20Under%2018%20Operator%20Permit%20-%20ND_D100_PR_Minor_15_OP_NCompliant_NLT-SAMPLE.png",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "f9ead2bb77d45da7fe2f372f8a4058a4f0c3099b11554c5527d9ca90f5c924bb",
+          "symbols": 0
+        },
+        {
+          "id": "nd-license-designs-06",
+          "url": "https://www.dot.nd.gov/sites/www/files/documents/Images/Driving%20and%20Drives/Regular%20Drivers%20License%20-%20ND_D100_PR_Adult_1_DL_Compliant_NLT-SAMPLE.png",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "3348071a8bbe0d2fe62ddbb120f9e8a3d531a14aa9084b1f40a60764a3f92d1a",
+          "symbols": 0
+        },
+        {
+          "id": "nd-license-designs-07",
+          "url": "https://www.dot.nd.gov/sites/www/files/documents/Images/Driving%20and%20Drives/Permanent%20Drivers%20License%20ND_D100_PR_Adult_1_DL_Compliant-SAMPLE.png",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "b4a0b5c949f4c4e36a3ca59f863d9019215417c35cd6f9d0bfa4caef1433cb65",
+          "symbols": 0
+        },
+        {
+          "id": "nd-license-designs-08",
+          "url": "https://www.dot.nd.gov/sites/www/files/documents/Images/Driving%20and%20Drives/Non-Federal%20Driver%20License%20-%20ND_D100_PR_Adult_1_DL_NCompliant_NLT-SAMPLE.png",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "a05cf3c89614891314866fa9ae7f35ed42454a25191f6a1f96235a5c2fabb538",
+          "symbols": 0
+        },
+        {
+          "id": "nd-license-designs-09",
+          "url": "https://www.dot.nd.gov/sites/www/files/documents/Images/Driving%20and%20Drives/REAL%20ID%20Non-Driver%20Identification%20Card%20-%20ND_D100_PR_Adult_2_ID_Compliant_NLT-SAMPLE.png",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "2e62acb0690aaa2f3a80451858c5a85dc935208aa74d50488cd3ab2e81c056a3",
+          "symbols": 0
+        },
+        {
+          "id": "nd-license-designs-10",
+          "url": "https://www.dot.nd.gov/sites/www/files/documents/Images/Driving%20and%20Drives/Non-Federal%20Non-Driver%20Identification%20Card%20-%20ND_D100_PR_Adult_2_ID_NCompliant_NLT-SAMPLE.png",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "878762c7e27e8ab779a14d83a8feda75dd5c2957b8497a3652cd8d6de7909132",
+          "symbols": 0
+        },
+        {
+          "id": "nd-license-designs-11",
+          "url": "https://www.dot.nd.gov/sites/www/files/documents/Images/Driving%20and%20Drives/Non-Federal%20Permanent%20Non-Driver%20-%20ND_D100_PR_Adult_2_ID_NCompliant-SAMPLE.png",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "a987340d118d1c799544e156b64ad853e7309312f6ad9e5c46dbbadffd51123b",
+          "symbols": 0
+        },
+        {
+          "id": "nd-license-designs-12",
+          "url": "https://www.dot.nd.gov/sites/www/files/documents/Images/Driving%20and%20Drives/REAL%20ID%20Commercial%20Driver%20License%20-%20ND_D100_PR_Adult_4_CDL_Compliant_NLT-SAMPLE.png",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "a81683f5bd4dfd198989d50db52427f900c007ad39498f1df3daf4a2dda2d6d6",
+          "symbols": 0
+        },
+        {
+          "id": "nd-license-designs-13",
+          "url": "https://www.dot.nd.gov/sites/www/files/documents/Images/Driving%20and%20Drives/Non-Federal%20-%20Temporary%20Driver%20License%20-%20ND_D100_PR_Adult_5_DL_NCompliant.png",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "751446daf9588c45b2ad7b842aceac0a9a51710004ea088e865d4e772f746dab",
+          "symbols": 0
+        },
+        {
+          "id": "nd-license-designs-14",
+          "url": "https://www.dot.nd.gov/sites/www/files/documents/Images/Driving%20and%20Drives/Non-Federal%20-%20Temporary%20Non-Driver%20Identification%20Card%20-%20ND_D100_PR_Adult_6_ID_NCompliant.png",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "b1e50151f80f006629ea6927ccebdd95e8eebd9b91031c75c92c2e6500351580",
+          "symbols": 0
+        },
+        {
+          "id": "nd-license-designs-15",
+          "url": "https://www.dot.nd.gov/sites/www/files/documents/Images/Driving%20and%20Drives/Non-Federal%20Commercial%20driver%20License%20-%20ND_D100_PR_Adult_8_CDL_NCompliant_NLT-SAMPLE.png",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "abec713eee388ca24f3b0f7577c87fb91b344217efa73d39a1f1a7fccaaa6b1f",
+          "symbols": 0
+        },
+        {
+          "id": "nd-license-designs-16",
+          "url": "https://www.dot.nd.gov/sites/www/files/documents/Images/Driving%20and%20Drives/ND_D100_PR_Adult_4_CDL_Compliant_Sample.jpg",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "58f67bf5b5e05173bd2310a73557dfa77e9affbacd96d4e97ea8fbe832e25d92",
+          "symbols": 0
+        },
+        {
+          "id": "nd-license-designs-17",
+          "url": "https://www.dot.nd.gov/sites/www/files/documents/Images/Driving%20and%20Drives/ND_D100_PR_Adult_8_CDL_Compliant_Sample.jpg",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "29c6723d514773853fe8007454d714863fd695ea4f18f43b18685234e07038c0",
+          "symbols": 0
+        },
+        {
+          "id": "nd-license-designs-18",
+          "url": "https://www.dot.nd.gov/sites/www/files/documents/Images/Driving%20and%20Drives/REAL%20ID%20Operator%20Permit%20-%20ND_D100_PR_Adult_7_OP_Compliant_NLT-SAMPLE.png",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "a76c746fbac4aac9c09809e81d794285025f9dc7089192a0b447a299b3769ac0",
+          "symbols": 0
+        },
+        {
+          "id": "nd-license-designs-19",
+          "url": "https://www.dot.nd.gov/sites/www/files/documents/Images/Driving%20and%20Drives/Driver%20License%20-%20Back%20-%20new-back.png",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "6617dd035883276d180d3d64be033f2e18b4bfe5f0e2d05582501204c7edc4ef",
+          "symbols": 0
+        },
+        {
+          "id": "nd-license-designs-20",
+          "url": "https://www.dot.nd.gov/sites/www/files/documents/Images/Driving%20and%20Drives/REAL%20ID%20-%20Under%20Age%2018%20-%204-ND_D201PR_V_DL.jpg",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "8118ca85025778c9da4972498dbcd84315a391b8a9c9344719f274b276e56a88",
+          "symbols": 0
+        },
+        {
+          "id": "nd-license-designs-21",
+          "url": "https://www.dot.nd.gov/sites/www/files/documents/Images/Driving%20and%20Drives/REAL%20ID%20-%20Ages%2018%20to%2021%20-%203-ND_D201PR_V_DL.jpg",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "7e0fa803e602c35bc1a55693cdfcbd4a6f68aff5c5c2587a5217572961171fd9",
+          "symbols": 0
+        },
+        {
+          "id": "nd-license-designs-22",
+          "url": "https://www.dot.nd.gov/sites/www/files/documents/Images/Driving%20and%20Drives/Non-Federal%20ID%20-%20Temporary%20-%206-ND_D201PR_H_DL.jpg",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "372f4d8b560e1876c36180cffd2537ca3773477a2db31e76ca6b58b944d7d59f",
+          "symbols": 0
+        },
+        {
+          "id": "nd-license-designs-23",
+          "url": "https://www.dot.nd.gov/sites/www/files/documents/Images/Driving%20and%20Drives/REAL%20ID%20-%20Permanent%20-%208-ND_D201PR_H_DL.jpg",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "d52699f00be5f6a80f3f3307db8e577582584ba3676ad3c0ad8f7f4f3db62d48",
+          "symbols": 0
+        },
+        {
+          "id": "nd-license-designs-24",
+          "url": "https://www.dot.nd.gov/sites/www/files/documents/Images/Driving%20and%20Drives/REAL%20ID%20-%201-ND_D201PR_H_DL.jpg",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "7f7a447fe0bb4b27b2b2098d0386428756c3bf5830a7bdf361c9ac64d0c42f65",
+          "symbols": 0
+        },
+        {
+          "id": "nd-license-designs-25",
+          "url": "https://www.dot.nd.gov/sites/www/files/documents/Images/Driving%20and%20Drives/Non-Federal%20ID%20-%20Temporary%20Option%202%20-%2015-ND_D201PR_H_DL.jpg",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "3f978a036cce62e48481f4514b3a28b8b6eac25f53db844deb719a0fe25bbba5",
+          "symbols": 0
+        },
+        {
+          "id": "nd-license-designs-26",
+          "url": "https://www.dot.nd.gov/sites/www/files/documents/Images/Driving%20and%20Drives/REAL%20ID%20-%20Temporary%20Operator%20Permit%20-%2011-ND_D201PR_H_P.jpg",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "7b1aa5659501bf3e5095983f9e45cbadc5d092323f7f7fa2137cab6164aa43ab",
+          "symbols": 0
+        },
+        {
+          "id": "nd-license-designs-27",
+          "url": "https://www.dot.nd.gov/sites/www/files/documents/Images/Driving%20and%20Drives/REAL%20ID%202%20-%20Permanent%20-%2010-ND_D201PR_H_P.jpg",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "4302db2b28f01d30273147719c8367f65ff9972f4ffb123088721e85c2e40830",
+          "symbols": 0
+        },
+        {
+          "id": "nd-license-designs-28",
+          "url": "https://www.dot.nd.gov/sites/www/files/documents/Images/Driving%20and%20Drives/Driver%20License%20Back%202%20-%20old-back.png",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "8aead2d8a923b8870459e18f4c446be2a27ed29a7bbee8da95a18062c19d6ffe",
+          "symbols": 0
+        },
+        {
+          "id": "nd-license-designs-29",
+          "url": "https://www.dot.nd.gov/sites/www/files/documents/Images/Driving%20and%20Drives/Non-Federal%20ID%20-%20Non-Domiciled%20-%2013-ND_D201PR_H_CDL.jpg",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "94c63f461f44cf89a99d734afe9ca40a019d73fd402b8a607ec2785ae90bee2d",
+          "symbols": 0
+        },
+        {
+          "id": "nd-license-designs-30",
+          "url": "https://www.dot.nd.gov/sites/www/files/documents/Images/Driving%20and%20Drives/REAL%20ID%20-%20Permanent%20Commercial%20Driver%20License%20-%2014-ND_D201PR_H_CDL.jpg",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "6bc7e55f682aaed836d8f7aa04b0f03ce0cea3d44588ab56a4c36f87be8c7c07",
+          "symbols": 0
+        },
+        {
+          "id": "nd-license-designs-31",
+          "url": "https://www.dot.nd.gov/sites/www/files/documents/Images/Driving%20and%20Drives/REAL%20ID%20Commercial%20Driver%20License%20-%2012-ND_D201PR_H_CDL.jpg",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "e5c28e3ffc2514dd9ed9d1e58751dad1964a784dc21ab211132915a3b4ac0be3",
+          "symbols": 0
+        },
+        {
+          "id": "nd-license-designs-32",
+          "url": "https://www.dot.nd.gov/sites/www/files/documents/Images/Driving%20and%20Drives/Non-Federal%20ID%20Non%20Driver%20ID%20-%202-ND_D201PR_H_ID.jpg",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "a8d19d3a8977fa354b738c89e02d8c51923b2bea4ac942fce929ee97573114bf",
+          "symbols": 0
+        },
+        {
+          "id": "nd-license-designs-33",
+          "url": "https://www.dot.nd.gov/sites/www/files/documents/Images/Driving%20and%20Drives/Non-Federal%20ID%20-%20Temporary%20Non-Driver%20ID%20-%207-ND_D201PR_H_ID.jpg",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "048f5f9c65982b502f72ea7ef0a3464601f083a0dc384c526a71dc8e2e206405",
+          "symbols": 0
+        },
+        {
+          "id": "nd-license-designs-34",
+          "url": "https://www.dot.nd.gov/sites/www/files/documents/Images/Driving%20and%20Drives/REAL%20ID%20-%20Permanent%20Non-Driver%20ID%20-%205-ND_D201PR_H_ID.jpg",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "6a5da9d389ff17943390c682bc5c172f1293eb672e72031c8c0948edb2508c09",
+          "symbols": 0
+        },
+        {
+          "id": "nd-manual-2025",
+          "url": "https://www.dot.nd.gov/sites/www/files/documents/Drivers%20-%20documents/noncommercial-manual.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "ab64830e432066dded224f4c790c4df7aace57c4b79dc06d7e94bd6d28d65250",
+          "symbols": 0
+        }
+      ],
+      "priorSources": [
+        {
+          "id": "nd-license-designs",
+          "url": "https://www.dot.nd.gov/driver/driver-license-and-non-driver-id",
+          "status": "downloaded"
+        }
+      ],
       "remaining": "Independently sourced marked specimen payload and passing byte comparison."
     },
     {
@@ -617,12 +3041,50 @@
       "iin": "636023",
       "iinVerified": true,
       "configuredVersion": "10",
+      "version12IssuerAdoption": "unverified",
       "version12SyntheticOracle": ["DL", "ID"],
       "externalFixtureCount": 0,
       "unmodifiedSourceCount": 0,
       "combinations": [],
       "fidelities": [],
       "references": [],
+      "observations": [],
+      "sourceAttempts": [
+        {
+          "id": "oh-2018-card-factsheet",
+          "url": "https://www.bmv.ohio.gov/links/newDL-ID-FACT-SHEET.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "b0fb736ea2210c94e324378094f870c8bdcf8e0b2bbf30f789c893f8d2fab046",
+          "symbols": 0
+        },
+        {
+          "id": "oh-realid-01",
+          "url": "https://www.bmv.ohio.gov/img/compliant-dl-id.png",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "a4df7ad3e2c20a79cf343bdbca38324dd514c46cbb296c6965317ee47284b627",
+          "symbols": 0
+        },
+        {
+          "id": "oh-realid-02",
+          "url": "https://www.bmv.ohio.gov/img/standard-dl-id.png",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "b84ef4e4402582bd5d794f127ea1209639fc0392721824a4d8152261088877f9",
+          "symbols": 0
+        }
+      ],
+      "priorSources": [
+        {
+          "id": "oh-realid",
+          "url": "https://bmv.ohio.gov/dl-real-id.aspx",
+          "status": "downloaded"
+        }
+      ],
       "remaining": "Independently sourced marked specimen payload and passing byte comparison."
     },
     {
@@ -631,12 +3093,41 @@
       "iin": "636058",
       "iinVerified": true,
       "configuredVersion": "09",
+      "version12IssuerAdoption": "unverified",
       "version12SyntheticOracle": ["DL", "ID"],
       "externalFixtureCount": 0,
       "unmodifiedSourceCount": 0,
       "combinations": [],
       "fidelities": [],
       "references": [],
+      "observations": [],
+      "sourceAttempts": [
+        {
+          "id": "mirror-ok-public-guide",
+          "url": "https://raw.githubusercontent.com/marcdacosta/clearid/master/example%20license%20barcodes/oklahoma%20-%20p19.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "363b39d5dc8a5d7315b320e54da3a7dcfbbd2fed9d71834161447f5286858667",
+          "symbols": 1
+        },
+        {
+          "id": "ok-2003-issuer-vendor-brochure",
+          "url": "https://media.corporate-ir.net/media_files/nsd/visg/oklicensebros.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "81dba2eab52b0aa1e479c0aeefe5c93b12ce657c07008b1c2eadec677abaaa9e",
+          "symbols": 1
+        }
+      ],
+      "priorSources": [
+        {
+          "id": "ok-design-2026",
+          "url": "https://content.govdelivery.com/accounts/OKSERVICE/bulletins/408f9dc",
+          "status": "excluded-after-review"
+        }
+      ],
       "remaining": "Independently sourced marked specimen payload and passing byte comparison."
     },
     {
@@ -645,12 +3136,131 @@
       "iin": "636029",
       "iinVerified": true,
       "configuredVersion": "10",
+      "version12IssuerAdoption": "unverified",
       "version12SyntheticOracle": ["DL", "ID"],
       "externalFixtureCount": 0,
       "unmodifiedSourceCount": 0,
       "combinations": [],
       "fidelities": [],
       "references": [],
+      "observations": [],
+      "sourceAttempts": [
+        {
+          "id": "or-2022-public-education",
+          "url": "https://www.oregon.gov/olcc/marijuana/documents/marijuana_worker_permit/mj_workerpermiteducation_english.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "c3dac15b29b59c168533d22bb87a5dbfc64ea7282e0d5d9dd1709c4a30aa1f55",
+          "symbols": 0
+        },
+        {
+          "id": "or-sample-cards-01",
+          "url": "https://www.oregon.gov/odot/DMV/PublishingImages/driverid/interim19.jpg",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "b78e2c8e379e608d12aa0da6aa1e216911caa014202cfcf293fa80bda06f871b",
+          "symbols": 0
+        },
+        {
+          "id": "or-sample-cards-02",
+          "url": "https://www.oregon.gov/odot/DMV/PublishingImages/DriverID/ThreeCardStackHoriz_RealID.png",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "8eb641dc58ece27e811d440141d47f11e7b2a5e1691ac3c93c64e151d80dcb46",
+          "symbols": 0
+        },
+        {
+          "id": "or-sample-cards-03",
+          "url": "https://www.oregon.gov/odot/DMV/PublishingImages/DriverID/ThreeCardStackHoriz_NotRealID.png",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "5ccdd9f3aa3474360eed43f3d9c69c857c1f050bc75628521a266ca6cfd8cd83",
+          "symbols": 0
+        },
+        {
+          "id": "or-sample-cards-04",
+          "url": "https://www.oregon.gov/odot/DMV/PublishingImages/driverid/sampledl19.jpg",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "e551ccc7ea2023f0776584301a1804fcad9352be6eafec5cecac6a3e104145af",
+          "symbols": 0
+        },
+        {
+          "id": "or-sample-cards-05",
+          "url": "https://www.oregon.gov/odot/DMV/PublishingImages/driverid/sampledl.jpg",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "3e64309e1d1a109b20fa36c9cb7bae2108b9433c342bc32461a5be64fec41d8f",
+          "symbols": 0
+        },
+        {
+          "id": "or-sample-cards-06",
+          "url": "https://www.oregon.gov/odot/DMV/PublishingImages/DriverID/ThreeCardStackVert_RealID.png",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "9fa7110d4d6237c5fd631f0c567dcb9e5f25d927d26a06e0932b5d010cedb64c",
+          "symbols": 0
+        },
+        {
+          "id": "or-sample-cards-07",
+          "url": "https://www.oregon.gov/odot/DMV/PublishingImages/DriverID/ThreeCardStackVert_NotRealID.png",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "6b606a0e4b622d70aea2b2c83b525d66a28c1d06abc9b77521248844709d644e",
+          "symbols": 0
+        },
+        {
+          "id": "or-sample-cards-08",
+          "url": "https://www.oregon.gov/odot/DMV/PublishingImages/driverid/sampleminor19.jpg",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "a2f2b4a66fe264ef861bdceca021a8882f80e6fc9c7dd8597632e71f54e95135",
+          "symbols": 0
+        },
+        {
+          "id": "or-sample-cards-09",
+          "url": "https://www.oregon.gov/odot/DMV/PublishingImages/driverid/sampleminor.jpg",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "9f8ad62bd187e81556eee7b55e50fa6934e4cfafbf35a65b86e1434eddae37ba",
+          "symbols": 0
+        },
+        {
+          "id": "or-driver-manual",
+          "url": "https://www.oregon.gov/odot/Forms/DMV/37.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "1f294b0bae15b5de3de933adf6ce5beb8dd0d9573af9004bff76cd1a39fe029d",
+          "symbols": 0
+        },
+        {
+          "id": "or-retail-2019",
+          "url": "https://storage.googleapis.com/wzukusers/user-34967481/documents/5de43283d4054asSCokt/Retail%20Operations%20Manual.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "42fe199edd3949514c2f9147ac74e0581a43f1f377add0034a86d9859fa0a125",
+          "symbols": 0
+        }
+      ],
+      "priorSources": [
+        {
+          "id": "or-sample-cards",
+          "url": "https://www.oregon.gov/odot/DMV/pages/driverid/samplecards.aspx",
+          "status": "downloaded"
+        }
+      ],
       "remaining": "Independently sourced marked specimen payload and passing byte comparison."
     },
     {
@@ -659,6 +3269,7 @@
       "iin": "636025",
       "iinVerified": true,
       "configuredVersion": "10",
+      "version12IssuerAdoption": "unverified",
       "version12SyntheticOracle": ["DL", "ID"],
       "externalFixtureCount": 1,
       "unmodifiedSourceCount": 0,
@@ -673,6 +3284,67 @@
           "source": "https://web.archive.org/web/20201017140738id_/http://www.dot.state.pa.us/public/dvspubsforms/BDL/BDL%20Publications/PUB%20802.pdf"
         }
       ],
+      "observations": [
+        {
+          "id": "pa-published-ffbde827c006",
+          "version": "08",
+          "parser": {
+            "accepted": true,
+            "state": "PA",
+            "diagnostics": [
+              "Interior segment terminator precedes ZPD in ZP; source framing is nonstandard."
+            ]
+          },
+          "encoder": {
+            "status": "canonicalized-match",
+            "sha256": "26aba5dfd0c422b2f8076e4de4db46c55db4fd25c96d2442ce0d0c150d5abc46",
+            "byteLength": 338
+          }
+        }
+      ],
+      "sourceAttempts": [
+        {
+          "id": "mirror-pa-public-guide",
+          "url": "https://raw.githubusercontent.com/marcdacosta/clearid/master/example%20license%20barcodes/pennsylvania.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "4dc287a84a72a26cc95e3696c6eb17bf324e707d99347e10db88f936d0ec60f3",
+          "symbols": 1
+        },
+        {
+          "id": "pa-2017-archived-pub802",
+          "url": "https://web.archive.org/web/20190000000000id_/http://www.dot.state.pa.us/Public/DVSPubsForms/BDL/BDL%20Publications/Pub%20802.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "4dc287a84a72a26cc95e3696c6eb17bf324e707d99347e10db88f936d0ec60f3",
+          "symbols": 1
+        },
+        {
+          "id": "pa-2017-pub802-dot",
+          "url": "https://www.dot.state.pa.us/public/dvspubsforms/BDL/BDL%20Publications/PUB%20802.pdf",
+          "status": null,
+          "error": "HTTPSConnectionPool(host='www.dot.state.pa.us', port=443): Max retries exceeded with url: /public/dvspubsforms/BDL/BDL%20Publications/PUB%20802.pdf (Caused by NameResolutionError(\"HTTPSConnection(host='www.dot.state.pa.us', port=443): Failed to resolve 'www.dot.state.pa.us' ([Errno 8] nodename nor servname provided, or not known)\"))",
+          "excluded": null,
+          "symbols": 0
+        },
+        {
+          "id": "pa-2017-pub802-government",
+          "url": "https://www.pa.gov/content/dam/copapwp-pagov/en/penndot/documents/public/dvspubsforms/bdl/bdl-publications/pub%20802.pdf",
+          "status": 404,
+          "error": "404 Client Error: Not Found for url: https://www.pa.gov/content/dam/copapwp-pagov/en/penndot/documents/public/dvspubsforms/bdl/bdl-publications/pub%20802.pdf",
+          "excluded": null,
+          "symbols": 0
+        }
+      ],
+      "priorSources": [
+        {
+          "id": "pa-license-design",
+          "url": "https://www.pa.gov/agencies/dmv/driver-services/licenses-and-photo-ids/new-driver-license-design",
+          "status": "downloaded"
+        }
+      ],
       "remaining": "Additional editions and document types; independently sourced v12 signed issuer payload."
     },
     {
@@ -681,12 +3353,41 @@
       "iin": "636052",
       "iinVerified": true,
       "configuredVersion": "09",
+      "version12IssuerAdoption": "unverified",
       "version12SyntheticOracle": ["DL", "ID"],
       "externalFixtureCount": 0,
       "unmodifiedSourceCount": 0,
       "combinations": [],
       "fidelities": [],
       "references": [],
+      "observations": [],
+      "sourceAttempts": [
+        {
+          "id": "ri-realid-samples-fresh",
+          "url": "https://dmv.ri.gov/sites/g/files/xkgbur556/files/2021-08/View%20Sample%20REAL%20ID%20Licenses%20and%20IDs.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "58b98c27e41136f7dd366f420c405c18882e39442906b001f9c06f6235a0aeb9",
+          "symbols": 0
+        },
+        {
+          "id": "ri-driver-manual",
+          "url": "https://dmv.ri.gov/media/966/download?language=en",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "129265c8a44c75eba49ddf950ddd9dced3b4ee47796e901f9d6934b107782333",
+          "symbols": 0
+        }
+      ],
+      "priorSources": [
+        {
+          "id": "ri-realid-samples",
+          "url": "https://dmv.ri.gov/sites/g/files/xkgbur556/files/2021-08/View%20Sample%20REAL%20ID%20Licenses%20and%20IDs.pdf",
+          "status": "downloaded"
+        }
+      ],
       "remaining": "Independently sourced marked specimen payload and passing byte comparison."
     },
     {
@@ -695,6 +3396,7 @@
       "iin": "636005",
       "iinVerified": true,
       "configuredVersion": "10",
+      "version12IssuerAdoption": "unverified",
       "version12SyntheticOracle": ["DL", "ID"],
       "externalFixtureCount": 1,
       "unmodifiedSourceCount": 0,
@@ -709,6 +3411,76 @@
           "source": "https://dmv.sc.gov/sites/scdmv/files/media/Files/DL-Barcode-Reatiler-%28002%29.pdf"
         }
       ],
+      "observations": [
+        {
+          "id": "sc-published-1a6e922373c1",
+          "version": "01",
+          "parser": {
+            "accepted": true,
+            "state": "SC",
+            "diagnostics": [
+              "Legacy v01 header omits the jurisdiction-version token.",
+              "Nonstandard 0x1c record separator retained from source.",
+              "Directory boundary drift was tolerated; inspect the original bytes."
+            ]
+          },
+          "encoder": {
+            "status": "canonicalized-match",
+            "sha256": "e45710797aca58bdb5d0302edecfafa6c056581d6ce75ce7ab43f305d6d4129f",
+            "byteLength": 232
+          }
+        }
+      ],
+      "sourceAttempts": [
+        {
+          "id": "sc-2009-barcode-fresh",
+          "url": "https://dmv.sc.gov/sites/scdmv/files/media/Files/DL-Barcode-Reatiler-%28002%29.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "972f1aae462e222e2135be607d8b7e70aa3cdd7ef9ebba6458ba8c2b259c96db",
+          "symbols": 1
+        },
+        {
+          "id": "sc-2025-design-01",
+          "url": "https://dmv.sc.gov/sites/scdmv/files/media/Images/Central-Issuance-news-release/SC-DL-O21_websafe_Face-RealID.jpg",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "63b3762886cd1c5f36138b7d87e6854309fe8b83f0db70e611851be7ff470e81",
+          "symbols": 0
+        },
+        {
+          "id": "sc-2025-design-02",
+          "url": "https://dmv.sc.gov/sites/scdmv/files/media/Images/Central-Issuance-news-release/SC-DL-U21_websafe_Face.jpg",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "92f4078acd5a739aafc2075f81f2588027860376ac72025c25894b05f9a149d4",
+          "symbols": 0
+        },
+        {
+          "id": "sc-2025-design-03",
+          "url": "https://dmv.sc.gov/sites/scdmv/files/inline-images/SC%20ID%20O21_websafe_Face.jpg",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "4965027b6c6a79daf974506d856df092f3458a0a42c1133b237f7a7dee290b02",
+          "symbols": 0
+        }
+      ],
+      "priorSources": [
+        {
+          "id": "sc-2009-barcode",
+          "url": "https://dmv.sc.gov/sites/scdmv/files/media/Files/DL-Barcode-Reatiler-%28002%29.pdf",
+          "status": "downloaded"
+        },
+        {
+          "id": "sc-2025-design",
+          "url": "https://dmv.sc.gov/index.php/news/new-license-designs",
+          "status": "downloaded"
+        }
+      ],
       "remaining": "Additional editions and document types; independently sourced v12 signed issuer payload."
     },
     {
@@ -717,12 +3489,55 @@
       "iin": "636042",
       "iinVerified": true,
       "configuredVersion": "09",
+      "version12IssuerAdoption": "unverified",
       "version12SyntheticOracle": ["DL", "ID"],
       "externalFixtureCount": 0,
       "unmodifiedSourceCount": 0,
       "combinations": [],
       "fidelities": [],
       "references": [],
+      "observations": [
+        {
+          "id": "sd-published-c34073702f5d",
+          "version": "04",
+          "parser": {
+            "accepted": true,
+            "state": "SD",
+            "diagnostics": []
+          },
+          "encoder": {
+            "status": "field-rejected",
+            "error": "Invalid field values for SD (v04): Card Revision Date (DDB)"
+          }
+        }
+      ],
+      "sourceAttempts": [
+        {
+          "id": "sd-design-guide-fresh",
+          "url": "https://www.sd.gov/sys_attachment.do?sys_id=9f254a244700e210a497127ba26d4378",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "204b92be01c8ab991b094e401fb9de57e8cda71c85ca3813f53a920e903b31c6",
+          "symbols": 1
+        },
+        {
+          "id": "sd-manual-public",
+          "url": "https://www.sd.gov/sys_attachment.do?sys_id=709bcdfa47406e10237fbd51026d43a9",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "a8bece2c3a9fd51cc9fd81fd9833d967ebe7688da84931baaf5aa63e25bea672",
+          "symbols": 0
+        }
+      ],
+      "priorSources": [
+        {
+          "id": "sd-design-guide",
+          "url": "https://www.sd.gov/sys_attachment.do?sys_id=9f254a244700e210a497127ba26d4378",
+          "status": "downloaded"
+        }
+      ],
       "remaining": "Valid external encoder reference; published observations have explicit source defects or unresolved format differences."
     },
     {
@@ -731,12 +3546,85 @@
       "iin": "636053",
       "iinVerified": true,
       "configuredVersion": "09",
+      "version12IssuerAdoption": "unverified",
       "version12SyntheticOracle": ["DL", "ID"],
       "externalFixtureCount": 0,
       "unmodifiedSourceCount": 0,
       "combinations": [],
       "fidelities": [],
       "references": [],
+      "observations": [],
+      "sourceAttempts": [
+        {
+          "id": "tn-2014-public-contract-samples",
+          "url": "https://capitol.tn.gov/Archives/Joint/committees/fiscal-review/archives/109ga/contracts/RFS%20349.01-00031%20Safety%20and%20Homeland%20Security%20%28L-1%20Credentialing%20-%20amd%202%29.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "eaf99dea5d521d0981943c63eb548e4d95d54b9d9efd4891d062fdaacde0cbc5",
+          "symbols": 0
+        },
+        {
+          "id": "tn-2022-driver-manual",
+          "url": "https://www.tn.gov/content/dam/tn/safety/documents/DL_Manual.pdf",
+          "status": 403,
+          "error": "403 Client Error: Forbidden for url: https://www.tn.gov/content/dam/tn/safety/documents/DL_Manual.pdf",
+          "excluded": null,
+          "symbols": 0
+        },
+        {
+          "id": "tn-manual-ext-host",
+          "url": "https://www.ext.glb.mytn.gov/content/dam/tn/safety/documents/DL_Manual.pdf",
+          "status": null,
+          "error": "HTTPSConnectionPool(host='www.ext.glb.mytn.gov', port=443): Max retries exceeded with url: /content/dam/tn/safety/documents/DL_Manual.pdf (Caused by SSLError(SSLCertVerificationError(1, \"[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: Hostname mismatch, certificate is not valid for 'www.ext.glb.mytn.gov'. (_ssl.c:1010)\")))",
+          "excluded": null,
+          "symbols": 0
+        },
+        {
+          "id": "tn-university-real-id-fresh",
+          "url": "https://www.mtas.tennessee.edu/system/files/mrln/mknowledge/main/MTAS%20Tennessee%20REAL%20ID%202025.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "dc088a97b8b831e448bc9974b89703887fbd07856e39b77d47191d500fb66f13",
+          "symbols": 0
+        },
+        {
+          "id": "tn-leg-contract-2023",
+          "url": "https://capitol.tn.gov/Archives/Joint/committees/fiscal-review/contracts/8.%20Safety%20%28Idemia%20Identity%20%26%20Security%20USA%2C%20LLC%29%20%28Drivers%20Licenses%29_REDACTED.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "8e00273ef2eb1313d4c4bbd6dcd449f3da685dac219b0acb576106ac362e7a7b",
+          "symbols": 0
+        },
+        {
+          "id": "tn-vanderbilt-manual",
+          "url": "https://www.vanderbilt.edu/isss/wp-content/uploads/sites/134/2026/03/DL_Manual.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "8afece9c21d2355cbfeb79ec5174f6ec598d95b092962676a9637b7ce1b038dd",
+          "symbols": 0
+        }
+      ],
+      "priorSources": [
+        {
+          "id": "tn-2024-design",
+          "url": "https://www.tn.gov/safety/news/2024/8/19/department-of-safety-and-homeland-security-unveils-new-tennessee-driver-licenses-and-self-service-kiosks.html",
+          "status": "failed"
+        },
+        {
+          "id": "tn-university-real-id",
+          "url": "https://www.mtas.tennessee.edu/system/files/mrln/mknowledge/main/MTAS%20Tennessee%20REAL%20ID%202025.pdf",
+          "status": "downloaded"
+        },
+        {
+          "id": "tn-design-2024",
+          "url": "https://www.tn.gov/safety/news/2024/8/19/department-of-safety-and-homeland-security-unveils-new-tennessee-driver-licenses-and-self-service-kiosks.html",
+          "status": "failed"
+        }
+      ],
       "remaining": "Independently sourced marked specimen payload and passing byte comparison."
     },
     {
@@ -745,12 +3633,100 @@
       "iin": "636015",
       "iinVerified": true,
       "configuredVersion": "10",
+      "version12IssuerAdoption": "unverified",
       "version12SyntheticOracle": ["DL", "ID"],
       "externalFixtureCount": 0,
       "unmodifiedSourceCount": 0,
       "combinations": [],
       "fidelities": [],
       "references": [],
+      "observations": [
+        {
+          "id": "tx-published-912f8875712f",
+          "version": "10",
+          "parser": {
+            "accepted": true,
+            "state": "TX",
+            "diagnostics": []
+          },
+          "encoder": {
+            "status": "field-rejected",
+            "error": "Invalid field values for TX (v10): Card Revision Date (DDB)"
+          }
+        },
+        {
+          "id": "tx-published-9af7389b1ba5",
+          "version": "10",
+          "parser": {
+            "accepted": true,
+            "state": "TX",
+            "diagnostics": []
+          },
+          "encoder": {
+            "status": "field-rejected",
+            "error": "Invalid field values for TX (v10): Card Revision Date (DDB)"
+          }
+        }
+      ],
+      "sourceAttempts": [
+        {
+          "id": "tx-2025-dl73-fresh",
+          "url": "https://www.dps.texas.gov/internetforms/getForm.ashx?id=DL-73.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "0995c0795ad4940c8e871177301b30be997ec83de76b1acbfca52833e41bd63a",
+          "symbols": 2
+        },
+        {
+          "id": "tx-new-design-01",
+          "url": "https://cdn.www3.dps.texas.gov/cdn/ff/BrbsHGfX2YEY0YqmGzl-YDiz0R2fk5b2BxyVlMprcIM/1755528566/public/news/2025-08/8.18.2025-New-DL-Design-PR.jpg",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "0840a9e02282f44282031263291a36a2d1399325b32fc741ab32aaed2a22e59c",
+          "symbols": 0
+        },
+        {
+          "id": "tx-driver-handbook",
+          "url": "https://www.dps.texas.gov/internetforms/forms/dl-7.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "5239ff7c4ec7c15e643425fd3a0d4aaabafb358c58144c7a14218dfbe21e8a6d",
+          "symbols": 0
+        },
+        {
+          "id": "texas-2025",
+          "url": "https://usid.fyi/uploads/4a6f23d30430ac0faafd2530e85d6836.webp?v=1782409205",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "2ddb73aa25c95443e71f51643e6847189c98c05e7f165fadcd4f39d543fa50e5",
+          "symbols": 1
+        },
+        {
+          "id": "texas-2020",
+          "url": "https://usid.fyi/uploads/cc97ea35ade7db80eae3fe45dface553.webp?v=1782409114",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "f9acd580135a1d926d95575c3d158b555b802fd35b429b39fb12e408295f2314",
+          "symbols": 1
+        }
+      ],
+      "priorSources": [
+        {
+          "id": "tx-2025-dl73",
+          "url": "https://www.dps.texas.gov/internetforms/getForm.ashx?id=DL-73.pdf",
+          "status": "downloaded"
+        },
+        {
+          "id": "tx-new-design",
+          "url": "https://www.dps.texas.gov/news/dps-rolls-out-new-driver-license-design",
+          "status": "downloaded"
+        }
+      ],
       "remaining": "Valid external encoder reference; published observations have explicit source defects or unresolved format differences."
     },
     {
@@ -759,12 +3735,58 @@
       "iin": "636040",
       "iinVerified": true,
       "configuredVersion": "09",
+      "version12IssuerAdoption": "unverified",
       "version12SyntheticOracle": ["DL", "ID"],
       "externalFixtureCount": 0,
       "unmodifiedSourceCount": 0,
       "combinations": [],
       "fidelities": [],
       "references": [],
+      "observations": [],
+      "sourceAttempts": [
+        {
+          "id": "ut-primary-driver-handbook",
+          "url": "https://dld.utah.gov/wp-content/uploads/Driver-Handbook.pdf",
+          "status": 404,
+          "error": "404 Client Error: Not Found for url: https://dld.utah.gov/wp-content/uploads/Driver-Handbook.pdf",
+          "excluded": null,
+          "symbols": 0
+        },
+        {
+          "id": "ut-driver-manual-current",
+          "url": "https://dld.utah.gov/wp-content/uploads/Driver-Handbook-2026.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "3764482adaa0aa2fbc549ca9607fa87aef2abb77ad5c1297ac1e2642f94dcb21",
+          "symbols": 0
+        },
+        {
+          "id": "ut-manual-2026",
+          "url": "https://dld.utah.gov/wp-content/uploads/Driver-Handbook-REV-3.2026.pdf",
+          "status": 404,
+          "error": "404 Client Error: Not Found for url: https://dld.utah.gov/wp-content/uploads/Driver-Handbook-REV-3.2026.pdf",
+          "excluded": null,
+          "symbols": 0
+        }
+      ],
+      "priorSources": [
+        {
+          "id": "ut-security-guide",
+          "url": "https://site.utah.gov/dps/wp-content/uploads/sites/27/2016/06/Doc2.pdf",
+          "status": "failed"
+        },
+        {
+          "id": "ut-legislature-2012",
+          "url": "https://le.utah.gov/interim/2012/pdf/00001322.pdf",
+          "status": "excluded-after-review"
+        },
+        {
+          "id": "ut-legislature-2016",
+          "url": "https://le.utah.gov/interim/2016/pdf/00003067.pdf",
+          "status": "excluded-after-review"
+        }
+      ],
       "remaining": "Independently sourced marked specimen payload and passing byte comparison."
     },
     {
@@ -773,12 +3795,32 @@
       "iin": "636024",
       "iinVerified": true,
       "configuredVersion": "09",
+      "version12IssuerAdoption": "unverified",
       "version12SyntheticOracle": ["DL", "ID"],
       "externalFixtureCount": 0,
       "unmodifiedSourceCount": 0,
       "combinations": [],
       "fidelities": [],
       "references": [],
+      "observations": [],
+      "sourceAttempts": [
+        {
+          "id": "vt-2019-legislature-fresh",
+          "url": "https://legislature.vermont.gov/Documents/2020/WorkGroups/House%20Corrections%20and%20Institutions/Department%20of%20Motor%20Vehicles/W~Wanda%20Minoli~Vermont%20Driver%27s%20Licenses%20and%20ID%20Cards~4-4-2019.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "7992ca6bbefb5aedd48dc202c325eb1b353879d480d2c3e4a1707d8f56400a95",
+          "symbols": 0
+        }
+      ],
+      "priorSources": [
+        {
+          "id": "vt-2019-legislature",
+          "url": "https://legislature.vermont.gov/Documents/2020/WorkGroups/House%20Corrections%20and%20Institutions/Department%20of%20Motor%20Vehicles/W~Wanda%20Minoli~Vermont%20Driver%27s%20Licenses%20and%20ID%20Cards~4-4-2019.pdf",
+          "status": "downloaded"
+        }
+      ],
       "remaining": "Independently sourced marked specimen payload and passing byte comparison."
     },
     {
@@ -787,6 +3829,7 @@
       "iin": "636000",
       "iinVerified": true,
       "configuredVersion": "10",
+      "version12IssuerAdoption": "unverified",
       "version12SyntheticOracle": ["DL", "ID"],
       "externalFixtureCount": 7,
       "unmodifiedSourceCount": 7,
@@ -843,6 +3886,124 @@
           "source": "https://www.dmv.virginia.gov/sites/default/files/documents/barcode_calibration.pdf"
         }
       ],
+      "observations": [
+        {
+          "id": "va-published-093b70f9cd7e",
+          "version": "10",
+          "parser": {
+            "accepted": true,
+            "state": "VA",
+            "diagnostics": []
+          },
+          "encoder": {
+            "status": "source-exact",
+            "sha256": "093b70f9cd7efcd248eafa6199097697da138a437ce3ab19c3874c9778de1370",
+            "byteLength": 559
+          }
+        },
+        {
+          "id": "va-published-000cd50105ad",
+          "version": "10",
+          "parser": {
+            "accepted": true,
+            "state": "VA",
+            "diagnostics": []
+          },
+          "encoder": {
+            "status": "source-exact",
+            "sha256": "000cd50105add9d2f18b469ce632f9453a1e89a10484e9fdb6e75b978ce6594f",
+            "byteLength": 473
+          }
+        },
+        {
+          "id": "va-published-015e93067f14",
+          "version": "10",
+          "parser": {
+            "accepted": true,
+            "state": "VA",
+            "diagnostics": []
+          },
+          "encoder": {
+            "status": "source-exact",
+            "sha256": "015e93067f14081363e11c48201ccf73d9b97da6cb40c3cee7abd39e4d3798ad",
+            "byteLength": 559
+          }
+        },
+        {
+          "id": "va-published-a9e7e64f6022",
+          "version": "10",
+          "parser": {
+            "accepted": true,
+            "state": "VA",
+            "diagnostics": []
+          },
+          "encoder": {
+            "status": "source-exact",
+            "sha256": "a9e7e64f602207fbf1029fa284bfaf82b8ee8cad59c8a7e21b92951c61386ff3",
+            "byteLength": 559
+          }
+        },
+        {
+          "id": "va-published-91e87b7a2de5",
+          "version": "10",
+          "parser": {
+            "accepted": true,
+            "state": "VA",
+            "diagnostics": []
+          },
+          "encoder": {
+            "status": "source-exact",
+            "sha256": "91e87b7a2de595721a45c08cdaf81b3ab9280f89cfadc389273c78ab215e616f",
+            "byteLength": 559
+          }
+        },
+        {
+          "id": "va-published-4635bc4159fb",
+          "version": "10",
+          "parser": {
+            "accepted": true,
+            "state": "VA",
+            "diagnostics": []
+          },
+          "encoder": {
+            "status": "source-exact",
+            "sha256": "4635bc4159fbc057dc425fd997298e873b7026d697dc4b625d17ad8921e91c96",
+            "byteLength": 559
+          }
+        },
+        {
+          "id": "va-published-0c900e490239",
+          "version": "10",
+          "parser": {
+            "accepted": true,
+            "state": "VA",
+            "diagnostics": []
+          },
+          "encoder": {
+            "status": "source-exact",
+            "sha256": "0c900e490239ed81c4b2ba4d87ff60b1856c36780bff37a07698f5352205db46",
+            "byteLength": 559
+          }
+        }
+      ],
+      "sourceAttempts": [
+        {
+          "id": "recheck-va-2023-revision02",
+          "url": "https://www.dmv.virginia.gov/sites/default/files/documents/barcode_calibration.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "5b2335a9d181eb7ad9e6793ea5d1c35a0a0ed2e7698908b8b9570e09c351a2e8",
+          "symbols": 7
+        }
+      ],
+      "priorSources": [
+        {
+          "id": "va-2023-calibration",
+          "url": "https://www.dmv.virginia.gov/sites/default/files/documents/barcode_calibration.pdf",
+          "status": "downloaded"
+        }
+      ],
       "remaining": "Additional editions and document types; independently sourced v12 signed issuer payload."
     },
     {
@@ -851,6 +4012,7 @@
       "iin": "636045",
       "iinVerified": true,
       "configuredVersion": "10",
+      "version12IssuerAdoption": "unverified",
       "version12SyntheticOracle": ["DL", "ID"],
       "externalFixtureCount": 1,
       "unmodifiedSourceCount": 1,
@@ -865,6 +4027,73 @@
           "source": "https://web.archive.org/web/20230408225942id_/https://www.dol.wa.gov/driverslicense/docs/barcodeCalibration-EDLEID-2017.pdf"
         }
       ],
+      "observations": [
+        {
+          "id": "wa-published-2802ccec6eb5",
+          "version": "08",
+          "parser": {
+            "accepted": true,
+            "state": "WA",
+            "diagnostics": []
+          },
+          "encoder": {
+            "status": "source-exact",
+            "sha256": "2802ccec6eb5b1c533daf19cf243b5f6112b06299f6aaf571d680467a76df279",
+            "byteLength": 303
+          }
+        }
+      ],
+      "sourceAttempts": [
+        {
+          "id": "wa-2017-wayback-calibration",
+          "url": "https://web.archive.org/web/20220000000000id_/https://www.dol.wa.gov/driverslicense/docs/barcodeCalibration-EDLEID-2017.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "e81699e13232cd1cc0c5e080041bdd0ab45d9c5b258044ff2b12c0602b5efb1b",
+          "symbols": 1
+        },
+        {
+          "id": "wa-edleid-2017-calibration",
+          "url": "https://www.dol.wa.gov/driverslicense/docs/barcodeCalibration-EDLEID-2017.pdf",
+          "status": 404,
+          "error": "404 Client Error: Not Found for url: https://dol.wa.gov/driverslicense/docs/barcodeCalibration-EDLEID-2017.pdf",
+          "excluded": null,
+          "symbols": 0
+        },
+        {
+          "id": "wa-legacy-edleid-calibration",
+          "url": "https://www.dol.wa.gov/external/docs/barcodeCalibration-EDLEID.pdf",
+          "status": 404,
+          "error": "404 Client Error: Not Found for url: https://dol.wa.gov/external/docs/barcodeCalibration-EDLEID.pdf",
+          "excluded": null,
+          "symbols": 0
+        },
+        {
+          "id": "wa-uscis-public-handbook",
+          "url": "https://www2.gtlaw.com/practices/immigration/compliance/pdf/USCIS_I-9Handbook.pdf",
+          "status": 404,
+          "error": "404 Client Error: Not Found for url: https://www2.gtlaw.com/practices/immigration/compliance/pdf/USCIS_I-9Handbook.pdf",
+          "excluded": null,
+          "symbols": 0
+        },
+        {
+          "id": "washington-2005",
+          "url": "https://usid.fyi/uploads/7a5f0d7e831c483cacd61bd70efaac11.webp?v=1782414754",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "f5fff3c641f730480524a85c8cf8c86e8847b2459c8999a1fa436097037fd1ab",
+          "symbols": 0
+        }
+      ],
+      "priorSources": [
+        {
+          "id": "wa-license-designs",
+          "url": "https://dol.wa.gov/driver-licenses-and-permits/driver-license-designs",
+          "status": "downloaded"
+        }
+      ],
       "remaining": "Additional editions and document types; independently sourced v12 signed issuer payload."
     },
     {
@@ -873,12 +4102,65 @@
       "iin": "636061",
       "iinVerified": true,
       "configuredVersion": "09",
+      "version12IssuerAdoption": "unverified",
       "version12SyntheticOracle": ["DL", "ID"],
       "externalFixtureCount": 0,
       "unmodifiedSourceCount": 0,
       "combinations": [],
       "fidelities": [],
       "references": [],
+      "observations": [],
+      "sourceAttempts": [
+        {
+          "id": "wv-2023-driver-card-details",
+          "url": "https://transportation.wv.gov/DMV/DMVFormSearch/GENERAL_DL_Sheet_Details_Over_and_Under_21.pdf",
+          "status": 404,
+          "error": "404 Client Error: Not Found for url: https://dmv.wv.gov/DMVFormSearch/GENERAL_DL_Sheet_Details_Over_and_Under_21.pdf",
+          "excluded": null,
+          "symbols": 0
+        },
+        {
+          "id": "wv-2023-id-card-details",
+          "url": "https://transportation.wv.gov/DMV/DMVFormSearch/GENERAL_ID_Sheet_Details_Over_and_Under_21.pdf",
+          "status": 404,
+          "error": "404 Client Error: Not Found for url: https://dmv.wv.gov/DMVFormSearch/GENERAL_ID_Sheet_Details_Over_and_Under_21.pdf",
+          "excluded": null,
+          "symbols": 0
+        },
+        {
+          "id": "wv-samples-01",
+          "url": "https://dmv.wv.gov/sites/default/files/2026-03/License_sample_banner_-_desktop.jpg",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "6ae27631cae8f01b1dfbfd9fe8e26c765341910bf24cf2cf497bc0af56263570",
+          "symbols": 0
+        },
+        {
+          "id": "wv-samples-03",
+          "url": "https://dmv.wv.gov/sites/default/files/2026-03/21.jpg",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "e5de8a2b35d3b297e7cfc6887666bdbf4d757a9895496f0ba3637d84f0ed0ed6",
+          "symbols": 0
+        },
+        {
+          "id": "wv-driver-handbook",
+          "url": "https://transportation.wv.gov/DMV/DMVFormSearch/Drivers_Licensing_Handbook_web.pdf",
+          "status": 404,
+          "error": "404 Client Error: Not Found for url: https://dmv.wv.gov/DMVFormSearch/Drivers_Licensing_Handbook_web.pdf",
+          "excluded": null,
+          "symbols": 0
+        }
+      ],
+      "priorSources": [
+        {
+          "id": "wv-samples",
+          "url": "https://dmv.wv.gov/sample-licenses",
+          "status": "downloaded"
+        }
+      ],
       "remaining": "Independently sourced marked specimen payload and passing byte comparison."
     },
     {
@@ -887,12 +4169,140 @@
       "iin": "636031",
       "iinVerified": true,
       "configuredVersion": "10",
+      "version12IssuerAdoption": "unverified",
       "version12SyntheticOracle": ["DL", "ID"],
       "externalFixtureCount": 0,
       "unmodifiedSourceCount": 0,
       "combinations": [],
       "fidelities": [],
       "references": [],
+      "observations": [],
+      "sourceAttempts": [
+        {
+          "id": "e-verify-wisconsin-fresh",
+          "url": "https://www.uscis.gov/sites/default/files/USCIS/Verification/E-Verify/E-Verify_Native_Documents/Wisconsin_RIDE_Fact_Sheet.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "3a4f2e1fb2320e9640c3614a2b826898fd7ae59e6491791c10412650ceb3815e",
+          "symbols": 0
+        },
+        {
+          "id": "wi-mailed-cards-01",
+          "url": "https://wisconsindot.gov/PublishingImages/dmv/shared/dl-id-receipt.jpg",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "0f1ca9964678d94ecb161a12b25560ea93939a3b9e5de369e53beaeb4a7c827a",
+          "symbols": 0
+        },
+        {
+          "id": "wi-mailed-cards-02",
+          "url": "https://wisconsindot.gov/PublishingImages/dmv/shared/dlarrows.jpg",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "b95cd9888372d2376368573c2680316df1178650c4a5d9b1ae26ca0317287c86",
+          "symbols": 0
+        },
+        {
+          "id": "wi-mailed-cards-03",
+          "url": "https://wisconsindot.gov/PublishingImages/dmv/shared/dl-2022-o21.jpg",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "ef2a3ae5a18060ecc58624e41daf10f7d7fa636648cb502e390341ac238acbbe",
+          "symbols": 0
+        },
+        {
+          "id": "wi-mailed-cards-04",
+          "url": "https://wisconsindot.gov/PublishingImages/dmv/shared/O21-ID-nonexp.jpg",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "db3224efcc423559ca7e8240e596efad08818b6d1baa5ce228c608f18db4a5ee",
+          "symbols": 0
+        },
+        {
+          "id": "wi-mailed-cards-05",
+          "url": "https://wisconsindot.gov/PublishingImages/dmv/shared/2022DL-LT2.jpg",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "b8e4eb17e18a2c19bd6382b024d197d76a3496d94f74a62159284fa2756b9535",
+          "symbols": 0
+        },
+        {
+          "id": "wi-mailed-cards-06",
+          "url": "https://wisconsindot.gov/PublishingImages/dmv/shared/dl-2022-ND.jpg",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "ba8da34276d346086e819d5b8a51f45b427b389c7a350cbdb59adc68d4c1e711",
+          "symbols": 0
+        },
+        {
+          "id": "wi-mailed-cards-07",
+          "url": "https://wisconsindot.gov/PublishingImages/dmv/shared/dl-2022-u21.jpg",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "cde311a1b47547e44ade2a8c435837ec31c55247aa4ff841744d26e9daa040e0",
+          "symbols": 0
+        },
+        {
+          "id": "wi-dnr-2025",
+          "url": "https://gowildagent.wi.gov/Documents/Agent%20User%20Guide.pdf",
+          "status": 404,
+          "error": "404 Client Error: NOT FOUND for url: https://gowildagent.wi.gov/Documents/Agent%20User%20Guide.pdf",
+          "excluded": null,
+          "symbols": 0
+        },
+        {
+          "id": "wi-motorists-handbook",
+          "url": "https://wisconsindot.gov/documents/dmv/shared/bds126-motorists-handbook.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "543778bfa998e99808d8e8d2a19116e538262475ccbfc3f650f7d26d2bb3250e",
+          "symbols": 0
+        },
+        {
+          "id": "wi-neenah-2020",
+          "url": "https://www.ci.neenah.wi.us/wp-content/uploads/2020/02/TempClass-B-Packet-WEBSITE-2020-02.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "360d457ffdeb020c0b36d5306ec3edd8335bc17741d5677e531e1e7e7fe31f69",
+          "symbols": 0
+        },
+        {
+          "id": "wisconsin-2023",
+          "url": "https://usid.fyi/uploads/548795f477af2133acfd47126a6ff5f0.webp?v=1782413905",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "b51f83ed532fb63e2240f4334a84821658a8c300956bcee79b831f2d1e122020",
+          "symbols": 0
+        }
+      ],
+      "priorSources": [
+        {
+          "id": "wi-mailed-cards",
+          "url": "https://wisconsindot.gov/Pages/dmv/license-drvs/how-to-apply/mailed.aspx",
+          "status": "downloaded"
+        },
+        {
+          "id": "e-verify-wisconsin",
+          "url": "https://www.uscis.gov/sites/default/files/USCIS/Verification/E-Verify/E-Verify_Native_Documents/Wisconsin_RIDE_Fact_Sheet.pdf",
+          "status": "downloaded"
+        },
+        {
+          "id": "e-verify-wisconsin-bulletin",
+          "url": "https://content.govdelivery.com/accounts/USDHSCIS/bulletins/125811c",
+          "status": "excluded-after-review"
+        }
+      ],
       "remaining": "Independently sourced marked specimen payload and passing byte comparison."
     },
     {
@@ -901,12 +4311,50 @@
       "iin": "636060",
       "iinVerified": true,
       "configuredVersion": "09",
+      "version12IssuerAdoption": "unverified",
       "version12SyntheticOracle": ["DL", "ID"],
       "externalFixtureCount": 0,
       "unmodifiedSourceCount": 0,
       "combinations": [],
       "fidelities": [],
       "references": [],
+      "observations": [],
+      "sourceAttempts": [
+        {
+          "id": "wy-2018-legislature",
+          "url": "https://www.wyoleg.gov/InterimCommittee/2018/08-201810226-02OtherBusinesstobePresented-DLIDCardUpdate.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "f1a30676fb83372892dcae211887c3a6768468c87d5d56d0ffa16725b8adf7d4",
+          "symbols": 0
+        },
+        {
+          "id": "wy-2022-legislature-fresh",
+          "url": "https://wyoleg.gov/InterimCommittee/2022/08-202208232-04DriverLicense_JTCAugust2022.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "ebca3b33155d4d2fcafed07c95614b4205e4b4037e842a92f04ae7d599b212ae",
+          "symbols": 0
+        },
+        {
+          "id": "wy-driver-manual",
+          "url": "https://www.dot.state.wy.us/files/live/sites/wydot/files/shared/Driver_Services/Help%20Documents%20and%20Manuals/Wyoming%20CDL%20Manual_Oct%202024_full.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "e1ff299a364c469d2a73b42d7084aaa417d0e6908e54d417fec6679b85f40e06",
+          "symbols": 0
+        }
+      ],
+      "priorSources": [
+        {
+          "id": "wy-2022-legislature",
+          "url": "https://wyoleg.gov/InterimCommittee/2022/08-202208232-04DriverLicense_JTCAugust2022.pdf",
+          "status": "downloaded"
+        }
+      ],
       "remaining": "Independently sourced marked specimen payload and passing byte comparison."
     },
     {
@@ -915,12 +4363,73 @@
       "iin": "636043",
       "iinVerified": true,
       "configuredVersion": "10",
+      "version12IssuerAdoption": "unverified",
       "version12SyntheticOracle": ["DL", "ID"],
       "externalFixtureCount": 0,
       "unmodifiedSourceCount": 0,
       "combinations": [],
       "fidelities": [],
       "references": [],
+      "observations": [
+        {
+          "id": "dc-published-1eaa8add2c32",
+          "version": " a",
+          "parser": {
+            "accepted": false,
+            "error": "Invalid compliance indicator",
+            "diagnostics": []
+          },
+          "encoder": {
+            "status": "quarantined",
+            "error": "Barcode decodes to explanatory example text rather than an AAMVA payload. Not an issuer payload."
+          }
+        }
+      ],
+      "sourceAttempts": [
+        {
+          "id": "dc-2023-card-features",
+          "url": "https://dmv.dc.gov/sites/default/files/dc/sites/dmv/page_content/attachments/DCDMV_OnePager_Updated_Card4.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "1990502cb123b2dd51f1a7c54f81210b9cd664f37a7d27d2ea44e0eda373ef6c",
+          "symbols": 1
+        },
+        {
+          "id": "dc-2023-under21-fresh",
+          "url": "https://dmv.dc.gov/sites/default/files/dc/sites/dmv/service_content/attachments/NewLook_NewSecurity_SameYou_REALID-DL_SampleCard.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "e1496198f6ebe32a2837eddb75c4eaffd3a9c7daf86a54157ce388325a2d9f7e",
+          "symbols": 0
+        },
+        {
+          "id": "district-of-columbia-2022",
+          "url": "https://usid.fyi/uploads/498e1ac6aed9cf048d00a474c9e9ed50.webp?v=1782333093",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "36d14a959dc281db0a4dfac85b8e9dc0bddc33ce93da0fe10d395f8db7ce7e91",
+          "symbols": 1
+        },
+        {
+          "id": "district-of-columbia-2012",
+          "url": "https://usid.fyi/uploads/01897c290bad763ff08f6d22363fe1c8.webp?v=1782333071",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "1db334b974a727962bae3197b250f4b72caccf4ebb001d2541431d01d5b773ac",
+          "symbols": 0
+        }
+      ],
+      "priorSources": [
+        {
+          "id": "dc-2023-under21",
+          "url": "https://dmv.dc.gov/sites/default/files/dc/sites/dmv/service_content/attachments/NewLook_NewSecurity_SameYou_REALID-DL_SampleCard.pdf",
+          "status": "downloaded"
+        }
+      ],
       "remaining": "Valid external encoder reference; published observations have explicit source defects or unresolved format differences."
     },
     {
@@ -929,12 +4438,61 @@
       "iin": "604427",
       "iinVerified": true,
       "configuredVersion": "09",
+      "version12IssuerAdoption": "unverified",
       "version12SyntheticOracle": ["DL", "ID"],
       "externalFixtureCount": 0,
       "unmodifiedSourceCount": 0,
       "combinations": [],
       "fidelities": [],
       "references": [],
+      "observations": [],
+      "sourceAttempts": [
+        {
+          "id": "as-driver-guide-fresh",
+          "url": "https://www.americansamoa.gov/_files/ugd/4bfff9_d853ec469ef34c75a8a5350a6b20b341.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "ee488f815cb5f8e4de1e4147a7c204307e2bc0144ad89e11462c2e5859352295",
+          "symbols": 0
+        },
+        {
+          "id": "as-real-id-policy-fresh",
+          "url": "https://www.americansamoa.gov/_files/ugd/4bfff9_d3df982d7bb54fb68a97315feb72b3a3.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "3510126719c51ecfcd6eeb2d3617cacd02a3e6a6d7a94433ef333799c2047948",
+          "symbols": 0
+        }
+      ],
+      "priorSources": [
+        {
+          "id": "as-real-id-policy",
+          "url": "https://www.americansamoa.gov/_files/ugd/4bfff9_d3df982d7bb54fb68a97315feb72b3a3.pdf",
+          "status": "downloaded"
+        },
+        {
+          "id": "as-driver-guide",
+          "url": "https://www.americansamoa.gov/_files/ugd/4bfff9_d853ec469ef34c75a8a5350a6b20b341.pdf",
+          "status": "downloaded"
+        },
+        {
+          "id": "as-dps",
+          "url": "https://www.asdps.com/",
+          "status": "failed"
+        },
+        {
+          "id": "as-real-id-policy-page",
+          "url": "https://www.americansamoa.gov/real-id-act-enforcement-begin-may-7",
+          "status": "downloaded"
+        },
+        {
+          "id": "as-media",
+          "url": "https://www.americansamoa.gov/media",
+          "status": "downloaded"
+        }
+      ],
       "remaining": "Independently sourced marked specimen payload and passing byte comparison."
     },
     {
@@ -943,12 +4501,41 @@
       "iin": "636019",
       "iinVerified": true,
       "configuredVersion": "09",
+      "version12IssuerAdoption": "unverified",
       "version12SyntheticOracle": ["DL", "ID"],
       "externalFixtureCount": 0,
       "unmodifiedSourceCount": 0,
       "combinations": [],
       "fidelities": [],
       "references": [],
+      "observations": [],
+      "sourceAttempts": [
+        {
+          "id": "gu-new-design-brochure-fresh",
+          "url": "https://www.guamtax.com/notices/Guam_D500BrochureProd.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "8d4083154f5a87d582d9c2d4df72976684cccdfb6e0e7397818be0a76d301700",
+          "symbols": 0
+        },
+        {
+          "id": "gu-manual-public",
+          "url": "https://www.govguamdocs.com/revtax/docs/GuamDRTDriversHandbook_secured.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "f04e3261a02fc9356c624a94fad75a4ab4f4fc01e73f97a9920f7f63cefac79d",
+          "symbols": 0
+        }
+      ],
+      "priorSources": [
+        {
+          "id": "gu-new-design-brochure",
+          "url": "https://www.guamtax.com/notices/Guam_D500BrochureProd.pdf",
+          "status": "downloaded"
+        }
+      ],
       "remaining": "Independently sourced marked specimen payload and passing byte comparison."
     },
     {
@@ -957,12 +4544,42 @@
       "iin": "636062",
       "iinVerified": true,
       "configuredVersion": "09",
+      "version12IssuerAdoption": "unverified",
       "version12SyntheticOracle": ["DL", "ID"],
       "externalFixtureCount": 0,
       "unmodifiedSourceCount": 0,
       "combinations": [],
       "fidelities": [],
       "references": [],
+      "observations": [],
+      "sourceAttempts": [
+        {
+          "id": "vi-2025-real-id",
+          "url": "https://bmv.vi.gov/wp-content/uploads/2025/03/VI-RealID-DL-1.jpg",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "9df59f8a9ce31b96bf995a07112930aee77c2e33d63663b3a5e876cfc7127a04",
+          "symbols": 0
+        }
+      ],
+      "priorSources": [
+        {
+          "id": "vi-bmv",
+          "url": "https://bmv.vi.gov/",
+          "status": "downloaded"
+        },
+        {
+          "id": "vi-real-id",
+          "url": "https://bmv.vi.gov/real-id/",
+          "status": "downloaded"
+        },
+        {
+          "id": "vi-2025-design",
+          "url": "https://bmv.vi.gov/2025/04/22/real-id-issuance-starting-april-24-2025/",
+          "status": "downloaded"
+        }
+      ],
       "remaining": "Independently sourced marked specimen payload and passing byte comparison."
     },
     {
@@ -971,12 +4588,46 @@
       "iin": "604431",
       "iinVerified": true,
       "configuredVersion": "09",
+      "version12IssuerAdoption": "unverified",
       "version12SyntheticOracle": ["DL", "ID"],
       "externalFixtureCount": 0,
       "unmodifiedSourceCount": 0,
       "combinations": [],
       "fidelities": [],
       "references": [],
+      "observations": [],
+      "sourceAttempts": [
+        {
+          "id": "pr-primary-cesco-page",
+          "url": "https://www.cesco.pr.gov/",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "1f9de629c7d029f5c919a2fa2a9afd9e4c71e438a0ddc0fdadda3ea7db46c977",
+          "symbols": 0
+        },
+        {
+          "id": "pr-driver-manual",
+          "url": "https://docs.pr.gov/files/DTOP/Documentos%20Esenciales/MANUAL%20DEL%20CONDUCTOR%20LEY%20NU%CC%81M.%2022%20DEL%202000.pdf",
+          "status": 200,
+          "error": null,
+          "excluded": null,
+          "sha256": "c44af629d6352e558fd6652b5e1f9dff743a3128df2f60bfb6c62e524a199295",
+          "symbols": 0
+        }
+      ],
+      "priorSources": [
+        {
+          "id": "pr-real-id",
+          "url": "https://www.cesco.pr.gov/real-id",
+          "status": "failed"
+        },
+        {
+          "id": "pr-mobile-id",
+          "url": "https://www.idmovil.pr.gov/idingooglewallet",
+          "status": "downloaded"
+        }
+      ],
       "remaining": "Independently sourced marked specimen payload and passing byte comparison."
     }
   ]

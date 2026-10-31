@@ -197,5 +197,38 @@
         "payloadSha256": "1a6e922373c1c4d697ab75dcd047fa6a47ea94a09c9d696a1b1a23cd1fd433fc"
       }
     ]
+  },
+  {
+    "id": "mt-2015-public-specimen-v08",
+    "sourcePayloadHashes": ["fdecdc5308f0e1294774c5239724f56b0e5cbf1fe05c6b896e79300522fd36e7"],
+    "sourceRecords": [
+      {
+        "url": "https://www.idscanner.com/wp-content/uploads/2016/02/MT-DL-Brochure.pdf",
+        "sourceSha256": "0077db96e45ade43242226b84e08ea91e7a29732deb6fa4a95e4bb6ff91feb5a",
+        "payloadSha256": "fdecdc5308f0e1294774c5239724f56b0e5cbf1fe05c6b896e79300522fd36e7"
+      }
+    ]
+  },
+  {
+    "id": "co-2022-public-specimen-v10",
+    "sourcePayloadHashes": ["37b4574bf3aac0e2437e7f062d5e466a0ebb2223a0bcb9df4eeee76c075e8202"],
+    "sourceRecords": [
+      {
+        "url": "https://www.du.edu/sites/default/files/2024-08/Section%202%20%20-%20Supervisor%20Verification%20Process%20Manual%208.1.2024.pdf",
+        "sourceSha256": "c69d8b60ec05a26f6ff90736e9e7c9b76406a7164a1e870d0668130a4fff1862",
+        "payloadSha256": "37b4574bf3aac0e2437e7f062d5e466a0ebb2223a0bcb9df4eeee76c075e8202"
+      }
+    ]
+  },
+  {
+    "id": "fl-public-training-legacy-v01",
+    "sourcePayloadHashes": ["20b099aa68510505c12503da1bc120215c2ebe3285926eb11cb59a7652192b9f"],
+    "sourceRecords": [
+      {
+        "url": "https://wolnekonopie.org/wp-content/uploads/2020/06/Police-ID-Guide-to-Security-Features.pdf",
+        "sourceSha256": "5d2c4f6b45a15dd7d85b64cc699075513dbfee82322e1c0016ff5f22a87ba395",
+        "payloadSha256": "20b099aa68510505c12503da1bc120215c2ebe3285926eb11cb59a7652192b9f"
+      }
+    ]
   }
 ]

@@ -1,77 +1,42 @@
 # Public specimen intake
 
-`2026-10-25.json` records 291 inspected image assets across 53 jurisdictions,
-73 retained source documents, and 26 distinct PDF417 payloads across 12
-jurisdictions. ZXing-C++ 3.1.1 recovered every payload from published pixels;
-each saved evidence crop was decoded again and compared with its binary file.
+The combined intake retains **41 unique independently decoded public payloads across 24 jurisdictions**. Passing external source-layout coverage comes from `../vectors/`: 29 references across 15 of 55 jurisdictions, including 24 unmodified source matches. Twelve jurisdictions have an unmodified public source match. Issued anonymized and mechanically canonicalized references remain separately labelled.
 
-The images include card fronts, backs, permits, comparison sheets, interim
-documents and calibration symbols. An asset count is not a count of distinct
-designs. Public specimens can differ from issued credentials and can contain
-placeholders, obsolete formats or internally inconsistent examples.
+| Manifest | Unique payloads added | Scope |
+| --- | ---: | --- |
+| `2026-10-25.json` | 26 | Historical intake from 291 inspected images, 73 retained source documents, and 53 jurisdictions with visual additions |
+| `2026-10-31.json` | 9 | Additional public calibration sheets, brochures, archives, and qualified rehosts |
+| `2026-10-31-continuation.json` | 6 | Colorado, Montana, historical Florida, and negative Montana, California, and Illinois observations |
 
-## Local artwork
+The first two manifests remain byte-identical to the preceding checkpoint. Their recorded decoder and encoder outcomes describe that checkpoint. The current comparison appears in the [October 31 coverage ledger](../coverage-ledger-2026-10-31.json).
 
-The accompanying `AAMVA_Conformance_Investigation_2026-10-25` package contains the
-offline coverage report, searchable gallery, original sources, specimen images
-and independently checked evidence crops. Put its contents in the ignored
-`.corpus-cache/public-specimens-2026-10-25/` directory to resolve relative paths.
-Artwork stays outside public Git history while publisher reuse terms remain
-unreviewed. Washington's existing unchanged images retain their validation-aid
-purpose limitation in the metadata.
+## Current comparison
 
-New sources include Illinois's Central Issuance brochure, an archived public
-Arkansas calibration publication, a Guam specimen brochure, E-Verify factsheets,
-Minnesota publications, and public specimen fronts republished in a federal
-report. Publisher classes distinguish issuing agencies, archives, federal
-republications and a public university's reference guide. The Arkansas capture
-dates to September 19, 2020; its current live URL returns 404.
+The parser accepts 37 of the 41 observations. The encoder reproduces 24 original source payloads exactly and matches two explicitly canonicalized published layouts. Eleven source inputs fail field validation. Two observations have malformed framing and two have quarantined source conflicts. These outcomes account for all 41 observations; a failed specimen never increases passing coverage.
 
-## What passes
+The continuation promotes three reviewed unmodified source fixtures:
 
-Three recovered payloads now also have passing encoder vectors:
+| Source layout | Bytes | Publishing qualification |
+| --- | ---: | --- |
+| Colorado v10 DL | 318 | University of Denver verification-guide rehost; legislative source corroborates artwork only |
+| Montana v08 DL | 386 | Scanner-vendor rehost of a government brochure; government copy has different pixels and did not decode |
+| Florida v01 DL | 419 | Public training-guide rehost; direct issuer origin unverified |
 
-| Reference       | Bytes | Source fidelity           |
-| --------------- | ----: | ------------------------- |
-| Arkansas v09 DL |   310 | Unmodified source payload |
-| Georgia v09 DL  |   400 | Unmodified source payload |
-| Illinois v08 DL |   354 | Unmodified source payload |
+Montana's discriminator exceeds the shared field limit, and some printed face values differ from its barcode. The named profile reproduces that observed departure. Colorado's adjacent printed face is an older edition than the recovered back. Historical Florida uses a separated identifier with an edition-specific pattern. Full hashes, capture locations, original bytes, and qualifications appear in each vector and `observed-profile-provenance.json`.
 
-The observed profiles preserve source order, jurisdiction subfiles, separators
-and height-unit letter case where applicable. Georgia's sample dates trigger
-the existing validity-window advisory in strict mode. Its fixture uses the
-normal generator with validation enabled. These references establish the
-observed layouts only.
+The negative Montana and California templates retain the literal `MMDDCCYY` revision placeholder. The additional Illinois source lacks a final terminator. A separate California decode exposed personal data behind dummy artwork; only its exclusion hash remains. Full third-party training PDFs containing unreviewed examples are excluded from the shared evidence package. Public gallery labels that disagree with the barcode's issuer are quarantined and contribute no coverage.
 
-Across all 26 observations, the current comparison records three exact matches,
-11 different outputs, eight rejected sample inputs and four observations that
-stop at the decoder. The manifest identifies the comparison's base commit and
-engine source hashes; it does not imply every difference is a generator defect.
+## Local evidence
 
-`publishedSpecimens.test.ts` checks all 26 payload hashes and the independently
-read fields for the 22 observations accepted by the application decoder.
-Legacy and malformed samples remain available without assertions requiring
-their rejection forever.
+The offline investigation packages retain approved specimen crops, binary payloads, hashes, source documents where reviewed, and acquisition receipts. Artwork remains outside public Git history while publisher reuse terms remain unreviewed. Existing Washington images retain their validation-aid purpose limitation.
+
+Source bytes are independently recovered by ZXing-C++ 3.1.1. Each shared crop must decode again to the same binary payload. Re-encoding a payload and reading it back is a separate check and supplies no independent issuer provenance.
 
 ```sh
-npm run test:run -- src/tests/publishedSpecimens.test.ts src/tests/conformance.test.ts
-node scripts/published-specimen-report.mjs
+npm run test:run
 npm run conformance:report
 ```
 
-## Open evidence gaps
+## Remaining evidence
 
-American Samoa and Puerto Rico still lack an in-scope image/reference addition.
-Forty-three registry jurisdictions have no independently scanned public payload
-in this intake. Fifty have no passing external encoder reference. The current
-external references cover five jurisdiction/version/DL combinations and no ID
-combination. Images of a card front cannot establish its encoded bytes.
-
-The [coverage investigation](../COVERAGE-2026-10-25.md) documents parser gaps,
-issuer-specific layouts, source placeholders, the newly published version 12
-standard, and discrepancies in that standard's example. None of those open
-items is counted as passing conformance.
-
-## October 31 expansion
-
-`2026-10-31.json` adds nine unique public payloads. The combined intake has 35 unique payloads across 21 jurisdictions. A separate Delaware reobservation corroborates an existing payload from a different source file and contributes zero unique payloads. Source defects and publisher conflicts remain recorded; passing encoder coverage is counted only from `../vectors/`.
+Forty configured jurisdictions lack a passing external fixture. Additional editions and ID types remain open within the covered jurisdictions. The v12 normative oracle contains 110 independently assembled synthetic expectations and contributes zero external jurisdiction coverage. No signed issuer-derived v12 payload is verified.

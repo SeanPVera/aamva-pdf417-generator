@@ -16,17 +16,17 @@ stops a regression baseline from being mistaken for evidence.
 | Tier        | Source                                         | What a passing test proves                                                            |
 | ----------- | ---------------------------------------------- | ------------------------------------------------------------------------------------- |
 | `synthetic` | `scripts/gen-vectors.mjs` — our own encoder    | The encoder still produces what it produced before. Regression only.                  |
-| `published` | AAMVA- or jurisdiction-published test material | The encoder matches that authoritative reference; scope is limited to the vector.     |
+| `published` | Public marked specimen or test publication, including qualified rehosts | The encoder matches the recorded source layout; publisher origin and departures remain explicit. |
 | `issued`    | A real credential, decoded and anonymised      | The encoder matches that observed layout; this does not certify an issuer or edition. |
 
 Only `published` and `issued` count as evidence about the outside world. The
 schema and the rules below are enforced by
 `src/tests/conformanceProvenance.test.ts`.
 
-Thirteen jurisdictions now have external reference layouts: AR, CT, FL, GA,
-IL, KS, MO, NE, NY, PA, SC, VA, and WA. The 26 references comprise 21
+Fifteen jurisdictions now have external reference layouts: AR, CO, CT, FL, GA,
+IL, KS, MO, MT, NE, NY, PA, SC, VA, and WA. The 29 references comprise 24
 unmodified source payloads, two anonymized issued layouts, and three
-canonicalized layouts. The ratchet is 13/55. Forty-two jurisdictions still lack
+canonicalized layouts. The ratchet is 15/55. Forty jurisdictions still lack
 a passing external fixture. Scope and source qualifications appear in the
 [October 31 ledger](COVERAGE-2026-10-31.md).
 
@@ -67,9 +67,9 @@ Current coverage — run any time, and printed in CI:
 npm run conformance:report
 ```
 
-The [published specimen intake](published/README.md) records 35 independently
-scanned public payload observations across the October 25 and October 31
-manifests. The manifests preserve original source bytes. Invalid published
+The [published specimen intake](published/README.md) records 41 independently
+scanned public payload observations across the October 25, October 31, and
+October 31 continuation manifests. The manifests preserve original source bytes. Invalid published
 placeholders and quarantined source conflicts remain outside positive encoder
 references. Canonicalized vectors list byte offsets and exact framing edits.
 

@@ -37,6 +37,8 @@ export interface AAMVAField {
   /** Edition-specific wire constraints, independent of shared legacy limits. */
   fixedLength?: number;
   pattern?: string;
+  /** Observed edition-specific format replacing a jurisdiction's shared current validator. */
+  jurisdictionPattern?: string;
   characterSet?: "latin1";
 }
 

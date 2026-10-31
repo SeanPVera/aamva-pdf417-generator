@@ -1,5 +1,5 @@
 import type { AAMVAField } from "./schema";
-import type { JurisdictionEncodingProfile } from "./jurisdictionRules";
+import type { JurisdictionEncodingProfile, JurisdictionSubfileProfile } from "./jurisdictionRules";
 import data from "./conformance/observed-profiles.json";
 import { readDirectory, readPayloadHeader } from "./decoder";
 
@@ -9,9 +9,12 @@ export interface ObservedEncodingProfile {
   iin: string;
   version: string;
   subfileTypes: Array<"DL" | "ID">;
-  source: string;
   notes: string[];
-  encoding: JurisdictionEncodingProfile;
+  // Full source URLs and hashes live in observed-profile-provenance.json.
+  // The browser needs the wire rules and short qualifications only.
+  encoding: Omit<JurisdictionEncodingProfile, "source" | "jurisdictionSubfile"> & {
+    jurisdictionSubfile?: Pick<JurisdictionSubfileProfile, "type" | "elements">;
+  };
   extraFields: AAMVAField[];
   optionalFields: string[];
   excludedFields: string[];

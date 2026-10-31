@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import intake from "../core/conformance/published/2026-10-25.json";
 import additions from "../core/conformance/published/2026-10-31.json";
+import continuation from "../core/conformance/published/2026-10-31-continuation.json";
 import profileProvenance from "../core/conformance/observed-profile-provenance.json";
 import {
   OBSERVED_ENCODING_PROFILES,
@@ -15,7 +16,7 @@ describe("public-source observed format variants", () => {
   for (const profile of OBSERVED_ENCODING_PROFILES) {
     for (const hash of profileProvenance.find((source) => source.id === profile.id)!
       .sourcePayloadHashes) {
-      const specimen = [...intake.payloads, ...additions.payloads].find(
+      const specimen = [...intake.payloads, ...additions.payloads, ...continuation.payloads].find(
         (payload) => payload.sha256 === hash
       )!;
       it(`${profile.id} reproduces independently decoded ${hash.slice(0, 12)} bytes`, () => {
