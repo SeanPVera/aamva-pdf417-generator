@@ -89,4 +89,44 @@ describe("CompareView clear payload", () => {
     await waitFor(() => expect(screen.queryByText("a.json")).not.toBeInTheDocument());
     expect(onClose).not.toHaveBeenCalled();
   });
+
+  test("clear button includes title tooltip matching aria-label", async () => {
+    renderCompareView();
+    await loadPayload("A", "a.json", { DCS: "SMITH" });
+
+    const clearBtn = screen.getByRole("button", { name: "Clear payload A" });
+    expect(clearBtn).toHaveAttribute("title", "Clear payload A");
+  });
+
+  test("filters to show differences only and provides empty state when all match", async () => {
+    renderCompareView();
+    await loadPayload("A", "a.json", { DCS: "SMITH", DAC: "JOHN" });
+    await loadPayload("B", "b.json", { DCS: "SMITH", DAC: "JANE" });
+
+    expect(screen.getAllByText("SMITH")).toHaveLength(2);
+    expect(screen.getByText("JOHN")).toBeInTheDocument();
+    expect(screen.getByText("JANE")).toBeInTheDocument();
+
+    const diffCheckbox = screen.getByLabelText("Show differences only");
+    expect(diffCheckbox).not.toBeChecked();
+
+    fireEvent.click(diffCheckbox);
+    expect(diffCheckbox).toBeChecked();
+
+    // DCS matches, so it should be hidden
+    expect(screen.queryByText("SMITH")).not.toBeInTheDocument();
+    // DAC differs, so it should still be present
+    expect(screen.getByText("JOHN")).toBeInTheDocument();
+    expect(screen.getByText("JANE")).toBeInTheDocument();
+
+    // Now clear B and load identical data
+    fireEvent.click(screen.getByRole("button", { name: "Clear payload B" }));
+    await loadPayload("B", "identical.json", { DCS: "SMITH", DAC: "JOHN" });
+
+    // With diff only enabled and identical data, empty state is displayed
+    const dialog = screen.getByRole("dialog");
+    const emptyStatus = dialog.querySelector('p[role="status"]');
+    expect(emptyStatus).toBeInTheDocument();
+    expect(emptyStatus).toHaveTextContent("No differences found between Payload A and Payload B.");
+  });
 });
