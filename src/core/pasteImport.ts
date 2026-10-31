@@ -6,7 +6,7 @@
 // fixture and hitting paste. This classifies whatever landed on the clipboard
 // and returns a field map, or an honest reason why it can't.
 
-import { decodePayload } from "./decoder";
+import { decodePayload, readPayloadHeader } from "./decoder";
 import { MAX_IMPORT_BYTES, parseImportedPayload } from "./importPayload";
 import { AAMVA_STATES } from "./states";
 import { AAMVA_VERSIONS, isSupportedVersion, AAMVA_VERSION_KEYS } from "./schema";
@@ -35,10 +35,6 @@ export interface PasteImportResult {
 /** Longest paste worth parsing. A real payload is well under a kilobyte. */
 const MAX_PASTE_LENGTH = MAX_IMPORT_BYTES;
 
-/** Byte offsets of the first subfile directory entry's type marker. */
-const DIRECTORY_TYPE_START = 21;
-const DIRECTORY_TYPE_END = 23;
-
 function fail(kind: PasteKind, summary: string): PasteImportResult {
   return { kind, data: null, fieldCount: 0, subfileType: null, summary };
 }
@@ -59,7 +55,11 @@ export function classifyPaste(text: string): PasteKind {
 
 /** The DL/ID marker in the payload's subfile directory, if it is legible. */
 export function readSubfileType(payload: string): SubfileType | null {
-  const marker = payload.substring(DIRECTORY_TYPE_START, DIRECTORY_TYPE_END);
+  const header = readPayloadHeader(payload);
+  const marker = payload.substring(
+    header.start + header.headerLength,
+    header.start + header.headerLength + 2
+  );
   return marker === "DL" || marker === "ID" ? marker : null;
 }
 

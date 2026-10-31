@@ -15,7 +15,7 @@
  */
 import { AAMVA_VERSIONS } from "./schema";
 import { AAMVA_STATES } from "./states";
-import { readDirectory, RE_FIELD_CODE, type SubfileEntry } from "./decoder";
+import { readDirectory, readPayloadHeader, RE_FIELD_CODE, type SubfileEntry } from "./decoder";
 
 export interface InspectedElement {
   code: string;
@@ -68,6 +68,7 @@ export interface PayloadInspection {
   unknownCodes: string[];
   /** Sum of `unaccountedBytes` across every subfile. */
   totalUnaccounted: number;
+  diagnostics?: string[];
 }
 
 export interface InspectionResult {
@@ -90,7 +91,8 @@ const _IIN_TO_STATE = new Map<string, string>(
 function inspectSubfile(
   payload: string,
   entry: SubfileEntry,
-  knownCodes: ReadonlySet<string>
+  knownCodes: ReadonlySet<string>,
+  opaqueCodes: ReadonlySet<string>
 ): { subfile: InspectedSubfile; elements: InspectedElement[] } {
   const elements: InspectedElement[] = [];
   const unparsed: string[] = [];
@@ -124,7 +126,7 @@ function inspectSubfile(
     }
 
     const raw = terminated.substring(3);
-    const value = raw.replace(/ +$/, "");
+    const value = opaqueCodes.has(code) ? raw : raw.replace(/ +$/, "");
     elements.push({
       code,
       subfile: entry.type,
@@ -164,36 +166,40 @@ function inspectSubfile(
  */
 export function inspectPayload(text: string): InspectionResult {
   if (!text || typeof text !== "string") return { ok: false, error: "Empty or invalid input" };
-  if (text.charAt(0) !== "@") return { ok: false, error: "Not an AAMVA payload" };
-  if (text.length < 21) return { ok: false, error: "Payload too short for an AAMVA header" };
+  const header = readPayloadHeader(text);
+  if (text.charAt(header.start) !== "@") return { ok: false, error: "Not an AAMVA payload" };
+  if (text.length < header.start + header.headerLength)
+    return { ok: false, error: "Payload too short for an AAMVA header" };
 
   // Read with the overrun cap lifted: a subfile that declares far more than it
   // holds is precisely what this reports on, so the read has to survive it.
   const { entries, error } = readDirectory(text, false, Number.MAX_SAFE_INTEGER);
   if (error) return { ok: false, error };
 
-  const version = text.substring(15, 17);
+  const version = header.version;
   // An unknown version has no field table, so nothing can be called known —
   // which is itself worth showing rather than treating as "all unrecognised".
-  const knownCodes = new Set((AAMVA_VERSIONS[version]?.fields ?? []).map((f) => f.code));
+  const fields = AAMVA_VERSIONS[version]?.fields ?? [];
+  const knownCodes = new Set(fields.map((field) => field.code));
+  const opaqueCodes = new Set(fields.filter((field) => field.opaque).map((field) => field.code));
 
   const subfiles: InspectedSubfile[] = [];
   const elements: InspectedElement[] = [];
   for (const entry of entries) {
-    const result = inspectSubfile(text, entry, knownCodes);
+    const result = inspectSubfile(text, entry, knownCodes, opaqueCodes);
     subfiles.push(result.subfile);
     elements.push(...result.elements);
   }
 
-  const iin = text.substring(9, 15);
+  const iin = text.substring(header.start + 9, header.start + 15);
   return {
     ok: true,
     inspection: {
       iin,
       state: _IIN_TO_STATE.get(iin),
       version,
-      jurisdictionVersion: text.substring(17, 19),
-      declaredEntries: parseInt(text.substring(19, 21), 10),
+      jurisdictionVersion: header.jurisdictionVersion,
+      declaredEntries: header.count,
       totalBytes: text.length,
       subfiles,
       elements,
@@ -202,7 +208,8 @@ export function inspectPayload(text: string): InspectionResult {
       // issuer and defines nothing inside, so "not in the field table" is their
       // normal condition rather than a finding.
       unknownCodes: elements.filter((e) => !e.known && !e.code.startsWith("Z")).map((e) => e.code),
-      totalUnaccounted: subfiles.reduce((sum, s) => sum + s.unaccountedBytes, 0)
+      totalUnaccounted: subfiles.reduce((sum, s) => sum + s.unaccountedBytes, 0),
+      ...(header.diagnostics.length ? { diagnostics: header.diagnostics } : {})
     }
   };
 }

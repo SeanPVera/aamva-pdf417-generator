@@ -1,0 +1,26 @@
+{
+  "tier": "synthetic",
+  "source": "Python standard library base64.a85encode, with z groups expanded as required by CDS 2026 B.6.2.1",
+  "vectors": [
+    {
+      "name": "ascending",
+      "rawHex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f",
+      "ascii85": "!!*-'\"9eu7#RLhG$k3[W&.oNg'GVB\"(`=52*$$(B+<_pR,UFcb-n-Vr/1iJ-0JP==1c70M3&s#]4?Ykm"
+    },
+    {
+      "name": "zeros",
+      "rawHex": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "ascii85": "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+    },
+    {
+      "name": "maximum",
+      "rawHex": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "ascii85": "s8W-!s8W-!s8W-!s8W-!s8W-!s8W-!s8W-!s8W-!s8W-!s8W-!s8W-!s8W-!s8W-!s8W-!s8W-!s8W-!"
+    },
+    {
+      "name": "mixed",
+      "rawHex": "13385d82a7ccf1163b6085aacff4193e6388add2f71c41668bb0d5fa1f44698eb3d8fd22476c91b6db00254a6f94b9de03284d7297bce1062b50759abfe4092e",
+      "ascii85": "'0'9LVp+ZH4(*cBch&)=@u.88pDcJ2Mm1b.+%0h'Ze54#7r4<rgAiNlDj7fh\"\"6laQb;8].o:AW^Z5\\R"
+    }
+  ]
+}

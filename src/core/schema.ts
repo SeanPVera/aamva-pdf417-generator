@@ -1,4 +1,5 @@
 import { getJurisdictionSubfileElements } from "./jurisdictionRules";
+import { applyObservedFields, getObservedEncodingProfile } from "./observedProfiles";
 
 export interface FieldOption {
   value: string;
@@ -29,6 +30,16 @@ export interface AAMVAField {
    * for version-specific widths that tighten a shared entry.
    */
   maxLength?: number;
+  /** Preserve the exact case and whitespace of cryptographic wire values. */
+  opaque?: boolean;
+  /** Source-profile-specific absence markers; never enabled by generic schemas. */
+  allowedSentinels?: string[];
+  /** Edition-specific wire constraints, independent of shared legacy limits. */
+  fixedLength?: number;
+  pattern?: string;
+  /** Observed edition-specific format replacing a jurisdiction's shared current validator. */
+  jurisdictionPattern?: string;
+  characterSet?: "latin1";
 }
 
 export interface AAMVAVersionDef {
@@ -94,6 +105,7 @@ const FIELD_CODE_TO_GROUP: Record<string, FieldGroupId> = {
   DAD: "identity",
   DCT: "identity",
   DCU: "identity",
+  DCI: "identity",
   DBB: "identity",
   DBC: "identity",
   DDE: "identity",
@@ -112,6 +124,7 @@ const FIELD_CODE_TO_GROUP: Record<string, FieldGroupId> = {
   DAY: "physical",
   DAZ: "physical",
   DCL: "physical",
+  DCE: "physical",
   // License Details
   DAQ: "license",
   DCF: "license",
@@ -134,7 +147,13 @@ const FIELD_CODE_TO_GROUP: Record<string, FieldGroupId> = {
   DAT: "privileges",
   DCA: "privileges",
   DCB: "privileges",
-  DCD: "privileges"
+  DCD: "privileges",
+  DCM: "privileges",
+  DCN: "privileges",
+  DCO: "privileges",
+  DCP: "privileges",
+  DCQ: "privileges",
+  DCR: "privileges"
 };
 
 export function getFieldGroup(code: string): FieldGroupId {
@@ -601,7 +620,7 @@ const V04_FIELDS: AAMVAField[] = [
  *
  * `DDN` carries a constraint this table cannot express: the standard says it
  * "can only be present if the CDL Indicator is present". That belongs in
- * `validateCrossFieldConsistency` and is not implemented yet.
+ * `validateCrossFieldConsistency`.
  */
 const V11_FIELDS: AAMVAField[] = [
   { code: "DCA", label: "Vehicle Class", type: "string", required: true },
@@ -640,6 +659,92 @@ const V11_FIELDS: AAMVAField[] = [
   { code: "DDN", label: "Non-Domiciled Indicator", type: "char" },
   { code: "DDO", label: "Enhanced Credential Indicator", type: "char" },
   { code: "DDP", label: "Permit Indicator", type: "char" }
+];
+
+// CDS 2026 Tables D.3 and D.4, printed pages 68-75. Reserved codes are omitted.
+const V12_FIELDS: AAMVAField[] = [
+  ...V11_FIELDS.map((field): AAMVAField => {
+    if (field.code === "DAD") return { ...field, required: true };
+    if (field.code === "DCG")
+      return { ...field, options: [{ value: "USA", label: "USA - United States" }] };
+    if (field.code === "DAU")
+      return { ...field, fixedLength: 6, pattern: "^(?:[0-9]{3} IN|[0-9]{3} CM)$" };
+    if (["DDK", "DDL", "DDD"].includes(field.code))
+      return { ...field, options: [{ value: "1", label: "1 - Present" }] };
+    if (field.code === "DAW") return { ...field, fixedLength: 3, pattern: "^[0-9]{3}$" };
+    if (field.code === "DAZ")
+      return {
+        ...field,
+        maxLength: 12,
+        options: [
+          ...AAMVA_FIELD_OPTIONS.DAZ!,
+          ...[
+            "BALD",
+            "BLACK",
+            "BLONDE",
+            "BROWN",
+            "GRAY",
+            "RED",
+            "AUBURN",
+            "SANDY",
+            "WHITE",
+            "UNKNOWN"
+          ].map((value) => ({ value, label: value }))
+        ]
+      };
+    return field;
+  }),
+  { code: "DCI", label: "Place of Birth", type: "string", maxLength: 33 },
+  { code: "DCJ", label: "Audit Information", type: "string", maxLength: 25 },
+  {
+    code: "DCE",
+    label: "Weight Range",
+    type: "char",
+    options: Array.from({ length: 10 }, (_, index) => ({
+      value: String(index),
+      label: String(index)
+    }))
+  },
+  {
+    code: "DCM",
+    label: "Standard Vehicle Classification",
+    type: "string",
+    fixedLength: 4,
+    maxLength: 4,
+    pattern: "^[A-Z0-9]+$"
+  },
+  {
+    code: "DCN",
+    label: "Standard Endorsement Codes",
+    type: "string",
+    fixedLength: 5,
+    maxLength: 5,
+    pattern: "^[A-Z0-9]+$"
+  },
+  {
+    code: "DCO",
+    label: "Standard Restriction Codes",
+    type: "string",
+    fixedLength: 12,
+    maxLength: 12,
+    pattern: "^[A-Z0-9]+$"
+  },
+  { code: "DCP", label: "Vehicle Classification Description", type: "string", maxLength: 50 },
+  { code: "DCQ", label: "Endorsement Description", type: "string", maxLength: 50 },
+  { code: "DCR", label: "Restriction Description", type: "string", maxLength: 50 },
+  {
+    code: "DAX",
+    label: "Weight (kilograms)",
+    type: "string",
+    fixedLength: 3,
+    maxLength: 3,
+    pattern: "^[0-9]{3}$"
+  },
+  { code: "DDH", label: "Under 18 Until", type: "date" },
+  { code: "DDI", label: "Under 19 Until", type: "date" },
+  { code: "DDJ", label: "Under 21 Until", type: "date" },
+  { code: "SIG", label: "Digital Signature", type: "string", maxLength: 80, opaque: true },
+  { code: "SCV", label: "Signature Coverage", type: "string", opaque: true }
 ];
 
 export const AAMVA_VERSIONS: Record<string, AAMVAVersionDef> = {
@@ -881,6 +986,10 @@ export const AAMVA_VERSIONS: Record<string, AAMVAVersionDef> = {
   "11": {
     name: "AAMVA DL/ID-2025 (Version 11)",
     fields: V11_FIELDS
+  },
+  "12": {
+    name: "AAMVA DL/ID-2026 (Version 12)",
+    fields: V12_FIELDS.map((field) => ({ ...field, characterSet: "latin1" }))
   }
 };
 
@@ -932,9 +1041,11 @@ const DRIVING_PRIVILEGE_CODES = ["DCA", "DCB", "DCD"];
 export function getFieldsForStateAndVersion(
   stateCode: string,
   v: string,
-  subfileType: "DL" | "ID" = "DL"
+  subfileType: "DL" | "ID" = "DL",
+  encodingProfileId?: string
 ): AAMVAField[] {
-  const cacheKey = `${stateCode}:${v}:${subfileType}`;
+  const profile = getObservedEncodingProfile(encodingProfileId, stateCode, v, subfileType);
+  const cacheKey = `${stateCode}:${v}:${subfileType}:${encodingProfileId ?? ""}`;
   const cached = _stateVersionFieldCache.get(cacheKey);
   if (cached) return cached;
 
@@ -944,7 +1055,9 @@ export function getFieldsForStateAndVersion(
   if (!stateCode) {
     result = allFields;
   } else {
-    const excludedSet = _EXCLUDED_SETS[stateCode];
+    // No issuer v12 layout is verified yet. Historical omission assumptions
+    // must not hide optional elements from the new standards schema.
+    const excludedSet = v === "12" ? undefined : _EXCLUDED_SETS[stateCode];
     if (!excludedSet || excludedSet.size === 0) {
       result = allFields;
     } else {
@@ -956,7 +1069,11 @@ export function getFieldsForStateAndVersion(
   // them and the store holds them like any other value. They are tagged
   // `subfile: "jurisdiction"` and never written into the DL/ID subfile — see
   // the partition in `generateAAMVAPayload`.
-  const jurisdictionElements = stateCode ? getJurisdictionSubfileElements(stateCode) : [];
+  const jurisdictionElements = profile
+    ? (profile.encoding.jurisdictionSubfile?.elements ?? [])
+    : stateCode
+      ? getJurisdictionSubfileElements(stateCode, v)
+      : [];
   if (jurisdictionElements.length > 0) {
     result = result.concat(
       jurisdictionElements.map((el) => ({
@@ -970,8 +1087,22 @@ export function getFieldsForStateAndVersion(
   }
 
   // CDS 2020/2025 Table D.3 marks these three elements DL-only.
-  if (subfileType === "ID" && (v === "10" || v === "11")) {
-    result = result.filter((f) => !DRIVING_PRIVILEGE_CODES.includes(f.code));
+  if (subfileType === "ID" && ["10", "11", "12"].includes(v)) {
+    result = result.filter(
+      (f) =>
+        ![
+          ...DRIVING_PRIVILEGE_CODES,
+          "DDM",
+          "DDN",
+          "DDP",
+          "DCM",
+          "DCN",
+          "DCO",
+          "DCP",
+          "DCQ",
+          "DCR"
+        ].includes(f.code)
+    );
   } else if (subfileType === "ID") {
     // The primary-source review the older editions were waiting on: an issued
     // Maine ID card (AAMVA v09) omits all three, and the generator rejected it
@@ -984,6 +1115,7 @@ export function getFieldsForStateAndVersion(
       f.required && DRIVING_PRIVILEGE_CODES.includes(f.code) ? { ...f, required: false } : f
     );
   }
+  if (profile) result = applyObservedFields(result, profile);
   _stateVersionFieldCache.set(cacheKey, result);
   return result;
 }
@@ -995,9 +1127,12 @@ export function getFieldsForStateAndVersion(
 export function getMandatoryFields(
   stateCode: string,
   version: string,
-  subfileType: "DL" | "ID" = "DL"
+  subfileType: "DL" | "ID" = "DL",
+  encodingProfileId?: string
 ): AAMVAField[] {
-  return getFieldsForStateAndVersion(stateCode, version, subfileType).filter((f) => f.required);
+  return getFieldsForStateAndVersion(stateCode, version, subfileType, encodingProfileId).filter(
+    (f) => f.required
+  );
 }
 
 export function describeVersion(v: string): string {

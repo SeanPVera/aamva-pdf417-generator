@@ -56,6 +56,12 @@ export const Sidebar: React.FC<{ mobileHidden?: boolean; children?: React.ReactN
               </option>
             ))}
           </select>
+          {version === "12" && (
+            <p className="mt-2 text-sm">
+              The 2026 standard is supported. Turn off Strict validation for v12 tests. Issuer
+              adoption remains unverified.
+            </p>
+          )}
         </div>
         <div>
           <label className="wb-label" htmlFor="subfile-select">

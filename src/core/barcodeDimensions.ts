@@ -52,6 +52,8 @@ export const PREVIEW_SCALE = 2;
  */
 export const PDF417_ENCODER_OPTIONS = {
   bcid: "pdf417",
+  // Payloads are already single-byte wire strings. Disable bwip-js UTF-8 rewriting.
+  binarytext: true,
   scale: PREVIEW_SCALE,
   eclevel: 5,
   backgroundcolor: "FFFFFF",

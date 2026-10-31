@@ -15,12 +15,12 @@ import {
  * vector. This is a ratchet, not a target: raise it when real-world vectors are
  * added so the corpus can never quietly lose evidence it once had.
  *
- * It is 2: Connecticut and New York, both from decoded issued credentials. The
- * other 52 jurisdictions are still baselines our own encoder wrote, which prove
- * only that the encoder has not changed. Keeping the number here rather than
- * inferring it from the directory is what makes that gap visible.
+ * Connecticut and New York have issued-derived references; Arkansas, Georgia
+ * and Illinois have independently scanned published samples. Other jurisdictions have either
+ * synthetic baselines or no passing reference. Coverage applies to the observed
+ * layouts, not every edition or document type issued by these jurisdictions.
  */
-const MIN_REAL_WORLD_JURISDICTIONS = 2;
+const MIN_REAL_WORLD_JURISDICTIONS = 15;
 
 describe("conformance vector provenance", () => {
   const vectors = loadVectors();
@@ -45,6 +45,22 @@ describe("conformance vector provenance", () => {
         `${vector.id} claims tier "${vector.provenance.tier}" but was produced by our own generator`
       ).toBe(false);
     }
+  });
+
+  it("keeps source-byte parity distinct from transformed layouts", () => {
+    const report = computeCoverage(vectors, Object.keys(AAMVA_STATES));
+    expect(report.byFidelity).toEqual({
+      "unmodified-source": 24,
+      anonymized: 2,
+      canonicalized: 3
+    });
+    const ct = vectors.find((vector) => vector.id === "ct-v09-dl-issued")!;
+    expect(ct.provenance.fidelity).toBe("canonicalized");
+    const missingFidelity = structuredClone(ct);
+    delete missingFidelity.provenance.fidelity;
+    expect(validateProvenance(missingFidelity)).toContain(
+      "ct-v09-dl-issued: an external vector must declare its source fidelity"
+    );
   });
 
   it("reports real-world jurisdiction coverage and never regresses", () => {

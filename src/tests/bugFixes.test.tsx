@@ -147,7 +147,8 @@ describe("AAMVA version coverage", () => {
       "08",
       "09",
       "10",
-      "11"
+      "11",
+      "12"
     ]);
     expect([...AAMVA_VERSION_KEYS].sort()).toEqual([...AAMVA_VERSION_KEYS]);
     expect(AAMVA_VERSION_KEYS.length).toBe(Object.keys(AAMVA_VERSIONS).length);

@@ -4,6 +4,8 @@
  * goal is to help, not to repeat what the input already shows.
  */
 export const FIELD_HELP: Record<string, string> = {
+  SIG: "CDS 2026 signature: exactly 80 ASCII85 characters representing a 64-byte ECDSA P-256 r||s signature. Case is significant. Editing signed data requires signing it again. Verification with a supplied key does not establish issuer certificate trust.",
+  SCV: "Signature Coverage: comma-separated signed element IDs, a semicolon, then unsigned IDs. Every present element must appear once. SCV and SIG must be signed. Omit SCV when the signature covers every element.",
   DCF:
     "Document Discriminator — a per-card unique ID printed on the credential. " +
     "Use the Gen button to produce a state-correct value automatically.",
@@ -62,8 +64,8 @@ export const FIELD_HELP: Record<string, string> = {
   DBA: "Expiration Date — must be after the issue date and within the state's max validity window.",
   DBB: "Date of Birth — used for age-at-issuance checks (must be ≥14 at issuance).",
   DBD: "Document Issue Date — the date this physical card was issued.",
-  DDK: "Organ Donor Indicator — 1 = donor, 0 = not a donor.",
-  DDL: "Veteran Indicator — 1 = veteran, 0 = not a veteran.",
+  DDK: "Organ Donor Indicator: CDS 2026 permits 1 or omission. Earlier supported schemas also accept 0.",
+  DDL: "Veteran Indicator: CDS 2026 permits 1 or omission. Earlier supported schemas also accept 0.",
   DDM:
     "CDL Indicator — CDS 2025. Encode 1 if this credential is a Commercial " +
     "Driver's License or Commercial Learner's Permit; leave blank otherwise. " +

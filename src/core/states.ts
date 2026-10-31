@@ -5,6 +5,8 @@ export interface AAMVAStateDef {
   supported?: boolean;
 }
 
+/** IINs match the captured AAMVA registry (2026-10-31); see conformance/iin-registry-2026-10-31.json.
+ * aamvaVersion is a configured profile default, with issuer adoption unverified. */
 export const AAMVA_STATES: Record<string, AAMVAStateDef> = {
   AL: { IIN: "636033", name: "Alabama", aamvaVersion: "09" },
   AK: { IIN: "636059", name: "Alaska", aamvaVersion: "09" },

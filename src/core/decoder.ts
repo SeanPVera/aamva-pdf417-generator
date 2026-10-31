@@ -1,6 +1,8 @@
 import { AAMVA_STATES } from "./states";
 import { AAMVA_VERSIONS } from "./schema";
 import { parseImportedPayload } from "./importPayload";
+import { validateSignatureElements } from "./signatureEncoding";
+import { isPrintableWireValue } from "./wireEncoding";
 
 // Pre-built IIN → state-code Map for O(1) lookup during decoding.
 // Replaces an O(n) linear scan through all 54 jurisdictions on every decode.
@@ -22,9 +24,43 @@ const RE_SUBFILE_TYPE = /^[A-Z0-9]{2}$/;
 /** Bytes of directory drift a non-strict read will absorb. See `readDirectory`. */
 const SUBFILE_OFFSET_TOLERANCE = 4;
 
-/** The header is fixed at 21 bytes; the directory is 10 bytes per entry. */
-const HEADER_LENGTH = 21;
+/** Modern headers use 21 bytes; v01 can use 19. Directory entries use 10. */
 const DIRECTORY_ENTRY_LENGTH = 10;
+
+export interface PayloadHeader {
+  /** Absolute position of @ in the supplied, unchanged text. */
+  start: number;
+  headerLength: 19 | 21;
+  version: string;
+  jurisdictionVersion: string;
+  count: number;
+  diagnostics: string[];
+}
+
+/** The v01 layout has no jurisdiction-version token. Never infer it for later editions. */
+export function readPayloadHeader(payload: string, strict = false): PayloadHeader {
+  const start = !strict && payload.startsWith(" @\n") ? 1 : 0;
+  const version = payload.slice(start + 15, start + 17);
+  const legacy = version === "01" && /^(DL|ID)/.test(payload.slice(start + 19, start + 21));
+  const headerLength = legacy ? 19 : 21;
+  const countToken = payload.slice(start + headerLength - 2, start + headerLength);
+  const diagnostics: string[] = [];
+  if (start)
+    diagnostics.push(
+      "One leading space precedes the compliance indicator; directory offsets are relative to @."
+    );
+  if (legacy) diagnostics.push("Legacy v01 header omits the jurisdiction-version token.");
+  if (payload[start + 2] === "\x1c")
+    diagnostics.push("Nonstandard 0x1c record separator retained from source.");
+  return {
+    start,
+    headerLength,
+    version,
+    jurisdictionVersion: legacy ? "" : payload.slice(start + 17, start + 19),
+    count: RE_2_DIGITS.test(countToken) ? Number(countToken) : NaN,
+    diagnostics
+  };
+}
 
 export interface ValidationResult {
   ok: boolean;
@@ -76,15 +112,16 @@ export function readDirectory(
   strict: boolean,
   maxLengthOverrun: number = SUBFILE_OFFSET_TOLERANCE
 ): DirectoryRead {
-  if (!RE_2_DIGITS.test(payload.substring(19, 21))) {
+  const header = readPayloadHeader(payload, strict);
+  if (!Number.isFinite(header.count)) {
     return { entries: [], error: "Invalid directory entry count" };
   }
-  const numEntries = parseInt(payload.substring(19, 21), 10);
-  const directoryEnd = HEADER_LENGTH + numEntries * DIRECTORY_ENTRY_LENGTH;
+  const numEntries = header.count;
+  const directoryEnd = header.start + header.headerLength + numEntries * DIRECTORY_ENTRY_LENGTH;
   const entries: SubfileEntry[] = [];
 
   for (let i = 0; i < numEntries; i++) {
-    const base = HEADER_LENGTH + i * DIRECTORY_ENTRY_LENGTH;
+    const base = header.start + header.headerLength + i * DIRECTORY_ENTRY_LENGTH;
     const type = payload.substring(base, base + 2);
     const offsetToken = payload.substring(base + 2, base + 6);
     const lengthToken = payload.substring(base + 6, base + 10);
@@ -102,16 +139,17 @@ export function readDirectory(
     const declaredOffset = parseInt(offsetToken, 10);
     const declaredLength = parseInt(lengthToken, 10);
 
-    if (declaredOffset < directoryEnd) return { entries, error: "Offset points inside directory" };
+    if (declaredOffset + header.start < directoryEnd)
+      return { entries, error: "Offset points inside directory" };
     if (declaredLength < 3) return { entries, error: "Subfile length is too short" };
 
-    let start = declaredOffset;
+    let start = declaredOffset + header.start;
     let repaired = false;
 
     if (payload.substring(start, start + 2) !== type) {
-      const nudged = strict ? -1 : findNearby(payload, type, declaredOffset, directoryEnd);
+      const nudged = strict ? -1 : findNearby(payload, type, start, directoryEnd);
       if (nudged === -1) {
-        return { entries, error: markerError(payload, declaredOffset, i) };
+        return { entries, error: markerError(payload, start, i) };
       }
       start = nudged;
       repaired = true;
@@ -172,6 +210,23 @@ export function readDirectory(
     }
   }
 
+  // The published SC v01 sample understates its final subfile by two bytes.
+  // Keep that legacy tolerance visible; strict reads still use declared bounds.
+  if (!strict && header.headerLength === 19) {
+    for (let i = 0; i < entries.length; i++) {
+      const entry = entries[i]!;
+      const boundary = entries[i + 1]?.start ?? payload.length;
+      if (
+        entry.end < boundary &&
+        boundary - entry.end <= SUBFILE_OFFSET_TOLERANCE &&
+        payload[boundary - 1] === "\r"
+      ) {
+        entry.end = boundary;
+        entry.repaired = true;
+      }
+    }
+  }
+
   return { entries };
 }
 
@@ -208,7 +263,7 @@ export function validateAAMVAPayloadStructure(
 ): ValidationResult {
   if (!payload || typeof payload !== "string")
     return { ok: false, error: "Empty or invalid payload" };
-  if (payload.length < 31)
+  if (payload.length < 29)
     return { ok: false, error: "Payload too short for AAMVA header and directory" };
   if (payload.length > 100_000) return { ok: false, error: "Payload exceeds parser size limit" };
   // eslint-disable-next-line no-control-regex -- validate the single-byte wire boundary
@@ -216,26 +271,34 @@ export function validateAAMVAPayloadStructure(
     return { ok: false, error: "Unsupported input encoding: expected a single-byte payload" };
   }
 
-  if (payload.charAt(0) !== "@") return { ok: false, error: "Invalid compliance indicator" };
-  if (payload.charAt(1) !== "\n") return { ok: false, error: "Invalid data element separator" };
-  if (payload.charAt(2) !== "\x1e") return { ok: false, error: "Invalid record separator" };
-  if (payload.charAt(3) !== "\r") return { ok: false, error: "Invalid segment terminator" };
-  if (payload.substring(4, 9) !== "ANSI ") return { ok: false, error: "Invalid file type" };
-  if (!RE_6_DIGITS.test(payload.substring(9, 15))) return { ok: false, error: "Invalid IIN" };
-  if (!RE_2_DIGITS.test(payload.substring(15, 17)))
-    return { ok: false, error: "Invalid AAMVA version token" };
-  if (!RE_2_DIGITS.test(payload.substring(17, 19)))
+  const header = readPayloadHeader(payload, strictMode);
+  const start = header.start;
+  if (payload.charAt(start) !== "@") return { ok: false, error: "Invalid compliance indicator" };
+  if (payload.charAt(start + 1) !== "\n")
+    return { ok: false, error: "Invalid data element separator" };
+  const legacySCSeparator =
+    !strictMode &&
+    header.headerLength === 19 &&
+    payload.slice(start + 9, start + 15) === "636005" &&
+    payload[start + 2] === "\x1c";
+  if (payload.charAt(start + 2) !== "\x1e" && !legacySCSeparator)
+    return { ok: false, error: "Invalid record separator" };
+  if (payload.charAt(start + 3) !== "\r") return { ok: false, error: "Invalid segment terminator" };
+  if (payload.substring(start + 4, start + 9) !== "ANSI ")
+    return { ok: false, error: "Invalid file type" };
+  if (!RE_6_DIGITS.test(payload.substring(start + 9, start + 15)))
+    return { ok: false, error: "Invalid IIN" };
+  if (!RE_2_DIGITS.test(header.version)) return { ok: false, error: "Invalid AAMVA version token" };
+  if (header.headerLength === 21 && !RE_2_DIGITS.test(header.jurisdictionVersion))
     return { ok: false, error: "Invalid jurisdiction version token" };
 
-  const numEntriesStr = payload.substring(19, 21);
-  if (!RE_2_DIGITS.test(numEntriesStr))
-    return { ok: false, error: "Invalid directory entry count" };
+  if (!Number.isFinite(header.count)) return { ok: false, error: "Invalid directory entry count" };
 
-  const numEntries = parseInt(numEntriesStr, 10);
+  const numEntries = header.count;
   if (numEntries < 1)
     return { ok: false, error: "AAMVA payload must contain at least one subfile entry" };
 
-  const directoryEnd = HEADER_LENGTH + numEntries * DIRECTORY_ENTRY_LENGTH;
+  const directoryEnd = start + header.headerLength + numEntries * DIRECTORY_ENTRY_LENGTH;
   if (payload.length < directoryEnd)
     return { ok: false, error: "Payload truncated before directory entries" };
 
@@ -246,6 +309,8 @@ export function validateAAMVAPayloadStructure(
   const { entries, error } = readDirectory(payload, strictMode);
   if (error) return { ok: false, error };
   for (const entry of entries) {
+    if (strictMode && payload.slice(entry.start + 2, entry.end - 1).includes("\r"))
+      return { ok: false, error: `Interior segment terminator in ${entry.type}` };
     if ((entry.type === "DL" || entry.type === "ID") && payload[entry.end - 1] !== "\r") {
       return {
         ok: false,
@@ -265,12 +330,14 @@ export interface DecodeResult {
   mapped?: string;
   /** Subfile designators found in the directory, in order (e.g. ["DL", "ZC"]). */
   subfiles?: string[];
+  /** Compatibility observations; the input text is never rewritten. */
+  diagnostics?: string[];
 }
 
 export function decodePayload(text: string): DecodeResult {
   if (!text || typeof text !== "string") return { error: "Empty or invalid input" };
 
-  if (text.charAt(0) === "@") return decodeAAMVAFormat(text);
+  if (text.charAt(0) === "@" || text.startsWith(" @\n")) return decodeAAMVAFormat(text);
 
   const parsed = parseImportedPayload(text, "This barcode");
   return parsed.ok ? { data: parsed.data } : { error: parsed.error };
@@ -281,14 +348,16 @@ export function decodeAAMVAFormat(text: string): DecodeResult {
     const strictValidation = validateAAMVAPayloadStructure(text);
     if (!strictValidation.ok) return { error: strictValidation.error };
 
-    const iin = text.substring(9, 15);
-    const version = text.substring(15, 17);
+    const header = readPayloadHeader(text);
+    const iin = text.substring(header.start + 9, header.start + 15);
+    const version = header.version;
 
     const { entries: subfiles, error } = readDirectory(text, false);
     if (error) return { error };
     if (subfiles.length === 0) return { error: "No DL or ID subfile found in directory" };
 
     const obj: Record<string, string> = { version: version };
+    const diagnostics = [...header.diagnostics];
 
     // Every subfile is read, not only the first. A jurisdiction's Z* elements
     // were previously dropped on the floor: the values reached the decoder and
@@ -296,8 +365,19 @@ export function decodeAAMVAFormat(text: string): DecodeResult {
     // silently lost the ZC subfile.
     for (const subfile of subfiles) {
       const fieldData = text.substring(subfile.start + 2, subfile.end);
-      for (const entry of fieldData.split("\n")) {
+      for (let entry of fieldData.split("\n")) {
         if (!entry || entry === "\r") continue;
+        if (
+          version !== "12" &&
+          subfile.type.startsWith("Z") &&
+          entry.startsWith("\r") &&
+          RE_FIELD_CODE.test(entry.slice(1, 4))
+        ) {
+          entry = entry.slice(1);
+          diagnostics.push(
+            `Interior segment terminator precedes ${entry.slice(0, 3)} in ${subfile.type}; source framing is nonstandard.`
+          );
+        }
         if (entry.length < 3 || !RE_FIELD_CODE.test(entry.substring(0, 3))) {
           return { error: `Malformed data element in ${subfile.type}` };
         }
@@ -309,25 +389,50 @@ export function decodeAAMVAFormat(text: string): DecodeResult {
         // decoded value made the postal code fail re-validation, so a scanned
         // or imported barcode could not be regenerated.
         value = value.replace(/\r$/, "");
-        if (!subfile.type.startsWith("Z")) value = value.replace(/ +$/, "");
+        if (!subfile.type.startsWith("Z") && !(version === "12" && ["SIG", "SCV"].includes(code)))
+          value = value.replace(/ +$/, "");
         if (RE_FIELD_CODE.test(code)) {
-          if (Object.prototype.hasOwnProperty.call(obj, code) && obj[code] !== value) {
+          if (
+            Object.prototype.hasOwnProperty.call(obj, code) &&
+            (obj[code] !== value || version === "12")
+          ) {
             return { error: `Conflicting duplicate element ${code}; inspect the original payload` };
           }
           // Interior control characters are not a continuation of the value.
           // eslint-disable-next-line no-control-regex
           if (/[\x00-\x1f\x7f]/.test(value))
             return { error: `Unexpected control character in element ${code}` };
+          if (version === "12" && !isPrintableWireValue(value, true))
+            return { error: `Unsupported ISO-8859-1 value in element ${code}` };
           obj[code] = value;
         }
       }
+    }
+
+    if (version === "12") {
+      const diagnostic = validateSignatureElements(obj);
+      if (diagnostic) return { error: diagnostic };
     }
 
     const stateCode = _IIN_TO_STATE.get(iin);
     if (stateCode) obj.state = stateCode;
     obj.subfileType = subfiles[0]!.type;
 
-    return { data: obj, subfiles: subfiles.map((s) => s.type) };
+    if (subfiles.some((subfile) => subfile.repaired))
+      diagnostics.push("Directory boundary drift was tolerated; inspect the original bytes.");
+    if (
+      subfiles[0]!.start !==
+        header.start + header.headerLength + header.count * DIRECTORY_ENTRY_LENGTH ||
+      subfiles[subfiles.length - 1]!.end !== text.length
+    )
+      diagnostics.push(
+        "Bytes outside the declared subfile ranges remain unaccounted; inspect the original payload."
+      );
+    return {
+      data: obj,
+      subfiles: subfiles.map((s) => s.type),
+      ...(diagnostics.length ? { diagnostics } : {})
+    };
   } catch (err) {
     return { error: "Failed to parse AAMVA payload: " + (err as Error).message };
   }
@@ -373,6 +478,7 @@ export function decodeAAMVA(text: string): DecodeResult {
     ok: true,
     json: obj,
     mapped: describeFields(obj),
-    subfiles: base.subfiles
+    subfiles: base.subfiles,
+    ...(base.diagnostics ? { diagnostics: base.diagnostics } : {})
   };
 }
