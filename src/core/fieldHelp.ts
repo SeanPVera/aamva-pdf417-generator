@@ -83,10 +83,16 @@ export const FIELD_HELP: Record<string, string> = {
     "Inventory Control Number — the issuer's own stock/production reference for " +
     "the physical card. Optional, but real cards carry it (Connecticut builds " +
     "it from the licence number, the state code, and a batch suffix).",
+  DCJ:
+    "Audit Information — when, where, and by whom the card was made. Optional. " +
+    "On a decoded Colorado card it read CDOR_DL_0_, then an MMDDYY date one day " +
+    "after the issue date, then a five-digit number.",
   ZCA:
-    "Connecticut jurisdiction subfile, optional field A. AAMVA reserves Z* " +
-    "subfiles for the issuer and defines nothing inside them, so this has no " +
-    "standard meaning — leave it blank unless you are reproducing a specific card.",
+    "Jurisdiction subfile, optional field A. Connecticut and Colorado both " +
+    "write a ZC subfile, since its name is Z plus the jurisdiction's initial. " +
+    "AAMVA defines nothing inside it, so this has no standard meaning; " +
+    "Colorado's card read NONE. Leave it blank unless you are reproducing a " +
+    "specific card.",
   ZCB:
     "Connecticut jurisdiction subfile, optional field B. Observed on an issued " +
     "card as a 10-digit number. Filling either ZC field adds a second subfile " +

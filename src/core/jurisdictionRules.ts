@@ -1241,3 +1241,4 @@ export function getJurisdictionSubfileElements(
 export function shouldPadPostalCode(stateCode: string, version?: string): boolean {
   return getJurisdictionEncoding(stateCode, version)?.padPostalCode !== false;
 }
+
