@@ -183,7 +183,8 @@ describe("CDS 2026 version 12 normative behavior (synthetic tests)", () => {
     const placeholder = build({ SIG: "0".repeat(80) });
     expect(canonicalizeAamvaSignature(placeholder)).toBe(placeholder);
     const payload = independentlySign(placeholder, placeholder);
-    expect(await verifyAamvaSignature(payload, await publicKey())).toMatchObject({
+    const verification = await verifyAamvaSignature(payload, await publicKey());
+    expect(verification, verification.error).toMatchObject({
       status: "valid-signature",
       keyTrust: "caller-supplied"
     });

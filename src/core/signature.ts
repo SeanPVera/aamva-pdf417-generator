@@ -123,7 +123,9 @@ export async function verifyAamvaSignature(
     const valid = await subtle.verify(
       { name: "ECDSA", hash: "SHA-256" },
       publicKey,
-      signature.buffer,
+      // The typed view is a portable BufferSource. Node 20 rejects an
+      // ArrayBuffer from another realm, including the DOM test environment.
+      signature,
       new TextEncoder().encode(canonical)
     );
     return result(valid ? "valid-signature" : "invalid-signature");
