@@ -31,7 +31,7 @@
     "offline"
   ],
   "engines": {
-    "node": ">=22.12.0"
+    "node": ">=22.13.0"
   },
   "scripts": {
     "start": "electron .",
@@ -62,7 +62,9 @@
     "dist:win": "npm run build && electron-builder --win nsis --publish never",
     "dist:mac": "npm run build && electron-builder --mac dmg --publish never",
     "dist:linux": "npm run build && electron-builder --linux AppImage deb --publish never",
-    "prepare": "husky"
+    "prepare": "husky",
+    "postinstall": "node scripts/apply-dependency-compat.mjs",
+    "test:dependencies": "node --test scripts/dependency-contracts.mjs"
   },
   "lint-staged": {
     "src/**/*.{ts,tsx}": [
@@ -87,7 +89,7 @@
     "@axe-core/playwright": "^4.11.2",
     "@changesets/changelog-github": "^0.6.0",
     "@changesets/cli": "^2.31.0",
-    "@eslint/js": "^9.18.0",
+    "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.59.1",
     "@size-limit/file": "^12.1.0",
     "@testing-library/jest-dom": "^6.9.1",
@@ -105,8 +107,7 @@
     "cross-env": "^10.1.0",
     "electron": "^45.2.1",
     "electron-builder": "^26.8.1",
-    "eslint": "^9.18.0",
-    "eslint-plugin-react": "^7.37.5",
+    "eslint": "^10.14.0",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.7",
     "fast-check": "^4.7.0",
@@ -121,7 +122,8 @@
     "typescript": "^5.9.3",
     "vite": "^8.0.2",
     "vitest": "^4.1.12",
-    "wait-on": "^9.0.4"
+    "wait-on": "^9.0.4",
+    "minimatch": "^11.0.1"
   },
   "overrides": {
     "@electron/asar": "^4.2.0",
@@ -136,7 +138,12 @@
       "js-yaml": "^3.15.2"
     },
     "rimraf": "^6.1.3",
-    "undici": "^7.30.1"
+    "undici": "^7.30.1",
+    "glob": "^14.0.2",
+    "minimatch": "$minimatch",
+    "ejs": "^7.0.2",
+    "@electron/universal": "3.0.6",
+    "temp": "0.9.4"
   },
   "build": {
     "appId": "com.seanvera.aamva.pdf417",

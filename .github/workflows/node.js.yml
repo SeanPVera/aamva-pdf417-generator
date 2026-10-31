@@ -42,6 +42,9 @@ jobs:
     - name: Test
       run: npm run test:run
 
+    - name: Dependency compatibility and advisory regressions
+      run: npm run test:dependencies
+
     - name: Conformance corpus coverage
       # Reports how many jurisdictions have a vector sourced from outside this
       # implementation. Informational — the ratchet that stops it regressing
@@ -67,6 +70,4 @@ jobs:
         retention-days: 14
 
     - name: Audit dependencies
-      # Use --audit-level=high so moderate/info advisories don't block CI,
-      # but high-severity vulnerabilities are always a release blocker.
-      run: npm audit --audit-level=high
+      run: npm audit --audit-level=low

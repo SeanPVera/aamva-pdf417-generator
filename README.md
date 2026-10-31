@@ -16,9 +16,8 @@ Use synthetic or otherwise authorized data. This tool does not verify a person's
 
 ## Run locally
 
-Requires Node **22.12+** and npm; CI uses Node 22 and 24. Node 24 is the
-recommended local runtime. The patched Electron desktop dependency requires
-Node 22.12 or later during installation.
+Requires Node **22.13+** and npm; CI uses Node 22 and 24. Node 24 is the
+recommended local runtime. ESLint 10 requires Node 22.13 or later.
 
 ```bash
 git clone https://github.com/SeanPVera/aamva-pdf417-generator.git
@@ -100,12 +99,23 @@ npm run test:coverage
 npm run build
 npm run size
 npm run conformance:report
-npm audit --audit-level=high
+npm run test:dependencies
+npm audit --audit-level=low
 npm run test:e2e:install
 npm run test:e2e
 ```
 
 `PW_BROWSERS=all npm run test:e2e` selects the full configured browser matrix after installing those engines. `PW_CHROMIUM_EXECUTABLE=/path/to/chromium` optionally selects a local Chromium binary. CI's ordinary browser setup is unchanged.
+
+Dependency installation runs two version- and SHA-256-guarded compatibility
+patches in `scripts/apply-dependency-compat.mjs`. Electron universal packaging
+uses patched minimatch rather than Node's separately bundled matcher; the older
+Windows Squirrel helper adapts its temporary-file cleanup to rimraf's current
+API. Unexpected package source or versions fail installation and require review.
+Use ordinary `npm ci` with lifecycle scripts enabled. `npm run test:dependencies`
+checks cancellation, bounded pattern expansion, archive paths, installer
+templates and cleanup alongside the affected callers. CI rejects every audited
+severity, including moderate findings.
 
 The unit suite includes deterministic fixtures, malformed-input tests, property tests, and an independent ZXing pixel decoder. Browser tests exercise the actual downloaded PNG as well as state, keyboard, import, export, responsive layout, and WCAG checks. Neither green tests nor an internally balanced byte directory prove issuer compliance.
 
