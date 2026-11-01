@@ -113,6 +113,12 @@ export const VersionBrowser: React.FC = () => {
                   type="search"
                   value={filterQuery}
                   onChange={(e) => setFilterQuery(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Escape" && filterQuery) {
+                      e.preventDefault();
+                      setFilterQuery("");
+                    }
+                  }}
                   placeholder="Filter fields by code or label..."
                   aria-label="Filter fields in version browser"
                   className="h-k-touch w-full rounded-k border border-gray-300 dark:border-gray-600 bg-white dark:bg-dark-surface2 pl-9 pr-10 text-k-label text-gray-800 dark:text-gray-100 placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
@@ -122,13 +128,23 @@ export const VersionBrowser: React.FC = () => {
                     type="button"
                     onClick={() => setFilterQuery("")}
                     aria-label="Clear version browser filter"
-                    title="Clear version browser filter"
+                    title="Clear version browser filter (Esc)"
                     className="absolute right-0 top-1/2 inline-flex h-k-touch w-k-touch -translate-y-1/2 items-center justify-center rounded-k text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                   >
                     <XIcon size={16} />
                   </button>
                 )}
               </div>
+
+              {filterQuery && (
+                <div
+                  role="status"
+                  aria-live="polite"
+                  className="text-xs text-gray-500 dark:text-gray-400 font-medium"
+                >
+                  {filteredFields.length} of {versionDef.fields.length} fields match
+                </div>
+              )}
 
               <div
                 className="overflow-auto max-h-64"
@@ -161,6 +177,7 @@ export const VersionBrowser: React.FC = () => {
                       <tr>
                         <td
                           colSpan={4}
+                          role="status"
                           className="py-3 px-2 text-center text-gray-500 dark:text-gray-400"
                         >
                           No fields matching &ldquo;{filterQuery}&rdquo;

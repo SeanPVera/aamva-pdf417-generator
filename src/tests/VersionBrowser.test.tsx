@@ -41,6 +41,39 @@ describe("VersionBrowser component", () => {
     expect(screen.getByText("DCF")).toBeInTheDocument();
   });
 
+  it("clears the filter when pressing Escape in the search input", () => {
+    render(<VersionBrowser />);
+    fireEvent.click(screen.getByRole("button", { name: /Version Browser/i }));
+
+    const searchInput = screen.getByLabelText(/Filter fields in version browser/i);
+    fireEvent.change(searchInput, { target: { value: "DCA" } });
+    expect(searchInput).toHaveValue("DCA");
+
+    fireEvent.keyDown(searchInput, { key: "Escape" });
+    expect(searchInput).toHaveValue("");
+    expect(screen.getByText("DCF")).toBeInTheDocument();
+  });
+
+  it("displays and announces the match count when filtering and empty state when no matches", () => {
+    render(<VersionBrowser />);
+    fireEvent.click(screen.getByRole("button", { name: /Version Browser/i }));
+
+    const searchInput = screen.getByLabelText(/Filter fields in version browser/i);
+    // Initially without filter, no match count status is shown
+    expect(screen.queryByText(/fields match/i)).not.toBeInTheDocument();
+
+    fireEvent.change(searchInput, { target: { value: "DCA" } });
+    const status = screen.getByRole("status");
+    expect(status).toHaveTextContent(/1 of \d+ fields match/i);
+
+    // Filter by nonexistent string
+    fireEvent.change(searchInput, { target: { value: "NONEXISTENT123" } });
+    const statuses = screen.getAllByRole("status");
+    expect(statuses.length).toBe(2); // One for match count ("0 of 33 fields match"), one for empty table cell
+    expect(screen.getByText(/0 of \d+ fields match/i)).toBeInTheDocument();
+    expect(screen.getByText(/No fields matching “NONEXISTENT123”/i)).toBeInTheDocument();
+  });
+
   it("shows 'Set as active' action when browsing a non-active version and updates state", () => {
     render(<VersionBrowser />);
     fireEvent.click(screen.getByRole("button", { name: /Version Browser/i }));
