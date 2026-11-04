@@ -442,8 +442,8 @@ Fields use 3-character codes (e.g., `DAA`, `DCS`, `DAB`). These are standardized
 
 `DCK` (inventory control number) is optional from `"03"` onward and absent from `"01"`/`"02"`.
 `DDD` (limited duration document indicator) is optional from `"08"` onward. `DCJ` (audit
-information) is optional on `"04"`–`"10"`; `"03"` and `"11"` lack it only because nobody has
-checked those editions. All three were added after decoded cards were found carrying them.
+information) is optional on `"04"`–`"10"`. All three were added after decoded cards were found
+carrying them.
 
 ### Subfiles and the header directory
 
@@ -464,14 +464,16 @@ subtly wrong:
   holds a value, so the common single-subfile output is byte-identical to what
   this app produced before multi-subfile support existed.
 
-Three jurisdictions have profiles, all read off decoded cards: Colorado
-(`ZC`), Connecticut (`ZC`) and New York (`ZN`). Colorado and Connecticut share a
-designator by rule — the standard names a jurisdiction subfile `Z` plus the
-jurisdiction's initial — so element codes like `ZCA` are not unique to one
-issuer; anything keyed on the code alone (help text, for one) must not name a
-state. Their elements are surfaced in the form through
-`getFieldsForStateAndVersion`, which appends them per jurisdiction, and they are
-tagged `subfile: "jurisdiction"` so nothing else has to special-case them.
+Two jurisdictions have default encoding profiles in `jurisdictionRules`, both
+read off decoded cards: Connecticut (`ZC`) and New York (`ZN`). Colorado's issued
+layout is an opt-in observed profile (`co-issued-v10`) rather than a default —
+so ordinary CO generation stays on the generic encoder. Colorado and Connecticut
+share a ZC designator by rule (Z plus the jurisdiction's initial), so element
+codes like `ZCA` are not unique to one issuer; anything keyed on the code alone
+(help text, for one) must not name a state. Jurisdiction elements are surfaced
+through `getFieldsForStateAndVersion` (and observed profiles via
+`encodingProfileId`) and tagged `subfile: "jurisdiction"` so nothing else has to
+special-case them.
 
 Jurisdiction subfile values are **opaque**. They are exempt from the upper-casing
 the AAMVA text rule applies to standard string fields, because a real NY card
@@ -528,12 +530,10 @@ the selection mechanism first.
 unit (`069 IN`); New York writes feet and inches as three digits (`603` for
 6'3"). Both are 6 characters or fewer and both validate.
 
-The unit's case is per issuer. Colorado writes `065 in`, which is also how the
-2009 standard's own example spells it (`"073 in"`); the generator upper-cases
-every other jurisdiction's unit, an assumption no raw card has confirmed.
-`heightUnitCase` in the encoding profile records it, and `applyHeightUnitCase`
-is the one place that applies it — the encoder and the quick fixes both call
-it, so a fix is never offered that the encoder would undo.
+Observed profiles may list `preserveValueCase` (for example `["DAU"]` on
+Colorado's issued profile) so the encoder leaves that field's case alone. The
+2009 standard's own DAU example is `"073 in"`. Default generation still
+upper-cases ordinary string fields.
 
 `normalizeHeight` in `quickFix.ts` must not "correct" the second into the first:
 `603` read as inches is fifty feet. `isFeetInchesNotation` guards this — a

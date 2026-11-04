@@ -95,8 +95,9 @@ export function identifyObservedEncodingProfile(payload: string): string | undef
     // Issuer identity is checked against the profile's retained source header.
     if (profile.iin !== payload.slice(header.start + 9, header.start + 15)) return false;
     const order = profile.encoding.elementOrder ?? [];
-    if (codes.some((code) => !order.includes(code))) return false;
-    if (codes.join(",") !== order.filter((code) => codes.includes(code)).join(",")) return false;
+    // Exact order match: a stricter profile that only adds elements (e.g. CO
+    // issued with DCL) must not also claim a specimen that omits them.
+    if (codes.join(",") !== order.join(",")) return false;
     for (const element of elements) {
       const width = profile.encoding.fieldWidths?.[element.slice(0, 3)];
       if (width !== undefined && element.length - 3 !== width) return false;
