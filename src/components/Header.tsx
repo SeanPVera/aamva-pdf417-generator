@@ -159,10 +159,34 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
             {toolsOpen && (
               <div className="tool-popover" id="workspace-tools" aria-label="Workspace tools">
-                <button onClick={() => run(exportRecord)}>Export record JSON</button>
-                <button onClick={() => run(onOpenCompare)}>Compare payloads</button>
-                <button onClick={() => run(onOpenBatch)}>Batch CSV processing</button>
-                <button onClick={() => run(onOpenShortcuts)}>Keyboard shortcuts & help</button>
+                <button
+                  type="button"
+                  onClick={() => run(exportRecord)}
+                  title="Save current workspace record as a JSON file"
+                >
+                  Export record JSON
+                </button>
+                <button
+                  type="button"
+                  onClick={() => run(onOpenCompare)}
+                  title="Side-by-side payload comparison tool"
+                >
+                  Compare payloads
+                </button>
+                <button
+                  type="button"
+                  onClick={() => run(onOpenBatch)}
+                  title="Process multiple records from a CSV file"
+                >
+                  Batch CSV processing
+                </button>
+                <button
+                  type="button"
+                  onClick={() => run(onOpenShortcuts)}
+                  title="View keyboard shortcuts and documentation"
+                >
+                  Keyboard shortcuts & help
+                </button>
                 <label className="menu-setting">
                   Appearance
                   <select
@@ -180,6 +204,8 @@ export const Header: React.FC<HeaderProps> = ({
                   {presets.map((preset) => (
                     <button
                       key={preset.id}
+                      type="button"
+                      title={`Load ${preset.label} synthetic record`}
                       onClick={() =>
                         run(() => {
                           loadJson({
@@ -199,7 +225,9 @@ export const Header: React.FC<HeaderProps> = ({
                   ))}
                 </details>
                 <button
+                  type="button"
                   className="danger-text"
+                  title="Clear all fields and reset undo history"
                   onClick={() => {
                     setToolsOpen(false);
                     setClearOpen(true);
