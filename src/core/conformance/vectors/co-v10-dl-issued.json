@@ -9,8 +9,8 @@
     "tier": "issued",
     "source": "PDF417 barcode decoded from a photo of the back of an issued Colorado driver's license (AAMVA v10, IIN 636020). Layout only; identity values are synthetic.",
     "capturedAt": "2026-10-31",
-    "verifiedBy": "Claude Code (zxing-cpp decode of the source image); expectedBytes regenerated under encodingProfileId co-issued-v10",
-    "anonymization": "Names, customer ID, address, document discriminator, and dates are placeholders. Physical descriptors (DAU/DAW/DAY/DAZ/DBC/DCL), card revision date (DDB), and the DCJ embedded date (one day after DBD) were replaced with generic values of the same wire widths. expectedBytes are produced by generateAAMVAPayload with encodingProfileId co-issued-v10, not by patching the decoded symbol in place.",
+    "verifiedBy": "Claude Code (zxing-cpp decode of the source image); expectedBytes regenerated under encodingProfileId co-issued-v10 after a further anonymization pass",
+    "anonymization": "Names, customer ID, address, document discriminator, and dates are placeholders. Physical descriptors (DAU/DAW/DAY/DAZ/DBC/DCL), card revision date (DDB), and DCJ were replaced with generic values of the same wire widths (DCJ no longer uses the CDOR_DL_0_ prefix or a DBD+1 embedded date). expectedBytes are produced by generateAAMVAPayload with encodingProfileId co-issued-v10, not by patching the decoded symbol in place.",
     "notes": "Opt-in via encodingProfileId co-issued-v10. Default Colorado generation is unchanged (DCL stays excluded; no default CO encoding profile). The issued profile records jurisdiction version 01, issuer element order (including DCL and DCJ), omitFinalSeparator, DAK width 11, DCL width 3, preserveValueCase for DAU, and a ZC/ZCA jurisdiction subfile.",
     "fidelity": "anonymized"
   },
@@ -28,7 +28,7 @@
     "DBD": "01012020",
     "DBB": "01011990",
     "DBA": "01012025",
-    "DBC": "1",
+    "DBC": "2",
     "DAU": "070 in",
     "DAY": "GRY",
     "DAG": "100 EXAMPLE TRAIL",
@@ -40,10 +40,10 @@
     "DDA": "F",
     "DDB": "01012020",
     "DAZ": "BLK",
-    "DCJ": "CDOR_DL_0_010220_00000",
-    "DCL": "AI",
+    "DCJ": "SAMPLE_ED_000000_00000",
+    "DCL": "U",
     "DAW": "150",
     "ZCA": "NONE"
   },
-  "expectedBytes": "@\n\u001e\rANSI 636020100102DL00410281ZC03220010DLDAQ123456789\nDCSPLACEHOLD\nDDEN\nDACAVERY\nDDFN\nDADSAMPLE\nDDGN\nDCAR\nDCBNONE\nDCDNONE\nDBD01012020\nDBB01011990\nDBA01012025\nDBC1\nDAU070 in\nDAYGRY\nDAG100 EXAMPLE TRAIL\nDAITOWNE\nDAJCO\nDAK800000000  \nDCF12345678901234\nDCGUSA\nDDAF\nDDB01012020\nDAZBLK\nDCJCDOR_DL_0_010220_00000\nDCLAI \nDAW150\rZCZCANONE\r"
+  "expectedBytes": "@\n\u001e\rANSI 636020100102DL00410281ZC03220010DLDAQ123456789\nDCSPLACEHOLD\nDDEN\nDACAVERY\nDDFN\nDADSAMPLE\nDDGN\nDCAR\nDCBNONE\nDCDNONE\nDBD01012020\nDBB01011990\nDBA01012025\nDBC2\nDAU070 in\nDAYGRY\nDAG100 EXAMPLE TRAIL\nDAITOWNE\nDAJCO\nDAK800000000  \nDCF12345678901234\nDCGUSA\nDDAF\nDDB01012020\nDAZBLK\nDCJSAMPLE_ED_000000_00000\nDCLU  \nDAW150\rZCZCANONE\r"
 }
