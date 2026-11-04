@@ -1,0 +1,43 @@
+{
+  "id": "fl-v01-dl-published-488fa2962926",
+  "state": "FL",
+  "version": "01",
+  "subfileType": "DL",
+  "encodingProfileId": "fl-published-legacy-v01",
+  "description": "External specimen layout with explicitly documented source fidelity.",
+  "provenance": {
+    "tier": "published",
+    "source": "https://www.flhsmv.gov/pdf/newdl/retailguide.pdf",
+    "capturedAt": "2026-10-25",
+    "verifiedBy": "Codex: ZXing-C++ 3.1.1 independent source-image decode, source and payload SHA-256 comparison, field/directory inspection, and application byte comparison.",
+    "fidelity": "unmodified-source",
+    "sourceSha256": "4b0bb285c6e88fdd3144d50ecacb4ab9a4f6a0b56614629423ed29b075b7a1b4",
+    "payloadSha256": "488fa2962926131e2602f1eb415d475a7592171b1eba0ac9f68caef21be7b7fe",
+    "evidenceImageSha256": "bcff6d8e0555880e028eb2b948d0cec05ccd357eb011f8439879c3fea5047605",
+    "notes": "PDF page 7. Public Florida specimen uses the legacy 19-byte header, numeric sex code, three-digit height, and a hyphenated postal code. These exceptions apply only to this observed variant."
+  },
+  "input": {
+    "DAA": "LICENSE,PAO,TEN",
+    "DAG": "2900 DHSMV WAY B335",
+    "DAI": "TALLAHASSEE",
+    "DAJ": "FL",
+    "DAK": "32399-0001",
+    "DAQ": "L252678608701",
+    "DAR": "E",
+    "DAS": "LX",
+    "DAT": "NONE",
+    "DBA": "20241010",
+    "DBB": "19601010",
+    "DBC": "2",
+    "DBD": "20170106",
+    "DBH": "Y",
+    "DAU": "500",
+    "ZFA": "REPLACED: 20170521",
+    "ZFB": "",
+    "ZFC": "Q901705210002",
+    "ZFD": "",
+    "ZFE": "06-01-14",
+    "ZFF": ""
+  },
+  "expectedBytes": "@\n\u001e\rANSI 6360100102DL00390180ZF02190065DLDAALICENSE,PAO,TEN\nDAG2900 DHSMV WAY B335\nDAITALLAHASSEE\nDAJFL\nDAK32399-0001 \nDAQL252678608701\nDARE   \nDASLX        \nDATNONE\nDBA20241010\nDBB19601010\nDBC2\nDBD20170106\nDBHY\nDAU500\rZFZFAREPLACED: 20170521\nZFB\nZFCQ901705210002\nZFD\nZFE06-01-14\nZFF\r"
+}
