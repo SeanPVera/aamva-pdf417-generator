@@ -37,7 +37,12 @@ export interface AAMVAVersionDef {
 }
 
 export type FieldGroupId =
-  "identity" | "physical" | "address" | "license" | "privileges" | "jurisdiction";
+  | "identity"
+  | "physical"
+  | "address"
+  | "license"
+  | "privileges"
+  | "jurisdiction";
 
 export interface FieldGroupDef {
   id: FieldGroupId;
