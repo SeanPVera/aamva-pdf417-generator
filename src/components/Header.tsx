@@ -132,10 +132,18 @@ export const Header: React.FC<HeaderProps> = ({
               <Redo2 size={17} />
             </button>
           </div>
-          <button className="wb-button" onClick={() => setImportOpen(true)}>
+          <button
+            className="wb-button"
+            onClick={() => setImportOpen(true)}
+            title="Import record from JSON or barcode data"
+          >
             Import
           </button>
-          <button className="wb-button primary" onClick={onStartScan}>
+          <button
+            className="wb-button primary"
+            onClick={onStartScan}
+            title="Scan barcode using camera or image file"
+          >
             Scan barcode
           </button>
           <div className="tools-menu" ref={menuRef}>
@@ -145,6 +153,7 @@ export const Header: React.FC<HeaderProps> = ({
               onClick={() => setToolsOpen(!toolsOpen)}
               aria-expanded={toolsOpen}
               aria-controls="workspace-tools"
+              title="Workspace tools and options"
             >
               Tools <ChevronDown size={14} aria-hidden />
             </button>

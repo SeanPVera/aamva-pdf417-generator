@@ -17,6 +17,19 @@ function section(over: Partial<StepRailSection> = {}): StepRailSection {
 }
 
 describe("StepRail", () => {
+  it("describes the navigation action without repeating the section status", () => {
+    render(
+      <StepRail
+        sections={[section({ requiredFilled: 2, requiredTotal: 7 })]}
+        active="identity"
+        onSelect={() => {}}
+      />
+    );
+    const button = screen.getByRole("button", { name: /Identity/ });
+    expect(button).toHaveAttribute("title", "Identity — 2 of 7 filled");
+    expect(button).toHaveAccessibleName("Identity 2 of 7 filled");
+    expect(button).toHaveAccessibleDescription("Show fields in this section");
+  });
   it("words an untouched section as work remaining, never as failure", () => {
     render(<StepRail sections={[section()]} active="identity" onSelect={() => {}} />);
     expect(screen.getByText("0 of 7 filled")).toBeInTheDocument();

@@ -186,6 +186,13 @@ export const FieldInput: React.FC<FieldInputProps> = ({
   // maxLength over the shared table. `getEffectiveMaxLength` is the one
   // definition the validator also uses.
   const maxLen = getEffectiveMaxLength(field);
+  const isAtCapacity = !!maxLen && value.length >= maxLen;
+  const isNearCapacity = !!maxLen && value.length >= Math.ceil(maxLen * 0.8);
+  const counterColorClass = isAtCapacity
+    ? "text-red-600 dark:text-red-400 font-bold opacity-100"
+    : isNearCapacity
+      ? "text-amber-700 dark:text-amber-400 font-semibold opacity-100"
+      : "text-gray-600 dark:text-gray-400 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100";
 
   const dateFormat: AamvaDateFormat = field.dateFormat === "YYYYMMDD" ? "YYYYMMDD" : "MMDDYYYY";
   const isDate = field.type === "date";
@@ -260,7 +267,7 @@ export const FieldInput: React.FC<FieldInputProps> = ({
   const counterMilestone = React.useMemo(() => {
     if (!maxLen) return "";
     if (value.length >= maxLen) return `${field.code} is at its ${maxLen} character limit.`;
-    if (value.length >= Math.floor(maxLen * 0.8)) {
+    if (value.length >= Math.ceil(maxLen * 0.8)) {
       return `${maxLen - value.length} characters left in ${field.code}.`;
     }
     return "";
@@ -718,7 +725,9 @@ export const FieldInput: React.FC<FieldInputProps> = ({
           )}
           {dateChips.length > 0 && (
             <details className="field-suggestions">
-              <summary>Date shortcuts</summary>
+              <summary className="rounded-k focus-visible:ring-2 focus-visible:ring-brand-500">
+                Date shortcuts
+              </summary>
               <div className="flex flex-wrap gap-1.5">
                 {dateChips.map((chip) => (
                   <button
@@ -737,7 +746,9 @@ export const FieldInput: React.FC<FieldInputProps> = ({
           )}
           {measureChips.length > 0 && (
             <details className="field-suggestions">
-              <summary>Common measurements</summary>
+              <summary className="rounded-k focus-visible:ring-2 focus-visible:ring-brand-500">
+                Common measurements
+              </summary>
               <div className="flex flex-wrap gap-1.5">
                 {measureChips.map((chip) => (
                   <button
@@ -756,7 +767,9 @@ export const FieldInput: React.FC<FieldInputProps> = ({
           )}
           {suggestionChips.length > 0 && (
             <details className="field-suggestions">
-              <summary>Suggested values</summary>
+              <summary className="rounded-k focus-visible:ring-2 focus-visible:ring-brand-500">
+                Suggested values
+              </summary>
               <div className="flex flex-wrap gap-1.5">
                 {suggestionChips.map((chip) => {
                   const selected = value === chip.value;
@@ -802,7 +815,7 @@ export const FieldInput: React.FC<FieldInputProps> = ({
           {whimsy && field.code === "DAU" && <HeightSilhouette value={value} />}
           {!options && maxLen && (
             <span
-              className="whitespace-nowrap font-mono text-k-help text-gray-600 opacity-0 transition-opacity group-focus-within:opacity-100 dark:text-gray-400"
+              className={`whitespace-nowrap font-mono text-k-help transition-opacity ${counterColorClass}`}
               aria-hidden
               title={`${value.length} of ${maxLen} characters used`}
             >

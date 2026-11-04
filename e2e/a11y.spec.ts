@@ -68,3 +68,27 @@ test.describe("accessibility", () => {
     ).toBe(true);
   });
 });
+
+test("suggestion summaries retain a visible outline in forced colors", async ({
+  page,
+  browserName
+}) => {
+  test.skip(browserName !== "chromium", "Forced-colors emulation is checked in Chromium.");
+  await page.emulateMedia({ forcedColors: "active" });
+  await page.goto("/");
+  await dismissTour(page);
+  await ensurePanel(page, "form");
+  await page.getByRole("button", { name: /Physical Description/ }).click();
+  const summary = page.getByText("Common measurements", { exact: true }).first();
+  await page.keyboard.press("Tab");
+  await summary.focus();
+  await expect(summary).toBeFocused();
+  const outline = await summary.evaluate((el) => {
+    const style = getComputedStyle(el);
+    return { width: parseFloat(style.outlineWidth), style: style.outlineStyle };
+  });
+  expect(outline.width).toBeGreaterThan(0);
+  expect(outline.style).not.toBe("none");
+  await page.keyboard.press("Enter");
+  await expect(summary.locator("..")).toHaveAttribute("open", "");
+});

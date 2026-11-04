@@ -70,6 +70,43 @@ describe("PreviewActions", () => {
     fireEvent.click(screen.getByRole("button", { name: "Copy decoded payload as JSON" }));
     expect(handleCopyJson).toHaveBeenCalledTimes(1);
   });
+
+  test("disabled export actions describe a visible explanation and cannot export", () => {
+    const handleExportPNG = vi.fn();
+    renderActions({ canExport: false, handleExportPNG });
+    const reason = screen.getByText(
+      "Export is available when the current payload renders successfully."
+    );
+    expect(reason).toBeVisible();
+    const button = screen.getByRole("button", { name: "Export barcode as PNG" });
+    expect(button).toBeDisabled();
+    expect(button).toHaveAccessibleDescription(reason.textContent!);
+    fireEvent.click(button);
+    expect(handleExportPNG).not.toHaveBeenCalled();
+  });
+
+  test("updating takes precedence over absent output without blaming validation", () => {
+    renderActions({ canExport: false, stale: true, decoded: null });
+    const reason = screen.getByText(
+      "Payload is updating. Actions resume when the current barcode is ready."
+    );
+    expect(reason).toBeVisible();
+    for (const name of ["Export barcode as PNG", "Copy decoded payload as JSON"]) {
+      const button = screen.getByRole("button", { name });
+      expect(button).toBeDisabled();
+      expect(button).toHaveAccessibleDescription(reason.textContent!);
+    }
+    expect(screen.queryByText("No decoded payload available to copy.")).not.toBeInTheDocument();
+  });
+
+  test("missing decoded data has a visible copy explanation", () => {
+    renderActions({ decoded: null });
+    const reason = screen.getByText("No decoded payload available to copy.");
+    expect(reason).toBeVisible();
+    expect(
+      screen.getByRole("button", { name: "Copy decoded payload as JSON" })
+    ).toHaveAccessibleDescription(reason.textContent!);
+  });
 });
 
 // It is a command button that swaps commands, not a toggle: the visible text

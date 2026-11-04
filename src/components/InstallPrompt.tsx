@@ -77,11 +77,14 @@ export const InstallPrompt: React.FC = () => {
             ref={dialogRef}
             role="dialog"
             aria-modal="true"
-            aria-label="Install on iPhone or iPad"
+            aria-labelledby="ios-install-title"
             className="wb-dialog compact-dialog"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">
+            <h3
+              id="ios-install-title"
+              className="text-base font-semibold text-gray-900 dark:text-gray-100"
+            >
               Install on iPhone/iPad
             </h3>
             <ol className="mt-3 list-decimal list-inside space-y-1 text-sm text-gray-700 dark:text-gray-300">

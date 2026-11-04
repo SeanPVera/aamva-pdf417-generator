@@ -72,6 +72,7 @@ export const MobileActionBar: React.FC<MobileActionBarProps> = ({
               type="button"
               onClick={() => onPanelChange(tab.key)}
               aria-current={panel === tab.key ? "page" : undefined}
+              title={`Switch to ${tab.label} panel`}
               className={`relative inline-flex h-k-touch items-center justify-center gap-1 rounded-k px-1 text-k-help font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 ${
                 panel === tab.key
                   ? "bg-brand-700 text-white"
@@ -99,17 +100,25 @@ export const MobileActionBar: React.FC<MobileActionBarProps> = ({
           <button
             type="button"
             onClick={onFixNext}
+            aria-label={
+              errorCount > 0
+                ? "Fix errors: jump to the next validation error"
+                : "Next field: jump to the next empty required field"
+            }
+            title={
+              errorCount > 0 ? "Jump to next validation error" : "Jump to next empty required field"
+            }
             className="inline-flex h-k-touch shrink-0 items-center gap-1.5 rounded-k bg-gray-900 px-3 text-k-help font-bold text-white dark:bg-gray-100 dark:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           >
             {errorCount > 0 ? (
               <>
                 <AlertCircle size={15} aria-hidden />
-                Fix
+                Fix errors
               </>
             ) : (
               <>
                 <PencilLine size={15} aria-hidden />
-                Next
+                Next field
               </>
             )}
           </button>
@@ -124,6 +133,7 @@ export const MobileActionBar: React.FC<MobileActionBarProps> = ({
             onClick={onExport}
             disabled={!ready || stale}
             aria-label="Quick export barcode as PNG"
+            title="Quick export barcode as PNG"
             className="inline-flex h-k-touch shrink-0 items-center gap-1.5 rounded-k bg-brand-700 px-3 text-k-help font-bold text-white hover:bg-brand-800 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           >
             <FileImage size={15} aria-hidden />

@@ -90,6 +90,7 @@ export const BarcodeCanvas: React.FC<BarcodeCanvasProps> = ({
           <div className="proof-status-controls">
             <button
               aria-label="Zoom out"
+              title="Zoom out"
               disabled={zoom <= 1}
               onClick={() => setZoom((z) => Math.max(1, z - 0.25))}
             >
@@ -98,6 +99,7 @@ export const BarcodeCanvas: React.FC<BarcodeCanvasProps> = ({
             <span>{Math.round(zoom * 100)}%</span>
             <button
               aria-label="Zoom in"
+              title="Zoom in"
               disabled={zoom >= 3}
               onClick={() => setZoom((z) => Math.min(3, z + 0.25))}
             >

@@ -48,6 +48,7 @@ export const EmployeeOfTheMonth: React.FC<EmployeeOfTheMonthProps> = ({ open, on
             type="button"
             onClick={onClose}
             aria-label="Close the plaque"
+            title="Close the plaque"
             className="p-1 rounded hover:bg-gray-100 dark:hover:bg-dark-surface2 text-gray-600 dark:text-gray-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           >
             <X size={16} />
