@@ -25,7 +25,8 @@ describe("AAMVA version 11 (Card Design Standard 2025)", () => {
       "08",
       "09",
       "10",
-      "11"
+      "11",
+      "12"
     ]);
   });
 
