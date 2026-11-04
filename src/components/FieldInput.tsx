@@ -14,6 +14,7 @@ import {
 import { getFieldHelp } from "../core/fieldHelp";
 import { getPrivilegeDirectory } from "../core/privilegeDirectory";
 import { HeightSilhouette } from "./HeightSilhouette";
+import { isPrintableWireValue } from "../core/wireEncoding";
 
 /**
  * Field types the encoder uppercases on the way out (see generateAAMVAPayload).
@@ -202,7 +203,10 @@ export const FieldInput: React.FC<FieldInputProps> = ({
   const handleChange = (raw: string) => {
     onChange(
       field.code,
-      UPPERCASED_TYPES.has(field.type) && /^[\x20-\x7e]*$/.test(raw) && !field.code.startsWith("Z")
+      UPPERCASED_TYPES.has(field.type) &&
+        isPrintableWireValue(raw.toUpperCase(), field.characterSet === "latin1") &&
+        !field.code.startsWith("Z") &&
+        !field.opaque
         ? raw.toUpperCase()
         : raw
     );

@@ -16,7 +16,8 @@ Use synthetic or otherwise authorized data. This tool does not verify a person's
 
 ## Run locally
 
-Requires Node **20.19+** and npm; CI uses Node 20 and 22.
+Requires Node **22.13+** and npm; CI uses Node 22 and 24. Node 24 is the
+recommended local runtime. ESLint 10 requires Node 22.13 or later.
 
 ```bash
 git clone https://github.com/SeanPVera/aamva-pdf417-generator.git
@@ -98,12 +99,23 @@ npm run test:coverage
 npm run build
 npm run size
 npm run conformance:report
-npm audit --audit-level=high
+npm run test:dependencies
+npm audit --audit-level=low
 npm run test:e2e:install
 npm run test:e2e
 ```
 
 `PW_BROWSERS=all npm run test:e2e` selects the full configured browser matrix after installing those engines. `PW_CHROMIUM_EXECUTABLE=/path/to/chromium` optionally selects a local Chromium binary. CI's ordinary browser setup is unchanged.
+
+Dependency installation runs two version- and SHA-256-guarded compatibility
+patches in `scripts/apply-dependency-compat.mjs`. Electron universal packaging
+uses patched minimatch rather than Node's separately bundled matcher; the older
+Windows Squirrel helper adapts its temporary-file cleanup to rimraf's current
+API. Unexpected package source or versions fail installation and require review.
+Use ordinary `npm ci` with lifecycle scripts enabled. `npm run test:dependencies`
+checks cancellation, bounded pattern expansion, archive paths, installer
+templates and cleanup alongside the affected callers. CI rejects every audited
+severity, including moderate findings.
 
 The unit suite includes deterministic fixtures, malformed-input tests, property tests, and an independent ZXing pixel decoder. Browser tests exercise the actual downloaded PNG as well as state, keyboard, import, export, responsive layout, and WCAG checks. Neither green tests nor an internally balanced byte directory prove issuer compliance.
 
@@ -123,3 +135,9 @@ The unit suite includes deterministic fixtures, malformed-input tests, property 
 See [CONTRIBUTING.md](CONTRIBUTING.md), [CLAUDE.md](CLAUDE.md), and the [implementation coverage matrix](docs/AAMVA_COMPLIANCE_MATRIX.md). Add a changeset for reviewable release notes. Do not regenerate golden fixtures simply to make a failing test pass.
 
 MIT license — [LICENSE](LICENSE).
+
+## October 2026 conformance expansion
+
+Version 12 (AAMVA CDS 2026) is available for standards tests. Turn off Strict validation when selecting an edition outside the configured issuer profile. Issuer adoption remains unverified. Version 12 handles ISO-8859-1 barcode bytes, preserves opaque SIG/SCV values, and exposes signature canonicalization and supplied-key ECDSA verification through the core API. Editing a signed record requires a new signature from the key owner.
+
+The corpus has external fixtures for 15/55 jurisdictions, with 29 external references and explicit source fidelity. The separate v12 oracle covers DL and ID standards expectations for all 55 and does not add issuer coverage. See the [evidence matrix](docs/AAMVA_COMPLIANCE_MATRIX.md) for the full scope and open gaps.
