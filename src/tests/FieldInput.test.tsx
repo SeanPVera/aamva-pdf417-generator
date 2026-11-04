@@ -3,6 +3,7 @@ import { describe, test, expect, vi } from "vitest";
 import React from "react";
 import { FieldInput } from "../components/FieldInput";
 import type { AAMVAField } from "../core/schema";
+import { getFieldsForVersion } from "../core/schema";
 
 const SEX: AAMVAField = { code: "DBC", label: "Sex", type: "char", required: true };
 const NAME: AAMVAField = {
@@ -29,6 +30,14 @@ function renderField(field: AAMVAField, value = "") {
   );
   return { ...utils, onChange };
 }
+
+test("typing a v12 signature preserves mixed-case ASCII85", () => {
+  const field = getFieldsForVersion("12").find((field) => field.code === "SIG")!;
+  const { onChange } = renderField(field);
+  const input = screen.getByRole("textbox");
+  fireEvent.change(input, { target: { value: "Abc!d" } });
+  expect(onChange).toHaveBeenCalledWith("SIG", "Abc!d");
+});
 
 // The popover used to close only on the help button's own `blur`, which never
 // fires in browsers that don't focus a button on click — so the boxes stacked

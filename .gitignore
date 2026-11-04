@@ -13,5 +13,8 @@ coverage/
 .env.local
 .env.*.local
 
+# Downloaded public specimen artwork retains its publisher's reuse terms.
+/.corpus-cache/
+
 # Seeded design-canvas output (~2.5MB of baked editor). Rebuild from design/*.dc.html.
 /aamva-generator-redesign.html

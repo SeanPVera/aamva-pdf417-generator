@@ -31,6 +31,7 @@ import { buildSampleFill } from "./core/sampleFiller";
 import { hasUserData, seededFields } from "./core/derivedFields";
 import { useSwipe } from "./hooks/useSwipe";
 import { usePayload } from "./hooks/usePayload";
+import { activeObservedEncodingProfile } from "./core/observedProfiles";
 
 const MOBILE_PANELS = ["config", "form", "preview"] as const;
 type MobilePanel = (typeof MOBILE_PANELS)[number];
@@ -114,9 +115,16 @@ function App() {
     setIssuesOnly(false);
   }, [setRequiredOnly, setIssuesOnly]);
   const copyTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const sourcePayload = useFormStore((s) => s.sourcePayload);
+  const encodingProfileId = activeObservedEncodingProfile(
+    sourcePayload,
+    state,
+    version,
+    subfileType
+  );
   const schemaFields = React.useMemo(
-    () => getFieldsForStateAndVersion(state, version, subfileType),
-    [state, version, subfileType]
+    () => getFieldsForStateAndVersion(state, version, subfileType, encodingProfileId),
+    [state, version, subfileType, encodingProfileId]
   );
   const toast = useToast();
 

@@ -2,6 +2,7 @@ import React from "react";
 import { useFormStore } from "./useFormStore";
 import { generateAAMVAPayload } from "../core/generator";
 import { getFieldsForStateAndVersion } from "../core/schema";
+import { activeObservedEncodingProfile } from "../core/observedProfiles";
 
 /** How long to wait after the last edit before re-encoding. */
 export const PAYLOAD_DEBOUNCE_MS = 300;
@@ -37,13 +38,20 @@ export function usePayload(): PayloadResult {
   const fields = useFormStore((s) => s.fields);
   const strictMode = useFormStore((s) => s.strictMode);
   const subfileType = useFormStore((s) => s.subfileType);
+  const sourcePayload = useFormStore((s) => s.sourcePayload);
+  const encodingProfileId = activeObservedEncodingProfile(
+    sourcePayload,
+    state,
+    version,
+    subfileType
+  );
 
   // Identifies the inputs a result was produced from. Comparing the current
   // signature against the computed one derives staleness at render time, with
   // no setState in the effect body.
   const signature = React.useMemo(
-    () => JSON.stringify([state, version, strictMode, subfileType, fields]),
-    [state, version, strictMode, subfileType, fields]
+    () => JSON.stringify([state, version, strictMode, subfileType, fields, encodingProfileId]),
+    [state, version, strictMode, subfileType, fields, encodingProfileId]
   );
 
   const [result, setResult] = React.useState<{
@@ -55,12 +63,18 @@ export function usePayload(): PayloadResult {
   React.useEffect(() => {
     const id = window.setTimeout(() => {
       try {
-        const schemaFields = getFieldsForStateAndVersion(state, version, subfileType);
+        const schemaFields = getFieldsForStateAndVersion(
+          state,
+          version,
+          subfileType,
+          encodingProfileId
+        );
         // The preview encodes exactly the entered record. Synthetic identifiers
         // and revision dates are generated only by explicit form actions.
         const payload = generateAAMVAPayload(state, version, schemaFields, fields, {
           strictMode,
-          subfileType
+          subfileType,
+          encodingProfileId
         });
         setResult({ payload, error: null, signature });
       } catch (err) {
@@ -69,7 +83,7 @@ export function usePayload(): PayloadResult {
     }, PAYLOAD_DEBOUNCE_MS);
 
     return () => window.clearTimeout(id);
-  }, [state, version, fields, strictMode, subfileType, signature]);
+  }, [state, version, fields, strictMode, subfileType, signature, encodingProfileId]);
 
   return {
     payload: result.payload,
