@@ -441,8 +441,9 @@ Fields use 3-character codes (e.g., `DAA`, `DCS`, `DAB`). These are standardized
 - `"09"`–`"10"` — most recent; used by newer state implementations
 
 `DCK` (inventory control number) is optional from `"03"` onward and absent from `"01"`/`"02"`.
-`DDD` (limited duration document indicator) is optional from `"08"` onward. Both were added
-after decoded cards were found carrying them.
+`DDD` (limited duration document indicator) is optional from `"08"` onward. `DCJ` (audit
+information) is optional on `"04"`–`"10"`. All three were added after decoded cards were found
+carrying them.
 
 ### Subfiles and the header directory
 
@@ -463,10 +464,16 @@ subtly wrong:
   holds a value, so the common single-subfile output is byte-identical to what
   this app produced before multi-subfile support existed.
 
-Two jurisdictions have profiles, both read off decoded cards: Connecticut
-(`ZC`) and New York (`ZN`). Their elements are surfaced in the form through
-`getFieldsForStateAndVersion`, which appends them per jurisdiction, and they are
-tagged `subfile: "jurisdiction"` so nothing else has to special-case them.
+Two jurisdictions have default encoding profiles in `jurisdictionRules`, both
+read off decoded cards: Connecticut (`ZC`) and New York (`ZN`). Colorado's issued
+layout is an opt-in observed profile (`co-issued-v10`) rather than a default —
+so ordinary CO generation stays on the generic encoder. Colorado and Connecticut
+share a ZC designator by rule (Z plus the jurisdiction's initial), so element
+codes like `ZCA` are not unique to one issuer; anything keyed on the code alone
+(help text, for one) must not name a state. Jurisdiction elements are surfaced
+through `getFieldsForStateAndVersion` (and observed profiles via
+`encodingProfileId`) and tagged `subfile: "jurisdiction"` so nothing else has to
+special-case them.
 
 Jurisdiction subfile values are **opaque**. They are exempt from the upper-casing
 the AAMVA text rule applies to standard string fields, because a real NY card
@@ -522,6 +529,11 @@ the selection mechanism first.
 `DAU` has two live formats in the wild. Connecticut writes total inches with a
 unit (`069 IN`); New York writes feet and inches as three digits (`603` for
 6'3"). Both are 6 characters or fewer and both validate.
+
+Observed profiles may list `preserveValueCase` (for example `["DAU"]` on
+Colorado's issued profile) so the encoder leaves that field's case alone. The
+2009 standard's own DAU example is `"073 in"`. Default generation still
+upper-cases ordinary string fields.
 
 `normalizeHeight` in `quickFix.ts` must not "correct" the second into the first:
 `603` read as inches is fifty feet. `isFeetInchesNotation` guards this — a

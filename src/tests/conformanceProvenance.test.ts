@@ -51,7 +51,7 @@ describe("conformance vector provenance", () => {
     const report = computeCoverage(vectors, Object.keys(AAMVA_STATES));
     expect(report.byFidelity).toEqual({
       "unmodified-source": 24,
-      anonymized: 2,
+      anonymized: 3,
       canonicalized: 3
     });
     const ct = vectors.find((vector) => vector.id === "ct-v09-dl-issued")!;

@@ -230,5 +230,10 @@
         "payloadSha256": "20b099aa68510505c12503da1bc120215c2ebe3285926eb11cb59a7652192b9f"
       }
     ]
+  },
+  {
+    "id": "co-issued-v10",
+    "sourcePayloadHashes": [],
+    "sourceRecords": []
   }
 ]

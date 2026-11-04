@@ -1821,5 +1821,80 @@
     "excludedFields": [],
     "emitEmptyFields": [],
     "preservePostalHyphen": true
+  },
+  {
+    "id": "co-issued-v10",
+    "state": "CO",
+    "iin": "636020",
+    "version": "10",
+    "subfileTypes": ["DL"],
+    "notes": [
+      "Anonymized issued Colorado DL layout. Default CO generation is unchanged; this profile is opt-in via encodingProfileId.",
+      "Carries DCL (excluded by default CO rules) and DCJ; DAU unit left as typed via preserveValueCase."
+    ],
+    "encoding": {
+      "jurisdictionVersion": "01",
+      "elementOrder": [
+        "DAQ",
+        "DCS",
+        "DDE",
+        "DAC",
+        "DDF",
+        "DAD",
+        "DDG",
+        "DCA",
+        "DCB",
+        "DCD",
+        "DBD",
+        "DBB",
+        "DBA",
+        "DBC",
+        "DAU",
+        "DAY",
+        "DAG",
+        "DAI",
+        "DAJ",
+        "DAK",
+        "DCF",
+        "DCG",
+        "DDA",
+        "DDB",
+        "DAZ",
+        "DCJ",
+        "DCL",
+        "DAW"
+      ],
+      "fieldWidths": {
+        "DAK": 11,
+        "DCL": 3
+      },
+      "padPostalCode": false,
+      "preserveValueCase": ["DAU"],
+      "omitFinalSeparator": true,
+      "jurisdictionSubfile": {
+        "type": "ZC",
+        "elements": [
+          {
+            "code": "ZCA",
+            "label": "ZCA (opaque source element)"
+          }
+        ]
+      }
+    },
+    "extraFields": [
+      {
+        "code": "DCJ",
+        "label": "DCJ (source edition)",
+        "type": "string"
+      },
+      {
+        "code": "DCL",
+        "label": "Race/Ethnicity",
+        "type": "string"
+      }
+    ],
+    "optionalFields": [],
+    "excludedFields": [],
+    "emitEmptyFields": []
   }
 ]
