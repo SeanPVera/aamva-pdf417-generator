@@ -384,3 +384,56 @@ describe("Maine carries DAW", () => {
     expect(payload).toContain("DAW180");
   });
 });
+
+describe("icon-only buttons have matching title tooltips", () => {
+  it("includes title matching aria-label on modal close/clear buttons", async () => {
+    const { render, screen, fireEvent } = await import("@testing-library/react");
+    const { ToastProvider } = await import("../components/Toast");
+    const { ShortcutsModal } = await import("../components/ShortcutsModal");
+    const { InspectorModal } = await import("../components/InspectorModal");
+    const { BatchProcessor } = await import("../components/BatchProcessor");
+    const { CompareView } = await import("../components/CompareView");
+    const { WelcomeTour } = await import("../components/WelcomeTour");
+    const { VersionBrowser } = await import("../components/VersionBrowser");
+
+    render(<ShortcutsModal open onClose={() => {}} />);
+    const shortcutsClose = screen.getByRole("button", { name: "Close shortcuts" });
+    expect(shortcutsClose).toHaveAttribute("title", "Close shortcuts");
+
+    render(
+      <InspectorModal onClose={() => {}}>
+        <div>Content</div>
+      </InspectorModal>
+    );
+    const inspectorClose = screen.getByRole("button", { name: "Close inspector" });
+    expect(inspectorClose).toHaveAttribute("title", "Close inspector");
+
+    render(
+      <ToastProvider>
+        <BatchProcessor open onClose={() => {}} />
+      </ToastProvider>
+    );
+    const batchClose = screen.getByRole("button", { name: "Close batch processing" });
+    expect(batchClose).toHaveAttribute("title", "Close batch processing");
+
+    render(
+      <ToastProvider>
+        <CompareView open onClose={() => {}} />
+      </ToastProvider>
+    );
+    const compareClose = screen.getByRole("button", { name: "Close compare view" });
+    expect(compareClose).toHaveAttribute("title", "Close compare view");
+
+    render(<WelcomeTour open onClose={() => {}} />);
+    const tourClose = screen.getByRole("button", { name: "Skip tour" });
+    expect(tourClose).toHaveAttribute("title", "Skip tour");
+
+    render(<VersionBrowser />);
+    const vbToggle = screen.getByRole("button", { name: /Version Browser/i });
+    fireEvent.click(vbToggle);
+    const filterInput = screen.getByLabelText("Filter fields in version browser");
+    fireEvent.change(filterInput, { target: { value: "DOE" } });
+    const vbClear = screen.getByRole("button", { name: "Clear version browser filter" });
+    expect(vbClear).toHaveAttribute("title", "Clear version browser filter");
+  });
+});
