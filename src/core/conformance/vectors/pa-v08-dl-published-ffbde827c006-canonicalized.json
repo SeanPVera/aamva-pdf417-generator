@@ -1,0 +1,64 @@
+{
+  "id": "pa-v08-dl-published-ffbde827c006-canonicalized",
+  "state": "PA",
+  "version": "08",
+  "subfileType": "DL",
+  "encodingProfileId": "pa-published-v08",
+  "description": "External specimen layout with explicitly documented source fidelity.",
+  "provenance": {
+    "tier": "published",
+    "source": "https://web.archive.org/web/20201017140738id_/http://www.dot.state.pa.us/public/dvspubsforms/BDL/BDL%20Publications/PUB%20802.pdf",
+    "capturedAt": "2026-10-31",
+    "verifiedBy": "Codex: ZXing-C++ 3.1.1 independent source-image decode, source and payload SHA-256 comparison, field/directory inspection, and application byte comparison.",
+    "fidelity": "canonicalized",
+    "sourceSha256": "4dc287a84a72a26cc95e3696c6eb17bf324e707d99347e10db88f936d0ec60f3",
+    "payloadSha256": "ffbde827c006e15246ef102f5c25e29de3e1c874bf81d734034181266a997895",
+    "evidenceImageSha256": "4befd79b651dfc6ac2f7101b83aeb082d61547048d342207bdb956d7d0d1b263",
+    "notes": "PDF page 2. Government SAMPLE publication. Source bytes remain unchanged. Government publication PUB 802 (7-17), recovered through Internet Archive capture dated 2020-10-17. Live source paths are unavailable. Source ZP contains an extra segment terminator before ZPD. The positive fixture will explicitly canonicalize that framing byte and update the directory length; raw source remains unchanged in intake.",
+    "transformations": [
+      {
+        "offset": 329,
+        "removeLength": 1,
+        "insert": ""
+      },
+      {
+        "offset": 37,
+        "removeLength": 4,
+        "insert": "0029"
+      }
+    ]
+  },
+  "input": {
+    "DAQ": "99999999",
+    "DCS": "SAMPLE",
+    "DDE": "U",
+    "DAC": "JANICE",
+    "DDF": "U",
+    "DAD": "ANN",
+    "DDG": "U",
+    "DCA": "C",
+    "DCB": "NONE",
+    "DCD": "NONE",
+    "DBD": "10052015",
+    "DBB": "08041969",
+    "DBA": "08042023",
+    "DBC": "2",
+    "DAU": "066 IN",
+    "DAY": "BRO",
+    "DAG": "123 MAIN STREET",
+    "DAI": "HARRISBURG",
+    "DAJ": "PA",
+    "DAK": "171010000",
+    "DCF": "1234567890123456789012345",
+    "DCG": "USA",
+    "DCK": "1234567890123456",
+    "DDB": "10012015",
+    "DDK": "1",
+    "DDL": "1",
+    "ZPA": "N",
+    "ZPB": "00",
+    "ZPC": "123",
+    "ZPD": "NONE"
+  },
+  "expectedBytes": "@\n\u001e\rANSI 636025080002DL00410268ZP03090029DLDAQ99999999\nDCSSAMPLE\nDDEU\nDACJANICE\nDDFU\nDADANN\nDDGU\nDCAC\nDCBNONE\nDCDNONE\nDBD10052015\nDBB08041969\nDBA08042023\nDBC2\nDAU066 IN\nDAYBRO\nDAG123 MAIN STREET\nDAIHARRISBURG\nDAJPA\nDAK171010000  \nDCF1234567890123456789012345\nDCGUSA\nDCK1234567890123456\nDDB10012015\nDDK1\nDDL1\n\rZPZPAN\nZPB00\nZPC123\nZPDNONE\n\r"
+}

@@ -1,0 +1,441 @@
+{
+  "source": "https://www.aamva.org/identity/issuer-identification-numbers-%28iin%29",
+  "capturedAt": "2026-10-31",
+  "sourceSha256": "d48af308e15983b2610dd0b1d7fadfdb0607076bcb1021b51ef8fc3a1c626a52",
+  "rows": [
+    {
+      "iin": "604426",
+      "jurisdiction": "Prince Edward Island",
+      "code": "PE",
+      "country": "Canada"
+    },
+    {
+      "iin": "604427",
+      "jurisdiction": "American Samoa",
+      "code": "AS",
+      "country": "USA"
+    },
+    {
+      "iin": "604428",
+      "jurisdiction": "Quebec",
+      "code": "QC",
+      "country": "Canada"
+    },
+    {
+      "iin": "604429",
+      "jurisdiction": "Yukon",
+      "code": "YT",
+      "country": "Canada"
+    },
+    {
+      "iin": "604430",
+      "jurisdiction": "Norther Marianna Islands",
+      "code": "MP",
+      "country": "USA"
+    },
+    {
+      "iin": "604431",
+      "jurisdiction": "Puerto Rico",
+      "code": "PR",
+      "country": "USA"
+    },
+    {
+      "iin": "604432",
+      "jurisdiction": "Alberta",
+      "code": "AB",
+      "country": "Canada"
+    },
+    {
+      "iin": "604433",
+      "jurisdiction": "Nunavut",
+      "code": "NU",
+      "country": "Canada"
+    },
+    {
+      "iin": "604434",
+      "jurisdiction": "Northwest Territories",
+      "code": "NT",
+      "country": "Canada"
+    },
+    {
+      "iin": "636000",
+      "jurisdiction": "Virginia",
+      "code": "VA",
+      "country": "USA"
+    },
+    {
+      "iin": "636001",
+      "jurisdiction": "New York",
+      "code": "NY",
+      "country": "USA"
+    },
+    {
+      "iin": "636002",
+      "jurisdiction": "Massachusetts",
+      "code": "MA",
+      "country": "USA"
+    },
+    {
+      "iin": "636003",
+      "jurisdiction": "Maryland",
+      "code": "MD",
+      "country": "USA"
+    },
+    {
+      "iin": "636004",
+      "jurisdiction": "North Carolina",
+      "code": "NC",
+      "country": "USA"
+    },
+    {
+      "iin": "636005",
+      "jurisdiction": "South Carolina",
+      "code": "SC",
+      "country": "USA"
+    },
+    {
+      "iin": "636006",
+      "jurisdiction": "Connecticut",
+      "code": "CT",
+      "country": "USA"
+    },
+    {
+      "iin": "636007",
+      "jurisdiction": "Louisiana",
+      "code": "LA",
+      "country": "USA"
+    },
+    {
+      "iin": "636008",
+      "jurisdiction": "Montana",
+      "code": "MT",
+      "country": "USA"
+    },
+    {
+      "iin": "636009",
+      "jurisdiction": "New Mexico",
+      "code": "NM",
+      "country": "USA"
+    },
+    {
+      "iin": "636010",
+      "jurisdiction": "Florida",
+      "code": "FL",
+      "country": "USA"
+    },
+    {
+      "iin": "636011",
+      "jurisdiction": "Delaware",
+      "code": "DE",
+      "country": "USA"
+    },
+    {
+      "iin": "636012",
+      "jurisdiction": "Ontario",
+      "code": "ON",
+      "country": "Canada"
+    },
+    {
+      "iin": "636013",
+      "jurisdiction": "Nova Scotia",
+      "code": "NS",
+      "country": "Canada"
+    },
+    {
+      "iin": "636014",
+      "jurisdiction": "California",
+      "code": "CA",
+      "country": "USA"
+    },
+    {
+      "iin": "636015",
+      "jurisdiction": "Texas",
+      "code": "TX",
+      "country": "USA"
+    },
+    {
+      "iin": "636016",
+      "jurisdiction": "Newfoundland",
+      "code": "NF",
+      "country": "Canada"
+    },
+    {
+      "iin": "636017",
+      "jurisdiction": "New Brunswick",
+      "code": "NB",
+      "country": "Canada"
+    },
+    {
+      "iin": "636018",
+      "jurisdiction": "Iowa",
+      "code": "IA",
+      "country": "USA"
+    },
+    {
+      "iin": "636019",
+      "jurisdiction": "Guam",
+      "code": "GU",
+      "country": "USA"
+    },
+    {
+      "iin": "636020",
+      "jurisdiction": "Colorado",
+      "code": "CO",
+      "country": "USA",
+      "sourceCode": "GM",
+      "note": "Source abbreviation GM is a publisher typo; jurisdiction name and IIN identify Colorado."
+    },
+    {
+      "iin": "636021",
+      "jurisdiction": "Arkansas",
+      "code": "AR",
+      "country": "USA"
+    },
+    {
+      "iin": "636022",
+      "jurisdiction": "Kansas",
+      "code": "KS",
+      "country": "USA"
+    },
+    {
+      "iin": "636023",
+      "jurisdiction": "Ohio",
+      "code": "OH",
+      "country": "USA"
+    },
+    {
+      "iin": "636024",
+      "jurisdiction": "Vermont",
+      "code": "VT",
+      "country": "USA"
+    },
+    {
+      "iin": "636025",
+      "jurisdiction": "Pennsylvania",
+      "code": "PA",
+      "country": "USA"
+    },
+    {
+      "iin": "636026",
+      "jurisdiction": "Arizona",
+      "code": "AZ",
+      "country": "USA"
+    },
+    {
+      "iin": "636027",
+      "jurisdiction": "State Dept. (Diplomatic)",
+      "code": "",
+      "country": "USA"
+    },
+    {
+      "iin": "636028",
+      "jurisdiction": "British Columbia",
+      "code": "BC",
+      "country": "Canada"
+    },
+    {
+      "iin": "636029",
+      "jurisdiction": "Oregon",
+      "code": "OR",
+      "country": "USA"
+    },
+    {
+      "iin": "636030",
+      "jurisdiction": "Missouri",
+      "code": "MO",
+      "country": "USA"
+    },
+    {
+      "iin": "636031",
+      "jurisdiction": "Wisconsin",
+      "code": "WI",
+      "country": "USA"
+    },
+    {
+      "iin": "636032",
+      "jurisdiction": "Michigan",
+      "code": "MI",
+      "country": "USA"
+    },
+    {
+      "iin": "636033",
+      "jurisdiction": "Alabama",
+      "code": "AL",
+      "country": "USA"
+    },
+    {
+      "iin": "636034",
+      "jurisdiction": "North Dakota",
+      "code": "ND",
+      "country": "USA"
+    },
+    {
+      "iin": "636035",
+      "jurisdiction": "Illinois",
+      "code": "IL",
+      "country": "USA"
+    },
+    {
+      "iin": "636036",
+      "jurisdiction": "New Jersey",
+      "code": "NJ",
+      "country": "USA"
+    },
+    {
+      "iin": "636037",
+      "jurisdiction": "Indiana",
+      "code": "IN",
+      "country": "USA"
+    },
+    {
+      "iin": "636038",
+      "jurisdiction": "Minnesota",
+      "code": "MN",
+      "country": "USA"
+    },
+    {
+      "iin": "636039",
+      "jurisdiction": "New Hampshire",
+      "code": "NH",
+      "country": "USA"
+    },
+    {
+      "iin": "636040",
+      "jurisdiction": "Utah",
+      "code": "UT",
+      "country": "USA"
+    },
+    {
+      "iin": "636041",
+      "jurisdiction": "Maine",
+      "code": "ME",
+      "country": "USA"
+    },
+    {
+      "iin": "636042",
+      "jurisdiction": "South Dakota",
+      "code": "SD",
+      "country": "USA"
+    },
+    {
+      "iin": "636043",
+      "jurisdiction": "District of Columbia",
+      "code": "DC",
+      "country": "USA"
+    },
+    {
+      "iin": "636044",
+      "jurisdiction": "Saskatchewan",
+      "code": "SK",
+      "country": "Canada"
+    },
+    {
+      "iin": "636045",
+      "jurisdiction": "Washington",
+      "code": "WA",
+      "country": "USA"
+    },
+    {
+      "iin": "636046",
+      "jurisdiction": "Kentucky",
+      "code": "KY",
+      "country": "USA"
+    },
+    {
+      "iin": "636047",
+      "jurisdiction": "Hawaii",
+      "code": "HI",
+      "country": "USA"
+    },
+    {
+      "iin": "636048",
+      "jurisdiction": "Manitoba",
+      "code": "MB",
+      "country": "Canada"
+    },
+    {
+      "iin": "636049",
+      "jurisdiction": "Nevada",
+      "code": "NV",
+      "country": "USA"
+    },
+    {
+      "iin": "636050",
+      "jurisdiction": "Idaho",
+      "code": "ID",
+      "country": "USA"
+    },
+    {
+      "iin": "636051",
+      "jurisdiction": "Mississippi",
+      "code": "MS",
+      "country": "USA"
+    },
+    {
+      "iin": "636052",
+      "jurisdiction": "Rhode Island",
+      "code": "RI",
+      "country": "USA"
+    },
+    {
+      "iin": "636053",
+      "jurisdiction": "Tennessee",
+      "code": "TN",
+      "country": "USA"
+    },
+    {
+      "iin": "636054",
+      "jurisdiction": "Nebraska",
+      "code": "NE",
+      "country": "USA"
+    },
+    {
+      "iin": "636055",
+      "jurisdiction": "Georgia",
+      "code": "GA",
+      "country": "USA"
+    },
+    {
+      "iin": "636056",
+      "jurisdiction": "Coahuila",
+      "code": "CU",
+      "country": "Mexico"
+    },
+    {
+      "iin": "636057",
+      "jurisdiction": "Hidalgo",
+      "code": "HL",
+      "country": "Mexico"
+    },
+    {
+      "iin": "636058",
+      "jurisdiction": "Oklahoma",
+      "code": "OK",
+      "country": "USA"
+    },
+    {
+      "iin": "636059",
+      "jurisdiction": "Alaska",
+      "code": "AK",
+      "country": "USA"
+    },
+    {
+      "iin": "636060",
+      "jurisdiction": "Wyoming",
+      "code": "WY",
+      "country": "USA"
+    },
+    {
+      "iin": "636061",
+      "jurisdiction": "West Virginia",
+      "code": "WV",
+      "country": "USA"
+    },
+    {
+      "iin": "636062",
+      "jurisdiction": "Virgin Islands",
+      "code": "VI",
+      "country": "USA"
+    }
+  ]
+}

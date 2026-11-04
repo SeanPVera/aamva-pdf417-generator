@@ -1,0 +1,479 @@
+{
+  "schemaVersion": 1,
+  "capturedAt": "2026-10-31",
+  "scope": "Additional public government specimens. Decoded observations remain separate from positive conformance fixtures.",
+  "sources": [
+    {
+      "id": "hi-2013-testimony",
+      "jurisdiction": "HI",
+      "sourceUrl": "https://data.capitol.hawaii.gov/sessions/session2013/Testimony/HB1287_TESTIMONY_TEC-CPN_03-27-13.pdf",
+      "capturedAt": "2026-10-31",
+      "status": "downloaded",
+      "resolvedUrl": "https://data.capitol.hawaii.gov/sessions/session2013/Testimony/HB1287_TESTIMONY_TEC-CPN_03-27-13.pdf",
+      "sha256": "cc94c08417d1a9f3e8421580e8e043e05b6536dc7945e4cecc576052d63c5e81",
+      "bytes": 8376094,
+      "pages": 27
+    },
+    {
+      "id": "dc-2023-card-features",
+      "jurisdiction": "DC",
+      "sourceUrl": "https://dmv.dc.gov/sites/default/files/dc/sites/dmv/page_content/attachments/DCDMV_OnePager_Updated_Card4.pdf",
+      "capturedAt": "2026-10-31",
+      "status": "downloaded",
+      "resolvedUrl": "https://dmv.dc.gov/sites/default/files/dc/sites/dmv/page_content/attachments/DCDMV_OnePager_Updated_Card4.pdf",
+      "sha256": "1990502cb123b2dd51f1a7c54f81210b9cd664f37a7d27d2ea44e0eda373ef6c",
+      "bytes": 1345866,
+      "pages": 1
+    },
+    {
+      "id": "ms-manual-00000830c",
+      "jurisdiction": "MS",
+      "sourceUrl": "https://www.sos.ms.gov/adminsearch/ACCode/00000830c.pdf",
+      "capturedAt": "2026-10-31",
+      "status": "downloaded",
+      "resolvedUrl": "https://www.sos.ms.gov/adminsearch/ACCode/00000830c.pdf",
+      "sha256": "505daaefdc3c4afe85ef77a94ecd67be578c5da6596610a1caf2e0d38d2ec883",
+      "bytes": 6151437,
+      "pages": 181
+    },
+    {
+      "id": "mi-2023-retailer-calibration",
+      "jurisdiction": "MI",
+      "sourceUrl": "https://www.michigan.gov/cra/-/media/Project/Websites/cra/Link-Page/1_MI_D100_2DCalibratorSheet-Retailers.pdf",
+      "capturedAt": "2026-10-31",
+      "status": "downloaded",
+      "resolvedUrl": "https://www.michigan.gov/cra/-/media/Project/Websites/cra/Link-Page/1_MI_D100_2DCalibratorSheet-Retailers.pdf",
+      "sha256": "16527f6a8591feee4721b6e1ee26597ab389a3dec28e4dac2c0a0b3ad9c267e8",
+      "bytes": 908957,
+      "pages": 2
+    },
+    {
+      "id": "wa-2017-wayback-calibration",
+      "jurisdiction": "WA",
+      "sourceUrl": "https://web.archive.org/web/20220000000000id_/https://www.dol.wa.gov/driverslicense/docs/barcodeCalibration-EDLEID-2017.pdf",
+      "capturedAt": "2026-10-31",
+      "status": "downloaded",
+      "resolvedUrl": "https://web.archive.org/web/20230408225942id_/https://www.dol.wa.gov/driverslicense/docs/barcodeCalibration-EDLEID-2017.pdf",
+      "sha256": "e81699e13232cd1cc0c5e080041bdd0ab45d9c5b258044ff2b12c0602b5efb1b",
+      "bytes": 4878784,
+      "pages": 2
+    },
+    {
+      "id": "mirror-ks-2017-testimony",
+      "jurisdiction": "KS",
+      "capturedAt": "2026-10-31",
+      "resolvedUrl": "https://raw.githubusercontent.com/marcdacosta/clearid/master/example%20license%20barcodes/Kansas_Transportation_Testimony_2017-01-18_39b96711f6bc3447.pdf",
+      "sha256": "d1fd565c8dfc55e2557e24669b22661b60b655afc8334ce297c92382bcf5fbf2",
+      "bytes": 165098,
+      "pages": 1,
+      "status": "downloaded",
+      "sourceUrl": "https://raw.githubusercontent.com/marcdacosta/clearid/master/example%20license%20barcodes/Kansas_Transportation_Testimony_2017-01-18_39b96711f6bc3447.pdf",
+      "publisherClass": "government-publication-rehosted",
+      "corroboratingGovernmentPublication": "https://kgi.contentdm.oclc.org/digital/api/collection/p16884coll67/id/326/download",
+      "originalSourceUrl": "https://kslegislature.gov/li/b2017_18/committees/ctte_s_trnsprt_1/documents/testimony/20170118_03.pdf"
+    },
+    {
+      "id": "mo-2017-5443-government",
+      "jurisdiction": "MO",
+      "capturedAt": "2026-10-31",
+      "resolvedUrl": "https://dor.mo.gov/forms/5443.pdf",
+      "sha256": "6a8d19a16c4419f466dc8d1ad6ea535557951412d6e8fc4132773c10eff5239e",
+      "bytes": 1198110,
+      "pages": 2,
+      "status": "downloaded",
+      "sourceUrl": "https://dor.mo.gov/forms/5443.pdf",
+      "publisherClass": "government"
+    },
+    {
+      "id": "pa-2017-archived-pub802",
+      "jurisdiction": "PA",
+      "capturedAt": "2026-10-31",
+      "resolvedUrl": "https://web.archive.org/web/20201017140738id_/http://www.dot.state.pa.us/public/dvspubsforms/BDL/BDL%20Publications/PUB%20802.pdf",
+      "sha256": "4dc287a84a72a26cc95e3696c6eb17bf324e707d99347e10db88f936d0ec60f3",
+      "bytes": 2355999,
+      "pages": 2,
+      "status": "downloaded",
+      "sourceUrl": "https://web.archive.org/web/20201017140738id_/http://www.dot.state.pa.us/public/dvspubsforms/BDL/BDL%20Publications/PUB%20802.pdf",
+      "publisherClass": "government"
+    },
+    {
+      "id": "mirror-in-public-guide",
+      "jurisdiction": "IN",
+      "capturedAt": "2026-10-31",
+      "resolvedUrl": "https://raw.githubusercontent.com/marcdacosta/clearid/master/example%20license%20barcodes/indiana.pdf",
+      "sha256": "c90d1282187685169c5e4d4e85f10e6796ec1fd555f491408fe79791d5660d8f",
+      "bytes": 273317,
+      "pages": 2,
+      "status": "downloaded",
+      "sourceUrl": "https://raw.githubusercontent.com/marcdacosta/clearid/master/example%20license%20barcodes/indiana.pdf",
+      "publisherClass": "government-publication-rehosted"
+    },
+    {
+      "id": "de-2023-senior-manual",
+      "jurisdiction": "DE",
+      "sourceUrl": "https://services.dmv.de.gov/DriverServices/senior/pdfs/DE_Senior_Driver_Manual.pdf",
+      "capturedAt": "2026-10-31",
+      "resolvedUrl": "https://services.dmv.de.gov/DriverServices/senior/pdfs/DE_Senior_Driver_Manual.pdf",
+      "sha256": "050cd03e78deb9a03664e31d907b7a245de7da3be7f064ce0f742d64ac4e4562",
+      "bytes": 4820747,
+      "pages": 22,
+      "status": "downloaded"
+    }
+  ],
+  "payloads": [
+    {
+      "id": "hi-published-1136dcb68d24",
+      "jurisdiction": "HI",
+      "dataClass": "jurisdiction-published-sample",
+      "sourceId": "hi-2013-testimony",
+      "sourceUrl": "https://data.capitol.hawaii.gov/sessions/session2013/Testimony/HB1287_TESTIMONY_TEC-CPN_03-27-13.pdf",
+      "sourceSha256": "cc94c08417d1a9f3e8421580e8e043e05b6536dc7945e4cecc576052d63c5e81",
+      "capturedAt": "2026-10-31",
+      "sourcePage": 9,
+      "acquisition": {
+        "page": 9,
+        "embeddedImage": 11,
+        "method": "native image"
+      },
+      "byteLength": 261,
+      "sha256": "1136dcb68d24c810fc742ba0677d93a99e811eff8fd9fea030e3b3848b1f628e",
+      "rawBytesLatin1": "@\n\u001e\rANSI 636039040001DL00410205ZH02460015DCA3\nDCBA\nDCD\nDBA02012017\nDCSSAMPLE\nDACTINA\nDADA\nDBD02172009\nDBB02211984\nDBC2\nDAYBRO\nDAU62 in \nDAG123 ANYSTREET\nDAIANYCITY\nDAJAA\nDAK00000      \nDAQH00000000\nDCF20091209190731marks100\nDCGUSA\nDDEU\nDDFU\nDDGU\nZHZHA\nZHB\nZHCL\r",
+      "imageSha256": "6097f16197dedb7d5be2f5ce3959851a65ec453a5e882b52ae177fa0213b4022",
+      "imagePath": "hi-2013-testimony-1136dcb68d24.png",
+      "rawPath": "hi-2013-testimony-1136dcb68d24.bin",
+      "independentExpectedFields": {
+        "DBA": "02012017",
+        "DCS": "SAMPLE",
+        "DAC": "TINA",
+        "DBD": "02172009",
+        "DBB": "02211984",
+        "DAJ": "AA",
+        "DCG": "USA"
+      },
+      "currentDecoderStatus": "source-conflict",
+      "notes": [
+        "Hawaii artwork contains IIN 636039 (assigned to New Hampshire), plus two subfile designators despite a count of 01. Preserve this source inconsistency. Not a positive Hawaii or New Hampshire fixture."
+      ]
+    },
+    {
+      "id": "dc-published-1eaa8add2c32",
+      "jurisdiction": "DC",
+      "dataClass": "jurisdiction-published-sample",
+      "sourceId": "dc-2023-card-features",
+      "sourceUrl": "https://dmv.dc.gov/sites/default/files/dc/sites/dmv/page_content/attachments/DCDMV_OnePager_Updated_Card4.pdf",
+      "sourceSha256": "1990502cb123b2dd51f1a7c54f81210b9cd664f37a7d27d2ea44e0eda373ef6c",
+      "capturedAt": "2026-10-31",
+      "sourcePage": 1,
+      "acquisition": {
+        "page": 1,
+        "embeddedImage": 4,
+        "method": "native image"
+      },
+      "byteLength": 209,
+      "sha256": "1eaa8add2c32050501fa96c77855278dab1319b177cd42a47760f6db887f93d4",
+      "rawBytesLatin1": "This PDF417 is an example image and does not contain cardholder data. This PDF417 is an example image and does not contain cardholder data. This PDF417 is an example image and does not contain cardholder data.",
+      "imageSha256": "084860c18addfee9294db32d778d9bce65d405cd6db0c1400063a2947e94e14a",
+      "imagePath": "dc-2023-card-features-1eaa8add2c32.png",
+      "rawPath": "dc-2023-card-features-1eaa8add2c32.bin",
+      "independentExpectedFields": {},
+      "currentDecoderStatus": "non-aamva-example",
+      "notes": [
+        "Barcode decodes to explanatory example text rather than an AAMVA payload. Not an issuer payload."
+      ]
+    },
+    {
+      "id": "ms-published-fd86a289088d",
+      "jurisdiction": "MS",
+      "dataClass": "jurisdiction-published-sample",
+      "sourceId": "ms-manual-00000830c",
+      "sourceUrl": "https://www.sos.ms.gov/adminsearch/ACCode/00000830c.pdf",
+      "sourceSha256": "505daaefdc3c4afe85ef77a94ecd67be578c5da6596610a1caf2e0d38d2ec883",
+      "capturedAt": "2026-10-31",
+      "sourcePage": 100,
+      "acquisition": {
+        "page": 100,
+        "embeddedImage": 2,
+        "method": "native image"
+      },
+      "byteLength": 403,
+      "sha256": "fd86a289088dad9c824ed0d4f884ca20c57eac78812a9946b1499f8b2b2e8623",
+      "rawBytesLatin1": "@\n\u001e\rANSI 636051100002DL00410296ZM03370066DLDAQ123456789\nDCSLASTNAME\nDDEU\nDACFIRSTNAME\nDDFU\nDADNONE\nDDGU\nDCAR\nDCBNONE\nDCDNONE\nDBD06292023\nDBB06292006\nDBA06292031\nDBC2\nDAU064 IN\nDAYBLU\nDAG123 MAIN STREET\nDAIANYTOWN\nDAJMS\nDAK000000000  \nDCF0123456789012345678901234\nDCGUSA\nDCK0510000000112345\nDDAF\nDDBMMDDCCYY\nDDH06292027\nDDJ06292025\nDDK1\n\rZMZMA\nZMB\nZMC\nZMD123 MAIN STREET\nZMEANYTOWN\nZMFMS\nZMG000000000  \n\r",
+      "imageSha256": "e88c211ec5dee9aff0b4050258fd7b0d3cc3524fd9c7c727c16f6c4148421f59",
+      "imagePath": "ms-manual-00000830c-fd86a289088d.png",
+      "rawPath": "ms-manual-00000830c-fd86a289088d.bin",
+      "independentExpectedFields": {
+        "DCS": "LASTNAME",
+        "DAC": "FIRSTNAME",
+        "DBD": "06292023",
+        "DBB": "06292006",
+        "DBA": "06292031",
+        "DAJ": "MS",
+        "DCG": "USA"
+      },
+      "currentDecoderStatus": "accepted",
+      "notes": [
+        "Public driver manual, physical PDF page 100 (printed page 14). Adjacent front card is marked SAMPLE."
+      ],
+      "independentSubfiles": ["DL", "ZM"]
+    },
+    {
+      "id": "mi-published-94fcb2b14bf1",
+      "jurisdiction": "MI",
+      "dataClass": "jurisdiction-published-sample",
+      "sourceId": "mi-2023-retailer-calibration",
+      "sourceUrl": "https://www.michigan.gov/cra/-/media/Project/Websites/cra/Link-Page/1_MI_D100_2DCalibratorSheet-Retailers.pdf",
+      "sourceSha256": "16527f6a8591feee4721b6e1ee26597ab389a3dec28e4dac2c0a0b3ad9c267e8",
+      "capturedAt": "2026-10-31",
+      "sourcePage": 1,
+      "acquisition": {
+        "page": 1,
+        "method": "render",
+        "dpi": 300
+      },
+      "byteLength": 293,
+      "sha256": "94fcb2b14bf14390062ef9158a7b277db5e44a43989629b156de73f1895bcdad",
+      "rawBytesLatin1": "@\n\u001e\rANSI 636032100002DL00410243ZM02840009DLDAQS 000 123 456 789\nDCSSAMPLE\nDDEU\nDACCONNOR\nDDFU\nDADM\nDDGU\nDCA\nDCB\nDCD\nDBD09092021\nDBB01121967\nDBA01122025\nDBC1\nDAU\nDAY\nDAG123 NORTH MAIN ST\nDAILANSING\nDAJMI\nDAK488641234  \nDCF\nDCG\nDCUJR\nDCKS000123456789196701122501\nDDAF\nDDD1\nDDB02142023\n\rZMZMA01\n\r",
+      "imageSha256": "e9ad97efb00dda6c6da477e92c552c4798cbe6b38e9d8491f6ca4c4b5a171b6f",
+      "imagePath": "mi-2023-retailer-calibration-94fcb2b14bf1.png",
+      "rawPath": "mi-2023-retailer-calibration-94fcb2b14bf1.bin",
+      "independentExpectedFields": {
+        "DCS": "SAMPLE",
+        "DAC": "CONNOR",
+        "DBD": "09092021",
+        "DBB": "01121967",
+        "DBA": "01122025",
+        "DAJ": "MI",
+        "DCG": "",
+        "DDB": "02142023"
+      },
+      "independentSubfiles": ["DL", "ZM"],
+      "currentDecoderStatus": "accepted",
+      "notes": [
+        "Public retailer calibration sheet. Several mandatory elements are present with blank values. This remains a negative encoder case; the law-enforcement-only sheet was excluded."
+      ]
+    },
+    {
+      "id": "wa-published-2802ccec6eb5",
+      "jurisdiction": "WA",
+      "dataClass": "jurisdiction-published-sample",
+      "sourceId": "wa-2017-wayback-calibration",
+      "sourceUrl": "https://web.archive.org/web/20230408225942id_/https://www.dol.wa.gov/driverslicense/docs/barcodeCalibration-EDLEID-2017.pdf",
+      "sourceSha256": "e81699e13232cd1cc0c5e080041bdd0ab45d9c5b258044ff2b12c0602b5efb1b",
+      "capturedAt": "2026-10-31",
+      "sourcePage": 1,
+      "acquisition": {
+        "page": 1,
+        "method": "render",
+        "dpi": 600
+      },
+      "byteLength": 303,
+      "sha256": "2802ccec6eb5b1c533daf19cf243b5f6112b06299f6aaf571d680467a76df279",
+      "rawBytesLatin1": "@\n\u001e\rANSI 636045080101DL00310272DLDCAA\nDCBBKL\nDCDHSX\nDBA08122020\nDCSSAMPLE\nDACJOHN\nDADA\nDBD03272017\nDBB01061958\nDBC1\nDAYDIC\nDAU068 in\nDAG1125 WASHINGTON ST SE\nDAIOLYMPIA\nDAJWA\nDAK985012283  \nDAQSAMPLJA423BF\nDCFSAMPLJA423BF3D170841A1536\nDCGUSA\nDDEN\nDDFN\nDDGN\nDCJ3D170841A1536\nDDB02092016\nDAW165\nDDK1\nDDL1\r",
+      "imageSha256": "1e2af591ea8e40c895f60dfeb05bdc983c1fe08ce4bffda8e8e1ed16df8b2274",
+      "imagePath": "wa-2017-wayback-calibration-2802ccec6eb5.png",
+      "rawPath": "wa-2017-wayback-calibration-2802ccec6eb5.bin",
+      "independentExpectedFields": {
+        "DBA": "08122020",
+        "DCS": "SAMPLE",
+        "DAC": "JOHN",
+        "DBD": "03272017",
+        "DBB": "01061958",
+        "DAJ": "WA",
+        "DCG": "USA",
+        "DDB": "02092016"
+      },
+      "independentSubfiles": ["DL"],
+      "currentDecoderStatus": "accepted",
+      "notes": [
+        "Archived Washington DOL calibration publication. Current live links return 404. The original government specimen is retained unmodified."
+      ]
+    },
+    {
+      "id": "ks-published-982331e750a8",
+      "jurisdiction": "KS",
+      "dataClass": "jurisdiction-published-sample",
+      "sourceId": "mirror-ks-2017-testimony",
+      "sourceUrl": "https://raw.githubusercontent.com/marcdacosta/clearid/master/example%20license%20barcodes/Kansas_Transportation_Testimony_2017-01-18_39b96711f6bc3447.pdf",
+      "sourceSha256": "d1fd565c8dfc55e2557e24669b22661b60b655afc8334ce297c92382bcf5fbf2",
+      "capturedAt": "2026-10-31",
+      "sourcePage": 1,
+      "acquisition": {
+        "page": 1,
+        "embeddedImage": 2,
+        "method": "native image"
+      },
+      "byteLength": 348,
+      "sha256": "982331e750a88459bbd31f7ca423a674d197e2f870582821494642a5f7db1aa0",
+      "rawBytesLatin1": "@\n\u001e\rANSI 636022090002DL00410300ZK03410007DLDAQK12345678\nDCSSAMPLE\nDDEU\nDACCARON\nDDFU\nDADELIZABETH\nDDGU\nDCAA\nDCBNONE\nDCDNONE\nDBD01112017\nDBB01111966\nDBA01112023\nDBC2\nDAU066 IN\nDAYBRO\nDAG123 NORTH STREET\nDAITOPEKA\nDAJKS\nDAK666121234  \nDCFXX123XWMXX123XWMX123XWM12\nDCGUSA\nDCUSR\nDAW140\nDAHAPT. 2\nDCKA12345678KSW6XM01\nDDAF\nDDB12012016\nDDK1\nDDL1\n\rZKZKA\n\r",
+      "imageSha256": "c999692b2b854d9ead15c17d4471c18fbd530ee73f40220be659121e1c521055",
+      "imagePath": "mirror-ks-2017-testimony-982331e750a8.png",
+      "rawPath": "mirror-ks-2017-testimony-982331e750a8.bin",
+      "independentExpectedFields": {
+        "DCS": "SAMPLE",
+        "DAC": "CARON",
+        "DBD": "01112017",
+        "DBB": "01111966",
+        "DBA": "01112023",
+        "DAJ": "KS",
+        "DCG": "USA",
+        "DDB": "12012016"
+      },
+      "independentSubfiles": ["DL", "ZK"],
+      "currentDecoderStatus": "accepted",
+      "notes": [
+        "Government SAMPLE publication. Source bytes remain unchanged.",
+        "High-resolution copy rehosted by marcdacosta/clearid. Government document origin is corroborated by the Kansas State Library publication; original legislature URL now returns 404. The library copy has different file bytes and lower-resolution artwork."
+      ]
+    },
+    {
+      "id": "mo-published-8d3a544800b4",
+      "jurisdiction": "MO",
+      "dataClass": "jurisdiction-published-sample",
+      "sourceId": "mo-2017-5443-government",
+      "sourceUrl": "https://dor.mo.gov/forms/5443.pdf",
+      "sourceSha256": "6a8d19a16c4419f466dc8d1ad6ea535557951412d6e8fc4132773c10eff5239e",
+      "capturedAt": "2026-10-31",
+      "sourcePage": 1,
+      "acquisition": {
+        "page": 1,
+        "embeddedImage": 8,
+        "method": "native image"
+      },
+      "byteLength": 641,
+      "sha256": "8d3a544800b4de415f72a6348748a11ce23f3bb15a58c099887af7572addbeb8",
+      "rawBytesLatin1": "@\n\u001e\rANSI 636030050102DL00410510ZM05510090DLDAQT123456789XY1XY1XY1XY1XY1\nDCSSAMPLEXY1XY1XY1XY1XY1XY1XY1XY1XY1XY1XY1X\nDDEU\nDACMATEOXYXYXY1XY1XY1XY1XY1XY1XY1XY1XY1XY1X\nDDFU\nDADMIDDLENAMEXY1XY1XY1XY1XY1XY1XY1XY1XY1X1X\nDDGU\nDCAFXY1XY\nDCBNONEXY1XY1XY\nDCDNONEX\nDBD02012010\nDBB02011994\nDBA02012013\nDBC1\nDAU074 IN\nDAYBRO\nDAG123 MAIN STREET, APT. 4 XY1XY1XY1XY\nDAIJEFFERSON CITYXY1XY1\nDAJMO\nDAK651090000  \nDCF101230320002XY1XY1XY1XY1X\nDCGUSA\nDCUJR XY\nDAW170\nDAHXY1XY1XY1XY1XY1XY1XY1XY1XY1XY1XY1XY\nDCKXY1XY1XY1XY1XY1XY1XY1XY1X\nDDAB\nDDB00000000\nDDD1\nDDJ02012015\n\rZMZMAY\nZMBY\nZMCJ88\nZMD00000000\nZMEY\nZMFXY1XY1XY1XY1XY1\nZMGXY\nZMHXY\nZMIXY1XY1X\nZMJVETERAN\n\r",
+      "imageSha256": "d45293babaf5498084aaff6ac3cd73c125384258f1c3100e76a4429f376fb0e7",
+      "imagePath": "mo-2017-5443-government-8d3a544800b4.png",
+      "rawPath": "mo-2017-5443-government-8d3a544800b4.bin",
+      "independentExpectedFields": {
+        "DCS": "SAMPLEXY1XY1XY1XY1XY1XY1XY1XY1XY1XY1XY1X",
+        "DAC": "MATEOXYXYXY1XY1XY1XY1XY1XY1XY1XY1XY1XY1X",
+        "DBD": "02012010",
+        "DBB": "02011994",
+        "DBA": "02012013",
+        "DAJ": "MO",
+        "DCG": "USA",
+        "DDB": "00000000"
+      },
+      "independentSubfiles": ["DL", "ZM"],
+      "currentDecoderStatus": "accepted",
+      "notes": [
+        "Government SAMPLE publication. Source bytes remain unchanged.",
+        "Historical DDA=B and DDB=00000000 are retained in an explicit compatibility profile. The meaning of B is unverified; the zero revision date is not treated as a known calendar date."
+      ]
+    },
+    {
+      "id": "pa-published-ffbde827c006",
+      "jurisdiction": "PA",
+      "dataClass": "jurisdiction-published-sample",
+      "sourceId": "pa-2017-archived-pub802",
+      "sourceUrl": "https://web.archive.org/web/20201017140738id_/http://www.dot.state.pa.us/public/dvspubsforms/BDL/BDL%20Publications/PUB%20802.pdf",
+      "sourceSha256": "4dc287a84a72a26cc95e3696c6eb17bf324e707d99347e10db88f936d0ec60f3",
+      "capturedAt": "2026-10-31",
+      "sourcePage": 2,
+      "acquisition": {
+        "page": 2,
+        "embeddedImage": 3,
+        "method": "native image"
+      },
+      "byteLength": 339,
+      "sha256": "ffbde827c006e15246ef102f5c25e29de3e1c874bf81d734034181266a997895",
+      "rawBytesLatin1": "@\n\u001e\rANSI 636025080002DL00410268ZP03090030DLDAQ99999999\nDCSSAMPLE\nDDEU\nDACJANICE\nDDFU\nDADANN\nDDGU\nDCAC\nDCBNONE\nDCDNONE\nDBD10052015\nDBB08041969\nDBA08042023\nDBC2\nDAU066 IN\nDAYBRO\nDAG123 MAIN STREET\nDAIHARRISBURG\nDAJPA\nDAK171010000  \nDCF1234567890123456789012345\nDCGUSA\nDCK1234567890123456\nDDB10012015\nDDK1\nDDL1\n\rZPZPAN\nZPB00\nZPC123\n\rZPDNONE\n\r",
+      "imageSha256": "4befd79b651dfc6ac2f7101b83aeb082d61547048d342207bdb956d7d0d1b263",
+      "imagePath": "pa-2017-archived-pub802-ffbde827c006.png",
+      "rawPath": "pa-2017-archived-pub802-ffbde827c006.bin",
+      "independentExpectedFields": {
+        "DCS": "SAMPLE",
+        "DAC": "JANICE",
+        "DBD": "10052015",
+        "DBB": "08041969",
+        "DBA": "08042023",
+        "DAJ": "PA",
+        "DCG": "USA",
+        "DDB": "10012015"
+      },
+      "independentSubfiles": ["DL", "ZP"],
+      "currentDecoderStatus": "accepted",
+      "notes": [
+        "Government SAMPLE publication. Source bytes remain unchanged.",
+        "Government publication PUB 802 (7-17), recovered through Internet Archive capture dated 2020-10-17. Live source paths are unavailable."
+      ]
+    },
+    {
+      "id": "in-published-95100717baa0",
+      "jurisdiction": "IN",
+      "dataClass": "jurisdiction-published-sample",
+      "sourceId": "mirror-in-public-guide",
+      "sourceUrl": "https://raw.githubusercontent.com/marcdacosta/clearid/master/example%20license%20barcodes/indiana.pdf",
+      "sourceSha256": "c90d1282187685169c5e4d4e85f10e6796ec1fd555f491408fe79791d5660d8f",
+      "capturedAt": "2026-10-31",
+      "sourcePage": 1,
+      "acquisition": {
+        "page": 1,
+        "embeddedImage": 1,
+        "method": "native image"
+      },
+      "byteLength": 672,
+      "sha256": "95100717baa042138cca2517b8628b0029f71f5b97d5610546bbe2699cbf0d1d",
+      "rawBytesLatin1": "@\n\u001e\rANSI 636037040002DL00410514ZI05550117DLDCAX-1X-2\nDCBX-1X-2X-3X-4\nDCDX-1XY\nDBA07042010\nDCSSAMPLEFAMILYNAMEUPTO40CHARACTERSXYWXYWXY\nDACHEIDIFIRSTNAMEUPTO40CHARACTERSXYWXYWXYWX\nDADMIDDLENAMEUPTO40CHARACTERSXYWXYWXYWXYWXY\nDBD07042006\nDBB07041989\nDBC2\nDAYHAZ\nDAU5'-04\"\nDAG123 SAMPLE DRIVE                   \nDAHAPT B                              \nDAIINDIANAPOLIS        \nDAJIN\nDAK462040000  \nDAQ1234-56-7890             \nDCF07040602300001           \nDCGUSA\nDDEN\nDDFN\nDDGN\nDAZBLN         \nDCK12345678900000000000     \nDCUXYWXY\nDAW120\nDDAF\nDDBMMDDCCYY\nDDD1\n\rZIZIAMEDICAL CONDITION\nZIBMEDICAL ALERT\nZIC023\nZIDDONOR\nZIEUNDER 18 UNTIL 07/04/07\nZIFUNDER 21 UNTIL 07/04/10\nZIGOP\n\r",
+      "imageSha256": "f33b4b0281cfe8923a95a096bbb949e6990b29b3a57c6748e8ed87e22b897199",
+      "imagePath": "mirror-in-public-guide-95100717baa0.png",
+      "rawPath": "mirror-in-public-guide-95100717baa0.bin",
+      "independentExpectedFields": {
+        "DBA": "07042010",
+        "DCS": "SAMPLEFAMILYNAMEUPTO40CHARACTERSXYWXYWXY",
+        "DAC": "HEIDIFIRSTNAMEUPTO40CHARACTERSXYWXYWXYWX",
+        "DBD": "07042006",
+        "DBB": "07041989",
+        "DAJ": "IN",
+        "DCG": "USA",
+        "DDB": "MMDDCCYY"
+      },
+      "independentSubfiles": ["DL", "ZI"],
+      "currentDecoderStatus": "accepted",
+      "notes": [
+        "Government SAMPLE publication. Source bytes remain unchanged.",
+        "Historical BMV flyer rehosted in a public reference collection; template date tokens remain a negative encoder case."
+      ]
+    }
+  ],
+  "reobservations": [
+    {
+      "id": "de-published-a0b97b7910a7",
+      "jurisdiction": "DE",
+      "dataClass": "jurisdiction-published-sample",
+      "sourceId": "de-2023-senior-manual",
+      "sourceUrl": "https://services.dmv.de.gov/DriverServices/senior/pdfs/DE_Senior_Driver_Manual.pdf",
+      "sourceSha256": "050cd03e78deb9a03664e31d907b7a245de7da3be7f064ce0f742d64ac4e4562",
+      "capturedAt": "2026-10-31",
+      "sourcePage": 8,
+      "acquisition": {
+        "page": 8,
+        "embeddedImage": 2,
+        "method": "native image"
+      },
+      "byteLength": 390,
+      "sha256": "a0b97b7910a78430d4a36c622f77a8c76106879e70b49f2906a9e4a8cb5733e5",
+      "rawBytesLatin1": "@\n\u001e\rANSI 636011090002DL00410334ZD03750015DLDAQ98765438\nDCSLASTNAME\nDDEU\nDACFIRSTNAME\nDDFU\nDADMIDDLENAME\nDDGU\nDCAO\nDCBNONE\nDCDNONE\nDBD04302017\nDBB04302000\nDBA04302021\nDBC1\nDAU070 in\nDAYBRO\nDAG123 MAIN STREET\nDAIANYTOWN\nDAJDE\nDAK000000000  \nDCF1234567890123456789012345\nDCGUSA\nDCUJR\nDAW175\nDAHAPT. 1\nDCK1234567890123456\nDDAF\nDDBMMDDCCYY\nDDD1\nDDH04302018\nDDJ04302021\nDDK1\nDDL1\n\rZDZDA\nZDB\nZDC\n\r",
+      "imageSha256": "c4faa4cc9dc6f9103674a8d4873a45161dd13671a783c7aa92db013f453e9856",
+      "imagePath": "de-2023-senior-manual-a0b97b7910a7.png",
+      "rawPath": "de-2023-senior-manual-a0b97b7910a7.bin",
+      "independentExpectedFields": {
+        "DCS": "LASTNAME",
+        "DAC": "FIRSTNAME",
+        "DBD": "04302017",
+        "DBB": "04302000",
+        "DBA": "04302021",
+        "DAJ": "DE",
+        "DCG": "USA",
+        "DDB": "MMDDCCYY"
+      },
+      "independentSubfiles": ["DL", "ZD"],
+      "currentDecoderStatus": "accepted",
+      "notes": [
+        "Government senior driver manual, physical PDF page 8, adjacent front marked SAMPLE and holder Nick Sample. Source back encodes placeholder names and DDB=MMDDCCYY. Preserve as negative encoder evidence; do not invent a revision date.",
+        "This hash already exists in the October 25 intake. New source-file capture corroborates the same payload and contributes zero new unique payloads."
+      ]
+    }
+  ]
+}
