@@ -1,8 +1,8 @@
 [
   {
-    "name": "Initial JS (gzipped) \u2014 first-paint UI, the step rail, and the privilege chips (quick-fill sample records load on demand)",
+    "name": "Initial JS (gzipped) \u2014 first-paint UI, the step rail, the privilege chips, and the observed encoding profiles the live preview selects from (quick-fill sample records load on demand)",
     "path": "dist/assets/index-*.js",
-    "limit": "55 KB",
+    "limit": "56 KB",
     "gzip": true
   },
   {
