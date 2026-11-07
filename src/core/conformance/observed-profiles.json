@@ -1896,5 +1896,61 @@
     "optionalFields": [],
     "excludedFields": [],
     "emitEmptyFields": []
+  },
+  {
+    "id": "me-issued-v09",
+    "state": "ME",
+    "iin": "636041",
+    "version": "09",
+    "subfileTypes": ["ID"],
+    "notes": [
+      "Anonymized issued Maine ID card layout. Default ME generation is unchanged; this profile is opt-in via encodingProfileId.",
+      "Observed on an identification card only; nothing here is evidence about Maine driver's licenses.",
+      "Writes the ZM subfile even when ZMA is empty, as the source card does."
+    ],
+    "encoding": {
+      "jurisdictionVersion": "00",
+      "elementOrder": [
+        "DAQ",
+        "DCS",
+        "DDE",
+        "DAC",
+        "DDF",
+        "DAD",
+        "DDG",
+        "DBD",
+        "DBB",
+        "DBA",
+        "DBC",
+        "DAU",
+        "DAY",
+        "DAG",
+        "DAI",
+        "DAJ",
+        "DAK",
+        "DCF",
+        "DCG",
+        "DCK",
+        "DAZ",
+        "DAW",
+        "DDA",
+        "DDB"
+      ],
+      "padPostalCode": false,
+      "omitFinalSeparator": true,
+      "jurisdictionSubfile": {
+        "type": "ZM",
+        "elements": [
+          {
+            "code": "ZMA",
+            "label": "ZMA (opaque source element)"
+          }
+        ]
+      }
+    },
+    "extraFields": [],
+    "optionalFields": [],
+    "excludedFields": [],
+    "emitEmptyFields": ["ZMA"]
   }
 ]

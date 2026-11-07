@@ -467,13 +467,19 @@ subtly wrong:
 Two jurisdictions have default encoding profiles in `jurisdictionRules`, both
 read off decoded cards: Connecticut (`ZC`) and New York (`ZN`). Colorado's issued
 layout is an opt-in observed profile (`co-issued-v10`) rather than a default —
-so ordinary CO generation stays on the generic encoder. Colorado and Connecticut
-share a ZC designator by rule (Z plus the jurisdiction's initial), so element
-codes like `ZCA` are not unique to one issuer; anything keyed on the code alone
-(help text, for one) must not name a state. Jurisdiction elements are surfaced
-through `getFieldsForStateAndVersion` (and observed profiles via
-`encodingProfileId`) and tagged `subfile: "jurisdiction"` so nothing else has to
-special-case them.
+so ordinary CO generation stays on the generic encoder. Maine's is the same kind
+of profile (`me-issued-v09`), and narrower still: its source was an
+identification card, so it is scoped to `ID` and a Maine DL cannot select it.
+It is also the one issued layout that writes a jurisdiction subfile whose only
+element is empty (`ZMZMA`), through `emitEmptyFields` — the default "emit only
+when something holds a value" rule above does not describe that card.
+Colorado and Connecticut share a ZC designator by rule (Z plus the
+jurisdiction's initial), and Maine shares ZM with Mississippi and Montana, so
+element codes like `ZCA` or `ZMA` are not unique to one issuer; anything keyed
+on the code alone (help text, for one) must not name a state. Jurisdiction
+elements are surfaced through `getFieldsForStateAndVersion` (and observed
+profiles via `encodingProfileId`) and tagged `subfile: "jurisdiction"` so
+nothing else has to special-case them.
 
 Jurisdiction subfile values are **opaque**. They are exempt from the upper-casing
 the AAMVA text rule applies to standard string fields, because a real NY card
