@@ -235,5 +235,10 @@
     "id": "co-issued-v10",
     "sourcePayloadHashes": [],
     "sourceRecords": []
+  },
+  {
+    "id": "me-issued-v09",
+    "sourcePayloadHashes": [],
+    "sourceRecords": []
   }
 ]
