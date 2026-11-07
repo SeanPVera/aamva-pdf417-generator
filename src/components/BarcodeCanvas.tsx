@@ -72,7 +72,6 @@ export const BarcodeCanvas: React.FC<BarcodeCanvasProps> = ({
                   type="button"
                   className="text-button focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded"
                   onClick={() => scrollToField(first)}
-                  aria-label={`Jump to field ${first}`}
                   title={`Jump to field ${first}`}
                 >
                   Go to {first} →

@@ -26,7 +26,7 @@ describe("BarcodeCanvas Component", () => {
       />
     );
 
-    const jumpButton = screen.getByRole("button", { name: "Jump to field DCS" });
+    const jumpButton = screen.getByRole("button", { name: "Go to DCS →" });
     expect(jumpButton).toBeInTheDocument();
     expect(jumpButton).toHaveAttribute("type", "button");
     expect(jumpButton).toHaveAttribute("title", "Jump to field DCS");
