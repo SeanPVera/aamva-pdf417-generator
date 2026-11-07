@@ -68,7 +68,13 @@ export const BarcodeCanvas: React.FC<BarcodeCanvasProps> = ({
                   : "Complete the required fields to generate a PDF417 preview."}
               </p>
               {first && (
-                <button className="text-button" onClick={() => scrollToField(first)}>
+                <button
+                  type="button"
+                  className="text-button focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded"
+                  onClick={() => scrollToField(first)}
+                  aria-label={`Jump to field ${first}`}
+                  title={`Jump to field ${first}`}
+                >
                   Go to {first} →
                 </button>
               )}
@@ -89,19 +95,23 @@ export const BarcodeCanvas: React.FC<BarcodeCanvasProps> = ({
         {success && (
           <div className="proof-status-controls">
             <button
+              type="button"
               aria-label="Zoom out"
-              title="Zoom out"
+              title={zoom <= 1 ? "Minimum zoom reached" : "Zoom out"}
               disabled={zoom <= 1}
               onClick={() => setZoom((z) => Math.max(1, z - 0.25))}
+              className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded"
             >
               −
             </button>
             <span>{Math.round(zoom * 100)}%</span>
             <button
+              type="button"
               aria-label="Zoom in"
-              title="Zoom in"
+              title={zoom >= 3 ? "Maximum zoom reached" : "Zoom in"}
               disabled={zoom >= 3}
               onClick={() => setZoom((z) => Math.min(3, z + 0.25))}
+              className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded"
             >
               +
             </button>
