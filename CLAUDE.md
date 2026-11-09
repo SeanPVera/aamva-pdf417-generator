@@ -44,7 +44,7 @@ This file provides AI assistants (Claude, Copilot, etc.) with the context needed
 │   ├── gen-icons.mjs             # Rasterizes the app icon to PNG (zlib only, no image deps)
 │   ├── ui-audit.mjs              # Measures contrast, touch targets, mobile chrome, red-on-empty
 │   └── release-notes.mjs         # Extracts a CHANGELOG section for a GitHub Release
-├── e2e/                          # Playwright specs (a11y, contrast, export, form fill, header popovers, round-trip, themes)
+├── e2e/                          # Playwright specs (a11y, contrast, export, form fill, header popovers, round-trip, scanner, themes)
 ├── src/
 │   ├── main.tsx                  # React root render with ErrorBoundary
 │   ├── App.tsx                   # Main app component: layout, keyboard shortcuts, theme
@@ -67,6 +67,7 @@ This file provides AI assistants (Claude, Copilot, etc.) with the context needed
 │   │   ├── presets.ts            # Jurisdiction/sample presets
 │   │   ├── sampleFiller.ts       # Fills the form with plausible sample data
 │   │   ├── crypto.ts             # secureGetRandomInt (rejection sampling, no modulo bias)
+│   │   ├── scanPipeline.ts       # Camera/photo pixels → PDF417 text: tilt measure, de-rotation, view cycle
 │   │   ├── stateThemes.ts        # Per-jurisdiction color palettes for UI theming
 │   │   └── conformance/vectors/  # Golden payload vectors per jurisdiction/version
 │   ├── hooks/
@@ -76,7 +77,8 @@ This file provides AI assistants (Claude, Copilot, etc.) with the context needed
 │   │   ├── Sidebar.tsx           # State/version selector, strict mode toggle, subfile type
 │   │   ├── BarcodePreview.tsx    # PDF417 canvas via bwip-js, payload display, PNG/SVG/PDF export
 │   │   ├── BatchProcessor.tsx    # Bulk field operations UI
-│   │   ├── WebcamScanner.tsx     # ZXing-based barcode scanner modal
+│   │   ├── WebcamScanner.tsx     # Camera + photo barcode scanner modal
+│   │   ├── scannerMedia.ts       # getUserMedia, frame grab, image load, optional native BarcodeDetector
 │   │   ├── VersionBrowser.tsx    # Expandable reference for AAMVA versions 01–11
 │   │   ├── StepRail.tsx          # Section navigator: one rung per field group, with its state
 │   │   ├── MobileActionBar.tsx   # Sticky mobile status + export strip
@@ -270,7 +272,8 @@ Key actions:
 | `StepRail.tsx`       | Horizontal numbered sections on desktop and phone                                         |
 | `BarcodePreview.tsx` | PDF417 canvas (bwip-js), payload display, decoded JSON, validation issues, PDF/PNG export |
 | `BatchProcessor.tsx` | Bulk field operations                                                                     |
-| `WebcamScanner.tsx`  | ZXing barcode scanner modal                                                               |
+| `WebcamScanner.tsx`  | Camera + photo barcode scanner modal (pixels go through `core/scanPipeline.ts`)           |
+| `scannerMedia.ts`    | Camera open/list, canvas frame grab, image load, optional native `BarcodeDetector`        |
 | `VersionBrowser.tsx` | Explore AAMVA field definitions by version                                                |
 | `ErrorBoundary.tsx`  | Graceful error fallback                                                                   |
 
@@ -377,6 +380,7 @@ npm run format:check    # Prettier check (used in CI)
 14. **Quick fixes** (`src/tests/quickFix.test.ts`) — every returned fix is re-checked against `evaluateFieldValue`; empty fields never get one.
 15. **Paste import** (`src/tests/pasteImport.test.ts`) — round-trips a generated payload, and asserts that non-AAMVA keys are dropped rather than loaded.
 16. **Road test** (`src/tests/roadTest.test.ts`) — vehicle physics, SAT collision, park inspection, and the examiner's score sheet. Pure functions only; the canvas is not involved.
+17. **Scanner pipeline** (`src/tests/scanPipeline.test.ts`) — puts a symbol into a synthetic camera frame (`src/tests/support/cameraScene.ts`, its own rotation code), turned 8°, -8°, -12° and 90°, and asserts ZXing alone fails where the live scanner reads it on the first frame. `e2e/scanner.spec.ts` drives the real camera path in Chromium with a video file standing in for the webcam.
 
 **End-to-end tests and the section form.** Only the open section's fields are
 in the DOM. A spec that reaches for `#DAY` while Identity is showing finds
@@ -564,6 +568,36 @@ reading and never emit it.
 
 `getVersionForState(stateCode)` in `src/core/states.ts` maps each jurisdiction to its default AAMVA version. When a user selects a state, `useFormStore.setStateVersion()` rebuilds the field list accordingly.
 
+### The barcode scanner
+
+`WebcamScanner.tsx` "never actually worked" for three separate reasons; each
+has a test, and each is easy to reintroduce:
+
+- **Never wait for a camera ID before opening the camera.** Until the user
+  grants access, spec-following browsers (current Chromium included) report
+  cameras with a blank `deviceId`. The old scanner waited for a non-blank one,
+  so it never called `getUserMedia`, so access was never requested, so the
+  IDs never appeared. `openCamera()` asks by `facingMode` and the picker is
+  filled from `listCameras()` after the first stream.
+- **Always ask for a resolution.** Without one, cameras open at 640×480, under
+  two pixels per module for a licence barcode.
+- **ZXing reads PDF417 upright or at 180°, nothing else.** A symbol tilted 5°
+  defeats it. `scanPipeline.ts` measures the tilt (structure tensor) and
+  de-rotates before decoding, cycling `LIVE_VIEWS` one per frame. Measure tilt
+  from full-resolution gradients: measured on a downscaled copy, the bars
+  alias into moiré and a 10° tilt reads as 17°.
+
+Do not go back to `@zxing/browser`'s `decodeFromVideoDevice`: its loop offers
+no control over what each frame is read as, and stops for good if the decoder
+throws anything outside its NotFound/Format/Checksum trio. The optional native
+`BarcodeDetector` (Chrome on Android/macOS) runs alongside ZXing, never
+instead; nothing in CI exercises it. The file input carries no `capture`
+attribute, so phones offer the photo library as well as the camera.
+
+`e2e/scanner.spec.ts` re-imposes blank IDs with an init script, because
+`--use-fake-ui-for-media-stream` makes Chromium reveal them early and would
+hide the first bug.
+
 ### Workbench design system
 
 The record workbench uses a neutral paper/ink palette with an oxide action
@@ -698,6 +732,7 @@ Local hooks (Husky):
 - **Do not** select a bare `button` under `.header-identity` in a themed rule — use `.header-ctrl`. Those are descendant selectors and a popover _anchored_ to the identity row is not _on_ it; every palette sets `onPrimary: #ffffff`, so a `button` selector painted the whole **More actions** menu white-on-white at 1.00:1. `e2e/header-popovers.spec.ts` measures both header menus on a phone
 - **Do not** pair `text-gray-400` with `dark:text-gray-500` — that combination is below AA in _both_ themes; `text-gray-500 dark:text-gray-400` clears it in both
 - **Do not** dismiss a popover on the trigger's `blur` alone — clicking a `<button>` does not focus it in Safari or Firefox, so the popover never closes (see `FieldInput.tsx`)
+- **Do not** gate `getUserMedia` on a camera `deviceId` — IDs are blank until access is granted (see _The barcode scanner_)
 - **Do not** assume the first subfile starts at byte 31 — the directory grows with the entry count; read `21 + entries × 10`
 - **Do not** write jurisdiction (`Z*`) elements into the `DL`/`ID` subfile, and do not add them to `AAMVA_VERSIONS` — they belong to one jurisdiction, not to the standard
 - **Do not** upper-case jurisdiction (`Z*`) values — they are opaque, and NY's `ZNB` is mixed-case
@@ -756,7 +791,7 @@ Local hooks (Husky):
 | `bwip-js`                                | dependency    | PDF417 barcode encoding and canvas rendering  |
 | `jspdf`                                  | dependency    | PDF generation for barcode export             |
 | `lucide-react`                           | dependency    | Icon library                                  |
-| `@zxing/browser` / `@zxing/library`      | dependency    | Webcam barcode scanning                       |
+| `@zxing/library`                         | dependency    | PDF417 decoding for camera and photo scans    |
 | `electron`                               | devDependency | Desktop app runtime                           |
 | `electron-builder`                       | devDependency | Packages app into OS installers               |
 | `vite` / `@vitejs/plugin-react`          | devDependency | Build tool and React plugin                   |

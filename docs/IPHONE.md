@@ -141,8 +141,11 @@ the camera scanner. All four options above are HTTPS by default.
 - If Safari never asks for permission: **Settings → Safari → Camera → Allow**.
 - Camera access from a Home Screen web app requires **iOS 14.3 or later**.
   Earlier versions silently fail in standalone mode but work in a Safari tab.
-- If the live camera still won't start, the in-app **photo upload** scan path
-  is a fallback and uses the same decoder.
+- Fill the guide box with the barcode and hold it steady; a slight tilt is
+  fine. If the picture is blurry, move the card farther away until it is
+  sharp — a smaller sharp barcode reads, a larger blurry one does not.
+- If the live camera still won't start, **Choose barcode image** offers your
+  photo library or the camera, and reads the photo with the same pipeline.
 
 ---
 
