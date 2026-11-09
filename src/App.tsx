@@ -59,6 +59,7 @@ const CompareView = React.lazy(() =>
 function App() {
   const [isScanning, setIsScanning] = React.useState(false);
   const [shortcutsOpen, setShortcutsOpen] = React.useState(false);
+  const [versionsTick, setVersionsTick] = React.useState(0);
   const [compareOpen, setCompareOpen] = React.useState(false);
   const [batchOpen, setBatchOpen] = React.useState(false);
   const [tourOpen, setTourOpen] = React.useState(false);
@@ -657,43 +658,72 @@ function App() {
           setCompareOpen(true);
         }}
         onOpenBatch={() => setBatchOpen(true)}
+        onOpenVersions={() => setVersionsTick((n) => n + 1)}
       />
 
-      <Sidebar mobileHidden={mobilePanel !== "config"} />
+      <Sidebar
+        mobileHidden={mobilePanel !== "config"}
+        payloadBytes={payload ? payload.length : null}
+        versionsOpenSignal={versionsTick}
+      />
       <main id="record-workspace" ref={swipeRef} className="workspace-grid" tabIndex={-1}>
+        <aside
+          className={`structure-nav ${mobilePanel !== "form" ? "hidden lg:block" : "block"}`}
+          aria-label="Record structure"
+        >
+          <StepRail
+            sections={railSections}
+            active={activeSection}
+            onSelect={handleSelectSection}
+            orientation="vertical"
+          />
+        </aside>
         <div className={`record-editor ${mobilePanel !== "form" ? "hidden lg:flex" : "flex"}`}>
-          <div className="section-index">
-            <StepRail
-              sections={railSections}
-              active={activeSection}
-              onSelect={handleSelectSection}
-              orientation="horizontal"
-            />
-          </div>
-          <div id="section-heading" className="section-heading">
+          <div id="section-heading" className="section-heading ledger-toolbar">
             {isFiltering ? (
               <>
-                <span className="text-k-eyebrow font-bold uppercase text-gray-600 dark:text-gray-400">
-                  Across all sections
-                </span>
-                <h2 className="mt-1 text-k-section font-bold text-gray-900 dark:text-gray-50">
-                  {visibleFields.length} of {schemaFields.length} fields
-                </h2>
+                <div>
+                  <span className="text-k-eyebrow font-bold uppercase text-gray-600 dark:text-gray-400">
+                    Across all sections
+                  </span>
+                  <h2 className="ledger-title mt-1 text-gray-900 dark:text-gray-50">
+                    {visibleFields.length} of {schemaFields.length} fields
+                  </h2>
+                </div>
                 <p className="mt-1 text-k-help text-gray-600 dark:text-gray-400">
                   {describeActiveFilters(searchQuery, requiredOnly, issuesOnly, issues.length)}
                 </p>
               </>
             ) : (
               <>
-                <span className="section-progress text-k-eyebrow font-bold uppercase text-gray-600 dark:text-gray-400">
-                  Section {activeSectionIndex + 1} of {railSections.length}
+                <div>
+                  <span className="section-progress text-k-eyebrow font-bold uppercase text-gray-600 dark:text-gray-400">
+                    @{activeSectionDef?.label ?? "section"}
+                  </span>
+                  <h2 className="ledger-title mt-1 text-gray-900 dark:text-gray-50">
+                    {activeSectionDef?.label}
+                  </h2>
+                  <p className="section-description mt-1 text-k-help text-gray-600 dark:text-gray-400">
+                    {activeSectionDef?.description}
+                  </p>
+                </div>
+                <span
+                  className={`ledger-badge ${
+                    railSections[activeSectionIndex]?.errors
+                      ? "warn"
+                      : railSections[activeSectionIndex]?.requiredFilled ===
+                          railSections[activeSectionIndex]?.requiredTotal
+                        ? "ok"
+                        : ""
+                  }`}
+                >
+                  {railSections[activeSectionIndex]?.errors
+                    ? "errors"
+                    : railSections[activeSectionIndex]?.requiredFilled ===
+                        railSections[activeSectionIndex]?.requiredTotal
+                      ? "complete"
+                      : "in progress"}
                 </span>
-                <h2 className="mt-1 text-k-section font-bold text-gray-900 dark:text-gray-50">
-                  {activeSectionDef?.label}
-                </h2>
-                <p className="section-description mt-1 text-k-help text-gray-600 dark:text-gray-400">
-                  {activeSectionDef?.description}
-                </p>
               </>
             )}
           </div>

@@ -24,6 +24,7 @@ export const StepRail: React.FC<StepRailProps> = ({ sections, active, onSelect, 
       <span id={helpId} className="sr-only">
         Show fields in this section
       </span>
+      <p className="structure-heading">Structure</p>
       <ol>
         {sections.map((s, index) => {
           const labelId = `${helpId}-${s.id}-label`;
@@ -40,6 +41,7 @@ export const StepRail: React.FC<StepRailProps> = ({ sections, active, onSelect, 
           return (
             <li key={s.id}>
               <button
+                type="button"
                 onClick={() => onSelect(s.id)}
                 aria-current={s.id === active ? "step" : undefined}
                 className={s.id === active ? "active" : ""}
@@ -50,13 +52,16 @@ export const StepRail: React.FC<StepRailProps> = ({ sections, active, onSelect, 
                 <span className="section-number" aria-hidden>
                   {String(index + 1).padStart(2, "0")}
                 </span>
+                <span aria-hidden className="structure-at">
+                  @
+                </span>
                 <span id={labelId}>{s.label}</span>
                 {s.errors > 0 && (
                   <span className="section-error" aria-hidden>
                     !
                   </span>
                 )}
-                <span id={detailId} className="sr-only">
+                <span className="section-status" id={detailId}>
                   {detail}
                 </span>
               </button>

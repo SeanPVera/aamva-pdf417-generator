@@ -118,7 +118,7 @@ describe("Sidebar Component", () => {
     // Check headings and labels
     expect(screen.getByText("Issuing jurisdiction")).toBeInTheDocument();
     expect(screen.getByText("Issuing jurisdiction")).toBeInTheDocument();
-    expect(screen.getByText("AAMVA version")).toBeInTheDocument();
+    expect(screen.getAllByText("AAMVA version").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText("Document type")).toBeInTheDocument();
     expect(screen.getByText(/Strict validation/)).toBeInTheDocument();
     expect(screen.getByText("Schema notes & version reference")).toBeInTheDocument();

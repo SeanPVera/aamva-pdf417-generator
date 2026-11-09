@@ -7,12 +7,14 @@ import { downloadBlob } from "../core/download";
 import { ImportRecordDialog } from "./ImportRecordDialog";
 import { InstallPrompt } from "./InstallPrompt";
 import { loadQuickFillPresets, type QuickFillPreset } from "../core/presets";
+import { useModalShell } from "../hooks/useModalShell";
 
 interface HeaderProps {
   onStartScan: () => void;
   onOpenShortcuts: () => void;
   onOpenCompare: () => void;
   onOpenBatch: () => void;
+  onOpenVersions: () => void;
   onOpenBadges?: () => void;
   onOpenBingo?: () => void;
   onOpenRoadTest?: () => void;
@@ -22,7 +24,8 @@ export const Header: React.FC<HeaderProps> = ({
   onStartScan,
   onOpenShortcuts,
   onOpenCompare,
-  onOpenBatch
+  onOpenBatch,
+  onOpenVersions
 }) => {
   const {
     state,
@@ -40,7 +43,7 @@ export const Header: React.FC<HeaderProps> = ({
     includeNameInExport
   } = useFormStore();
   const [importOpen, setImportOpen] = useState(false);
-  const [toolsOpen, setToolsOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
   const [clearOpen, setClearOpen] = useState(false);
   const [presets, setPresets] = useState<QuickFillPreset[]>([]);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -48,7 +51,7 @@ export const Header: React.FC<HeaderProps> = ({
   const toast = useToast();
 
   useEffect(() => {
-    if (!toolsOpen) return;
+    if (!moreOpen) return;
     let live = true;
     void loadQuickFillPresets()
       .then((items) => {
@@ -58,11 +61,11 @@ export const Header: React.FC<HeaderProps> = ({
         if (live) toast.error("Sample records could not be loaded.");
       });
     const dismiss = (e: PointerEvent) => {
-      if (!menuRef.current?.contains(e.target as Node)) setToolsOpen(false);
+      if (!menuRef.current?.contains(e.target as Node)) setMoreOpen(false);
     };
     const escape = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        setToolsOpen(false);
+        setMoreOpen(false);
         triggerRef.current?.focus();
       }
     };
@@ -73,10 +76,10 @@ export const Header: React.FC<HeaderProps> = ({
       document.removeEventListener("pointerdown", dismiss);
       document.removeEventListener("keydown", escape);
     };
-  }, [toolsOpen, toast]);
+  }, [moreOpen, toast]);
 
   const run = (fn: () => void) => {
-    setToolsOpen(false);
+    setMoreOpen(false);
     triggerRef.current?.focus();
     fn();
   };
@@ -105,85 +108,88 @@ export const Header: React.FC<HeaderProps> = ({
           <span className="barcode-mark" aria-hidden="true" />
           <div>
             <h1>
-              AAMVA<span className="wordmark-divider"> / </span>PDF417
+              AAMVA<span className="wordmark-divider">/</span>PDF417
             </h1>
-            <span className="product-caption">Record workbench</span>
+            <span className="product-caption">inspector · session · memory-only</span>
           </div>
         </div>
-        <div className="header-actions">
+        <div className="command-cluster header-actions">
           <InstallPrompt />
           <div className="history-actions" role="group" aria-label="Record history">
             <button
-              className="wb-button icon-button"
+              className="wb-button chrome icon-button"
               onClick={undo}
               disabled={!_history.length}
               aria-label="Undo"
               title="Undo · Ctrl/⌘ Z"
             >
-              <Undo2 size={17} />
+              <Undo2 size={14} />
             </button>
             <button
-              className="wb-button icon-button"
+              className="wb-button chrome icon-button"
               onClick={redo}
               disabled={!_future.length}
               aria-label="Redo"
               title="Redo · Ctrl/⌘ Shift Z"
             >
-              <Redo2 size={17} />
+              <Redo2 size={14} />
             </button>
           </div>
           <button
-            className="wb-button"
+            className="wb-button chrome"
             onClick={() => setImportOpen(true)}
             title="Import record from JSON or barcode data"
           >
-            Import
+            import
           </button>
           <button
-            className="wb-button primary"
+            className="wb-button chrome"
             onClick={onStartScan}
             title="Scan barcode using camera or image file"
           >
-            Scan barcode
+            scan
+          </button>
+          <button
+            className="wb-button chrome"
+            onClick={onOpenCompare}
+            title="Side-by-side payload comparison"
+          >
+            compare
+          </button>
+          <button
+            className="wb-button chrome"
+            onClick={onOpenBatch}
+            title="Process multiple records from CSV/JSON"
+          >
+            batch
+          </button>
+          <button
+            className="wb-button chrome"
+            onClick={onOpenVersions}
+            title="Browse AAMVA version reference"
+          >
+            versions
           </button>
           <div className="tools-menu" ref={menuRef}>
             <button
               ref={triggerRef}
-              className="wb-button"
-              onClick={() => setToolsOpen(!toolsOpen)}
-              aria-expanded={toolsOpen}
-              aria-controls="workspace-tools"
-              title="Workspace tools and options"
+              className="wb-button chrome"
+              onClick={() => setMoreOpen(!moreOpen)}
+              aria-expanded={moreOpen}
+              aria-controls="workspace-more"
+              title="More workspace options"
             >
-              Tools <ChevronDown size={14} aria-hidden />
+              more <ChevronDown size={12} aria-hidden />
             </button>
-            {toolsOpen && (
-              <div className="tool-popover" id="workspace-tools" aria-label="Workspace tools">
-                <button
-                  type="button"
-                  onClick={() => run(exportRecord)}
-                  title="Save current workspace record as a JSON file"
-                >
+            {moreOpen && (
+              <div className="tool-popover" id="workspace-more" aria-label="More tools">
+                <button type="button" onClick={() => run(exportRecord)} title="Save record JSON">
                   Export record JSON
                 </button>
                 <button
                   type="button"
-                  onClick={() => run(onOpenCompare)}
-                  title="Side-by-side payload comparison tool"
-                >
-                  Compare payloads
-                </button>
-                <button
-                  type="button"
-                  onClick={() => run(onOpenBatch)}
-                  title="Process multiple records from a CSV file"
-                >
-                  Batch CSV processing
-                </button>
-                <button
-                  type="button"
                   onClick={() => run(onOpenShortcuts)}
-                  title="View keyboard shortcuts and documentation"
+                  title="Keyboard shortcuts"
                 >
                   Keyboard shortcuts & help
                 </button>
@@ -229,7 +235,7 @@ export const Header: React.FC<HeaderProps> = ({
                   className="danger-text"
                   title="Clear all fields and reset undo history"
                   onClick={() => {
-                    setToolsOpen(false);
+                    setMoreOpen(false);
                     setClearOpen(true);
                   }}
                 >
@@ -238,6 +244,13 @@ export const Header: React.FC<HeaderProps> = ({
               </div>
             )}
           </div>
+          <button
+            className="wb-button chrome primary"
+            onClick={() => exportRecord()}
+            title="Export record JSON"
+          >
+            export ▾
+          </button>
         </div>
       </header>
       {importOpen && <ImportRecordDialog onClose={() => setImportOpen(false)} />}
@@ -257,7 +270,6 @@ export const Header: React.FC<HeaderProps> = ({
   );
 };
 
-import { useModalShell } from "../hooks/useModalShell";
 function EraseDialog({ onCancel, onErase }: { onCancel: () => void; onErase: () => void }) {
   const ref = useModalShell({ open: true, onClose: onCancel });
   return (

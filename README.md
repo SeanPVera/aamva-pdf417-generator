@@ -2,9 +2,9 @@
 
 A local record workbench for creating, importing, inspecting, and exporting AAMVA payloads and PDF417 barcodes. React + TypeScript in a browser, an installable PWA, or an optional Electron desktop window.
 
-[Open the published app](https://seanpvera.github.io/aamva-pdf417-generator/) · [Audit and validation evidence](docs/AUDIT_2026-09-24.md) · [Design system](docs/design/WORKBENCH.md)
+[Open the published app](https://seanpvera.github.io/aamva-pdf417-generator/) · [Audit and validation evidence](docs/AUDIT_2026-09-24.md) · [Technical Inspector design](docs/design/WORKBENCH.md)
 
-![Record workbench](docs/screenshots/workbench-desktop-record.png)
+![Technical Inspector](docs/screenshots/workbench-desktop-record.png)
 
 The published app follows `main`; a draft pull request does not update it.
 

@@ -1,0 +1,27 @@
+import { chromium } from "@playwright/test";
+import { mkdirSync } from "node:fs";
+const out = "docs/screenshots/technical-inspector";
+mkdirSync(out, { recursive: true });
+const browser = await chromium.launch();
+const desktop = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+await desktop.goto("http://127.0.0.1:4173/", { waitUntil: "networkidle" });
+await desktop.getByRole("button", { name: /Skip|Close|Got it|Dismiss/i }).first().click({ timeout: 2000 }).catch(() => {});
+// dismiss tour if present
+const tourClose = desktop.locator('button:has-text("Skip"), button:has-text("Close"), [aria-label="Close"]');
+if (await tourClose.count()) await tourClose.first().click({ timeout: 2000 }).catch(()=>{});
+await desktop.getByText("Fill tools", { exact: true }).click();
+await desktop.getByRole("button", { name: "Fill all fields with demo data" }).click();
+await desktop.locator("#DCS").fill("DOE");
+await desktop.locator("#DAC").fill("JANE");
+await desktop.waitForTimeout(500);
+await desktop.screenshot({ path: `${out}/desktop-record.png`, fullPage: false });
+const mobile = await browser.newPage({ viewport: { width: 390, height: 844 } });
+await mobile.goto("http://127.0.0.1:4173/", { waitUntil: "networkidle" });
+await mobile.getByRole("button", { name: /Skip|Close|Got it|Dismiss/i }).first().click({ timeout: 2000 }).catch(() => {});
+await mobile.getByRole("button", { name: "Form" }).click().catch(()=>{});
+await mobile.getByText("Fill tools", { exact: true }).click().catch(()=>{});
+await mobile.getByRole("button", { name: "Fill all fields with demo data" }).click().catch(()=>{});
+await mobile.waitForTimeout(500);
+await mobile.screenshot({ path: `${out}/mobile-record.png`, fullPage: false });
+await browser.close();
+console.log("wrote", out);
