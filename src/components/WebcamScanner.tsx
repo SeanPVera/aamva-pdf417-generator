@@ -1,9 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { BrowserPDF417Reader } from "@zxing/browser";
-import type { IScannerControls } from "@zxing/browser";
-import type { Result } from "@zxing/library";
 import { decodeAAMVA } from "../core/decoder";
 import { AAMVA_VERSION_KEYS, isSupportedVersion } from "../core/schema";
+import { createFrameScanner, scanStill } from "../core/scanPipeline";
 import {
   X,
   AlertTriangle,
@@ -16,39 +14,36 @@ import {
 import { useFormStore } from "../hooks/useFormStore";
 import { useToast } from "./Toast";
 import { useModalShell } from "../hooks/useModalShell";
-
-// `torch` is a non-standard MediaTrack constraint/capability not yet in the DOM
-// typings; narrow it locally so we can feature-detect without `any`.
-type TorchCapabilities = MediaTrackCapabilities & { torch?: boolean };
-type TorchConstraintSet = MediaTrackConstraintSet & { torch?: boolean };
+import {
+  cameraUnavailableReason,
+  createNativePdf417Detector,
+  describeCameraError,
+  enableContinuousFocus,
+  grabGrayFrame,
+  listCameras,
+  loadImage,
+  openCamera,
+  type CameraCapabilities,
+  type CameraConstraintSet,
+  type NativePdf417Detector
+} from "./scannerMedia";
 
 interface WebcamScannerProps {
   onClose: () => void;
 }
 
-/**
- * Maps a thrown camera/scanner error into a one-line, user-actionable message.
- * Falls back to the original error message when nothing matches.
- */
-function describeCameraError(err: unknown): string {
-  const fallback = err instanceof Error ? err.message : "Failed to initialize camera.";
-  const name = err instanceof Error ? err.name : "";
-  switch (name) {
-    case "NotAllowedError":
-    case "SecurityError":
-      return "Camera access was blocked. Click the lock icon in your browser's address bar and allow camera access, then try again.";
-    case "NotFoundError":
-    case "OverconstrainedError":
-      return "No usable camera was found on this device. Try the “Use photo” option below to scan from a saved image.";
-    case "NotReadableError":
-    case "TrackStartError":
-      return "Your camera is in use by another app. Close other camera apps (e.g. Zoom, FaceTime) and reopen this scanner.";
-    case "AbortError":
-      return "Camera startup was interrupted. Try opening the scanner again.";
-    default:
-      return fallback;
-  }
-}
+/** Longest side a camera frame is read at; a 4K camera is downscaled to this. */
+const LIVE_MAX_SIDE = 1920;
+/** Longest side a photo is read at. A 12 MP photo is ~4000px; this keeps a far card legible. */
+const STILL_MAX_SIDE = 3072;
+/** Pause between live attempts. An attempt itself takes ~50 ms on a laptop. */
+const SCAN_INTERVAL_MS = 60;
+
+const NO_BARCODE_IN_IMAGE = "Could not find a readable PDF417 barcode in the selected image.";
+
+type CameraState = "starting" | "live" | "failed";
+
+const yieldToBrowser = () => new Promise<void>((resolve) => setTimeout(resolve, 0));
 
 export function WebcamScanner({ onClose }: WebcamScannerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -62,15 +57,25 @@ export function WebcamScanner({ onClose }: WebcamScannerProps) {
       activeRef.current = false;
     };
   }, []);
-  const [error, setError] = useState<string | null>(null);
-  const [scanning, setScanning] = useState(false);
+  // Insecure pages and browsers without getUserMedia cannot open a camera at
+  // all; say so up front instead of showing a black box.
+  const [unavailableReason] = useState(cameraUnavailableReason);
+  const [error, setError] = useState<string | null>(unavailableReason);
+  const [cameraState, setCameraState] = useState<CameraState>(
+    unavailableReason ? "failed" : "starting"
+  );
   const [imageScanning, setImageScanning] = useState(false);
   const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
-  const [selectedDeviceId, setSelectedDeviceId] = useState<string>("");
+  // The camera to ask for; empty means "a rear-facing one". Read once: the
+  // store is written below whenever a camera starts, and reacting to that
+  // write would restart the stream.
+  const [requestedDeviceId, setRequestedDeviceId] = useState(
+    () => useFormStore.getState().cameraDeviceId
+  );
+  const [activeDeviceId, setActiveDeviceId] = useState("");
   const [torchSupported, setTorchSupported] = useState(false);
   const [torchOn, setTorchOn] = useState(false);
   const loadJson = useFormStore((s) => s.loadJson);
-  const storedCameraId = useFormStore((s) => s.cameraDeviceId);
   const setCameraDeviceId = useFormStore((s) => s.setCameraDeviceId);
   const toast = useToast();
   const dialogRef = useModalShell<HTMLDivElement>({ open: true, onClose });
@@ -109,112 +114,142 @@ export function WebcamScanner({ onClose }: WebcamScannerProps) {
     [loadJson, onClose, toast]
   );
 
-  // Load available cameras once on mount. Prefer the camera the user scanned
-  // with last time; otherwise default to the last device (usually the rear
-  // camera on phones).
-  useEffect(() => {
-    BrowserPDF417Reader.listVideoInputDevices()
-      .then((devs) => {
-        if (!activeRef.current) return;
-        setDevices(devs);
-        const remembered = devs.find((d) => d.deviceId === storedCameraId);
-        const fallback = devs[devs.length - 1];
-        const chosen = remembered ?? fallback;
-        if (chosen) setSelectedDeviceId(chosen.deviceId);
-      })
-      .catch(() => {
-        // Permission not yet granted — scanner start will surface the real error
-      });
-  }, [storedCameraId]);
-
   // `applyDecodedPayload` closes over `onClose` and `toast`, both of which are
   // re-created on every render of a parent that re-renders for any reason —
   // `App` subscribes to the whole form store, so a keystroke or badge update
   // anywhere in the app produced a new reference. Depending on it directly
-  // from the scanner-start effect below tore down and restarted the live
-  // camera stream on every such render, which starved ZXing of the run of
-  // stable frames a PDF417 symbol needs to decode. Route through a ref
-  // instead, the same fix `pasteStateRef` applies to the clipboard listener.
+  // from the camera effect below would tear down and restart the stream on
+  // every such render. Route through a ref instead, the same fix
+  // `pasteStateRef` applies to the clipboard listener.
   const applyDecodedPayloadRef = useRef(applyDecodedPayload);
   useEffect(() => {
     applyDecodedPayloadRef.current = applyDecodedPayload;
   }, [applyDecodedPayload]);
 
-  // Start/restart scanner whenever selectedDeviceId changes
+  // Open the camera, then read frames until one decodes.
   useEffect(() => {
-    if (!selectedDeviceId) return;
+    const video = videoRef.current;
+    if (unavailableReason || !video) return;
 
-    let reader: BrowserPDF417Reader | null = null;
-    let controls: { stop: () => void } | null = null;
     let cancelled = false;
+    let stream: MediaStream | null = null;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let native: NativePdf417Detector | null = null;
+    const canvas = document.createElement("canvas");
+    const scanFrame = createFrameScanner();
 
-    const handleDecode = (
-      result: Result | undefined,
-      _error: unknown,
-      scannerControls: IScannerControls
-    ) => {
-      if (result && !cancelled && activeRef.current) {
-        if (applyDecodedPayloadRef.current(result.getText())) scannerControls.stop();
-      }
+    const stopStream = () => {
+      stream?.getTracks().forEach((track) => track.stop());
+      stream = null;
     };
 
-    const startScanner = async () => {
-      try {
-        setScanning(true);
-        setError(null);
-        setTorchOn(false);
-        setTorchSupported(false);
-        reader = new BrowserPDF417Reader();
-
-        if (videoRef.current && !cancelled) {
-          const started = await reader.decodeFromVideoDevice(
-            selectedDeviceId,
-            videoRef.current,
-            handleDecode
+    const tick = async () => {
+      timer = undefined;
+      if (cancelled) return;
+      if (video.readyState >= 2 && video.videoWidth > 0) {
+        let text: string | null = null;
+        if (native) {
+          try {
+            text = await native.detect(video);
+          } catch {
+            native = null;
+          }
+          if (cancelled) return;
+        }
+        if (text === null) {
+          const frame = grabGrayFrame(
+            video,
+            video.videoWidth,
+            video.videoHeight,
+            canvas,
+            LIVE_MAX_SIDE
           );
-
-          // The camera can finish starting *after* the modal was closed. The
-          // cleanup below already ran by then and saw `controls` still null, so
-          // without this the track — and the OS camera indicator — stayed live
-          // for the rest of the session.
-          if (cancelled) {
-            started?.stop();
+          if (frame) text = scanFrame(frame);
+        }
+        if (text !== null && !cancelled && activeRef.current) {
+          if (applyDecodedPayloadRef.current(text)) {
+            stopStream();
             return;
           }
-          controls = started;
-
-          // Remember the working camera and detect torch support.
-          if (selectedDeviceId) setCameraDeviceId(selectedDeviceId);
-          const stream = videoRef.current.srcObject as MediaStream | null;
-          const track = stream?.getVideoTracks()[0] ?? null;
-          trackRef.current = track;
-          if (track && typeof track.getCapabilities === "function") {
-            const caps = track.getCapabilities() as TorchCapabilities;
-            setTorchSupported(!!caps.torch);
-          }
         }
+      }
+      if (!cancelled) timer = setTimeout(tick, SCAN_INTERVAL_MS);
+    };
+
+    const start = async () => {
+      try {
+        const opened = await openCamera(requestedDeviceId || undefined);
+        // The camera can finish starting *after* the modal was closed. The
+        // cleanup has already run by then, so stop the tracks here or the OS
+        // camera indicator stays on for the rest of the session.
+        if (cancelled) {
+          opened.getTracks().forEach((track) => track.stop());
+          return;
+        }
+        stream = opened;
+        video.srcObject = opened;
+        try {
+          void Promise.resolve(video.play()).catch(() => {});
+        } catch {
+          // `autoplay` starts it anyway; the scan loop waits for frames.
+        }
+
+        const track = opened.getVideoTracks()[0] ?? null;
+        trackRef.current = track;
+        const deviceId = track?.getSettings?.().deviceId ?? "";
+        if (deviceId) {
+          setActiveDeviceId(deviceId);
+          setCameraDeviceId(deviceId);
+        }
+        if (track && typeof track.getCapabilities === "function") {
+          setTorchSupported(!!(track.getCapabilities() as CameraCapabilities).torch);
+        }
+        void enableContinuousFocus(track);
+        setCameraState("live");
+
+        // IDs and labels only become visible once access has been granted,
+        // so the camera picker is filled after the first stream, not before.
+        listCameras()
+          .then((list) => {
+            if (!cancelled) setDevices(list);
+          })
+          .catch(() => {});
+
+        native = await createNativePdf417Detector();
+        if (!cancelled) void tick();
       } catch (err: unknown) {
         if (!cancelled) {
-          setScanning(false);
+          setCameraState("failed");
           setError(describeCameraError(err));
         }
       }
     };
 
-    startScanner();
+    void start();
 
     return () => {
       cancelled = true;
-      controls?.stop();
+      if (timer !== undefined) clearTimeout(timer);
+      stopStream();
+      video.srcObject = null;
       trackRef.current = null;
     };
-  }, [selectedDeviceId, setCameraDeviceId]);
+  }, [requestedDeviceId, setCameraDeviceId, unavailableReason]);
+
+  const switchCamera = (deviceId: string) => {
+    if (!deviceId || deviceId === requestedDeviceId) return;
+    setCameraState("starting");
+    setError(null);
+    setTorchOn(false);
+    setTorchSupported(false);
+    setRequestedDeviceId(deviceId);
+  };
 
   const handleFlipCamera = () => {
     if (devices.length < 2) return;
-    const idx = devices.findIndex((d) => d.deviceId === selectedDeviceId);
+    const idx = devices.findIndex((d) => d.deviceId === activeDeviceId);
     const next = devices[(idx + 1) % devices.length];
-    if (next) setSelectedDeviceId(next.deviceId);
+    if (next) switchCamera(next.deviceId);
   };
 
   const handleToggleTorch = async () => {
@@ -222,7 +257,7 @@ export function WebcamScanner({ onClose }: WebcamScannerProps) {
     if (!track) return;
     const next = !torchOn;
     try {
-      await track.applyConstraints({ advanced: [{ torch: next } as TorchConstraintSet] });
+      await track.applyConstraints({ advanced: [{ torch: next } as CameraConstraintSet] });
       setTorchOn(next);
     } catch {
       setTorchSupported(false);
@@ -239,32 +274,62 @@ export function WebcamScanner({ onClose }: WebcamScannerProps) {
       return;
     }
     const request = ++imageRequest.current;
+    const isStale = () => !activeRef.current || request !== imageRequest.current;
     const before = useFormStore.getState();
 
     setError(null);
     setImageScanning(true);
 
-    const imageReader = new BrowserPDF417Reader();
     const imageUrl = URL.createObjectURL(file);
 
     try {
-      const result = await imageReader.decodeFromImageUrl(imageUrl);
-      if (!activeRef.current || request !== imageRequest.current) return;
+      const image = await loadImage(imageUrl);
+      if (isStale()) return;
+      let text: string | null = null;
+      const native = await createNativePdf417Detector();
+      if (native) {
+        try {
+          text = await native.detect(image);
+        } catch {
+          text = null;
+        }
+      }
+      if (text === null) {
+        const frame = grabGrayFrame(
+          image,
+          image.naturalWidth,
+          image.naturalHeight,
+          document.createElement("canvas"),
+          STILL_MAX_SIDE
+        );
+        if (frame) text = await scanStill(frame, { isCancelled: isStale, pause: yieldToBrowser });
+      }
+      if (isStale()) return;
+      if (text === null) {
+        setError(NO_BARCODE_IN_IMAGE);
+        return;
+      }
       if (useFormStore.getState().fields !== before.fields) {
         setError(
           "The record changed while reading the image. Select it again to replace the current record."
         );
         return;
       }
-      applyDecodedPayload(result.getText());
+      applyDecodedPayload(text);
     } catch {
-      if (activeRef.current && request === imageRequest.current)
-        setError("Could not find a readable PDF417 barcode in the selected image.");
+      if (!isStale()) setError(NO_BARCODE_IN_IMAGE);
     } finally {
       URL.revokeObjectURL(imageUrl);
-      if (activeRef.current && request === imageRequest.current) setImageScanning(false);
+      if (!isStale()) setImageScanning(false);
     }
   };
+
+  const status =
+    cameraState === "starting"
+      ? "Starting camera… allow access if your browser asks."
+      : cameraState === "live"
+        ? "Looking for a PDF417 barcode."
+        : "Camera unavailable.";
 
   return (
     <div className="modal-backdrop">
@@ -296,8 +361,8 @@ export function WebcamScanner({ onClose }: WebcamScannerProps) {
             </label>
             <select
               id="camera-select"
-              value={selectedDeviceId}
-              onChange={(e) => setSelectedDeviceId(e.target.value)}
+              value={activeDeviceId}
+              onChange={(e) => switchCamera(e.target.value)}
               className="wb-select flex-1"
             >
               {devices.map((dev, idx) => (
@@ -319,22 +384,27 @@ export function WebcamScanner({ onClose }: WebcamScannerProps) {
         <div className="relative aspect-video bg-black overflow-hidden flex items-center justify-center">
           <video
             ref={videoRef}
+            autoPlay
+            muted
+            playsInline
             className="w-full h-full object-cover"
             aria-label="Camera feed for barcode scanning"
           />
-          {scanning && !error && (
+          {cameraState === "live" && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div className="w-3/4 h-1/3 border-2 border-white" aria-hidden />
             </div>
           )}
         </div>
+        <p className="proof-note mt-2" role="status" aria-live="polite">
+          {status}
+        </p>
 
         <div className="mt-4 flex flex-wrap items-center gap-3">
           <input
             ref={imageInputRef}
             type="file"
             accept="image/*"
-            capture="environment"
             onChange={handleImageSelection}
             className="hidden"
             aria-label="Select image for barcode scanning"
@@ -378,12 +448,14 @@ export function WebcamScanner({ onClose }: WebcamScannerProps) {
               {torchOn ? "Light off" : "Light on"}
             </button>
           )}
-          <span className="proof-note">Pick from Photos or open camera directly on mobile.</span>
+          <span className="proof-note">
+            On a phone this offers your photo library or the camera.
+          </span>
         </div>
 
         <p className="proof-note mt-4">
-          Hold the PDF417 barcode steadily in front of the camera. The form will auto-fill when
-          successfully decoded.
+          Fill the box with the barcode on the back of the card and hold it steady; a slight tilt is
+          fine. The form fills in as soon as it reads.
         </p>
         <p className="proof-note mt-1">
           The camera feed stays on this device — nothing is uploaded.

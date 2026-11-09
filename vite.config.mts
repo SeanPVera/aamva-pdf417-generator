@@ -86,7 +86,7 @@ export default defineConfig({
       output: {
         manualChunks(id) {
           if (id.includes("react-dom") || id.includes("react")) return "react";
-          if (id.includes("@zxing/browser") || id.includes("@zxing/library")) return "scanner";
+          if (id.includes("@zxing/library")) return "scanner";
           if (id.includes("bwip-js")) return "barcode";
           if (id.includes("jspdf")) return "export";
           return undefined;
