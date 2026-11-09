@@ -435,7 +435,7 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
   );
 
   return (
-    <>
+    <div className={`diagnostics-column ${mobileHidden ? "mobile-hidden" : ""}`}>
       {/* Drag handle — desktop only; the mobile layout stacks panels. */}
       <div
         role="separator"
@@ -463,9 +463,7 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
         <div className="output-heading">
           <h2>Output</h2>
           <div className="flex items-center gap-1.5">
-            <span className="validation-mode">
-              {strictMode ? "Strict validation" : "Standard validation"}
-            </span>
+            <span className="validation-mode">Diagnostics</span>
             <button
               type="button"
               onClick={() => setExpanded(true)}
@@ -545,6 +543,6 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
       </aside>
 
       {expanded && <InspectorModal onClose={() => setExpanded(false)}>{inspector}</InspectorModal>}
-    </>
+    </div>
   );
 };
