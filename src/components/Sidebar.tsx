@@ -3,13 +3,25 @@ import { useFormStore } from "../hooks/useFormStore";
 import { AAMVA_STATES } from "../core/states";
 import { AAMVA_VERSIONS, AAMVA_VERSION_KEYS, AAMVA_STATE_EXCLUDED_FIELDS } from "../core/schema";
 import { JurisdictionCombobox } from "./JurisdictionCombobox";
+
 const VersionBrowser = React.lazy(() =>
   import("./VersionBrowser").then((m) => ({ default: m.VersionBrowser }))
 );
 
-/** Record context is horizontal; the historical filename is retained for callers. */
-export const Sidebar: React.FC<{ mobileHidden?: boolean; children?: React.ReactNode }> = ({
-  mobileHidden = false
+interface SidebarProps {
+  mobileHidden?: boolean;
+  children?: React.ReactNode;
+  /** Optional live payload length for the context strip. */
+  payloadBytes?: number | null;
+  /** Increment to open the schema/version reference details. */
+  versionsOpenSignal?: number;
+}
+
+/** Record context strip + issuer controls. Filename retained for callers. */
+export const Sidebar: React.FC<SidebarProps> = ({
+  mobileHidden = false,
+  payloadBytes = null,
+  versionsOpenSignal = 0
 }) => {
   const {
     state,
@@ -22,11 +34,46 @@ export const Sidebar: React.FC<{ mobileHidden?: boolean; children?: React.ReactN
     recentStates
   } = useFormStore();
   const excluded = AAMVA_STATE_EXCLUDED_FIELDS[state] ?? [];
+  const iin = AAMVA_STATES[state]?.IIN ?? "—";
+  const detailsRef = React.useRef<HTMLDetailsElement>(null);
+
+  React.useEffect(() => {
+    if (!versionsOpenSignal || !detailsRef.current) return;
+    detailsRef.current.open = true;
+    detailsRef.current.scrollIntoView({ block: "nearest" });
+  }, [versionsOpenSignal]);
+
   return (
     <section
       className={`record-context ${mobileHidden ? "context-mobile-hidden" : ""}`}
       aria-label="Record settings"
     >
+      <div className="context-meta" aria-label="Record context">
+        <div>
+          <label>IIN / Jurisdiction</label>
+          {iin} · {state}
+        </div>
+        <div>
+          <label>AAMVA version</label>
+          {version} · {AAMVA_VERSIONS[version]?.name ?? "—"}
+        </div>
+        <div>
+          <label>Subfile</label>
+          {subfileType}
+        </div>
+        <div>
+          <label>Strict mode</label>
+          {strictMode ? "on" : "off"}
+        </div>
+        <div>
+          <label>Directory</label>
+          {payloadBytes == null ? "—" : `${payloadBytes} bytes`}
+        </div>
+        <div>
+          <label>Data class</label>
+          SAMPLE · synthetic
+        </div>
+      </div>
       <div className="context-fields">
         <div className="context-issuer">
           <label className="wb-label" htmlFor="state-select">
@@ -91,7 +138,7 @@ export const Sidebar: React.FC<{ mobileHidden?: boolean; children?: React.ReactN
           </span>
         </label>
       </div>
-      <details className="schema-details">
+      <details ref={detailsRef} className="schema-details" style={{ paddingInline: "1rem" }}>
         <summary>Schema notes & version reference</summary>
         <div className="schema-detail-content">
           <p>

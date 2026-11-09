@@ -65,7 +65,7 @@ test("failed import preserves input and focus; ID import and undo are atomic", a
   await page.goto("/");
   await ensurePanel(page, "form");
   await page.locator("#DCS").fill("BEFORE");
-  await page.getByRole("button", { name: "Import", exact: true }).click();
+  await page.getByRole("button", { name: "import", exact: true }).click();
   const source = page.getByLabel("Source data", { exact: true });
   await source.fill('{"state":"ZZ","DCS":"AFTER"}');
   await page.getByRole("button", { name: "Import record", exact: true }).click();
@@ -93,7 +93,7 @@ test("failed import preserves input and focus; ID import and undo are atomic", a
 
 test("raw clipboard import preserves CR terminators through the textarea", async ({ page }) => {
   await page.goto("/");
-  await page.getByRole("button", { name: "Import", exact: true }).click();
+  await page.getByRole("button", { name: "import", exact: true }).click();
   await page.getByLabel("Source data", { exact: true }).evaluate((element, payload) => {
     const event = new Event("paste", { bubbles: true, cancelable: true });
     Object.defineProperty(event, "clipboardData", { value: { getData: () => payload } });
@@ -112,7 +112,7 @@ test("erasing removes the record and prevents undo from recovering it", async ({
   await page.goto("/");
   await ensurePanel(page, "form");
   await page.locator("#DCS").fill("SYNTHETIC");
-  await page.getByRole("button", { name: "Tools", exact: true }).click();
+  await page.getByRole("button", { name: /^more/i }).click();
   await page.getByRole("button", { name: /Erase record & history/ }).click();
   await page.getByRole("button", { name: "Erase record", exact: true }).click();
   await page.keyboard.press("Control+z");
@@ -171,8 +171,7 @@ test("comparison, batch errors, and scanner are accessible and close with Escape
   await page.getByRole("button", { name: "Fill all fields with demo data" }).click();
   await page.getByText("Fill tools", { exact: true }).click();
   await page.locator("#DCS").fill("SYNTHETIC");
-  await page.getByRole("button", { name: "Tools", exact: true }).click();
-  await page.getByRole("button", { name: "Compare payloads", exact: true }).click();
+  await page.getByRole("button", { name: "compare", exact: true }).click();
   await page.getByRole("button", { name: "Use active form for payload A" }).click();
   await page.getByRole("button", { name: "Use active form for payload B" }).click();
   await expect(page.getByRole("table", { name: "Payload field comparison" })).toContainText(
@@ -185,9 +184,8 @@ test("comparison, batch errors, and scanner are accessible and close with Escape
       .violations
   ).toEqual([]);
   await page.keyboard.press("Escape");
-  await expect(page.getByRole("button", { name: "Tools", exact: true })).toBeFocused();
-  await page.getByRole("button", { name: "Tools", exact: true }).click();
-  await page.getByRole("button", { name: "Batch CSV processing", exact: true }).click();
+  await expect(page.getByRole("button", { name: "compare", exact: true })).toBeFocused();
+  await page.getByRole("button", { name: "batch", exact: true }).click();
   await page.getByLabel("Select batch file", { exact: true }).setInputFiles({
     name: "invalid.json",
     mimeType: "application/json",
@@ -199,12 +197,12 @@ test("comparison, batch errors, and scanner are accessible and close with Escape
       .violations
   ).toEqual([]);
   await page.keyboard.press("Escape");
-  await page.getByRole("button", { name: "Scan barcode", exact: true }).click();
+  await page.getByRole("button", { name: "scan", exact: true }).click();
   await expect(page.getByRole("dialog", { name: "Scan DL/ID Barcode" })).toBeVisible();
   expect(
     (await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa"]).analyze())
       .violations
   ).toEqual([]);
   await page.keyboard.press("Escape");
-  await expect(page.getByRole("button", { name: "Scan barcode", exact: true })).toBeFocused();
+  await expect(page.getByRole("button", { name: "scan", exact: true })).toBeFocused();
 });

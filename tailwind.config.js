@@ -10,7 +10,7 @@ export default {
       colors: {
         dark: { bg: '#181a19', surface: '#202321', surface2: '#2b2f2c', border: '#474d48' },
         gray: { 50: '#f7f7f2', 100: '#efefe8', 200: '#dedfd5', 300: '#bfc3b6', 400: '#8b9386', 500: '#697365', 600: '#545e50', 700: '#3d463b', 800: '#292f28', 900: '#1a2119', 950: '#111610' },
-        brand: { 50: '#fbefe8', 100: '#f8dfd1', 200: '#ecc0a8', 300: '#e2a083', 400: '#e59a7a', 500: '#bd5130', 600: '#ac4224', 700: '#9c371c', 800: '#812c17', 900: '#692716' }
+        brand: { 50: '#e8f6f0', 100: '#d8efe6', 200: '#a8d8c4', 300: '#6fba9a', 400: '#3d9570', 500: '#0f8a5f', 600: '#0b6e4f', 700: '#085a41', 800: '#064833', 900: '#043628' }
       },
       fontFamily: {
         // Self-hosted variable faces; the @font-face rules and the reasoning

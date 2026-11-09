@@ -96,7 +96,7 @@ export async function ensurePanel(page: Page, panel: "config" | "form" | "previe
 
 /** Tools are in the same position at every supported viewport. */
 export async function clickHeaderAction(page: Page, _barName: RegExp, _menuName: RegExp) {
-  await page.getByRole("button", { name: "Tools", exact: true }).click();
+  await page.getByRole("button", { name: /^more/i }).click();
   await page.getByRole("button", { name: "Export record JSON", exact: true }).click();
 }
 

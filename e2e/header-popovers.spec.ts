@@ -80,18 +80,18 @@ test.describe("header popovers on a phone", () => {
     await dismissTour(page);
   });
 
-  test("Tools is readable in light mode", async ({ page }) => {
-    await page.getByRole("button", { name: /^Tools$/ }).click();
+  test("More menu is readable in light mode", async ({ page }) => {
+    await page.getByRole("button", { name: /^more/i }).click();
     await everyItemIsLegible(page, "More actions");
   });
 
-  test("Tools is readable in dark mode and Escape restores focus", async ({ page }) => {
-    const trigger = page.getByRole("button", { name: "Tools", exact: true });
+  test("More menu is readable in dark mode and Escape restores focus", async ({ page }) => {
+    const trigger = page.getByRole("button", { name: /^more/i });
     await trigger.click();
     await page.getByLabel("Appearance", { exact: true }).selectOption("dark");
-    await everyItemIsLegible(page, "Tools dark");
+    await everyItemIsLegible(page, "More dark");
     await page.keyboard.press("Escape");
     await expect(trigger).toBeFocused();
-    await expect(page.locator("#workspace-tools")).toHaveCount(0);
+    await expect(page.locator("#workspace-more")).toHaveCount(0);
   });
 });
