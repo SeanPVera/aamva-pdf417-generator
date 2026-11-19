@@ -1,6 +1,6 @@
 # Public specimen intake
 
-The combined intake retains **47 unique independently decoded public payloads from publications labelled for 27 jurisdictions**. The [passing corpus](../COVERAGE-2026-11-19.md) contains 35 external references across 19 of 55 jurisdictions. Twenty-eight reproduce unmodified public source bytes from 15 jurisdictions.
+The combined intake retains **64 unique raw public payloads** plus an anonymized Maryland observation. The [passing corpus](../COVERAGE-2026-11-19-continuation.md) contains 41 external references across 25 of 55 jurisdictions. Thirty-one fixtures reproduce unmodified public source bytes across 18 jurisdictions.
 
 | Manifest | Unique payloads added | Scope |
 | --- | ---: | --- |
@@ -8,6 +8,7 @@ The combined intake retains **47 unique independently decoded public payloads fr
 | `2026-10-31.json` | 9 | Additional public calibration sheets, brochures, archives, and qualified rehosts |
 | `2026-10-31-continuation.json` | 6 | Colorado, Montana, historical Florida, and negative Montana, California, and Illinois observations |
 | `2026-11-19.json` | 6 | Two California DMV tests, historical Oklahoma and Texas DL backs, and negative New Hampshire and West Virginia specimens |
+| `2026-11-19-continuation.json` | 17 | Additional raw specimens and recorded source defects, with a separate anonymized Maryland receipt |
 
 ## Current comparison
 
@@ -40,6 +41,6 @@ npm run conformance:report
 
 ## Remaining evidence
 
-Thirty-six configured jurisdictions lack a passing external fixture. Additional editions and ID types remain open within the covered jurisdictions. The v12 normative oracle contains 110 independently assembled synthetic expectations and contributes zero external jurisdiction coverage. No signed issuer-derived v12 payload is verified.
+Thirty configured jurisdictions lack a passing external fixture. Additional editions and ID types remain open within the covered jurisdictions. The v12 normative oracle contains 110 independently assembled synthetic expectations and contributes zero external jurisdiction coverage. No signed issuer-derived v12 payload is verified.
 
-The [November continuation](2026-11-19-continuation.json) records Maryland v09 ID with separately hashed original and anonymized replays, an additional New Jersey publication of a known specimen, and the hash of a distinct Mississippi v01 observation. The Maryland exhibit obscures several fields on the front. The retained fixture replaces six fields with length-preserving values.
+The [November continuation](2026-11-19-continuation.json) adds 17 raw observations from GU, HI, IA, ID, MN, NJ, OR. It also records Maryland v09 ID with separately hashed original and anonymized replays, an additional New Jersey publication of a known specimen, and hash-only exclusions for further Mississippi and New Jersey observations. The Maryland exhibit obscures several fields on the front. The retained fixture replaces six fields with length-preserving values.

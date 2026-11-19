@@ -1,8 +1,624 @@
 {
   "schemaVersion": 1,
   "capturedAt": "2026-11-19",
-  "scope": "Anonymized public evidence and corroborating publications. Original sensitive values are represented by hashes.",
-  "payloads": [],
+  "scope": "Independent public specimen reads, anonymized evidence, corroborating publications and excluded observations.",
+  "payloads": [
+    {
+      "id": "or-published-7989b4ca060a",
+      "jurisdiction": "OR",
+      "sourceUrl": "https://evrebate.oregon.gov/sites/default/files/docs/SampleSupportingDocuments_OCVRP.pdf",
+      "sourceSha256": "ed094d80675f6d6be9ac0f720498e80882a330ebf904d737b5e7ee87c727dc45",
+      "sourcePage": 3,
+      "byteLength": 326,
+      "sha256": "7989b4ca060a4850aa5abf9994f801d867fec4808cde3960c2e6e869fe63d078",
+      "rawBytesLatin1": "@\n\u001e\rANSI 636029090302DL00410270ZO03110015DLDAQA123456\nDACOREGON\nDADSAMPLE\nDCSCARD\nDCUSR\nDAG1906 LANA AVE NE\nDAH\nDAISALEM\nDAJOR\nDAK973140000  \nDCAC\nDCBBD\nDCDM\nDBB12121979\nDAU074 in\nDAW250\nDAYBRO\nDBC1\nDBD03162018\nDBA12122026\nDCF230000085\nDCGUSA\nDCKZA0000089\nDDEU\nDDFU\nDDGU\nDDH\nDDJ\nDDK1\nDDL1\nDDAN\nDDB04162018\nDDD\n\rZOZOA03162018\n\r",
+      "imageSha256": "11d44628fcca435f94edde55155a8084991afc5cda587343a0053c970c5094b8",
+      "privacyReview": "Front fields have dummy surname CARD, given name OREGON, middle name SAMPLE and a conspicuous test number, also present in barcode. Front and back bear SAMPLE marks; the agency published the illustrative fields openly. No visible redactions on card.",
+      "independentDirectory": [
+        {
+          "type": "DL",
+          "offset": 41,
+          "length": 270
+        },
+        {
+          "type": "ZO",
+          "offset": 311,
+          "length": 15
+        }
+      ],
+      "independentExpectedFields": {
+        "DAQ": "A123456",
+        "DAC": "OREGON",
+        "DAD": "SAMPLE",
+        "DCS": "CARD",
+        "DCU": "SR",
+        "DAG": "1906 LANA AVE NE",
+        "DAH": "",
+        "DAI": "SALEM",
+        "DAJ": "OR",
+        "DAK": "973140000",
+        "DCA": "C",
+        "DCB": "BD",
+        "DCD": "M",
+        "DBB": "12121979",
+        "DAU": "074 in",
+        "DAW": "250",
+        "DAY": "BRO",
+        "DBC": "1",
+        "DBD": "03162018",
+        "DBA": "12122026",
+        "DCF": "230000085",
+        "DCG": "USA",
+        "DCK": "ZA0000089",
+        "DDE": "U",
+        "DDF": "U",
+        "DDG": "U",
+        "DDH": "",
+        "DDJ": "",
+        "DDK": "1",
+        "DDL": "1",
+        "DDA": "N",
+        "DDB": "04162018",
+        "DDD": "",
+        "ZOA": "03162018"
+      },
+      "opticalRecovery": {
+        "nativeDimensions": [479, 301],
+        "originalNativeConventionalReaders": "ZXing-C++, Apple Vision and python PDF417Decoder failed on original/native transformations. Three decoders agreed on the optical cell interpretation. These are not three independent scans of the original.",
+        "decoderChecks": {
+          "ZXingCPP": "7989b4ca060a4850aa5abf9994f801d867fec4808cde3960c2e6e869fe63d078",
+          "AppleVisionLatin1": "7989b4ca060a4850aa5abf9994f801d867fec4808cde3960c2e6e869fe63d078",
+          "pythonPDF417Decoder": "7989b4ca060a4850aa5abf9994f801d867fec4808cde3960c2e6e869fe63d078"
+        },
+        "geometryCount": 243,
+        "successfulMatchingGeometries": 26,
+        "minimumCorrectedCodewords": 12,
+        "opticalPngSha256": "a810aa382913284088d43591e4cc1a15cbdbf2218eec2cad616c5da2d744d891"
+      },
+      "notes": "Oregon DEQ Clean Vehicle Rebate Program sample supporting documents, PDF page 3. Both faces carry SAMPLE. A 16-row optical recovery read the native back image using the PDF417 symbol alphabet and error correction. Payload values were never supplied to the optical reader. Retrieved via a public document preview of the listed publication."
+    },
+    {
+      "id": "mn-published-518afe8e3da9",
+      "jurisdiction": "MN",
+      "sourceUrl": "http://municipalbev.com/images/driverslicense.pdf",
+      "sourceSha256": "ce1701f81f6eb7da8c5487cf2f22409208361cc8e7bb7220511004c5c0b96f7c",
+      "sourcePage": 2,
+      "acquisition": "ZXing-C++ decoded the native page 2 image, xref 6, and a full-page render. Apple Vision independently returned the same 101 bytes via ISO-8859-1 text.",
+      "byteLength": 101,
+      "sha256": "518afe8e3da936983f283697317cc382d4eca4cf4220ff8fa469d339fdaf0d32",
+      "rawBytesLatin1": "@\n\u001e\rANSI 6360380101DL00290072DLDAQD-616-603-235-374\nDAAGAYLE ELIZABETH SAMPLE          \nDBB19580522\n\r",
+      "imageSha256": "a8b4e4e658fecd1bc42a861405ad2e718b4ac998f4110e9319821a308b94070f",
+      "privacyReview": "The public test specimen uses the SAMPLE surname. Encoded name and birth date match the specimen face.",
+      "independentDirectory": [
+        {
+          "type": "DL",
+          "offset": 29,
+          "length": 72
+        }
+      ],
+      "independentExpectedFields": {
+        "DAQ": "D-616-603-235-374",
+        "DAA": "GAYLE ELIZABETH SAMPLE",
+        "DBB": "19580522"
+      },
+      "notes": "Minnesota DPS Driver and Vehicle Services brochure, effective December 15, 2004, rehosted by the Minnesota Municipal Beverage Association. Page 2 specifies three contents for this barcode. This named historical layout carries those three elements and omits six fields required by the ordinary v01 DL schema."
+    },
+    {
+      "id": "hi-published-383fc12f085b",
+      "jurisdiction": "HI",
+      "sourceUrl": "https://www.honolulu.gov/csd/wp-content/uploads/sites/6/2026/02/HI-DLID-LeafletBrochure-v3b-Feb2026-onlineversion.pdf",
+      "sourceSha256": "e7ebfcfc8be2a0e3e4b0a64846dcb96081f74507ead2e18f3c37428bacaa1335",
+      "sourcePage": 1,
+      "acquisition": "ZXing-C++ read PDF page 1, xref 2076 after scaling. Apple Vision returned the same 336 payload bytes via ISO-8859-1 text.",
+      "byteLength": 336,
+      "sha256": "383fc12f085b58a9edabb6cd0797dca1b84d22f129c85d9ae23121f9393573c1",
+      "rawBytesLatin1": "@\n\u001e\rANSI 636047100102DL00410275ZA03160020DLDAQH12345649\nDCSSAMPLE\nDDEN\nDACLANI\nDDFN\nDADKALEA\nDDGN\nDCA3\nDCBA\nDCDNONE\nDBD02152026\nDBB10151974\nDBA12212031\nDBC2\nDAU066 in\nDAYBRO\nDAG123 ANYSTREET \nDAIANYCITY\nDAJHI\nDAK123450000  \nDCF49007770000099999000001\nDCGUSA\nDCK50100000270\nDDAF\nDDB01042026\nDAZBRO\nDAW130\nDDJ10151995\rZAZHAHONOLULU\nZHCDL\r",
+      "imageSha256": "c142bd0a84319ccb5af74f7ab764f55deb5a969de367888ca7297593ca6dd88b",
+      "privacyReview": "The publicly released SAMPLE face uses dummy identity and address values. Ten printed identity fields matched the decoded data.",
+      "independentDirectory": [
+        {
+          "type": "DL",
+          "offset": 41,
+          "length": 275
+        },
+        {
+          "type": "ZA",
+          "offset": 316,
+          "length": 20
+        }
+      ],
+      "independentExpectedFields": {
+        "DAQ": "H12345649",
+        "DCS": "SAMPLE",
+        "DDE": "N",
+        "DAC": "LANI",
+        "DDF": "N",
+        "DAD": "KALEA",
+        "DDG": "N",
+        "DCA": "3",
+        "DCB": "A",
+        "DCD": "NONE",
+        "DBD": "02152026",
+        "DBB": "10151974",
+        "DBA": "12212031",
+        "DBC": "2",
+        "DAU": "066 in",
+        "DAY": "BRO",
+        "DAG": "123 ANYSTREET",
+        "DAI": "ANYCITY",
+        "DAJ": "HI",
+        "DAK": "123450000",
+        "DCF": "49007770000099999000001",
+        "DCG": "USA",
+        "DCK": "50100000270",
+        "DDA": "F",
+        "DDB": "01042026",
+        "DAZ": "BRO",
+        "DAW": "130",
+        "DDJ": "10151995",
+        "ZHA": "HONOLULU",
+        "ZHC": "DL"
+      },
+      "notes": "Honolulu Department of Customer Services 2026 specimen. The v10 DL directory identifies the second subfile as ZA and its two elements as ZHA and ZHC."
+    },
+    {
+      "id": "gu-published-87c8726ccd39",
+      "jurisdiction": "GU",
+      "sourceUrl": "https://www.guamtax.com/notices/Guam_D500BrochureProd.pdf",
+      "sourceSha256": "8d4083154f5a87d582d9c2d4df72976684cccdfb6e0e7397818be0a76d301700",
+      "sourcePage": 1,
+      "acquisition": "Source-grid calibration without issuer or payload priors. ZXing-C++, Apple Vision ISO-8859-1 text, and Python PDF417Decoder agree on symbol-labeled optical grid. Conventional readers did not independently decode the untouched raster.",
+      "byteLength": 260,
+      "sha256": "87c8726ccd39d8d5d8cdcf1e7466d0d6e0eec698f15971e616f8fecb734ae12f",
+      "rawBytesLatin1": "@\n\u001e\rANSI 636019050001DL00310204DLDCANONE\nDCBNONE\nDCDNONE\nDBA10242016\nDCSSAMPLE\nDACJOHN\nDADA\nDBD10242012\nDBB10201955\nDBC2\nDAYUNK\nDAU6 in\nDAG1111 SMITH STREET\nDAIFORT WAYNE\nDAJIN\nDAK468080000\nDAQ434973519\nDCF1000000\nDCGUSA\nDDEN\nDDFN\nDDGNTHIS IS JUST SAMPLE DATA ",
+      "imageSha256": "eee64b55984d083510509ffb16eaf5f8061d8f40671e2b0dffc47bf7830a1bbe",
+      "privacyReview": "Agency marks artwork VALID SAMPLE. The surname is SAMPLE and the payload explicitly describes its contents as sample data. No masked front fields were recovered.",
+      "independentDirectory": [
+        {
+          "type": "DL",
+          "offset": 31,
+          "length": 204
+        }
+      ],
+      "independentExpectedFields": {
+        "DCA": "NONE",
+        "DCB": "NONE",
+        "DCD": "NONE",
+        "DBA": "10242016",
+        "DCS": "SAMPLE",
+        "DAC": "JOHN",
+        "DAD": "A",
+        "DBD": "10242012",
+        "DBB": "10201955",
+        "DBC": "2",
+        "DAY": "UNK",
+        "DAU": "6 in",
+        "DAG": "1111 SMITH STREET",
+        "DAI": "FORT WAYNE",
+        "DAJ": "IN",
+        "DAK": "468080000",
+        "DAQ": "434973519",
+        "DCF": "1000000",
+        "DCG": "USA",
+        "DDE": "N",
+        "DDF": "N",
+        "DDG": "N"
+      },
+      "notes": "Guam DRT vendor-marked specimen. The issuer IIN is Guam and the address jurisdiction is Indiana. The 260-byte source lacks its final subfile terminator and carries a 25-byte vendor sample message beyond the only directory entry. The 236-byte reference explicitly replaces that trailer with CR and increases the declared subfile length by one. All field values are preserved.",
+      "originalFraming": "Missing final CR and 25 vendor footer bytes outside the declared subfile."
+    },
+    {
+      "id": "nj-published-e6afdf55673d",
+      "jurisdiction": "NJ",
+      "sourceUrl": "https://www.nj.gov/mvc/pdf/about/2019_04.pdf",
+      "sourceSha256": "7791a8b65fc8a2f731c1acd4b12b7549111a012e1bd585c7cee7267c90ef3188",
+      "sourcePage": 2,
+      "byteLength": 330,
+      "sha256": "e6afdf55673d9fb4cb34c2fdfe6332ecafd2e28f285f22cceee899787a9ef57c",
+      "imageSha256": "217baf6af79d5809583bfab9bbfba7ebdf9552dd42b21a9792622e02448a81d6",
+      "rawBytesLatin1": "@\n\u001e\rANSI 636036040202DL00410237ZN02780052DLDAQG25296057401811\nDCSGORDON\nDDEU\nDACBARBARA\nDDFU\nDAD\nDDGU\nDCADBOAT\nDCB\nDCDM\nDBD04122019\nDBB08041985\nDBA05122019\nDBC2\nDAU071 in\nDAYGRN\nDAG225 EAST STATE STREET\nDAITRENTON\nDAJNJ\nDAK08666\nDCFWV201901100000001\nDCGUSA\nDCU\nDCK\nDDAB\nDDB\nDDD\rZNZNAWV\nZNB60.00\nZNCREN\nZND\nZNE\nZNFGRN\nZNGY\nZNH\nZNI\r",
+      "privacyReview": "MVC labels each as a DRAFT sample interim printout. The character name and birth date match its pictured face. All nine display the same agency address.",
+      "applicationResult": {
+        "strict": {
+          "ok": true
+        },
+        "encoder": {
+          "stage": "encode",
+          "reason": "Missing mandatory fields for NJ (v04): Restriction Codes (DCB)"
+        }
+      },
+      "notes": "The public 2019 MVC interim sample is structurally readable. It uses DDA=B, an empty DDB and at least one empty required privilege field."
+    },
+    {
+      "id": "nj-published-af9130f9a8d2",
+      "jurisdiction": "NJ",
+      "sourceUrl": "https://www.nj.gov/mvc/pdf/about/2019_04.pdf",
+      "sourceSha256": "7791a8b65fc8a2f731c1acd4b12b7549111a012e1bd585c7cee7267c90ef3188",
+      "sourcePage": 3,
+      "byteLength": 325,
+      "sha256": "af9130f9a8d21b77abb2f7d47c438009adf1dc078a36aa833f581dd346c6792a",
+      "imageSha256": "cc0adf120c47cb534703c863e71df2a045252516aba94977b91ed329725dc030",
+      "rawBytesLatin1": "@\n\u001e\rANSI 636036040202DL00410233ZN02740051DLDAQQ60096056204901\nDCSQUEEN\nDDEU\nDACOLIVER\nDDFU\nDAD\nDDGU\nDCABOAT\nDCB\nDCD\nDBD04122019\nDBB08041985\nDBA05122019\nDBC1\nDAU073 in\nDAYGRY\nDAG225 EAST STATE STREET\nDAITRENTON\nDAJNJ\nDAK08666\nDCFWV201901100000002\nDCGUSA\nDCU\nDCK\nDDAB\nDDB\nDDD\rZNZNAWV\nZNB24.00\nZNCREN\nZND\nZNE\nZNFGRY\nZNG\nZNH\nZNI\r",
+      "privacyReview": "MVC labels each as a DRAFT sample interim printout. The character name and birth date match its pictured face. All nine display the same agency address.",
+      "applicationResult": {
+        "strict": {
+          "ok": true
+        },
+        "encoder": {
+          "stage": "encode",
+          "reason": "Missing mandatory fields for NJ (v04): Restriction Codes (DCB), Endorsement Codes (DCD)"
+        }
+      },
+      "notes": "The public 2019 MVC interim sample is structurally readable. It uses DDA=B, an empty DDB and at least one empty required privilege field."
+    },
+    {
+      "id": "nj-published-2509e77f84aa",
+      "jurisdiction": "NJ",
+      "sourceUrl": "https://www.nj.gov/mvc/pdf/about/2019_04.pdf",
+      "sourceSha256": "7791a8b65fc8a2f731c1acd4b12b7549111a012e1bd585c7cee7267c90ef3188",
+      "sourcePage": 4,
+      "byteLength": 323,
+      "sha256": "2509e77f84aa184767a829b7c71aa2431f47385728eda3c25614d1741da96991",
+      "imageSha256": "6845ee6ae2b6213a3e4f48dee01dc8702df8dbd8a0cc8ebb0526d45d0ea9df9b",
+      "rawBytesLatin1": "@\n\u001e\rANSI 636036040202DL00410231ZN02720051DLDAQC31116056103041\nDCSCURRY\nDDEU\nDACARTHUR\nDDFU\nDADJ\nDDGU\nDCAE\nDCB\nDCD\nDBD04122019\nDBB08041985\nDBA05122019\nDBC1\nDAU069 in\nDAYBRN\nDAG225 EAST STATE STREET\nDAITRENTON\nDAJNJ\nDAK08666\nDCFWV201901100000003\nDCGUSA\nDCU\nDCK\nDDAB\nDDB\nDDD\rZNZNAWV\nZNB24.00\nZNCREN\nZND\nZNE\nZNFBRN\nZNG\nZNH\nZNI\r",
+      "privacyReview": "MVC labels each as a DRAFT sample interim printout. The character name and birth date match its pictured face. All nine display the same agency address.",
+      "applicationResult": {
+        "strict": {
+          "ok": true
+        },
+        "encoder": {
+          "stage": "encode",
+          "reason": "Missing mandatory fields for NJ (v04): Restriction Codes (DCB), Endorsement Codes (DCD)"
+        }
+      },
+      "notes": "The public 2019 MVC interim sample is structurally readable. It uses DDA=B, an empty DDB and at least one empty required privilege field."
+    },
+    {
+      "id": "nj-published-a764f92abb78",
+      "jurisdiction": "NJ",
+      "sourceUrl": "https://www.nj.gov/mvc/pdf/about/2019_04.pdf",
+      "sourceSha256": "7791a8b65fc8a2f731c1acd4b12b7549111a012e1bd585c7cee7267c90ef3188",
+      "sourcePage": 5,
+      "byteLength": 323,
+      "sha256": "a764f92abb7874f689a3683d2ff2c2ce37509bbf7e4915a5b90d85fd1953e4d2",
+      "imageSha256": "8af8bbebd44edc3b36ddb5e47d56f0069c54d75f136f71ef77dd48c2c95991f2",
+      "rawBytesLatin1": "@\n\u001e\rANSI 636036040202DL00410231ZN02720051DLDAQC31116056103041\nDCSMORALES\nDDEU\nDACMILES\nDDFU\nDAD\nDDGU\nDCAF\nDCB\nDCD\nDBD04122019\nDBB08041985\nDBA05122019\nDBC1\nDAU065 in\nDAYBLK\nDAG225 EAST STATE STREET\nDAITRENTON\nDAJNJ\nDAK08666\nDCFWV201901100000004\nDCGUSA\nDCU\nDCK\nDDAB\nDDB\nDDD\rZNZNAWV\nZNB24.00\nZNCREN\nZND\nZNE\nZNFBLK\nZNG\nZNH\nZNI\r",
+      "privacyReview": "MVC labels each as a DRAFT sample interim printout. The character name and birth date match its pictured face. All nine display the same agency address.",
+      "applicationResult": {
+        "strict": {
+          "ok": true
+        },
+        "encoder": {
+          "stage": "encode",
+          "reason": "Missing mandatory fields for NJ (v04): Restriction Codes (DCB), Endorsement Codes (DCD)"
+        }
+      },
+      "notes": "The public 2019 MVC interim sample is structurally readable. It uses DDA=B, an empty DDB and at least one empty required privilege field."
+    },
+    {
+      "id": "nj-published-b7c092d991a4",
+      "jurisdiction": "NJ",
+      "sourceUrl": "https://www.nj.gov/mvc/pdf/about/2019_04.pdf",
+      "sourceSha256": "7791a8b65fc8a2f731c1acd4b12b7549111a012e1bd585c7cee7267c90ef3188",
+      "sourcePage": 6,
+      "byteLength": 328,
+      "sha256": "b7c092d991a4d8f97ea7e56f4bffdd41f5209c3d6a2e624cfb5fc73d59a2c952",
+      "imageSha256": "c2a2ed0a1638e7bfd8f2892ee103859fe615fd33e5d49438ac8ff9e7b79b090c",
+      "rawBytesLatin1": "@\n\u001e\rANSI 636036040202DL00410236ZN02770051DLDAQP93226057405855\nDCSPIERCE\nDDEU\nDACJEFFERSON\nDDFU\nDADJ\nDDGU\nDCAD\nDCB\nDCDM\nDBD04122019\nDBB08041985\nDBA05122019\nDBC1\nDAU076 in\nDAYBRN\nDAG225 EAST STATE STREET\nDAITRENTON\nDAJNJ\nDAK08666\nDCFWX201901100000001\nDCGUSA\nDCU\nDCK\nDDAB\nDDB\nDDD\rZNZNAWX\nZNB11.00\nZNCDUP\nZND\nZNE\nZNFBRN\nZNG\nZNH\nZNI\r",
+      "privacyReview": "MVC labels each as a DRAFT sample interim printout. The character name and birth date match its pictured face. All nine display the same agency address.",
+      "applicationResult": {
+        "strict": {
+          "ok": true
+        },
+        "encoder": {
+          "stage": "encode",
+          "reason": "Missing mandatory fields for NJ (v04): Restriction Codes (DCB)"
+        }
+      },
+      "notes": "The public 2019 MVC interim sample is structurally readable. It uses DDA=B, an empty DDB and at least one empty required privilege field."
+    },
+    {
+      "id": "nj-published-3bdc6addb6c7",
+      "jurisdiction": "NJ",
+      "sourceUrl": "https://www.nj.gov/mvc/pdf/about/2019_04.pdf",
+      "sourceSha256": "7791a8b65fc8a2f731c1acd4b12b7549111a012e1bd585c7cee7267c90ef3188",
+      "sourcePage": 7,
+      "byteLength": 325,
+      "sha256": "3bdc6addb6c7feb6e50ad322a0400f7fff8edb4ac771bfd10a5c8485ed08401c",
+      "imageSha256": "44e4de26b3cefd0164bbed91d69aeb3ba81114751f0eea665bf91a60f2f320dc",
+      "rawBytesLatin1": "@\n\u001e\rANSI 636036040202DL00410233ZN02740051DLDAQP60076057456866\nDCSPRINCE\nDDEU\nDACDIANA\nDDFU\nDAD\nDDGU\nDCABOAT\nDCB\nDCD\nDBD04122019\nDBB08041985\nDBA05122019\nDBC2\nDAU072 in\nDAYBLU\nDAG225 EAST STATE STREET\nDAITRENTON\nDAJNJ\nDAK08666\nDCFWX201901100000002\nDCGUSA\nDCU\nDCK\nDDAB\nDDB\nDDD\rZNZNAWX\nZNB11.00\nZNCDUP\nZND\nZNE\nZNFBLU\nZNG\nZNH\nZNI\r",
+      "privacyReview": "MVC labels each as a DRAFT sample interim printout. The character name and birth date match its pictured face. All nine display the same agency address.",
+      "applicationResult": {
+        "strict": {
+          "ok": true
+        },
+        "encoder": {
+          "stage": "encode",
+          "reason": "Missing mandatory fields for NJ (v04): Restriction Codes (DCB), Endorsement Codes (DCD)"
+        }
+      },
+      "notes": "The public 2019 MVC interim sample is structurally readable. It uses DDA=B, an empty DDB and at least one empty required privilege field."
+    },
+    {
+      "id": "nj-published-7dec73932cbf",
+      "jurisdiction": "NJ",
+      "sourceUrl": "https://www.nj.gov/mvc/pdf/about/2019_04.pdf",
+      "sourceSha256": "7791a8b65fc8a2f731c1acd4b12b7549111a012e1bd585c7cee7267c90ef3188",
+      "sourcePage": 8,
+      "byteLength": 327,
+      "sha256": "7dec73932cbfa6cea177b29b4c24dd8c8b2b2637c1326c099bb3c5e959e90e12",
+      "imageSha256": "3cddd51cea5482822b78789e2226b5d154c0906dcec679fdf3e940ee5244f101",
+      "rawBytesLatin1": "@\n\u001e\rANSI 636036040202DL00410235ZN02760051DLDAQM12156057456763\nDCSMOONSTAR\nDDEU\nDACDANIELLE\nDDFU\nDAD\nDDGU\nDCAE\nDCB\nDCD\nDBD04122019\nDBB08041985\nDBA05122019\nDBC2\nDAU070 in\nDAYBLU\nDAG225 EAST STATE STREET\nDAITRENTON\nDAJNJ\nDAK08666\nDCFWX201901100000003\nDCGUSA\nDCU\nDCK\nDDAB\nDDB\nDDD\rZNZNAWX\nZNB11.00\nZNCDUP\nZND\nZNE\nZNFBLU\nZNG\nZNH\nZNI\r",
+      "privacyReview": "MVC labels each as a DRAFT sample interim printout. The character name and birth date match its pictured face. All nine display the same agency address.",
+      "applicationResult": {
+        "strict": {
+          "ok": true
+        },
+        "encoder": {
+          "stage": "encode",
+          "reason": "Missing mandatory fields for NJ (v04): Restriction Codes (DCB), Endorsement Codes (DCD)"
+        }
+      },
+      "notes": "The public 2019 MVC interim sample is structurally readable. It uses DDA=B, an empty DDB and at least one empty required privilege field."
+    },
+    {
+      "id": "nj-published-5094211ff4da",
+      "jurisdiction": "NJ",
+      "sourceUrl": "https://www.nj.gov/mvc/pdf/about/2019_04.pdf",
+      "sourceSha256": "7791a8b65fc8a2f731c1acd4b12b7549111a012e1bd585c7cee7267c90ef3188",
+      "sourcePage": 9,
+      "byteLength": 323,
+      "sha256": "5094211ff4dadf248065d7170e0037c714064947e15344a9e7ce3de186ad0c34",
+      "imageSha256": "ad090c49b79478c856c6af0daceb55fffe735015bd735539715b0a5e5d37a347",
+      "rawBytesLatin1": "@\n\u001e\rANSI 636036040202DL00410231ZN02720051DLDAQA31106056153043\nDCSALLEN\nDDEU\nDACCRISPUS\nDDFU\nDAD\nDDGU\nDCAF\nDCB\nDCD\nDBD04122019\nDBB08041985\nDBA05122019\nDBC1\nDAU071 in\nDAYGRY\nDAG225 EAST STATE STREET\nDAITRENTON\nDAJNJ\nDAK08666\nDCFWX201901100000004\nDCGUSA\nDCU\nDCK\nDDAB\nDDB\nDDD\rZNZNAWX\nZNB11.00\nZNCDUP\nZND\nZNE\nZNFGRY\nZNG\nZNH\nZNI\r",
+      "privacyReview": "MVC labels each as a DRAFT sample interim printout. The character name and birth date match its pictured face. All nine display the same agency address.",
+      "applicationResult": {
+        "strict": {
+          "ok": true
+        },
+        "encoder": {
+          "stage": "encode",
+          "reason": "Missing mandatory fields for NJ (v04): Restriction Codes (DCB), Endorsement Codes (DCD)"
+        }
+      },
+      "notes": "The public 2019 MVC interim sample is structurally readable. It uses DDA=B, an empty DDB and at least one empty required privilege field."
+    },
+    {
+      "id": "nj-published-9cec2a06b99e",
+      "jurisdiction": "NJ",
+      "sourceUrl": "https://www.nj.gov/mvc/pdf/about/2019_04.pdf",
+      "sourceSha256": "7791a8b65fc8a2f731c1acd4b12b7549111a012e1bd585c7cee7267c90ef3188",
+      "sourcePage": 10,
+      "byteLength": 323,
+      "sha256": "9cec2a06b99e2c3f40e5d632bc5015f9e3d331e9e383e280b6322ad72e6a4bee",
+      "imageSha256": "9bd74b1f629f79610e176a9e90b43e558793864e807d21cd156021d65550a096",
+      "rawBytesLatin1": "@\n\u001e\rANSI 636036040202DL00410231ZN02720051DLDAQC18426057409893\nDCSCRUZ\nDDEU\nDACJESSICA\nDDFU\nDADJ\nDDGU\nDCAA\nDCB\nDCD\nDBD04122019\nDBB08041985\nDBA05122019\nDBC2\nDAU068 in\nDAYGRN\nDAG225 EAST STATE STREET\nDAITRENTON\nDAJNJ\nDAK08666\nDCFWX201901100000005\nDCGUSA\nDCU\nDCK\nDDAB\nDDB\nDDD\rZNZNAWX\nZNB11.00\nZNCDUP\nZND\nZNE\nZNFGRN\nZNG\nZNH\nZNI\r",
+      "privacyReview": "MVC labels each as a DRAFT sample interim printout. The character name and birth date match its pictured face. All nine display the same agency address.",
+      "applicationResult": {
+        "strict": {
+          "ok": true
+        },
+        "encoder": {
+          "stage": "encode",
+          "reason": "Missing mandatory fields for NJ (v04): Restriction Codes (DCB), Endorsement Codes (DCD)"
+        }
+      },
+      "notes": "The public 2019 MVC interim sample is structurally readable. It uses DDA=B, an empty DDB and at least one empty required privilege field."
+    },
+    {
+      "id": "nj-published-85d48944eb0f",
+      "jurisdiction": "NJ",
+      "sourceUrl": "https://www.njlba.com/pdfs/NJDL-NEW%20LICENSE-TRAINING-2020.pdf",
+      "sourceSha256": "bdbfa3f3f1f3ebaa110b084714c40986bfc771a7c0105783fb17a7ff91ba566b",
+      "sourcePage": 5,
+      "byteLength": 487,
+      "sha256": "85d48944eb0ff4bfe8e2f0337c6cda9a483887a471718e05e81bb682e503d0c0",
+      "imageSha256": "db094d94894c7cfad784a04b49ca95048eb8b31b32fe9cb7f1a09c5cb63a6b66",
+      "rawBytesLatin1": "@\n\u001e\rANSI 636036040002DL00410315ZN03560131DLDAQN29632676304942          \nDCSNEWJERSEY\nDDEU\nDACFORFUN\nDDFU\nDADC\nDDGU\nDCAD     \nDCBZ                   \nDCDNONE    \nDBD07202011\nDBB04121994\nDBA12312014\nDBC1\nDAU063 in\nDAYBRO\nDAG123 ANY STREET                     \nDAIANY TOWN            \nDAJNJ\nDAK086661784  \nDCFST201120100000087        \nDCGUSA\nDDAB\nDDB07232010\rZNZNANM\nZNB11.00\nZNCCHG\nZNFBRN\nZNH88:ECXg4BvNkLtfQn9Zpvk0iUFGAJ/G0eAL1+Jb78/GCEkPrrU4EQqLvjLbHIym/O8QHC1GKxT9HqafZMsCkSfjXQ==;0220;",
+      "privacyReview": "Retail training slide shows a fictitious sample name and placeholder address.",
+      "applicationResult": {
+        "strict": {
+          "ok": false,
+          "error": "Missing segment terminator in ZN; payload may be truncated"
+        },
+        "encoder": {
+          "stage": "encode",
+          "reason": "Invalid field values for NJ (v04): REAL ID / Compliance Type (DDA)"
+        }
+      },
+      "notes": "The older vendor example carries DDA=B and omits its ZN terminator.",
+      "observedProfileReplay": {
+        "fidelity": "canonicalized",
+        "bytes": 488,
+        "sha256": "4ee792c5118be660f54f87d4637f9cc0f4a9ee8b54158bed7ad75a7adbf456b9",
+        "notes": "A final CR and its directory length are the only edits. Historical DDA B is preserved without an assigned meaning."
+      }
+    },
+    {
+      "id": "ia-published-da4b9807a816",
+      "jurisdiction": "IA",
+      "sourceUrl": "https://web.archive.org/web/20230530162545id_/https://www.iowadot.gov/mvd/MM353.pdf",
+      "sourceSha256": "a21ddc25a20a54a84852ee7879dee14539d75a181cbf0b7ca04b2d63f5f1f1e3",
+      "sourcePage": 2,
+      "byteLength": 584,
+      "sha256": "da4b9807a81652f050fe200db8d67894772b59e7ce18613e2edeafb0c2ef36c9",
+      "rawBytesLatin1": "@\n\u001e\rANSI 636018040002DL00410491ZI05320052DLDCAC     \nDCBNONE        \nDCDNONE \nDBA06062014\nDCSSAMPLE                                  \nDACCONNOR                                  \nDAD                                        \nDBD06062009\nDBB06061976\nDBC1\nDAYBRO\nDAU064 in\nDAG123 NORTH MAIN STREET              \nDAHAPT. 1                             \nDAIDES MOINES          \nDAJIA\nDAK503010000  \nDAQ123456789                \nDCF712345676SC1200M140606D  \nDCGUSA\nDDEN\nDDFN\nDDGN\nDCK12345678900000000000     \nDCU     \nDDAF\nDDBMMDDCCYY\nDDD1\n\rZIZIAY\nZIBY\nZICY\nZIDY\nZIE                         \n\r",
+      "imageSha256": "f4c79e6609a4fa487adae8f363625831be99dba64470f973809b6d77a04210ff",
+      "privacyReview": "Printed SAMPLE surname, conspicuous numeric test license number, and fictitious sample address printed openly on the designated demonstration card. Encoded name, sample number, street, city, and state agree with the printed sample; no masked source values.",
+      "independentDirectory": [
+        {
+          "type": "DL",
+          "offset": 41,
+          "length": 491
+        },
+        {
+          "type": "ZI",
+          "offset": 532,
+          "length": 52
+        }
+      ],
+      "independentExpectedFields": {
+        "DCA": "C",
+        "DCB": "NONE",
+        "DCD": "NONE",
+        "DBA": "06062014",
+        "DCS": "SAMPLE",
+        "DAC": "CONNOR",
+        "DAD": "",
+        "DBD": "06062009",
+        "DBB": "06061976",
+        "DBC": "1",
+        "DAY": "BRO",
+        "DAU": "064 in",
+        "DAG": "123 NORTH MAIN STREET",
+        "DAH": "APT. 1",
+        "DAI": "DES MOINES",
+        "DAJ": "IA",
+        "DAK": "503010000",
+        "DAQ": "123456789",
+        "DCF": "712345676SC1200M140606D",
+        "DCG": "USA",
+        "DDE": "N",
+        "DDF": "N",
+        "DDG": "N",
+        "DCK": "12345678900000000000",
+        "DCU": "",
+        "DDA": "F",
+        "DDB": "MMDDCCYY",
+        "DDD": "1",
+        "ZIA": "Y",
+        "ZIB": "Y",
+        "ZIC": "Y",
+        "ZID": "Y",
+        "ZIE": "                         "
+      },
+      "notes": "Iowa DOT MM353 public specimen, PDF page 2. The visibly marked SAMPLE card supplies the input values. Its optional DDB field contains the printed date template MMDDCCYY. Official historical origin https://www.iowadot.gov/mvd/MM353.pdf. Two independent readers decoded the original full public raster. ZXing-C++ bytes and Apple Vision payloadStringValue encoded as ISO-8859-1 produced the same 584 bytes by SHA-256."
+    },
+    {
+      "id": "id-published-2f5618232b36",
+      "jurisdiction": "ID",
+      "sourceUrl": "https://web.archive.org/web/20160416004158id_/http://itd.idaho.gov/dmv/driverservices/documents/CentralIssuanceBrochure.pdf",
+      "sourceSha256": "594236ff0cb801c25b5189d0abfd5bc483c7580d583c83169c41b1169ffaaa84",
+      "sourcePage": 1,
+      "acquisition": "ZXing-C++ 3.1.1 from p1 DeviceCMYK xref 96 converted to RGB and then grayscale, 2x cubic interpolation with a 24-pixel white surround. Apple Vision Latin-1 bytes independently matched the full hash.",
+      "byteLength": 622,
+      "sha256": "2f5618232b36850d64f7e0deae374988f9846f40159509f1aaa597da7379371b",
+      "rawBytesLatin1": " @\n\u001e\rANSI 636050040002DL00410526ZI05670055DLDAQAA123456Z1XY1XY1XY1XY1XY1\nDCSSAMPLE XY1XY1XY1XY1XY1XY1XY1XY1XY1XY1XY1\nDDEU\nDACEMILY XY1XY1XY1XY1XY1XY1XY1XY1XY1XY1XYX1\nDDFU\nDADMIDDLENAME XY1XY1XY1XY1XY1XY1XY1XY1XY1XY\nDDGU\nDCAABCDNA\nDCBABCDEFGHIJKL\nDCDHMNPS\nDBD02012010\nDBB02011974\nDBA02012014\nDBC2\nDAU70 IN\nDAYBRO\nDAG3311 W. STATE STREET XY1XY1XY1XY1XY\nDAIBOISE XY1XY1XY1XY1X1\nDAJID\nDAK83707-1129 \nDCF1223312164641XY1XY1XY1XY1\nDCGUSA\nDCUXY1XY\nDAW140\nDAZBROWN XY1XY1\nDAHAPT. 12 XY1XY1XY1XY1XY1XY1XY1XY1XY1\nDCKXY1XY1XY1XY1XY1XY1XY1XY1X\nDDAF\nDDBMMDDCCYY\nDDCMMDDCCYY\nDDD1\n\rZIZIAU18MMDDCCYY\nZIBU21MMDDCCYY\nZICDONOR\nZIDDU\nZIESIP\n\r",
+      "imageSha256": "bb8137b2401283a45595a3b0be92b34ec8506f6709adf18c7d4d665549d797cf",
+      "privacyReview": "Agency adult temporary specimen. Printed sample surname, sample portrait and intentionally sequential license number and discriminator are extended by synthetic XY1 alternating filler in the symbol. Name, license-number and discriminator prefixes, street/city, postal code, birthday, height, weight, sex and state agree with the sample face. The street is the former Idaho Transportation Department headquarters. The encoded issue and expiry dates, hair and eye colors, and privileges differ from the printed illustration. A second named-field includes a synthetic middle name unlike the front. The specimen does not establish a real personal record.",
+      "independentDirectory": [
+        {
+          "type": "DL",
+          "offset": 41,
+          "length": 526
+        },
+        {
+          "type": "ZI",
+          "offset": 567,
+          "length": 55
+        }
+      ],
+      "independentExpectedFields": {
+        "DAQ": "AA123456Z1XY1XY1XY1XY1XY1",
+        "DCS": "SAMPLE XY1XY1XY1XY1XY1XY1XY1XY1XY1XY1XY1",
+        "DDE": "U",
+        "DAC": "EMILY XY1XY1XY1XY1XY1XY1XY1XY1XY1XY1XYX1",
+        "DDF": "U",
+        "DAD": "MIDDLENAME XY1XY1XY1XY1XY1XY1XY1XY1XY1XY",
+        "DDG": "U",
+        "DCA": "ABCDNA",
+        "DCB": "ABCDEFGHIJKL",
+        "DCD": "HMNPS",
+        "DBD": "02012010",
+        "DBB": "02011974",
+        "DBA": "02012014",
+        "DBC": "2",
+        "DAU": "70 IN",
+        "DAY": "BRO",
+        "DAG": "3311 W. STATE STREET XY1XY1XY1XY1XY",
+        "DAI": "BOISE XY1XY1XY1XY1X1",
+        "DAJ": "ID",
+        "DAK": "83707-1129",
+        "DCF": "1223312164641XY1XY1XY1XY1",
+        "DCG": "USA",
+        "DCU": "XY1XY",
+        "DAW": "140",
+        "DAZ": "BROWN XY1XY1",
+        "DAH": "APT. 12 XY1XY1XY1XY1XY1XY1XY1XY1XY1",
+        "DCK": "XY1XY1XY1XY1XY1XY1XY1XY1X",
+        "DDA": "F",
+        "DDB": "MMDDCCYY",
+        "DDC": "MMDDCCYY",
+        "DDD": "1",
+        "ZIA": "U18MMDDCCYY",
+        "ZIB": "U21MMDDCCYY",
+        "ZIC": "DONOR",
+        "ZID": "DU",
+        "ZIE": "SIP"
+      },
+      "notes": "Historical adult temporary v04 DL specimen; decoded, fails generator validation for DAZ/DDB/DDC and strict framing. See separate provenance for observed spans and optical verification."
+    },
+    {
+      "id": "ia-published-04e1b591c47d",
+      "jurisdiction": "IA",
+      "sourceUrl": "https://web.archive.org/web/20120313100627id_/http://www.iowadot.gov/centralissuance/MM353.pdf",
+      "sourceSha256": "95cd58551b80615057d0ee0324dbeb13640cda79c99272563881494ee329a7f9",
+      "sourcePage": 2,
+      "byteLength": 584,
+      "sha256": "04e1b591c47db185a5b1d8b1904a50d67bb121e6a48935762a0b7f78eaba15a4",
+      "rawBytesLatin1": "@\n\u001e\rANSI 636018040002DL00410491ZI05320052DLDCAC     \nDCBNONE        \nDCDNONE \nDBA06062014\nDCSSAMPLE                                  \nDACHAYLEY                                  \nDAD                                        \nDBD06062009\nDBB06061992\nDBC2\nDAYBRO\nDAU054 in\nDAG123 NORTH MAIN STREET              \nDAHAPT. 1                             \nDAIDES MOINES          \nDAJIA\nDAK503010000  \nDAQ123456789                \nDCF912345672SH1200F140606D  \nDCGUSA\nDDEN\nDDFN\nDDGN\nDCK12345678900000000000     \nDCU     \nDDAF\nDDBMMDDCCYY\nDDD1\n\rZIZIAY\nZIBY\nZICY\nZIDY\nZIEUNDER 21 UNTIL 06062013  \n\r",
+      "imageSha256": "be715f21c5a553a257f5b50b0ada67c15c1fa935b717dba0a64001cab88b9ee5",
+      "privacyReview": "State DOT educational brochure publishes the SAMPLE under-21 temporary credential with dummy card name, demonstration number and address visible, without redaction.",
+      "independentDirectory": [
+        {
+          "type": "DL",
+          "offset": 41,
+          "length": 491
+        },
+        {
+          "type": "ZI",
+          "offset": 532,
+          "length": 52
+        }
+      ],
+      "independentExpectedFields": {
+        "DCA": "C",
+        "DCB": "NONE",
+        "DCD": "NONE",
+        "DBA": "06062014",
+        "DCS": "SAMPLE",
+        "DAC": "HAYLEY",
+        "DAD": "",
+        "DBD": "06062009",
+        "DBB": "06061992",
+        "DBC": "2",
+        "DAY": "BRO",
+        "DAU": "054 in",
+        "DAG": "123 NORTH MAIN STREET",
+        "DAH": "APT. 1",
+        "DAI": "DES MOINES",
+        "DAJ": "IA",
+        "DAK": "503010000",
+        "DAQ": "123456789",
+        "DCF": "912345672SH1200F140606D",
+        "DCG": "USA",
+        "DDE": "N",
+        "DDF": "N",
+        "DDG": "N",
+        "DCK": "12345678900000000000",
+        "DCU": "",
+        "DDA": "F",
+        "DDB": "MMDDCCYY",
+        "DDD": "1",
+        "ZIA": "Y",
+        "ZIB": "Y",
+        "ZIC": "Y",
+        "ZID": "Y",
+        "ZIE": "UNDER 21 UNTIL 06062013  "
+      },
+      "notes": "Iowa DOT MM353 under-21 temporary specimen, PDF page 2. The visibly marked SAMPLE card supplies the input values. Its optional DDB field contains the printed date template MMDDCCYY. Official historical origin http://www.iowadot.gov/centralissuance/MM353.pdf. Source-pixel scoring against the public PDF417 symbol alphabet and Reed-Solomon. The target payload was never supplied. 2012 first-generation xref60 and 2014 xref147 independently recovered the same payload; the 2012 interpretation needed 5 corrected codewords with 64 parity words. Apple Vision and ZXing-C++ agree on the inferred optical image. Gray-sampled region; source crop alone did not decode normally."
+    }
+  ],
   "reobservations": [
     {
       "jurisdiction": "NJ",
@@ -24,6 +640,15 @@
       "payloadSha256": "5b52f1dd72efe73fa906d03bc7468fecbb1850add5865989d221e222d28603eb",
       "byteLength": 252,
       "notes": "Two readers agreed. The legacy header carries the Mississippi IIN. The back differs from the sample fronts and dummy provenance remains unconfirmed. Hash-only record."
+    },
+    {
+      "jurisdiction": "NJ",
+      "sourceUrl": "https://www.njlba.com/pdfs/NJDL-NEW%20LICENSE-TRAINING-2020.pdf",
+      "sourceSha256": "bdbfa3f3f1f3ebaa110b084714c40986bfc771a7c0105783fb17a7ff91ba566b",
+      "page": 5,
+      "payloadSha256": "766c9640b86c3a2b99f857c9dac5c4d3fe21c6793b449d5edf21f75a62af15e2",
+      "byteLength": 350,
+      "notes": "The other specimen on this slide has no confirmed fictitious identity. Only the digest is retained."
     }
   ],
   "anonymizedObservations": [

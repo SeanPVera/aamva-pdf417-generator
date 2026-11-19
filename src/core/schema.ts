@@ -588,6 +588,29 @@ const AGE_THRESHOLD_DATES: AAMVAField[] = [
   { code: "DDJ", label: "Under 21 Until", type: "date" }
 ];
 
+// Annex D, Table D.4 from 2009 through 2026 allows full hair colors or D20 abbreviations.
+const HAIR_COLOR: AAMVAField = {
+  code: "DAZ",
+  label: "Hair Color",
+  type: "string",
+  maxLength: 12,
+  options: [
+    ...AAMVA_FIELD_OPTIONS.DAZ!,
+    ...[
+      "BALD",
+      "BLACK",
+      "BLONDE",
+      "BROWN",
+      "GRAY",
+      "RED",
+      "AUBURN",
+      "SANDY",
+      "WHITE",
+      "UNKNOWN"
+    ].map((value) => ({ value, label: value }))
+  ]
+};
+
 const V04_FIELDS: AAMVAField[] = [
   { code: "DCA", label: "Vehicle Class", type: "string", required: true },
   { code: "DCB", label: "Restriction Codes", type: "string", required: true },
@@ -615,7 +638,7 @@ const V04_FIELDS: AAMVAField[] = [
   { code: "DDG", label: "Middle Name Truncation", type: "string", required: true },
   { code: "DCU", label: "Name Suffix", type: "string" },
   { code: "DAW", label: "Weight (pounds)", type: "string" },
-  { code: "DAZ", label: "Hair Color", type: "string" },
+  HAIR_COLOR,
   { code: "DCL", label: "Race/Ethnicity", type: "string" },
   LEGACY_COMPLIANCE_TYPE,
   { code: "DDB", label: "Card Revision Date", type: "date" },
@@ -680,7 +703,7 @@ const V11_BASE_FIELDS: AAMVAField[] = [
   { code: "DDG", label: "Middle Name Truncation", type: "string", required: true },
   { code: "DCU", label: "Name Suffix", type: "string" },
   { code: "DAW", label: "Weight (pounds)", type: "string" },
-  { code: "DAZ", label: "Hair Color", type: "string" },
+  HAIR_COLOR,
   { code: "DDA", label: "REAL ID / Compliance Type", type: "string" },
   { code: "DDB", label: "Card Revision Date", type: "date" },
   { code: "DDK", label: "Organ Donor Indicator", type: "string" },
@@ -703,26 +726,6 @@ const V12_FIELDS: AAMVAField[] = [
     if (["DDK", "DDL", "DDD"].includes(field.code))
       return { ...field, options: [{ value: "1", label: "1 - Present" }] };
     if (field.code === "DAW") return { ...field, fixedLength: 3, pattern: "^[0-9]{3}$" };
-    if (field.code === "DAZ")
-      return {
-        ...field,
-        maxLength: 12,
-        options: [
-          ...AAMVA_FIELD_OPTIONS.DAZ!,
-          ...[
-            "BALD",
-            "BLACK",
-            "BLONDE",
-            "BROWN",
-            "GRAY",
-            "RED",
-            "AUBURN",
-            "SANDY",
-            "WHITE",
-            "UNKNOWN"
-          ].map((value) => ({ value, label: value }))
-        ]
-      };
     return field;
   }),
   { code: "DCI", label: "Place of Birth", type: "string", maxLength: 33 },
@@ -927,7 +930,7 @@ export const AAMVA_VERSIONS: Record<string, AAMVAVersionDef> = {
       { code: "DDG", label: "Middle Name Truncation", type: "string", required: true },
       { code: "DCU", label: "Name Suffix", type: "string" },
       { code: "DAW", label: "Weight (pounds)", type: "string" },
-      { code: "DAZ", label: "Hair Color", type: "string" },
+      HAIR_COLOR,
       { code: "DCL", label: "Race/Ethnicity", type: "string" },
       LEGACY_COMPLIANCE_TYPE,
       { code: "DDB", label: "Card Revision Date", type: "date" },
@@ -967,7 +970,7 @@ export const AAMVA_VERSIONS: Record<string, AAMVAVersionDef> = {
       { code: "DDG", label: "Middle Name Truncation", type: "string", required: true },
       { code: "DCU", label: "Name Suffix", type: "string" },
       { code: "DAW", label: "Weight (pounds)", type: "string" },
-      { code: "DAZ", label: "Hair Color", type: "string" },
+      HAIR_COLOR,
       { code: "DCL", label: "Race/Ethnicity", type: "string" },
       { code: "DDA", label: "REAL ID / Compliance Type", type: "string" },
       { code: "DDB", label: "Card Revision Date", type: "date" },
@@ -1007,7 +1010,7 @@ export const AAMVA_VERSIONS: Record<string, AAMVAVersionDef> = {
       { code: "DDG", label: "Middle Name Truncation", type: "string", required: true },
       { code: "DCU", label: "Name Suffix", type: "string" },
       { code: "DAW", label: "Weight (pounds)", type: "string" },
-      { code: "DAZ", label: "Hair Color", type: "string" },
+      HAIR_COLOR,
       { code: "DCL", label: "Race/Ethnicity", type: "string" },
       { code: "DDA", label: "REAL ID / Compliance Type", type: "string" },
       { code: "DDB", label: "Card Revision Date", type: "date" },

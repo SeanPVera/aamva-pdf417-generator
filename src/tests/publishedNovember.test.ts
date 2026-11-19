@@ -2,6 +2,7 @@ import { publishedObservations } from "./support/publishedIntake";
 import { createHash } from "node:crypto";
 import { describe, expect, it } from "vitest";
 import intake from "../core/conformance/published/2026-11-19.json";
+import continuation from "../core/conformance/published/2026-11-19-continuation.json";
 import ledger from "../core/conformance/coverage-ledger-2026-11-19.json";
 import { AAMVA_STATES } from "../core/states";
 import { decodeAAMVAFormat, readDirectory, validateAAMVAPayloadStructure } from "../core/decoder";
@@ -52,6 +53,22 @@ describe("November public specimen intake", () => {
           jurisdiction: row.code
         });
       }
+    }
+  });
+
+  it("checks every New Jersey continuation specimen against its original rejection", () => {
+    const cases = continuation.payloads.filter((p) => p.jurisdiction === "NJ");
+    expect(cases).toHaveLength(10);
+    for (const source of cases) {
+      const raw = source.rawBytesLatin1;
+      expect(createHash("sha256").update(raw, "latin1").digest("hex")).toBe(source.sha256);
+      expect(validateAAMVAPayloadStructure(raw, true)).toEqual(source.applicationResult!.strict);
+      const decoded = decodeAAMVAFormat(raw).data!;
+      expect(decoded.state).toBe("NJ");
+      expect(decoded.DDA).toBe("B");
+      expect(() =>
+        generateAAMVAPayload("NJ", "04", getFieldsForStateAndVersion("NJ", "04"), decoded)
+      ).toThrow(source.applicationResult!.encoder.reason);
     }
   });
 

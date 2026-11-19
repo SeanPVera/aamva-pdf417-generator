@@ -71,6 +71,29 @@ describe("Annex D checks from the matching-issuer source audit", () => {
     }
   );
 
+  it.each(["04", "05", "06", "07", "08", "09", "10", "11", "12"])(
+    "preserves full DAZ color names and D20 abbreviations in v%s",
+    (version) => {
+      for (const type of ["DL", "ID"] as const) {
+        const fields = getFieldsForStateAndVersion("ID", version, type);
+        const sample = buildSampleFill(fields, "ID");
+        const generate = (color: string) =>
+          generateAAMVAPayload(
+            "ID",
+            version,
+            fields,
+            { ...sample, DAZ: color },
+            { subfileType: type }
+          );
+        for (const color of ["BROWN", "AUBURN", "BRO"]) {
+          expect(decodeAAMVAFormat(generate(color)).data?.DAZ).toBe(color);
+        }
+        expect(() => generate("BROWN XY1XY1")).toThrow(/DAZ/);
+        expect(() => generate("CHESTNUT")).toThrow(/DAZ/);
+      }
+    }
+  );
+
   it("requires a revision date when the card claims full DHS compliance", () => {
     const fields = getFieldsForStateAndVersion("WV", "09");
     const data = { ...buildSampleFill(fields, "WV"), DDA: "F", DDB: "" };

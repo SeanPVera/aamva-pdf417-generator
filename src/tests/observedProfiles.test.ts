@@ -14,6 +14,7 @@ import { inspectPayload } from "../core/inspect";
 // These public layouts carry date-format text in place of date values. Independent
 // source bytes control every other byte of the comparison, including padding.
 const specimenDateFields: Record<string, string[]> = {
+  "ia-dot-mm353-v04": ["DDB"],
   "de-public-specimen-v09": ["DDB"],
   "in-public-specimen-v04": ["DDB"],
   "ms-public-driver-manual-v10": ["DDB"],
@@ -28,6 +29,16 @@ describe("public-source observed format variants", () => {
       const specimen = publishedObservations.find((payload) => payload.sha256 === hash)!;
       it(`${profile.id} checks the published wire layout ${hash.slice(0, 12)}`, () => {
         expect(specimen).toBeDefined();
+        if (profile.id === "gu-drt-sample-v05") {
+          const raw = specimen.rawBytesLatin1;
+          expect(raw.slice(235)).toBe("THIS IS JUST SAMPLE DATA ");
+          expect(decodeAAMVAFormat(raw).error).toMatch(/Missing segment terminator/);
+          expect(validateAAMVAPayloadStructure(raw, true).ok).toBe(false);
+          const corrected = raw.slice(0, 27) + "0205" + raw.slice(31, 235) + "\r";
+          expect(identifyObservedEncodingProfile(corrected)).toBe(profile.id);
+          expect(validateAAMVAPayloadStructure(corrected, true).ok).toBe(true);
+          return;
+        }
         const decoded = decodeAAMVAFormat(specimen.rawBytesLatin1);
         expect(decoded.error).toBeUndefined();
         const type = decoded.data!.subfileType as "DL" | "ID";
@@ -37,6 +48,28 @@ describe("public-source observed format variants", () => {
           type,
           profile.id
         );
+        if (profile.id === "id-itd-2011-temporary-v04") {
+          const raw = specimen.rawBytesLatin1;
+          expect(identifyObservedEncodingProfile(raw)).toBe(profile.id);
+          expect(validateAAMVAPayloadStructure(raw, true).ok).toBe(false);
+          expect(raw.slice(22, 42)).toBe("DL00410526ZI05670055");
+          const encode = (data: Record<string, string>) =>
+            generateAAMVAPayload("ID", "04", fields, data, { encodingProfileId: profile.id });
+          expect(() => encode(decoded.data!)).toThrow(/DAZ.*DDB.*DDC/);
+          // Native page 1 has 525 DL bytes and 55 ZI bytes, after the leading space.
+          const replacements = { DAZ: "BRO", DDB: "02012010", DDC: "02012014" };
+          let body = raw.slice(42, 567);
+          for (const [code, value] of Object.entries(replacements)) {
+            const marker = "\n" + code + decoded.data![code] + "\n";
+            expect(body.split(marker)).toHaveLength(2);
+            body = body.replace(marker, "\n" + code + value + "\n");
+          }
+          expect(body).toHaveLength(516);
+          const expected = raw.slice(1, 22) + "DL00410516ZI05570055" + body + raw.slice(567);
+          expect(encode({ ...decoded.data!, ...replacements })).toBe(expected);
+          expect(validateAAMVAPayloadStructure(expected, true).ok).toBe(true);
+          return;
+        }
         if (profile.id === "mi-public-specimen-v10") {
           const raw = specimen.rawBytesLatin1;
           expect(identifyObservedEncodingProfile(raw)).toBe(profile.id);
@@ -128,6 +161,13 @@ describe("public-source observed format variants", () => {
             raw.slice(0, 2) + "\x1e" + raw.slice(3, 21) + "00290203" + raw.slice(29)
           );
           expect(validateAAMVAPayloadStructure(raw, true).ok).toBe(false);
+          expect(validateAAMVAPayloadStructure(result, true).ok).toBe(true);
+        } else if (profile.id === "nj-training-previous-v04") {
+          const raw = specimen.rawBytesLatin1;
+          expect(raw.slice(31, 41)).toBe("ZN03560131");
+          expect(decoded.data!.DDA).toBe("B");
+          expect(validateAAMVAPayloadStructure(raw, true).ok).toBe(false);
+          expect(result).toBe(raw.slice(0, 37) + "0132" + raw.slice(41) + "\r");
           expect(validateAAMVAPayloadStructure(result, true).ok).toBe(true);
         } else expect(result).toBe(specimen.rawBytesLatin1);
         expect(identifyObservedEncodingProfile(specimen.rawBytesLatin1)).toBe(profile.id);

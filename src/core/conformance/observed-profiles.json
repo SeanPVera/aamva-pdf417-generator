@@ -5,11 +5,7 @@
     "iin": "636000",
     "version": "10",
     "subfileTypes": ["DL", "ID"],
-    "notes": [
-      "Public specimen layout; this profile does not establish current issuance practice.",
-      "Published ID cards retain driving-privilege elements as NONE; modern generic ID schema omits them.",
-      "DDC=00000000 is retained as an observed absence sentinel."
-    ],
+    "notes": ["ID retains driving fields as NONE. DDC=00000000 means absent in this specimen."],
     "encoding": {
       "jurisdictionVersion": "02",
       "elementOrder": [
@@ -611,10 +607,7 @@
     "iin": "636054",
     "version": "11",
     "subfileTypes": ["DL"],
-    "notes": [
-      "Public specimen layout; this profile does not establish current issuance practice.",
-      "The source carries DCL although CDS 2025 reserves that code. This profile records the conflict."
-    ],
+    "notes": ["The sample includes DCL, reserved in v11."],
     "encoding": {
       "jurisdictionVersion": "01",
       "elementOrder": [
@@ -713,10 +706,7 @@
     "iin": "636010",
     "version": "09",
     "subfileTypes": ["DL"],
-    "notes": [
-      "Public specimen layout; this profile does not establish current issuance practice.",
-      "The published barcode omits DAY. This is an explicit issuer-sample compatibility exception."
-    ],
+    "notes": ["The published specimen omits DAY."],
     "encoding": {
       "jurisdictionVersion": "00",
       "elementOrder": [
@@ -1156,10 +1146,7 @@
     "iin": "636022",
     "version": "09",
     "subfileTypes": ["DL"],
-    "notes": [
-      "Government SAMPLE publication. Source bytes remain unchanged.",
-      "High-resolution copy rehosted by marcdacosta/clearid. Government document origin is corroborated by the Kansas State Library publication; original legislature URL now returns 404. The library copy has different file bytes and lower-resolution artwork."
-    ],
+    "notes": ["Published Kansas specimen. The acquisition record documents its rehost."],
     "encoding": {
       "jurisdictionVersion": "00",
       "elementOrder": [
@@ -1233,10 +1220,7 @@
     "iin": "636030",
     "version": "05",
     "subfileTypes": ["DL"],
-    "notes": [
-      "Government SAMPLE publication. Source bytes remain unchanged.",
-      "Historical DDA=B and DDB=00000000 are retained in an explicit compatibility profile. The meaning of B is unverified; the zero revision date is not treated as a known calendar date."
-    ],
+    "notes": ["The published B and zero-date values are specific to this layout."],
     "encoding": {
       "jurisdictionVersion": "01",
       "elementOrder": [
@@ -1372,11 +1356,7 @@
     "iin": "636025",
     "version": "08",
     "subfileTypes": ["DL"],
-    "notes": [
-      "Government SAMPLE publication. Source bytes remain unchanged.",
-      "Government publication PUB 802 (7-17), recovered through Internet Archive capture dated 2020-10-17. Live source paths are unavailable.",
-      "Source ZP contains an extra segment terminator before ZPD. The positive fixture will explicitly canonicalize that framing byte and update the directory length; raw source remains unchanged in intake."
-    ],
+    "notes": ["Published layout with a documented ZP terminator correction."],
     "encoding": {
       "jurisdictionVersion": "00",
       "elementOrder": [
@@ -1458,9 +1438,7 @@
     "iin": "636005",
     "version": "01",
     "subfileTypes": ["DL"],
-    "notes": [
-      "Public retailer specimen uses the historical 19-byte header and numeric sex code. Source 0x1c record separator and inconsistent directory are preserved in intake; the canonicalized fixture repairs only framing. Numeric sex interpretation remains scoped to the published specimen."
-    ],
+    "notes": ["Retail specimen with a legacy header, separator and numeric sex code."],
     "encoding": {
       "legacyHeader": true,
       "jurisdictionVersion": "",
@@ -1829,10 +1807,7 @@
     "iin": "636020",
     "version": "10",
     "subfileTypes": ["DL"],
-    "notes": [
-      "Anonymized issued Colorado DL layout. Default CO generation is unchanged; this profile is opt-in via encodingProfileId.",
-      "Carries DCL (excluded by default CO rules) and DCJ; DAU unit left as typed via preserveValueCase."
-    ],
+    "notes": ["Anonymized Colorado DL. Carries DCL and DCJ. DAU preserves the source unit’s case."],
     "encoding": {
       "jurisdictionVersion": "01",
       "elementOrder": [
@@ -1904,11 +1879,7 @@
     "iin": "636041",
     "version": "09",
     "subfileTypes": ["ID"],
-    "notes": [
-      "Anonymized issued Maine ID card layout. Default ME generation is unchanged; this profile is opt-in via encodingProfileId.",
-      "Observed on an identification card only; nothing here is evidence about Maine driver's licenses.",
-      "Writes the ZM subfile even when ZMA is empty, as the source card does."
-    ],
+    "notes": ["Anonymized Maine ID only. Its ZM subfile is present even with an empty ZMA."],
     "encoding": {
       "jurisdictionVersion": "00",
       "elementOrder": [
@@ -2588,5 +2559,480 @@
     "optionalFields": [],
     "excludedFields": [],
     "emitEmptyFields": ["DCA", "DCB", "DCD", "DAU", "DAY", "DCF", "DCG"]
+  },
+  {
+    "id": "or-deq-sample-v09",
+    "state": "OR",
+    "iin": "636029",
+    "version": "09",
+    "subfileTypes": ["DL"],
+    "notes": [],
+    "encoding": {
+      "jurisdictionVersion": "03",
+      "elementOrder": [
+        "DAQ",
+        "DAC",
+        "DAD",
+        "DCS",
+        "DCU",
+        "DAG",
+        "DAH",
+        "DAI",
+        "DAJ",
+        "DAK",
+        "DCA",
+        "DCB",
+        "DCD",
+        "DBB",
+        "DAU",
+        "DAW",
+        "DAY",
+        "DBC",
+        "DBD",
+        "DBA",
+        "DCF",
+        "DCG",
+        "DCK",
+        "DDE",
+        "DDF",
+        "DDG",
+        "DDH",
+        "DDJ",
+        "DDK",
+        "DDL",
+        "DDA",
+        "DDB",
+        "DDD"
+      ],
+      "fieldWidths": {
+        "DAK": 11
+      },
+      "omitFinalSeparator": false,
+      "preserveValueCase": ["DAU"],
+      "jurisdictionSubfile": {
+        "type": "ZO",
+        "elements": [
+          {
+            "code": "ZOA",
+            "label": "ZOA (source element)"
+          }
+        ]
+      }
+    },
+    "extraFields": [],
+    "optionalFields": [],
+    "excludedFields": [],
+    "emitEmptyFields": ["DAH", "DDH", "DDJ", "DDD"]
+  },
+  {
+    "id": "mn-dvs-2004-v01",
+    "state": "MN",
+    "iin": "636038",
+    "version": "01",
+    "subfileTypes": ["DL"],
+    "notes": [],
+    "encoding": {
+      "jurisdictionVersion": "",
+      "elementOrder": ["DAQ", "DAA", "DBB"],
+      "fieldWidths": {
+        "DAA": 32
+      },
+      "omitFinalSeparator": false,
+      "legacyHeader": true
+    },
+    "extraFields": [],
+    "optionalFields": [],
+    "excludedFields": [
+      "DAG",
+      "DAH",
+      "DAI",
+      "DAJ",
+      "DAK",
+      "DAR",
+      "DAS",
+      "DAT",
+      "DBA",
+      "DBC",
+      "DBD",
+      "DAU",
+      "DAY",
+      "DAW"
+    ],
+    "emitEmptyFields": []
+  },
+  {
+    "id": "hi-honolulu-2026-v10",
+    "state": "HI",
+    "iin": "636047",
+    "version": "10",
+    "subfileTypes": ["DL"],
+    "notes": [],
+    "encoding": {
+      "jurisdictionVersion": "01",
+      "elementOrder": [
+        "DAQ",
+        "DCS",
+        "DDE",
+        "DAC",
+        "DDF",
+        "DAD",
+        "DDG",
+        "DCA",
+        "DCB",
+        "DCD",
+        "DBD",
+        "DBB",
+        "DBA",
+        "DBC",
+        "DAU",
+        "DAY",
+        "DAG",
+        "DAI",
+        "DAJ",
+        "DAK",
+        "DCF",
+        "DCG",
+        "DCK",
+        "DDA",
+        "DDB",
+        "DAZ",
+        "DAW",
+        "DDJ"
+      ],
+      "fieldWidths": {
+        "DAG": 14,
+        "DAK": 11
+      },
+      "omitFinalSeparator": true,
+      "preserveValueCase": ["DAU"],
+      "jurisdictionSubfile": {
+        "type": "ZA",
+        "elements": [
+          {
+            "code": "ZHA",
+            "label": "ZHA (source element)"
+          },
+          {
+            "code": "ZHC",
+            "label": "ZHC (source element)"
+          }
+        ]
+      }
+    },
+    "extraFields": [],
+    "optionalFields": [],
+    "excludedFields": [],
+    "emitEmptyFields": []
+  },
+  {
+    "id": "gu-drt-sample-v05",
+    "state": "GU",
+    "iin": "636019",
+    "version": "05",
+    "subfileTypes": ["DL"],
+    "notes": [],
+    "encoding": {
+      "jurisdictionVersion": "00",
+      "elementOrder": [
+        "DCA",
+        "DCB",
+        "DCD",
+        "DBA",
+        "DCS",
+        "DAC",
+        "DAD",
+        "DBD",
+        "DBB",
+        "DBC",
+        "DAY",
+        "DAU",
+        "DAG",
+        "DAI",
+        "DAJ",
+        "DAK",
+        "DAQ",
+        "DCF",
+        "DCG",
+        "DDE",
+        "DDF",
+        "DDG"
+      ],
+      "fieldWidths": {},
+      "omitFinalSeparator": true,
+      "preserveValueCase": ["DAU"],
+      "padPostalCode": false
+    },
+    "extraFields": [],
+    "optionalFields": [],
+    "excludedFields": [],
+    "emitEmptyFields": []
+  },
+  {
+    "id": "nj-training-previous-v04",
+    "state": "NJ",
+    "iin": "636036",
+    "version": "04",
+    "subfileTypes": ["DL"],
+    "notes": ["DDA=B has unverified meaning. The published ZN lacks its final carriage return."],
+    "encoding": {
+      "jurisdictionVersion": "00",
+      "elementOrder": [
+        "DAQ",
+        "DCS",
+        "DDE",
+        "DAC",
+        "DDF",
+        "DAD",
+        "DDG",
+        "DCA",
+        "DCB",
+        "DCD",
+        "DBD",
+        "DBB",
+        "DBA",
+        "DBC",
+        "DAU",
+        "DAY",
+        "DAG",
+        "DAI",
+        "DAJ",
+        "DAK",
+        "DCF",
+        "DCG",
+        "DDA",
+        "DDB"
+      ],
+      "fieldWidths": {
+        "DAQ": 25,
+        "DCA": 6,
+        "DCB": 20,
+        "DCD": 8,
+        "DAG": 35,
+        "DAI": 20,
+        "DAK": 11,
+        "DCF": 25
+      },
+      "omitFinalSeparator": true,
+      "jurisdictionSubfile": {
+        "type": "ZN",
+        "elements": [
+          {
+            "code": "ZNA",
+            "label": "ZNA (source element)"
+          },
+          {
+            "code": "ZNB",
+            "label": "ZNB (source element)"
+          },
+          {
+            "code": "ZNC",
+            "label": "ZNC (source element)"
+          },
+          {
+            "code": "ZNF",
+            "label": "ZNF (source element)"
+          },
+          {
+            "code": "ZNH",
+            "label": "ZNH (source element)"
+          }
+        ]
+      },
+      "preserveValueCase": ["DAU"]
+    },
+    "extraFields": [
+      {
+        "code": "DDA",
+        "label": "Compliance type (historical New Jersey layout)",
+        "type": "string",
+        "options": [
+          {
+            "value": "F",
+            "label": "Fully compliant"
+          },
+          {
+            "value": "N",
+            "label": "Non-compliant"
+          },
+          {
+            "value": "M",
+            "label": "Materially compliant"
+          },
+          {
+            "value": "B",
+            "label": "B (observed, meaning unverified)"
+          }
+        ]
+      }
+    ],
+    "optionalFields": [],
+    "excludedFields": [],
+    "emitEmptyFields": []
+  },
+  {
+    "id": "ia-dot-mm353-v04",
+    "state": "IA",
+    "iin": "636018",
+    "version": "04",
+    "subfileTypes": ["DL"],
+    "notes": ["The Iowa samples use a DDB date template."],
+    "encoding": {
+      "jurisdictionVersion": "00",
+      "elementOrder": [
+        "DCA",
+        "DCB",
+        "DCD",
+        "DBA",
+        "DCS",
+        "DAC",
+        "DAD",
+        "DBD",
+        "DBB",
+        "DBC",
+        "DAY",
+        "DAU",
+        "DAG",
+        "DAH",
+        "DAI",
+        "DAJ",
+        "DAK",
+        "DAQ",
+        "DCF",
+        "DCG",
+        "DDE",
+        "DDF",
+        "DDG",
+        "DCK",
+        "DCU",
+        "DDA",
+        "DDB",
+        "DDD"
+      ],
+      "fieldWidths": {
+        "DCA": 6,
+        "DCB": 12,
+        "DCD": 5,
+        "DCS": 40,
+        "DAC": 40,
+        "DAD": 40,
+        "DAG": 35,
+        "DAH": 35,
+        "DAI": 20,
+        "DAK": 11,
+        "DAQ": 25,
+        "DCF": 25,
+        "DCK": 25,
+        "DCU": 5
+      },
+      "preserveValueCase": ["DAU"],
+      "omitFinalSeparator": false,
+      "jurisdictionSubfile": {
+        "type": "ZI",
+        "elements": [
+          {
+            "code": "ZIA",
+            "label": "ZIA (source element)"
+          },
+          {
+            "code": "ZIB",
+            "label": "ZIB (source element)"
+          },
+          {
+            "code": "ZIC",
+            "label": "ZIC (source element)"
+          },
+          {
+            "code": "ZID",
+            "label": "ZID (source element)"
+          },
+          {
+            "code": "ZIE",
+            "label": "ZIE (source element)"
+          }
+        ]
+      }
+    },
+    "extraFields": [],
+    "optionalFields": ["DAD"],
+    "excludedFields": [],
+    "emitEmptyFields": ["DAD", "DCU"]
+  },
+  {
+    "id": "id-itd-2011-temporary-v04",
+    "state": "ID",
+    "iin": "636050",
+    "version": "04",
+    "subfileTypes": ["DL"],
+    "notes": ["Temporary sample with invalid fields and directory."],
+    "encoding": {
+      "jurisdictionVersion": "00",
+      "elementOrder": [
+        "DAQ",
+        "DCS",
+        "DDE",
+        "DAC",
+        "DDF",
+        "DAD",
+        "DDG",
+        "DCA",
+        "DCB",
+        "DCD",
+        "DBD",
+        "DBB",
+        "DBA",
+        "DBC",
+        "DAU",
+        "DAY",
+        "DAG",
+        "DAI",
+        "DAJ",
+        "DAK",
+        "DCF",
+        "DCG",
+        "DCU",
+        "DAW",
+        "DAZ",
+        "DAH",
+        "DCK",
+        "DDA",
+        "DDB",
+        "DDC",
+        "DDD"
+      ],
+      "fieldWidths": {
+        "DAK": 11
+      },
+      "omitFinalSeparator": false,
+      "jurisdictionSubfile": {
+        "type": "ZI",
+        "elements": [
+          {
+            "code": "ZIA",
+            "label": "ZIA (source element)"
+          },
+          {
+            "code": "ZIB",
+            "label": "ZIB (source element)"
+          },
+          {
+            "code": "ZIC",
+            "label": "ZIC (source element)"
+          },
+          {
+            "code": "ZID",
+            "label": "ZID (source element)"
+          },
+          {
+            "code": "ZIE",
+            "label": "ZIE (source element)"
+          }
+        ]
+      }
+    },
+    "extraFields": [],
+    "optionalFields": [],
+    "excludedFields": [],
+    "emitEmptyFields": [],
+    "preservePostalHyphen": true
   }
 ]
