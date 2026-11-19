@@ -23,12 +23,11 @@ Only `published` and `issued` count as evidence about the outside world. The
 schema and the rules below are enforced by
 `src/tests/conformanceProvenance.test.ts`.
 
-Fifteen jurisdictions now have external reference layouts: AR, CO, CT, FL, GA,
-IL, KS, MO, MT, NE, NY, PA, SC, VA, and WA. The 29 references comprise 24
-unmodified source payloads, two anonymized issued layouts, and three
-canonicalized layouts. The ratchet is 15/55. Forty jurisdictions still lack
-a passing external fixture. Scope and source qualifications appear in the
-[October 31 ledger](COVERAGE-2026-10-31.md).
+The corpus has 35 passing external references in 19 of the 55 jurisdictions.
+They include 28 unmodified public payloads, four anonymized issued layouts, and
+three canonicalized layouts. The [November 19 ledger](COVERAGE-2026-11-19.md)
+identifies the edition, document type, source fidelity, and outstanding evidence
+for each jurisdiction.
 
 Named variants live in `observed-profiles.json`, with separate source evidence
 in `observed-profile-provenance.json`. Supply `encodingProfileId` to both schema
@@ -67,11 +66,10 @@ Current coverage — run any time, and printed in CI:
 npm run conformance:report
 ```
 
-The [published specimen intake](published/README.md) records 41 independently
-scanned public payload observations across the October 25, October 31, and
-October 31 continuation manifests. The manifests preserve original source bytes. Invalid published
-placeholders and quarantined source conflicts remain outside positive encoder
-references. Canonicalized vectors list byte offsets and exact framing edits.
+The [published specimen intake](published/README.md) retains 47 distinct payloads
+from publications labelled for 27 jurisdictions. Each manifest preserves the
+original decoded bytes. The coverage ledger records rejection reasons and any
+edits used for a canonicalized fixture.
 
 Version 12 uses the AAMVA 2026 field tables and supports Latin-1 wire bytes,
 SIG/SCV validation, canonicalization, and supplied-key ECDSA verification.

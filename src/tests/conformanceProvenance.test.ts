@@ -15,13 +15,10 @@ import {
  * vector. This is a ratchet, not a target: raise it when real-world vectors are
  * added so the corpus can never quietly lose evidence it once had.
  *
- * Colorado, Connecticut, Maine (an ID card) and New York have issued-derived
- * references; Arkansas, Georgia and Illinois have independently scanned
- * published samples. Other jurisdictions have either synthetic baselines or no
- * passing reference. Coverage applies to the observed layouts, not every
- * edition or document type issued by these jurisdictions.
+ * Count each jurisdiction once, regardless of how many editions or sources
+ * it contributes. Format coverage for other editions remains open.
  */
-const MIN_REAL_WORLD_JURISDICTIONS = 16;
+const MIN_REAL_WORLD_JURISDICTIONS = 19;
 
 describe("conformance vector provenance", () => {
   const vectors = loadVectors();
@@ -51,7 +48,7 @@ describe("conformance vector provenance", () => {
   it("keeps source-byte parity distinct from transformed layouts", () => {
     const report = computeCoverage(vectors, Object.keys(AAMVA_STATES));
     expect(report.byFidelity).toEqual({
-      "unmodified-source": 24,
+      "unmodified-source": 28,
       anonymized: 4,
       canonicalized: 3
     });

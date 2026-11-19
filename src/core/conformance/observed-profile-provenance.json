@@ -240,5 +240,46 @@
     "id": "me-issued-v09",
     "sourcePayloadHashes": [],
     "sourceRecords": []
+  },
+  {
+    "id": "ca-dmv-verification-v10",
+    "sourcePayloadHashes": [
+      "4d09012cc25c537226b9af6beb46d28e6c59f44fda7145fbaeaea9197bc94542",
+      "d54b566571459b8510cf9fb58d9efc90106d10a5ac2ec643eac41315c1c57aee"
+    ],
+    "sourceRecords": [
+      {
+        "url": "https://www.dmv.ca.gov/portal/file/verifying-digital-signatures-on-california-dlid-documents-pdf/",
+        "sourceSha256": "ba52b1da468714d914196de1a845aaec2c83ed2e7265041c5c7c3d6670956b48",
+        "payloadSha256": "4d09012cc25c537226b9af6beb46d28e6c59f44fda7145fbaeaea9197bc94542"
+      },
+      {
+        "url": "https://www.dmv.ca.gov/portal/file/verifying-digital-signatures-on-california-dlid-documents-pdf/",
+        "sourceSha256": "ba52b1da468714d914196de1a845aaec2c83ed2e7265041c5c7c3d6670956b48",
+        "payloadSha256": "d54b566571459b8510cf9fb58d9efc90106d10a5ac2ec643eac41315c1c57aee"
+      }
+    ]
+  },
+  {
+    "id": "ok-dps-manual-v01",
+    "sourcePayloadHashes": ["b7174a9ba162dc72d55c89766aced25401c3b7602efba16f61813618a4c8f2c5"],
+    "sourceRecords": [
+      {
+        "url": "https://digitalprairie.ok.gov/digital/api/collection/stgovpub/id/5975/download",
+        "sourceSha256": "e007acb1fc73a1242635aba5884f7648a90ef90ae7d37713500576d8e5bbf12c",
+        "payloadSha256": "b7174a9ba162dc72d55c89766aced25401c3b7602efba16f61813618a4c8f2c5"
+      }
+    ]
+  },
+  {
+    "id": "tx-dps-2009-v03",
+    "sourcePayloadHashes": ["67b82bc50a6d38efa8a464c368ec5bfc243000081f25656d45c5194e239e146f"],
+    "sourceRecords": [
+      {
+        "url": "https://hf-files-oregon.s3.amazonaws.com/hdpgetacvideo_kb_attachments/2025/09-08/5fd6c745-a70f-42cf-bf10-17d7248cc0f8/Texas_DL_Sample.pdf",
+        "sourceSha256": "adca41293d9419cd56a4776552e2a065a0ee53aee0200a6398ccb26cec88c35c",
+        "payloadSha256": "67b82bc50a6d38efa8a464c368ec5bfc243000081f25656d45c5194e239e146f"
+      }
+    ]
   }
 ]

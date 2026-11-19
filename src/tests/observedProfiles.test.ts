@@ -1,7 +1,6 @@
+import { publishedObservations } from "./support/publishedIntake";
 import { describe, expect, it } from "vitest";
 import intake from "../core/conformance/published/2026-10-25.json";
-import additions from "../core/conformance/published/2026-10-31.json";
-import continuation from "../core/conformance/published/2026-10-31-continuation.json";
 import profileProvenance from "../core/conformance/observed-profile-provenance.json";
 import {
   OBSERVED_ENCODING_PROFILES,
@@ -16,9 +15,7 @@ describe("public-source observed format variants", () => {
   for (const profile of OBSERVED_ENCODING_PROFILES) {
     for (const hash of profileProvenance.find((source) => source.id === profile.id)!
       .sourcePayloadHashes) {
-      const specimen = [...intake.payloads, ...additions.payloads, ...continuation.payloads].find(
-        (payload) => payload.sha256 === hash
-      )!;
+      const specimen = publishedObservations.find((payload) => payload.sha256 === hash)!;
       it(`${profile.id} reproduces independently decoded ${hash.slice(0, 12)} bytes`, () => {
         expect(specimen).toBeDefined();
         const decoded = decodeAAMVAFormat(specimen.rawBytesLatin1);
@@ -89,6 +86,23 @@ describe("public-source observed format variants", () => {
         (field) => field.code === "DCA"
       )
     ).toBe(true);
+  });
+  it("recognizes the two documented Georgia secondary layouts and rejects a partial suffix", () => {
+    const raw = publishedObservations.find((p) =>
+      p.sha256.startsWith("47ddb17df100")
+    )!.rawBytesLatin1;
+    const shorter = publishedObservations.find((p) =>
+      p.sha256.startsWith("be90490c2643")
+    )!.rawBytesLatin1;
+    for (const source of [raw, shorter]) {
+      expect(identifyObservedEncodingProfile(source)).toBe("ga-2012-version06");
+    }
+    // Remove only the last secondary element and correct the length in the directory.
+    const partial = raw.replace(/\nZGL[^\n\r]*/, "");
+    const length = Number(raw.slice(37, 41)) - (raw.length - partial.length);
+    const updated = partial.slice(0, 37) + String(length).padStart(4, "0") + partial.slice(41);
+    expect(validateAAMVAPayloadStructure(updated, true).ok).toBe(true);
+    expect(identifyObservedEncodingProfile(updated)).toBeUndefined();
   });
   it("only recognizes source layouts when issuer and padded widths agree", () => {
     const source = intake.payloads.find(

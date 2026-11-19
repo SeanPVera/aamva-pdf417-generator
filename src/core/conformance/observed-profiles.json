@@ -312,7 +312,8 @@
     "emitEmptyFields": [],
     "retainDrivingFieldsOnId": false,
     "preservePostalHyphen": false,
-    "allowValues": {}
+    "allowValues": {},
+    "optionalOrderGroups": [["ZGI", "ZGJ", "ZGK", "ZGL"]]
   },
   {
     "id": "ga-2013-interim",
@@ -1952,5 +1953,219 @@
     "optionalFields": [],
     "excludedFields": [],
     "emitEmptyFields": ["ZMA"]
+  },
+  {
+    "id": "ca-dmv-verification-v10",
+    "state": "CA",
+    "iin": "636014",
+    "version": "10",
+    "subfileTypes": ["DL"],
+    "notes": [
+      "California DMV 2025 design test publication. ZCE is preserved as supplied verification data."
+    ],
+    "encoding": {
+      "jurisdictionVersion": "01",
+      "elementOrder": [
+        "DAQ",
+        "DCS",
+        "DDE",
+        "DAC",
+        "DDF",
+        "DAD",
+        "DDG",
+        "DCA",
+        "DCB",
+        "DCD",
+        "DBD",
+        "DBB",
+        "DBA",
+        "DBC",
+        "DAU",
+        "DAY",
+        "DAG",
+        "DAI",
+        "DAJ",
+        "DAK",
+        "DCF",
+        "DCG",
+        "DAZ",
+        "DAW",
+        "DCU",
+        "DCK",
+        "DDA",
+        "DDB"
+      ],
+      "fieldWidths": {
+        "DAK": 11
+      },
+      "omitFinalSeparator": true,
+      "jurisdictionSubfile": {
+        "type": "ZC",
+        "elements": [
+          {
+            "code": "ZCA",
+            "label": "ZCA (source element)"
+          },
+          {
+            "code": "ZCB",
+            "label": "ZCB (source element)"
+          },
+          {
+            "code": "ZCC",
+            "label": "ZCC (source element)"
+          },
+          {
+            "code": "ZCD",
+            "label": "ZCD (source element)"
+          },
+          {
+            "code": "ZCE",
+            "label": "Published verification data (ZCE)"
+          }
+        ]
+      }
+    },
+    "extraFields": [],
+    "optionalFields": [],
+    "excludedFields": [],
+    "emitEmptyFields": ["ZCC", "ZCD"],
+    "optionalOrderGroups": [["DCU"]]
+  },
+  {
+    "id": "ok-dps-manual-v01",
+    "state": "OK",
+    "iin": "636058",
+    "version": "01",
+    "subfileTypes": ["DL"],
+    "notes": ["2003-era Oklahoma DPS test back with a legacy header and padded privilege fields."],
+    "encoding": {
+      "jurisdictionVersion": "",
+      "elementOrder": [
+        "DAQ",
+        "DAA",
+        "DAG",
+        "DAI",
+        "DAJ",
+        "DAK",
+        "DAR",
+        "DAS",
+        "DAT",
+        "DBA",
+        "DBB",
+        "DBC",
+        "DBD",
+        "DAU",
+        "DAW",
+        "DAY",
+        "DBH"
+      ],
+      "fieldWidths": {
+        "DAK": 11,
+        "DAR": 4,
+        "DAS": 10,
+        "DAT": 5
+      },
+      "omitFinalSeparator": true,
+      "jurisdictionSubfile": {
+        "type": "ZO",
+        "elements": [
+          {
+            "code": "ZOA",
+            "label": "ZOA (source element)"
+          }
+        ]
+      },
+      "legacyHeader": true
+    },
+    "extraFields": [
+      {
+        "code": "DBH",
+        "label": "DBH (historical source)",
+        "type": "char"
+      }
+    ],
+    "optionalFields": [],
+    "excludedFields": [],
+    "emitEmptyFields": ["DAS", "DAT"]
+  },
+  {
+    "id": "tx-dps-2009-v03",
+    "state": "TX",
+    "iin": "636015",
+    "version": "03",
+    "subfileTypes": ["DL"],
+    "notes": [
+      "Texas DPS 2009 brochure. The given names use DCT. The privilege fields and names retain the observed fixed-width space fill."
+    ],
+    "encoding": {
+      "jurisdictionVersion": "00",
+      "elementOrder": [
+        "DCA",
+        "DCB",
+        "DCD",
+        "DBA",
+        "DCS",
+        "DCT",
+        "DBD",
+        "DBB",
+        "DBC",
+        "DAY",
+        "DAU",
+        "DAG",
+        "DAI",
+        "DAJ",
+        "DAK",
+        "DAQ",
+        "DCF",
+        "DCG",
+        "DCH",
+        "DAZ",
+        "DCU"
+      ],
+      "fieldWidths": {
+        "DCA": 4,
+        "DCD": 5,
+        "DCS": 40,
+        "DCT": 80,
+        "DAG": 35,
+        "DAI": 20,
+        "DAK": 11,
+        "DAQ": 25,
+        "DCF": 25,
+        "DCU": 5
+      },
+      "omitFinalSeparator": false,
+      "jurisdictionSubfile": {
+        "type": "ZT",
+        "elements": [
+          {
+            "code": "ZTA",
+            "label": "ZTA (source element)"
+          },
+          {
+            "code": "ZTB",
+            "label": "ZTB (source element)"
+          }
+        ]
+      },
+      "preserveValueCase": ["DAU"]
+    },
+    "extraFields": [
+      {
+        "code": "DCT",
+        "label": "Given names",
+        "type": "string",
+        "required": true,
+        "maxLength": 80
+      },
+      {
+        "code": "DCH",
+        "label": "DCH (source edition)",
+        "type": "string"
+      }
+    ],
+    "optionalFields": [],
+    "excludedFields": ["DAC"],
+    "emitEmptyFields": ["DCU"]
   }
 ]

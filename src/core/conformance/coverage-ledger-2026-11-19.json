@@ -1,0 +1,1790 @@
+{
+  "asOf": "2026-11-19",
+  "startingMain": "887ccccbbaa1a72407ef2fff9a538728c0137e5a",
+  "octoberLedger": "coverage-ledger-2026-10-31.json",
+  "startingExternalJurisdictions": 16,
+  "newPassingJurisdictions": ["CA", "OK", "TX"],
+  "counts": {
+    "totalJurisdictions": 55,
+    "withExternalReferences": 19,
+    "withoutExternalReferences": 36,
+    "withUnmodifiedSource": 15,
+    "externalReferences": 35,
+    "byFidelity": {
+      "unmodified-source": 28,
+      "anonymized": 4,
+      "canonicalized": 3
+    },
+    "editionDocumentCombinations": 23,
+    "sourcePayloads": 47,
+    "publicationJurisdictions": 27,
+    "parserAccepted": 42,
+    "publishedOutcomes": {
+      "canonicalized-match": 2,
+      "field-rejected": 12,
+      "parser-rejected": 3,
+      "quarantined": 2,
+      "source-exact": 28
+    },
+    "issuerV12References": 0
+  },
+  "research": {
+    "octoberOpenJurisdictionsSearched": 40,
+    "fetchRecords": 461,
+    "distinctUrls": 425,
+    "distinctPdfAndImageFilesRetrieved": 264,
+    "distinctFilesWithExaminedRasters": 264,
+    "countingRule": "Source URL and file SHA-256 counts have different denominators. Large manuals were searched and selected pages scanned. Grouped scanner batches include repeated and transformed artwork."
+  },
+  "jurisdictions": [
+    {
+      "code": "AL",
+      "name": "Alabama",
+      "iin": "636033",
+      "configuredVersion": "09",
+      "status": "no qualifying public payload recovered",
+      "note": "The reviewed public sources did not yield a verified matching payload.",
+      "externalReferences": [],
+      "unmodifiedCount": 0,
+      "observedEditions": [],
+      "publishedObservations": [],
+      "wasOpenOctober31": true,
+      "presentOnStartingMain": false,
+      "novemberResearch": {
+        "requests": 5,
+        "uniqueUrls": 5,
+        "mediaSuccessfullyRead": 3,
+        "requestsWithFindings": 0
+      }
+    },
+    {
+      "code": "AK",
+      "name": "Alaska",
+      "iin": "636059",
+      "configuredVersion": "09",
+      "status": "candidate issuer conflict",
+      "note": "The state rollout brochure carries a West Virginia issuer and an Indiana address.",
+      "externalReferences": [],
+      "unmodifiedCount": 0,
+      "observedEditions": [],
+      "publishedObservations": [],
+      "wasOpenOctober31": true,
+      "presentOnStartingMain": false,
+      "novemberResearch": {
+        "requests": 7,
+        "uniqueUrls": 6,
+        "mediaSuccessfullyRead": 3,
+        "requestsWithFindings": 4
+      }
+    },
+    {
+      "code": "AZ",
+      "name": "Arizona",
+      "iin": "636026",
+      "configuredVersion": "10",
+      "status": "no qualifying public payload recovered",
+      "note": "The NIST pollbook prop displays State of XXXX and carries an Arizona issuer number. Several state archive downloads returned HTTP 403.",
+      "externalReferences": [],
+      "unmodifiedCount": 0,
+      "observedEditions": [],
+      "publishedObservations": [],
+      "wasOpenOctober31": true,
+      "presentOnStartingMain": false,
+      "novemberResearch": {
+        "requests": 15,
+        "uniqueUrls": 15,
+        "mediaSuccessfullyRead": 2,
+        "requestsWithFindings": 0
+      }
+    },
+    {
+      "code": "AR",
+      "name": "Arkansas",
+      "iin": "636021",
+      "configuredVersion": "09",
+      "status": "passing external layout",
+      "note": "Coverage is limited to the listed edition and document type.",
+      "externalReferences": [
+        {
+          "id": "ar-v09-dl-published",
+          "version": "09",
+          "type": "DL",
+          "fidelity": "unmodified-source"
+        }
+      ],
+      "unmodifiedCount": 1,
+      "observedEditions": ["v09 DL"],
+      "publishedObservations": [
+        {
+          "id": "ar-published-92d83454dc2e",
+          "sha256": "92d83454dc2e919dd456e3b067ac8894193aee6b5703f65d3d4ed2664153009f",
+          "byteLength": 310,
+          "version": "09",
+          "parserAccepted": true,
+          "encoder": "source-exact"
+        }
+      ],
+      "wasOpenOctober31": false,
+      "presentOnStartingMain": true,
+      "novemberResearch": {
+        "requests": 0,
+        "uniqueUrls": 0,
+        "mediaSuccessfullyRead": 0,
+        "requestsWithFindings": 0
+      }
+    },
+    {
+      "code": "CA",
+      "name": "California",
+      "iin": "636014",
+      "configuredVersion": "10",
+      "status": "passing external layout",
+      "note": "Two v10 test barcodes match, including Appendix B’s revoked example. Issuer v12 evidence remains open.",
+      "externalReferences": [
+        {
+          "id": "ca-v10-dl-published-4d09012cc25c",
+          "version": "10",
+          "type": "DL",
+          "fidelity": "unmodified-source"
+        },
+        {
+          "id": "ca-v10-dl-published-d54b56657145",
+          "version": "10",
+          "type": "DL",
+          "fidelity": "unmodified-source"
+        }
+      ],
+      "unmodifiedCount": 2,
+      "observedEditions": ["v10 DL"],
+      "publishedObservations": [
+        {
+          "id": "ca-published-e875813da685",
+          "sha256": "e875813da68594d369b13424244174950f23cd3f1fb765e549d77282e54c7f88",
+          "byteLength": 607,
+          "version": "04",
+          "parserAccepted": true,
+          "encoder": "field-rejected",
+          "reason": "Invalid field values for CA (v04): Customer ID Number (DAQ), Hair Color (DAZ), Card Revision Date (DDB)"
+        },
+        {
+          "id": "ca-published-4d09012cc25c",
+          "sha256": "4d09012cc25c537226b9af6beb46d28e6c59f44fda7145fbaeaea9197bc94542",
+          "byteLength": 548,
+          "version": "10",
+          "parserAccepted": true,
+          "encoder": "source-exact"
+        },
+        {
+          "id": "ca-published-d54b56657145",
+          "sha256": "d54b566571459b8510cf9fb58d9efc90106d10a5ac2ec643eac41315c1c57aee",
+          "byteLength": 542,
+          "version": "10",
+          "parserAccepted": true,
+          "encoder": "source-exact"
+        }
+      ],
+      "wasOpenOctober31": true,
+      "presentOnStartingMain": false,
+      "novemberResearch": {
+        "requests": 8,
+        "uniqueUrls": 8,
+        "mediaSuccessfullyRead": 6,
+        "requestsWithFindings": 1
+      }
+    },
+    {
+      "code": "CO",
+      "name": "Colorado",
+      "iin": "636020",
+      "configuredVersion": "10",
+      "status": "passing external layout",
+      "note": "Coverage is limited to the listed edition and document type.",
+      "externalReferences": [
+        {
+          "id": "co-v10-dl-issued",
+          "version": "10",
+          "type": "DL",
+          "fidelity": "anonymized"
+        },
+        {
+          "id": "co-v10-dl-published-37b4574bf3aa",
+          "version": "10",
+          "type": "DL",
+          "fidelity": "unmodified-source"
+        }
+      ],
+      "unmodifiedCount": 1,
+      "observedEditions": ["v10 DL"],
+      "publishedObservations": [
+        {
+          "id": "co-published-37b4574bf3aa",
+          "sha256": "37b4574bf3aac0e2437e7f062d5e466a0ebb2223a0bcb9df4eeee76c075e8202",
+          "byteLength": 318,
+          "version": "10",
+          "parserAccepted": true,
+          "encoder": "source-exact"
+        }
+      ],
+      "wasOpenOctober31": false,
+      "presentOnStartingMain": true,
+      "novemberResearch": {
+        "requests": 0,
+        "uniqueUrls": 0,
+        "mediaSuccessfullyRead": 0,
+        "requestsWithFindings": 0
+      }
+    },
+    {
+      "code": "CT",
+      "name": "Connecticut",
+      "iin": "636006",
+      "configuredVersion": "09",
+      "status": "passing external layout",
+      "note": "Coverage is limited to the listed edition and document type.",
+      "externalReferences": [
+        {
+          "id": "ct-v09-dl-issued",
+          "version": "09",
+          "type": "DL",
+          "fidelity": "canonicalized"
+        }
+      ],
+      "unmodifiedCount": 0,
+      "observedEditions": ["v09 DL"],
+      "publishedObservations": [],
+      "wasOpenOctober31": false,
+      "presentOnStartingMain": true,
+      "novemberResearch": {
+        "requests": 0,
+        "uniqueUrls": 0,
+        "mediaSuccessfullyRead": 0,
+        "requestsWithFindings": 0
+      }
+    },
+    {
+      "code": "DE",
+      "name": "Delaware",
+      "iin": "636011",
+      "configuredVersion": "09",
+      "status": "source fails field validation",
+      "note": "The reviewed field values fail the encoder. See the observation for the field.",
+      "externalReferences": [],
+      "unmodifiedCount": 0,
+      "observedEditions": [],
+      "publishedObservations": [
+        {
+          "id": "de-published-a0b97b7910a7",
+          "sha256": "a0b97b7910a78430d4a36c622f77a8c76106879e70b49f2906a9e4a8cb5733e5",
+          "byteLength": 390,
+          "version": "09",
+          "parserAccepted": true,
+          "encoder": "field-rejected",
+          "reason": "Invalid field values for DE (v09): Card Revision Date (DDB)"
+        }
+      ],
+      "wasOpenOctober31": true,
+      "presentOnStartingMain": false,
+      "novemberResearch": {
+        "requests": 9,
+        "uniqueUrls": 9,
+        "mediaSuccessfullyRead": 7,
+        "requestsWithFindings": 2
+      }
+    },
+    {
+      "code": "FL",
+      "name": "Florida",
+      "iin": "636010",
+      "configuredVersion": "10",
+      "status": "passing external layout",
+      "note": "Coverage is limited to the listed edition and document type.",
+      "externalReferences": [
+        {
+          "id": "fl-v01-dl-published-20b099aa6851",
+          "version": "01",
+          "type": "DL",
+          "fidelity": "unmodified-source"
+        },
+        {
+          "id": "fl-v01-dl-published-488fa2962926",
+          "version": "01",
+          "type": "DL",
+          "fidelity": "unmodified-source"
+        },
+        {
+          "id": "fl-v09-dl-published-b1981be3f0b3",
+          "version": "09",
+          "type": "DL",
+          "fidelity": "unmodified-source"
+        }
+      ],
+      "unmodifiedCount": 3,
+      "observedEditions": ["v01 DL", "v09 DL"],
+      "publishedObservations": [
+        {
+          "id": "fl-published-b1981be3f0b3",
+          "sha256": "b1981be3f0b3f21436845cbbdb9b908640572ba43c2a0edc48cc29b638c58ff1",
+          "byteLength": 348,
+          "version": "09",
+          "parserAccepted": true,
+          "encoder": "source-exact"
+        },
+        {
+          "id": "fl-published-488fa2962926",
+          "sha256": "488fa2962926131e2602f1eb415d475a7592171b1eba0ac9f68caef21be7b7fe",
+          "byteLength": 284,
+          "version": "01",
+          "parserAccepted": true,
+          "encoder": "source-exact"
+        },
+        {
+          "id": "fl-published-20b099aa6851",
+          "sha256": "20b099aa68510505c12503da1bc120215c2ebe3285926eb11cb59a7652192b9f",
+          "byteLength": 419,
+          "version": "01",
+          "parserAccepted": true,
+          "encoder": "source-exact"
+        }
+      ],
+      "wasOpenOctober31": false,
+      "presentOnStartingMain": true,
+      "novemberResearch": {
+        "requests": 0,
+        "uniqueUrls": 0,
+        "mediaSuccessfullyRead": 0,
+        "requestsWithFindings": 0
+      }
+    },
+    {
+      "code": "GA",
+      "name": "Georgia",
+      "iin": "636055",
+      "configuredVersion": "10",
+      "status": "passing external layout",
+      "note": "Coverage is limited to the listed edition and document type.",
+      "externalReferences": [
+        {
+          "id": "ga-v03-dl-published-73c3c904d70a",
+          "version": "03",
+          "type": "DL",
+          "fidelity": "unmodified-source"
+        },
+        {
+          "id": "ga-v06-dl-published-47ddb17df100",
+          "version": "06",
+          "type": "DL",
+          "fidelity": "unmodified-source"
+        },
+        {
+          "id": "ga-v06-dl-published-be90490c2643",
+          "version": "06",
+          "type": "DL",
+          "fidelity": "unmodified-source"
+        },
+        {
+          "id": "ga-v06-dl-published-fb2a15fd6f64",
+          "version": "06",
+          "type": "DL",
+          "fidelity": "unmodified-source"
+        },
+        {
+          "id": "ga-v09-dl-published",
+          "version": "09",
+          "type": "DL",
+          "fidelity": "unmodified-source"
+        }
+      ],
+      "unmodifiedCount": 5,
+      "observedEditions": ["v03 DL", "v06 DL", "v09 DL"],
+      "publishedObservations": [
+        {
+          "id": "ga-published-5bfecea361b9",
+          "sha256": "5bfecea361b91164960970ee51d48f0d01d8cbde97514adb32f0cc3a910a7d1f",
+          "byteLength": 400,
+          "version": "09",
+          "parserAccepted": true,
+          "encoder": "source-exact"
+        },
+        {
+          "id": "ga-published-73c3c904d70a",
+          "sha256": "73c3c904d70a761ab2d22da67c232490f48f283f4ae08622bbd0260d88233556",
+          "byteLength": 645,
+          "version": "03",
+          "parserAccepted": true,
+          "encoder": "source-exact"
+        },
+        {
+          "id": "ga-published-47ddb17df100",
+          "sha256": "47ddb17df100ec4f73fc6b0bce627982e10f8cd6fb06a1d7350dea9543e434f0",
+          "byteLength": 478,
+          "version": "06",
+          "parserAccepted": true,
+          "encoder": "source-exact"
+        },
+        {
+          "id": "ga-published-be90490c2643",
+          "sha256": "be90490c2643276cde2ae2dc5ce138877c1296a1d5bd836b50b937bf49570720",
+          "byteLength": 422,
+          "version": "06",
+          "parserAccepted": true,
+          "encoder": "source-exact"
+        },
+        {
+          "id": "ga-published-fb2a15fd6f64",
+          "sha256": "fb2a15fd6f64db61d33cd134de2994186384ac3b06aae7737c2f86eb4c5a6cb3",
+          "byteLength": 395,
+          "version": "06",
+          "parserAccepted": true,
+          "encoder": "source-exact"
+        }
+      ],
+      "wasOpenOctober31": false,
+      "presentOnStartingMain": true,
+      "novemberResearch": {
+        "requests": 0,
+        "uniqueUrls": 0,
+        "mediaSuccessfullyRead": 0,
+        "requestsWithFindings": 0
+      }
+    },
+    {
+      "code": "HI",
+      "name": "Hawaii",
+      "iin": "636047",
+      "configuredVersion": "10",
+      "status": "published source conflict",
+      "note": "Publisher and barcode issuer disagree.",
+      "externalReferences": [],
+      "unmodifiedCount": 0,
+      "observedEditions": [],
+      "publishedObservations": [
+        {
+          "id": "hi-published-1136dcb68d24",
+          "sha256": "1136dcb68d24c810fc742ba0677d93a99e811eff8fd9fea030e3b3848b1f628e",
+          "byteLength": 261,
+          "version": null,
+          "parserAccepted": false,
+          "encoder": "quarantined",
+          "reason": "Publisher and barcode issuer disagree."
+        }
+      ],
+      "wasOpenOctober31": true,
+      "presentOnStartingMain": false,
+      "novemberResearch": {
+        "requests": 13,
+        "uniqueUrls": 13,
+        "mediaSuccessfullyRead": 6,
+        "requestsWithFindings": 1
+      }
+    },
+    {
+      "code": "ID",
+      "name": "Idaho",
+      "iin": "636050",
+      "configuredVersion": "09",
+      "status": "no qualifying public payload recovered",
+      "note": "The reviewed public sources did not yield a verified matching payload.",
+      "externalReferences": [],
+      "unmodifiedCount": 0,
+      "observedEditions": [],
+      "publishedObservations": [],
+      "wasOpenOctober31": true,
+      "presentOnStartingMain": false,
+      "novemberResearch": {
+        "requests": 14,
+        "uniqueUrls": 11,
+        "mediaSuccessfullyRead": 7,
+        "requestsWithFindings": 0
+      }
+    },
+    {
+      "code": "IL",
+      "name": "Illinois",
+      "iin": "636035",
+      "configuredVersion": "10",
+      "status": "passing external layout",
+      "note": "Coverage is limited to the listed edition and document type.",
+      "externalReferences": [
+        {
+          "id": "il-v08-dl-published",
+          "version": "08",
+          "type": "DL",
+          "fidelity": "unmodified-source"
+        }
+      ],
+      "unmodifiedCount": 1,
+      "observedEditions": ["v08 DL"],
+      "publishedObservations": [
+        {
+          "id": "il-published-0811ac04c918",
+          "sha256": "0811ac04c918b89e878d5e342b355c677f09be60ddf652c2d6a96c22e1cfa0a0",
+          "byteLength": 354,
+          "version": "08",
+          "parserAccepted": true,
+          "encoder": "source-exact"
+        },
+        {
+          "id": "il-published-7973a415943d",
+          "sha256": "7973a415943dfa96ba36a405ddac6bbea62546ad23197869319361e6b2cc948f",
+          "byteLength": 207,
+          "version": null,
+          "parserAccepted": false,
+          "encoder": "parser-rejected",
+          "reason": "Invalid record separator"
+        }
+      ],
+      "wasOpenOctober31": false,
+      "presentOnStartingMain": true,
+      "novemberResearch": {
+        "requests": 0,
+        "uniqueUrls": 0,
+        "mediaSuccessfullyRead": 0,
+        "requestsWithFindings": 0
+      }
+    },
+    {
+      "code": "IN",
+      "name": "Indiana",
+      "iin": "636037",
+      "configuredVersion": "09",
+      "status": "source fails field validation",
+      "note": "The reviewed field values fail the encoder. See the observation for the field.",
+      "externalReferences": [],
+      "unmodifiedCount": 0,
+      "observedEditions": [],
+      "publishedObservations": [
+        {
+          "id": "in-published-95100717baa0",
+          "sha256": "95100717baa042138cca2517b8628b0029f71f5b97d5610546bbe2699cbf0d1d",
+          "byteLength": 672,
+          "version": "04",
+          "parserAccepted": true,
+          "encoder": "field-rejected",
+          "reason": "Invalid field values for IN (v04): Card Revision Date (DDB)"
+        }
+      ],
+      "wasOpenOctober31": true,
+      "presentOnStartingMain": false,
+      "novemberResearch": {
+        "requests": 9,
+        "uniqueUrls": 9,
+        "mediaSuccessfullyRead": 4,
+        "requestsWithFindings": 0
+      }
+    },
+    {
+      "code": "IA",
+      "name": "Iowa",
+      "iin": "636018",
+      "configuredVersion": "09",
+      "status": "no qualifying public payload recovered",
+      "note": "The reviewed public sources did not yield a verified matching payload.",
+      "externalReferences": [],
+      "unmodifiedCount": 0,
+      "observedEditions": [],
+      "publishedObservations": [],
+      "wasOpenOctober31": true,
+      "presentOnStartingMain": false,
+      "novemberResearch": {
+        "requests": 16,
+        "uniqueUrls": 15,
+        "mediaSuccessfullyRead": 9,
+        "requestsWithFindings": 0
+      }
+    },
+    {
+      "code": "KS",
+      "name": "Kansas",
+      "iin": "636022",
+      "configuredVersion": "09",
+      "status": "passing external layout",
+      "note": "Coverage is limited to the listed edition and document type.",
+      "externalReferences": [
+        {
+          "id": "ks-v09-dl-published-982331e750a8",
+          "version": "09",
+          "type": "DL",
+          "fidelity": "unmodified-source"
+        }
+      ],
+      "unmodifiedCount": 1,
+      "observedEditions": ["v09 DL"],
+      "publishedObservations": [
+        {
+          "id": "ks-published-982331e750a8",
+          "sha256": "982331e750a88459bbd31f7ca423a674d197e2f870582821494642a5f7db1aa0",
+          "byteLength": 348,
+          "version": "09",
+          "parserAccepted": true,
+          "encoder": "source-exact"
+        }
+      ],
+      "wasOpenOctober31": false,
+      "presentOnStartingMain": true,
+      "novemberResearch": {
+        "requests": 0,
+        "uniqueUrls": 0,
+        "mediaSuccessfullyRead": 0,
+        "requestsWithFindings": 0
+      }
+    },
+    {
+      "code": "KY",
+      "name": "Kentucky",
+      "iin": "636046",
+      "configuredVersion": "09",
+      "status": "no qualifying public payload recovered",
+      "note": "The reviewed public sources did not yield a verified matching payload.",
+      "externalReferences": [],
+      "unmodifiedCount": 0,
+      "observedEditions": [],
+      "publishedObservations": [],
+      "wasOpenOctober31": true,
+      "presentOnStartingMain": false,
+      "novemberResearch": {
+        "requests": 5,
+        "uniqueUrls": 5,
+        "mediaSuccessfullyRead": 4,
+        "requestsWithFindings": 0
+      }
+    },
+    {
+      "code": "LA",
+      "name": "Louisiana",
+      "iin": "636007",
+      "configuredVersion": "09",
+      "status": "no qualifying public payload recovered",
+      "note": "The reviewed public sources did not yield a verified matching payload.",
+      "externalReferences": [],
+      "unmodifiedCount": 0,
+      "observedEditions": [],
+      "publishedObservations": [],
+      "wasOpenOctober31": true,
+      "presentOnStartingMain": false,
+      "novemberResearch": {
+        "requests": 21,
+        "uniqueUrls": 18,
+        "mediaSuccessfullyRead": 9,
+        "requestsWithFindings": 0
+      }
+    },
+    {
+      "code": "ME",
+      "name": "Maine",
+      "iin": "636041",
+      "configuredVersion": "09",
+      "status": "passing external layout",
+      "note": "The v09 ID anonymized layout was already present in the starting checkout.",
+      "externalReferences": [
+        {
+          "id": "me-v09-id-issued",
+          "version": "09",
+          "type": "ID",
+          "fidelity": "anonymized"
+        }
+      ],
+      "unmodifiedCount": 0,
+      "observedEditions": ["v09 ID"],
+      "publishedObservations": [],
+      "wasOpenOctober31": true,
+      "presentOnStartingMain": true,
+      "novemberResearch": {
+        "requests": 1,
+        "uniqueUrls": 1,
+        "mediaSuccessfullyRead": 0,
+        "requestsWithFindings": 0
+      }
+    },
+    {
+      "code": "MD",
+      "name": "Maryland",
+      "iin": "636003",
+      "configuredVersion": "10",
+      "status": "no qualifying public payload recovered",
+      "note": "A state retailer guide encoded other text. A matching AAMVA back is still needed.",
+      "externalReferences": [],
+      "unmodifiedCount": 0,
+      "observedEditions": [],
+      "publishedObservations": [],
+      "wasOpenOctober31": true,
+      "presentOnStartingMain": false,
+      "novemberResearch": {
+        "requests": 30,
+        "uniqueUrls": 24,
+        "mediaSuccessfullyRead": 16,
+        "requestsWithFindings": 1
+      }
+    },
+    {
+      "code": "MA",
+      "name": "Massachusetts",
+      "iin": "636002",
+      "configuredVersion": "09",
+      "status": "no qualifying public payload recovered",
+      "note": "The accessible brochure and state health poster did not yield a qualifying payload.",
+      "externalReferences": [],
+      "unmodifiedCount": 0,
+      "observedEditions": [],
+      "publishedObservations": [],
+      "wasOpenOctober31": true,
+      "presentOnStartingMain": false,
+      "novemberResearch": {
+        "requests": 21,
+        "uniqueUrls": 17,
+        "mediaSuccessfullyRead": 10,
+        "requestsWithFindings": 0
+      }
+    },
+    {
+      "code": "MI",
+      "name": "Michigan",
+      "iin": "636032",
+      "configuredVersion": "10",
+      "status": "source fails field validation",
+      "note": "The unrestricted retailer sheet intentionally blanks required fields. A different calibration sheet is labelled for law enforcement use only and is recorded by hash.",
+      "externalReferences": [],
+      "unmodifiedCount": 0,
+      "observedEditions": [],
+      "publishedObservations": [
+        {
+          "id": "mi-published-94fcb2b14bf1",
+          "sha256": "94fcb2b14bf14390062ef9158a7b277db5e44a43989629b156de73f1895bcdad",
+          "byteLength": 293,
+          "version": "10",
+          "parserAccepted": true,
+          "encoder": "field-rejected",
+          "reason": "Missing mandatory fields for MI (v10): Vehicle Class (DCA), Restriction Codes (DCB), Endorsement Codes (DCD), Eye Color (DAY), Height (DAU), Document Discriminator (DCF), Country Identification (DCG)"
+        }
+      ],
+      "wasOpenOctober31": true,
+      "presentOnStartingMain": false,
+      "novemberResearch": {
+        "requests": 20,
+        "uniqueUrls": 20,
+        "mediaSuccessfullyRead": 14,
+        "requestsWithFindings": 2
+      }
+    },
+    {
+      "code": "MN",
+      "name": "Minnesota",
+      "iin": "636038",
+      "configuredVersion": "09",
+      "status": "no qualifying public payload recovered",
+      "note": "The enhanced license back and the county design PDF did not yield verified bytes.",
+      "externalReferences": [],
+      "unmodifiedCount": 0,
+      "observedEditions": [],
+      "publishedObservations": [],
+      "wasOpenOctober31": true,
+      "presentOnStartingMain": false,
+      "novemberResearch": {
+        "requests": 21,
+        "uniqueUrls": 21,
+        "mediaSuccessfullyRead": 15,
+        "requestsWithFindings": 0
+      }
+    },
+    {
+      "code": "MS",
+      "name": "Mississippi",
+      "iin": "636051",
+      "configuredVersion": "09",
+      "status": "source fails field validation",
+      "note": "The reviewed field values fail the encoder. See the observation for the field.",
+      "externalReferences": [],
+      "unmodifiedCount": 0,
+      "observedEditions": [],
+      "publishedObservations": [
+        {
+          "id": "ms-published-fd86a289088d",
+          "sha256": "fd86a289088dad9c824ed0d4f884ca20c57eac78812a9946b1499f8b2b2e8623",
+          "byteLength": 403,
+          "version": "10",
+          "parserAccepted": true,
+          "encoder": "field-rejected",
+          "reason": "Invalid field values for MS (v10): Card Revision Date (DDB)"
+        }
+      ],
+      "wasOpenOctober31": true,
+      "presentOnStartingMain": false,
+      "novemberResearch": {
+        "requests": 16,
+        "uniqueUrls": 16,
+        "mediaSuccessfullyRead": 9,
+        "requestsWithFindings": 0
+      }
+    },
+    {
+      "code": "MO",
+      "name": "Missouri",
+      "iin": "636030",
+      "configuredVersion": "09",
+      "status": "passing external layout",
+      "note": "Coverage is limited to the listed edition and document type.",
+      "externalReferences": [
+        {
+          "id": "mo-v05-dl-published-8d3a544800b4",
+          "version": "05",
+          "type": "DL",
+          "fidelity": "unmodified-source"
+        }
+      ],
+      "unmodifiedCount": 1,
+      "observedEditions": ["v05 DL"],
+      "publishedObservations": [
+        {
+          "id": "mo-published-8d3a544800b4",
+          "sha256": "8d3a544800b4de415f72a6348748a11ce23f3bb15a58c099887af7572addbeb8",
+          "byteLength": 641,
+          "version": "05",
+          "parserAccepted": true,
+          "encoder": "source-exact"
+        }
+      ],
+      "wasOpenOctober31": false,
+      "presentOnStartingMain": true,
+      "novemberResearch": {
+        "requests": 0,
+        "uniqueUrls": 0,
+        "mediaSuccessfullyRead": 0,
+        "requestsWithFindings": 0
+      }
+    },
+    {
+      "code": "MT",
+      "name": "Montana",
+      "iin": "636008",
+      "configuredVersion": "09",
+      "status": "passing external layout",
+      "note": "Coverage is limited to the listed edition and document type.",
+      "externalReferences": [
+        {
+          "id": "mt-v08-dl-published-fdecdc5308f0",
+          "version": "08",
+          "type": "DL",
+          "fidelity": "unmodified-source"
+        }
+      ],
+      "unmodifiedCount": 1,
+      "observedEditions": ["v08 DL"],
+      "publishedObservations": [
+        {
+          "id": "mt-published-fdecdc5308f0",
+          "sha256": "fdecdc5308f0e1294774c5239724f56b0e5cbf1fe05c6b896e79300522fd36e7",
+          "byteLength": 386,
+          "version": "08",
+          "parserAccepted": true,
+          "encoder": "source-exact"
+        },
+        {
+          "id": "mt-published-0691eccde2d2",
+          "sha256": "0691eccde2d223f1a6c6e5c3829fadb49af1e1c6ebda0220c792f3aed9c2da4e",
+          "byteLength": 636,
+          "version": "08",
+          "parserAccepted": true,
+          "encoder": "field-rejected",
+          "reason": "Invalid field values for MT (v08): Document Discriminator (DCF), Card Revision Date (DDB)"
+        }
+      ],
+      "wasOpenOctober31": false,
+      "presentOnStartingMain": true,
+      "novemberResearch": {
+        "requests": 0,
+        "uniqueUrls": 0,
+        "mediaSuccessfullyRead": 0,
+        "requestsWithFindings": 0
+      }
+    },
+    {
+      "code": "NE",
+      "name": "Nebraska",
+      "iin": "636054",
+      "configuredVersion": "10",
+      "status": "passing external layout",
+      "note": "Coverage is limited to the listed edition and document type.",
+      "externalReferences": [
+        {
+          "id": "ne-v11-dl-published-d9de456eceac",
+          "version": "11",
+          "type": "DL",
+          "fidelity": "unmodified-source"
+        }
+      ],
+      "unmodifiedCount": 1,
+      "observedEditions": ["v11 DL"],
+      "publishedObservations": [
+        {
+          "id": "ne-published-1e3c7419dcd6",
+          "sha256": "1e3c7419dcd6aa8321cbcb050f4c6d83d376daea16987985818994ca8e26244a",
+          "byteLength": 395,
+          "version": null,
+          "parserAccepted": false,
+          "encoder": "parser-rejected",
+          "reason": "Malformed data element in ZN"
+        },
+        {
+          "id": "ne-published-d9de456eceac",
+          "sha256": "d9de456eceac29b3fde609c7b52c73de603580fdac203fc469bc8fec909a1402",
+          "byteLength": 375,
+          "version": "11",
+          "parserAccepted": true,
+          "encoder": "source-exact"
+        }
+      ],
+      "wasOpenOctober31": false,
+      "presentOnStartingMain": true,
+      "novemberResearch": {
+        "requests": 0,
+        "uniqueUrls": 0,
+        "mediaSuccessfullyRead": 0,
+        "requestsWithFindings": 0
+      }
+    },
+    {
+      "code": "NV",
+      "name": "Nevada",
+      "iin": "636049",
+      "configuredVersion": "09",
+      "status": "no qualifying public payload recovered",
+      "note": "The reviewed public sources did not yield a verified matching payload.",
+      "externalReferences": [],
+      "unmodifiedCount": 0,
+      "observedEditions": [],
+      "publishedObservations": [],
+      "wasOpenOctober31": true,
+      "presentOnStartingMain": false,
+      "novemberResearch": {
+        "requests": 17,
+        "uniqueUrls": 15,
+        "mediaSuccessfullyRead": 10,
+        "requestsWithFindings": 0
+      }
+    },
+    {
+      "code": "NH",
+      "name": "New Hampshire",
+      "iin": "636039",
+      "configuredVersion": "09",
+      "status": "malformed source framing",
+      "note": "The New Hampshire directory declares 485 bytes with only 454 available.",
+      "externalReferences": [],
+      "unmodifiedCount": 0,
+      "observedEditions": [],
+      "publishedObservations": [
+        {
+          "id": "nh-published-5e011c40bde2",
+          "sha256": "5e011c40bde26696f6a0f59fc29942f4a468164ef9121ba6ca2ce8b7dd9bccc1",
+          "byteLength": 485,
+          "version": null,
+          "parserAccepted": false,
+          "encoder": "parser-rejected",
+          "reason": "Subfile length exceeds payload size: the directory declares the entire 485-byte payload, but DL occupies 454 bytes"
+        }
+      ],
+      "wasOpenOctober31": true,
+      "presentOnStartingMain": false,
+      "novemberResearch": {
+        "requests": 9,
+        "uniqueUrls": 9,
+        "mediaSuccessfullyRead": 7,
+        "requestsWithFindings": 1
+      }
+    },
+    {
+      "code": "NJ",
+      "name": "New Jersey",
+      "iin": "636036",
+      "configuredVersion": "10",
+      "status": "source fails field validation",
+      "note": "The reviewed field values fail the encoder. See the observation for the field.",
+      "externalReferences": [],
+      "unmodifiedCount": 0,
+      "observedEditions": [],
+      "publishedObservations": [
+        {
+          "id": "nj-published-0c47325e2b05",
+          "sha256": "0c47325e2b05c3161c970de4a67db73ebdd66b07edd9513ed09a4534f1d409ca",
+          "byteLength": 687,
+          "version": "04",
+          "parserAccepted": true,
+          "encoder": "field-rejected",
+          "reason": "Invalid field values for NJ (v04): Vehicle Class (DCA), Restriction Codes (DCB), Endorsement Codes (DCD), Card Revision Date (DDB)"
+        }
+      ],
+      "wasOpenOctober31": true,
+      "presentOnStartingMain": false,
+      "novemberResearch": {
+        "requests": 4,
+        "uniqueUrls": 4,
+        "mediaSuccessfullyRead": 3,
+        "requestsWithFindings": 0
+      }
+    },
+    {
+      "code": "NM",
+      "name": "New Mexico",
+      "iin": "636009",
+      "configuredVersion": "09",
+      "status": "no qualifying public payload recovered",
+      "note": "The reviewed public sources did not yield a verified matching payload.",
+      "externalReferences": [],
+      "unmodifiedCount": 0,
+      "observedEditions": [],
+      "publishedObservations": [],
+      "wasOpenOctober31": true,
+      "presentOnStartingMain": false,
+      "novemberResearch": {
+        "requests": 6,
+        "uniqueUrls": 6,
+        "mediaSuccessfullyRead": 4,
+        "requestsWithFindings": 0
+      }
+    },
+    {
+      "code": "NY",
+      "name": "New York",
+      "iin": "636001",
+      "configuredVersion": "10",
+      "status": "passing external layout",
+      "note": "Coverage is limited to the listed edition and document type.",
+      "externalReferences": [
+        {
+          "id": "ny-v10-dl-issued-znb-fill",
+          "version": "10",
+          "type": "DL",
+          "fidelity": "anonymized"
+        },
+        {
+          "id": "ny-v10-dl-issued",
+          "version": "10",
+          "type": "DL",
+          "fidelity": "anonymized"
+        },
+        {
+          "id": "ny-v10-dl-published-1cf488347e2b",
+          "version": "10",
+          "type": "DL",
+          "fidelity": "unmodified-source"
+        }
+      ],
+      "unmodifiedCount": 1,
+      "observedEditions": ["v10 DL"],
+      "publishedObservations": [
+        {
+          "id": "ny-published-1cf488347e2b",
+          "sha256": "1cf488347e2b44776eceec2f9f5d4d9e9e98dd2d81805bfdeac45e49ad27e8eb",
+          "byteLength": 507,
+          "version": "10",
+          "parserAccepted": true,
+          "encoder": "source-exact"
+        },
+        {
+          "id": "ny-published-b217155b6b20",
+          "sha256": "b217155b6b202a748687f7b3627f20d89496862d03a6bdf088d0264c48e08f6e",
+          "byteLength": 480,
+          "version": "07",
+          "parserAccepted": true,
+          "encoder": "field-rejected",
+          "reason": "Invalid field values for NY (v07): Customer ID Number (DAQ)"
+        }
+      ],
+      "wasOpenOctober31": false,
+      "presentOnStartingMain": true,
+      "novemberResearch": {
+        "requests": 0,
+        "uniqueUrls": 0,
+        "mediaSuccessfullyRead": 0,
+        "requestsWithFindings": 0
+      }
+    },
+    {
+      "code": "NC",
+      "name": "North Carolina",
+      "iin": "636004",
+      "configuredVersion": "10",
+      "status": "no qualifying public payload recovered",
+      "note": "The published card images did not yield verified matching bytes.",
+      "externalReferences": [],
+      "unmodifiedCount": 0,
+      "observedEditions": [],
+      "publishedObservations": [],
+      "wasOpenOctober31": true,
+      "presentOnStartingMain": false,
+      "novemberResearch": {
+        "requests": 15,
+        "uniqueUrls": 10,
+        "mediaSuccessfullyRead": 7,
+        "requestsWithFindings": 0
+      }
+    },
+    {
+      "code": "ND",
+      "name": "North Dakota",
+      "iin": "636034",
+      "configuredVersion": "09",
+      "status": "candidate issuer conflict",
+      "note": "The three readable tribal examples have an unassigned 000000 issuer.",
+      "externalReferences": [],
+      "unmodifiedCount": 0,
+      "observedEditions": [],
+      "publishedObservations": [],
+      "wasOpenOctober31": true,
+      "presentOnStartingMain": false,
+      "novemberResearch": {
+        "requests": 17,
+        "uniqueUrls": 17,
+        "mediaSuccessfullyRead": 10,
+        "requestsWithFindings": 1
+      }
+    },
+    {
+      "code": "OH",
+      "name": "Ohio",
+      "iin": "636023",
+      "configuredVersion": "10",
+      "status": "no qualifying public payload recovered",
+      "note": "The reviewed readable examples contain other text.",
+      "externalReferences": [],
+      "unmodifiedCount": 0,
+      "observedEditions": [],
+      "publishedObservations": [],
+      "wasOpenOctober31": true,
+      "presentOnStartingMain": false,
+      "novemberResearch": {
+        "requests": 17,
+        "uniqueUrls": 15,
+        "mediaSuccessfullyRead": 9,
+        "requestsWithFindings": 1
+      }
+    },
+    {
+      "code": "OK",
+      "name": "Oklahoma",
+      "iin": "636058",
+      "configuredVersion": "09",
+      "status": "passing external layout",
+      "note": "Two archived DPS manuals yielded one identical v01 back. A modern guide contained a different issuer.",
+      "externalReferences": [
+        {
+          "id": "ok-v01-dl-published-b7174a9ba162",
+          "version": "01",
+          "type": "DL",
+          "fidelity": "unmodified-source"
+        }
+      ],
+      "unmodifiedCount": 1,
+      "observedEditions": ["v01 DL"],
+      "publishedObservations": [
+        {
+          "id": "ok-published-b7174a9ba162",
+          "sha256": "b7174a9ba162dc72d55c89766aced25401c3b7602efba16f61813618a4c8f2c5",
+          "byteLength": 237,
+          "version": "01",
+          "parserAccepted": true,
+          "encoder": "source-exact"
+        }
+      ],
+      "wasOpenOctober31": true,
+      "presentOnStartingMain": false,
+      "novemberResearch": {
+        "requests": 4,
+        "uniqueUrls": 4,
+        "mediaSuccessfullyRead": 4,
+        "requestsWithFindings": 3
+      }
+    },
+    {
+      "code": "OR",
+      "name": "Oregon",
+      "iin": "636029",
+      "configuredVersion": "10",
+      "status": "no qualifying public payload recovered",
+      "note": "The reviewed public sources did not yield a verified matching payload.",
+      "externalReferences": [],
+      "unmodifiedCount": 0,
+      "observedEditions": [],
+      "publishedObservations": [],
+      "wasOpenOctober31": true,
+      "presentOnStartingMain": false,
+      "novemberResearch": {
+        "requests": 7,
+        "uniqueUrls": 7,
+        "mediaSuccessfullyRead": 4,
+        "requestsWithFindings": 0
+      }
+    },
+    {
+      "code": "PA",
+      "name": "Pennsylvania",
+      "iin": "636025",
+      "configuredVersion": "10",
+      "status": "passing external layout",
+      "note": "Coverage is limited to the listed edition and document type.",
+      "externalReferences": [
+        {
+          "id": "pa-v08-dl-published-ffbde827c006-canonicalized",
+          "version": "08",
+          "type": "DL",
+          "fidelity": "canonicalized"
+        }
+      ],
+      "unmodifiedCount": 0,
+      "observedEditions": ["v08 DL"],
+      "publishedObservations": [
+        {
+          "id": "pa-published-ffbde827c006",
+          "sha256": "ffbde827c006e15246ef102f5c25e29de3e1c874bf81d734034181266a997895",
+          "byteLength": 339,
+          "version": "08",
+          "parserAccepted": true,
+          "encoder": "canonicalized-match"
+        }
+      ],
+      "wasOpenOctober31": false,
+      "presentOnStartingMain": true,
+      "novemberResearch": {
+        "requests": 0,
+        "uniqueUrls": 0,
+        "mediaSuccessfullyRead": 0,
+        "requestsWithFindings": 0
+      }
+    },
+    {
+      "code": "RI",
+      "name": "Rhode Island",
+      "iin": "636052",
+      "configuredVersion": "09",
+      "status": "no qualifying public payload recovered",
+      "note": "The reviewed public sources did not yield a verified matching payload.",
+      "externalReferences": [],
+      "unmodifiedCount": 0,
+      "observedEditions": [],
+      "publishedObservations": [],
+      "wasOpenOctober31": true,
+      "presentOnStartingMain": false,
+      "novemberResearch": {
+        "requests": 13,
+        "uniqueUrls": 13,
+        "mediaSuccessfullyRead": 10,
+        "requestsWithFindings": 0
+      }
+    },
+    {
+      "code": "SC",
+      "name": "South Carolina",
+      "iin": "636005",
+      "configuredVersion": "10",
+      "status": "passing external layout",
+      "note": "Coverage is limited to the listed edition and document type.",
+      "externalReferences": [
+        {
+          "id": "sc-v01-dl-published-1a6e922373c1-canonicalized",
+          "version": "01",
+          "type": "DL",
+          "fidelity": "canonicalized"
+        }
+      ],
+      "unmodifiedCount": 0,
+      "observedEditions": ["v01 DL"],
+      "publishedObservations": [
+        {
+          "id": "sc-published-1a6e922373c1",
+          "sha256": "1a6e922373c1c4d697ab75dcd047fa6a47ea94a09c9d696a1b1a23cd1fd433fc",
+          "byteLength": 232,
+          "version": "01",
+          "parserAccepted": true,
+          "encoder": "canonicalized-match"
+        }
+      ],
+      "wasOpenOctober31": false,
+      "presentOnStartingMain": true,
+      "novemberResearch": {
+        "requests": 0,
+        "uniqueUrls": 0,
+        "mediaSuccessfullyRead": 0,
+        "requestsWithFindings": 0
+      }
+    },
+    {
+      "code": "SD",
+      "name": "South Dakota",
+      "iin": "636042",
+      "configuredVersion": "09",
+      "status": "source fails field validation",
+      "note": "The reviewed field values fail the encoder. See the observation for the field.",
+      "externalReferences": [],
+      "unmodifiedCount": 0,
+      "observedEditions": [],
+      "publishedObservations": [
+        {
+          "id": "sd-published-c34073702f5d",
+          "sha256": "c34073702f5dad62ce0f24720b9b8bbd2dad36193fbcf0ea509fc622df06911b",
+          "byteLength": 625,
+          "version": "04",
+          "parserAccepted": true,
+          "encoder": "field-rejected",
+          "reason": "Invalid field values for SD (v04): Card Revision Date (DDB)"
+        }
+      ],
+      "wasOpenOctober31": true,
+      "presentOnStartingMain": false,
+      "novemberResearch": {
+        "requests": 5,
+        "uniqueUrls": 5,
+        "mediaSuccessfullyRead": 2,
+        "requestsWithFindings": 2
+      }
+    },
+    {
+      "code": "TN",
+      "name": "Tennessee",
+      "iin": "636053",
+      "configuredVersion": "09",
+      "status": "no qualifying public payload recovered",
+      "note": "The reviewed public sources did not yield a verified matching payload.",
+      "externalReferences": [],
+      "unmodifiedCount": 0,
+      "observedEditions": [],
+      "publishedObservations": [],
+      "wasOpenOctober31": true,
+      "presentOnStartingMain": false,
+      "novemberResearch": {
+        "requests": 11,
+        "uniqueUrls": 11,
+        "mediaSuccessfullyRead": 5,
+        "requestsWithFindings": 0
+      }
+    },
+    {
+      "code": "TX",
+      "name": "Texas",
+      "iin": "636015",
+      "configuredVersion": "10",
+      "status": "passing external layout",
+      "note": "The under-21 v03 back matches. The Texas DPS brochure was retrieved from a scanner vendor.",
+      "externalReferences": [
+        {
+          "id": "tx-v03-dl-published-67b82bc50a6d",
+          "version": "03",
+          "type": "DL",
+          "fidelity": "unmodified-source"
+        }
+      ],
+      "unmodifiedCount": 1,
+      "observedEditions": ["v03 DL"],
+      "publishedObservations": [
+        {
+          "id": "tx-published-912f8875712f",
+          "sha256": "912f8875712f927b245d0c312c8b4fe3d7e8950f27921c115a6826922819ac67",
+          "byteLength": 619,
+          "version": "10",
+          "parserAccepted": true,
+          "encoder": "field-rejected",
+          "reason": "Invalid field values for TX (v10): Card Revision Date (DDB)"
+        },
+        {
+          "id": "tx-published-9af7389b1ba5",
+          "sha256": "9af7389b1ba5a3bc4b42aeaa69d32fe1d6d9b67ef7e3ecb6d0dfb1ee22c65bd6",
+          "byteLength": 461,
+          "version": "10",
+          "parserAccepted": true,
+          "encoder": "field-rejected",
+          "reason": "Invalid field values for TX (v10): Card Revision Date (DDB)"
+        },
+        {
+          "id": "tx-published-67b82bc50a6d",
+          "sha256": "67b82bc50a6d38efa8a464c368ec5bfc243000081f25656d45c5194e239e146f",
+          "byteLength": 444,
+          "version": "03",
+          "parserAccepted": true,
+          "encoder": "source-exact"
+        }
+      ],
+      "wasOpenOctober31": true,
+      "presentOnStartingMain": false,
+      "novemberResearch": {
+        "requests": 6,
+        "uniqueUrls": 6,
+        "mediaSuccessfullyRead": 6,
+        "requestsWithFindings": 4
+      }
+    },
+    {
+      "code": "UT",
+      "name": "Utah",
+      "iin": "636040",
+      "configuredVersion": "09",
+      "status": "no qualifying public payload recovered",
+      "note": "The reviewed public sources did not yield a verified matching payload.",
+      "externalReferences": [],
+      "unmodifiedCount": 0,
+      "observedEditions": [],
+      "publishedObservations": [],
+      "wasOpenOctober31": true,
+      "presentOnStartingMain": false,
+      "novemberResearch": {
+        "requests": 13,
+        "uniqueUrls": 13,
+        "mediaSuccessfullyRead": 8,
+        "requestsWithFindings": 0
+      }
+    },
+    {
+      "code": "VT",
+      "name": "Vermont",
+      "iin": "636024",
+      "configuredVersion": "09",
+      "status": "no qualifying public payload recovered",
+      "note": "The reviewed public sources did not yield a verified matching payload.",
+      "externalReferences": [],
+      "unmodifiedCount": 0,
+      "observedEditions": [],
+      "publishedObservations": [],
+      "wasOpenOctober31": true,
+      "presentOnStartingMain": false,
+      "novemberResearch": {
+        "requests": 14,
+        "uniqueUrls": 10,
+        "mediaSuccessfullyRead": 9,
+        "requestsWithFindings": 0
+      }
+    },
+    {
+      "code": "VA",
+      "name": "Virginia",
+      "iin": "636000",
+      "configuredVersion": "10",
+      "status": "passing external layout",
+      "note": "Coverage is limited to the listed edition and document type.",
+      "externalReferences": [
+        {
+          "id": "va-v10-dl-published-000cd50105ad",
+          "version": "10",
+          "type": "DL",
+          "fidelity": "unmodified-source"
+        },
+        {
+          "id": "va-v10-dl-published-015e93067f14",
+          "version": "10",
+          "type": "DL",
+          "fidelity": "unmodified-source"
+        },
+        {
+          "id": "va-v10-dl-published-093b70f9cd7e",
+          "version": "10",
+          "type": "DL",
+          "fidelity": "unmodified-source"
+        },
+        {
+          "id": "va-v10-dl-published-a9e7e64f6022",
+          "version": "10",
+          "type": "DL",
+          "fidelity": "unmodified-source"
+        },
+        {
+          "id": "va-v10-id-published-0c900e490239",
+          "version": "10",
+          "type": "ID",
+          "fidelity": "unmodified-source"
+        },
+        {
+          "id": "va-v10-id-published-4635bc4159fb",
+          "version": "10",
+          "type": "ID",
+          "fidelity": "unmodified-source"
+        },
+        {
+          "id": "va-v10-id-published-91e87b7a2de5",
+          "version": "10",
+          "type": "ID",
+          "fidelity": "unmodified-source"
+        }
+      ],
+      "unmodifiedCount": 7,
+      "observedEditions": ["v10 DL", "v10 ID"],
+      "publishedObservations": [
+        {
+          "id": "va-published-093b70f9cd7e",
+          "sha256": "093b70f9cd7efcd248eafa6199097697da138a437ce3ab19c3874c9778de1370",
+          "byteLength": 559,
+          "version": "10",
+          "parserAccepted": true,
+          "encoder": "source-exact"
+        },
+        {
+          "id": "va-published-000cd50105ad",
+          "sha256": "000cd50105add9d2f18b469ce632f9453a1e89a10484e9fdb6e75b978ce6594f",
+          "byteLength": 473,
+          "version": "10",
+          "parserAccepted": true,
+          "encoder": "source-exact"
+        },
+        {
+          "id": "va-published-015e93067f14",
+          "sha256": "015e93067f14081363e11c48201ccf73d9b97da6cb40c3cee7abd39e4d3798ad",
+          "byteLength": 559,
+          "version": "10",
+          "parserAccepted": true,
+          "encoder": "source-exact"
+        },
+        {
+          "id": "va-published-a9e7e64f6022",
+          "sha256": "a9e7e64f602207fbf1029fa284bfaf82b8ee8cad59c8a7e21b92951c61386ff3",
+          "byteLength": 559,
+          "version": "10",
+          "parserAccepted": true,
+          "encoder": "source-exact"
+        },
+        {
+          "id": "va-published-91e87b7a2de5",
+          "sha256": "91e87b7a2de595721a45c08cdaf81b3ab9280f89cfadc389273c78ab215e616f",
+          "byteLength": 559,
+          "version": "10",
+          "parserAccepted": true,
+          "encoder": "source-exact"
+        },
+        {
+          "id": "va-published-4635bc4159fb",
+          "sha256": "4635bc4159fbc057dc425fd997298e873b7026d697dc4b625d17ad8921e91c96",
+          "byteLength": 559,
+          "version": "10",
+          "parserAccepted": true,
+          "encoder": "source-exact"
+        },
+        {
+          "id": "va-published-0c900e490239",
+          "sha256": "0c900e490239ed81c4b2ba4d87ff60b1856c36780bff37a07698f5352205db46",
+          "byteLength": 559,
+          "version": "10",
+          "parserAccepted": true,
+          "encoder": "source-exact"
+        }
+      ],
+      "wasOpenOctober31": false,
+      "presentOnStartingMain": true,
+      "novemberResearch": {
+        "requests": 0,
+        "uniqueUrls": 0,
+        "mediaSuccessfullyRead": 0,
+        "requestsWithFindings": 0
+      }
+    },
+    {
+      "code": "WA",
+      "name": "Washington",
+      "iin": "636045",
+      "configuredVersion": "10",
+      "status": "passing external layout",
+      "note": "Coverage is limited to the listed edition and document type.",
+      "externalReferences": [
+        {
+          "id": "wa-v08-dl-published-2802ccec6eb5",
+          "version": "08",
+          "type": "DL",
+          "fidelity": "unmodified-source"
+        }
+      ],
+      "unmodifiedCount": 1,
+      "observedEditions": ["v08 DL"],
+      "publishedObservations": [
+        {
+          "id": "wa-published-2802ccec6eb5",
+          "sha256": "2802ccec6eb5b1c533daf19cf243b5f6112b06299f6aaf571d680467a76df279",
+          "byteLength": 303,
+          "version": "08",
+          "parserAccepted": true,
+          "encoder": "source-exact"
+        }
+      ],
+      "wasOpenOctober31": false,
+      "presentOnStartingMain": true,
+      "novemberResearch": {
+        "requests": 0,
+        "uniqueUrls": 0,
+        "mediaSuccessfullyRead": 0,
+        "requestsWithFindings": 0
+      }
+    },
+    {
+      "code": "WV",
+      "name": "West Virginia",
+      "iin": "636061",
+      "configuredVersion": "09",
+      "status": "source fails field validation",
+      "note": "The reviewed field values fail the encoder. See the observation for the field.",
+      "externalReferences": [],
+      "unmodifiedCount": 0,
+      "observedEditions": [],
+      "publishedObservations": [
+        {
+          "id": "wv-published-6efb1c3ee8f0",
+          "sha256": "6efb1c3ee8f07964196f68df306913827fb1fa2382ae3719bd91fbeaaeae9272",
+          "byteLength": 407,
+          "version": "09",
+          "parserAccepted": true,
+          "encoder": "field-rejected",
+          "reason": "Invalid field values for WV (v09): Card Revision Date (DDB)"
+        }
+      ],
+      "wasOpenOctober31": true,
+      "presentOnStartingMain": false,
+      "novemberResearch": {
+        "requests": 9,
+        "uniqueUrls": 9,
+        "mediaSuccessfullyRead": 4,
+        "requestsWithFindings": 1
+      }
+    },
+    {
+      "code": "WI",
+      "name": "Wisconsin",
+      "iin": "636031",
+      "configuredVersion": "10",
+      "status": "no qualifying public payload recovered",
+      "note": "The state retailer guide and the 2023 gallery back did not yield verified matching bytes.",
+      "externalReferences": [],
+      "unmodifiedCount": 0,
+      "observedEditions": [],
+      "publishedObservations": [],
+      "wasOpenOctober31": true,
+      "presentOnStartingMain": false,
+      "novemberResearch": {
+        "requests": 16,
+        "uniqueUrls": 15,
+        "mediaSuccessfullyRead": 11,
+        "requestsWithFindings": 0
+      }
+    },
+    {
+      "code": "WY",
+      "name": "Wyoming",
+      "iin": "636060",
+      "configuredVersion": "09",
+      "status": "no qualifying public payload recovered",
+      "note": "The reviewed public sources did not yield a verified matching payload.",
+      "externalReferences": [],
+      "unmodifiedCount": 0,
+      "observedEditions": [],
+      "publishedObservations": [],
+      "wasOpenOctober31": true,
+      "presentOnStartingMain": false,
+      "novemberResearch": {
+        "requests": 9,
+        "uniqueUrls": 9,
+        "mediaSuccessfullyRead": 5,
+        "requestsWithFindings": 1
+      }
+    },
+    {
+      "code": "DC",
+      "name": "District of Columbia",
+      "iin": "636043",
+      "configuredVersion": "10",
+      "status": "published source conflict",
+      "note": "Barcoded text does not identify an AAMVA issuer.",
+      "externalReferences": [],
+      "unmodifiedCount": 0,
+      "observedEditions": [],
+      "publishedObservations": [
+        {
+          "id": "dc-published-1eaa8add2c32",
+          "sha256": "1eaa8add2c32050501fa96c77855278dab1319b177cd42a47760f6db887f93d4",
+          "byteLength": 209,
+          "version": null,
+          "parserAccepted": false,
+          "encoder": "quarantined",
+          "reason": "Barcoded text does not identify an AAMVA issuer."
+        }
+      ],
+      "wasOpenOctober31": true,
+      "presentOnStartingMain": false,
+      "novemberResearch": {
+        "requests": 6,
+        "uniqueUrls": 6,
+        "mediaSuccessfullyRead": 6,
+        "requestsWithFindings": 1
+      }
+    },
+    {
+      "code": "AS",
+      "name": "American Samoa",
+      "iin": "604427",
+      "configuredVersion": "09",
+      "status": "no qualifying public payload recovered",
+      "note": "The selected government manual pages did not yield a matching source payload.",
+      "externalReferences": [],
+      "unmodifiedCount": 0,
+      "observedEditions": [],
+      "publishedObservations": [],
+      "wasOpenOctober31": true,
+      "presentOnStartingMain": false,
+      "novemberResearch": {
+        "requests": 3,
+        "uniqueUrls": 3,
+        "mediaSuccessfullyRead": 3,
+        "requestsWithFindings": 0
+      }
+    },
+    {
+      "code": "GU",
+      "name": "Guam",
+      "iin": "636019",
+      "configuredVersion": "09",
+      "status": "no qualifying public payload recovered",
+      "note": "The issuer brochure shows the back. Its embedded art did not yield a verified payload.",
+      "externalReferences": [],
+      "unmodifiedCount": 0,
+      "observedEditions": [],
+      "publishedObservations": [],
+      "wasOpenOctober31": true,
+      "presentOnStartingMain": false,
+      "novemberResearch": {
+        "requests": 8,
+        "uniqueUrls": 8,
+        "mediaSuccessfullyRead": 7,
+        "requestsWithFindings": 0
+      }
+    },
+    {
+      "code": "VI",
+      "name": "US Virgin Islands",
+      "iin": "636062",
+      "configuredVersion": "09",
+      "status": "no qualifying public payload recovered",
+      "note": "The public licensing manual did not yield a qualifying barcode.",
+      "externalReferences": [],
+      "unmodifiedCount": 0,
+      "observedEditions": [],
+      "publishedObservations": [],
+      "wasOpenOctober31": true,
+      "presentOnStartingMain": false,
+      "novemberResearch": {
+        "requests": 4,
+        "uniqueUrls": 3,
+        "mediaSuccessfullyRead": 1,
+        "requestsWithFindings": 0
+      }
+    },
+    {
+      "code": "PR",
+      "name": "Puerto Rico",
+      "iin": "604431",
+      "configuredVersion": "09",
+      "status": "no qualifying public payload recovered",
+      "note": "The public driver manuals did not yield a matching source payload.",
+      "externalReferences": [],
+      "unmodifiedCount": 0,
+      "observedEditions": [],
+      "publishedObservations": [],
+      "wasOpenOctober31": true,
+      "presentOnStartingMain": false,
+      "novemberResearch": {
+        "requests": 5,
+        "uniqueUrls": 5,
+        "mediaSuccessfullyRead": 3,
+        "requestsWithFindings": 0
+      }
+    }
+  ]
+}

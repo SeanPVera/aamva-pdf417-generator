@@ -162,6 +162,18 @@ export function readDirectory(
       // that overruns by more than that is not drift, it is a corrupt or
       // truncated payload, and calling it readable would hide the damage.
       if (strict || end - payload.length > maxLengthOverrun) {
+        // A published New Hampshire specimen counts the header and directory in
+        // its only DL entry. Report what the bytes establish while rejecting it.
+        if (
+          numEntries === 1 &&
+          start === directoryEnd &&
+          declaredLength === payload.length - header.start
+        ) {
+          return {
+            entries,
+            error: `Subfile length exceeds payload size: the directory declares the entire ${declaredLength}-byte payload, but ${type} occupies ${payload.length - start} bytes`
+          };
+        }
         return { entries, error: "Subfile length exceeds payload size" };
       }
       end = payload.length;
