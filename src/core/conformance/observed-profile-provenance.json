@@ -522,5 +522,33 @@
     "notes": [
       "Published Nevada DMV central issuance test card reverse. The layout contains zero dates and demographic placeholders. The front illustration shows a separate SAMPLE persona."
     ]
+  },
+  {
+    "id": "ma-rmv-2010-v03",
+    "sourcePayloadHashes": ["316bb85b7986e9251ae966f9fd9e1a1b4f0304619cc0d5e9920787f27c3a66de"],
+    "sourceRecords": [
+      {
+        "url": "https://www.mass.gov/files/documents/2018/03/21/Drivers_Manual.pdf",
+        "sourceSha256": "0fe1f42a66044414cecab3eace2de68edf1a90476727bbbe39449c8502124cb4",
+        "payloadSha256": "316bb85b7986e9251ae966f9fd9e1a1b4f0304619cc0d5e9920787f27c3a66de"
+      }
+    ],
+    "notes": [
+      "RMV driver manual, government-hosted p168 back labeled 2010 to 2016. DAY contains exactly three spaces. The common v03 table also expects DAC, while this independently published edition uses DCT for given names."
+    ]
+  },
+  {
+    "id": "ma-rmv-2016-v08",
+    "sourcePayloadHashes": ["ff990484420b4f5e7546f7a0b8b976b2659cab5275c0226a13649ee861d60879"],
+    "sourceRecords": [
+      {
+        "url": "https://www.mass.gov/files/documents/2018/03/21/Drivers_Manual.pdf",
+        "sourceSha256": "0fe1f42a66044414cecab3eace2de68edf1a90476727bbbe39449c8502124cb4",
+        "payloadSha256": "ff990484420b4f5e7546f7a0b8b976b2659cab5275c0226a13649ee861d60879"
+      }
+    ],
+    "notes": [
+      "RMV driver manual, government-hosted p168 back labeled 2016 to present. DDH and DDJ both contain MMDDCCYY rather than numeric dates."
+    ]
   }
 ]

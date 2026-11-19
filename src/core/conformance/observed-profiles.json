@@ -5,7 +5,6 @@
     "iin": "636000",
     "version": "10",
     "subfileTypes": ["DL", "ID"],
-    "notes": ["ID retains driving fields as NONE. DDC=00000000 means absent in this specimen."],
     "encoding": {
       "jurisdictionVersion": "02",
       "elementOrder": [
@@ -113,7 +112,6 @@
     "iin": "636000",
     "version": "10",
     "subfileTypes": ["DL"],
-    "notes": ["Public specimen layout; this profile does not establish current issuance practice."],
     "encoding": {
       "jurisdictionVersion": "00",
       "elementOrder": [
@@ -198,7 +196,6 @@
     "iin": "636055",
     "version": "06",
     "subfileTypes": ["DL"],
-    "notes": ["Public specimen layout; this profile does not establish current issuance practice."],
     "encoding": {
       "jurisdictionVersion": "00",
       "elementOrder": [
@@ -317,10 +314,6 @@
     "iin": "636055",
     "version": "06",
     "subfileTypes": ["DL"],
-    "notes": [
-      "Public specimen layout; this profile does not establish current issuance practice.",
-      "DDA=M occurs in the published historical source; modern F/N semantics are not inferred."
-    ],
     "encoding": {
       "jurisdictionVersion": "01",
       "elementOrder": [
@@ -462,10 +455,6 @@
     "iin": "636055",
     "version": "03",
     "subfileTypes": ["DL"],
-    "notes": [
-      "Public specimen layout; this profile does not establish current issuance practice.",
-      "The historical source uses DCT given names rather than DAC."
-    ],
     "encoding": {
       "jurisdictionVersion": "00",
       "elementOrder": [
@@ -607,7 +596,6 @@
     "iin": "636054",
     "version": "11",
     "subfileTypes": ["DL"],
-    "notes": ["The sample includes DCL, reserved in v11."],
     "encoding": {
       "jurisdictionVersion": "01",
       "elementOrder": [
@@ -706,7 +694,6 @@
     "iin": "636010",
     "version": "09",
     "subfileTypes": ["DL"],
-    "notes": ["The published specimen omits DAY."],
     "encoding": {
       "jurisdictionVersion": "00",
       "elementOrder": [
@@ -811,7 +798,6 @@
     "iin": "636001",
     "version": "10",
     "subfileTypes": ["DL"],
-    "notes": ["Public specimen layout; this profile does not establish current issuance practice."],
     "encoding": {
       "jurisdictionVersion": "04",
       "elementOrder": [
@@ -891,9 +877,6 @@
     "iin": "636051",
     "version": "10",
     "subfileTypes": ["DL"],
-    "notes": [
-      "Public SAMPLE layout in the Mississippi driver manual; current issuance adoption is not inferred."
-    ],
     "encoding": {
       "jurisdictionVersion": "00",
       "elementOrder": [
@@ -989,9 +972,6 @@
     "iin": "636045",
     "version": "08",
     "subfileTypes": ["DL"],
-    "notes": [
-      "Archived government calibration specimen captured by Internet Archive on 2023-04-08; live source is unavailable. Current issuance layout is unverified."
-    ],
     "encoding": {
       "jurisdictionVersion": "01",
       "elementOrder": [
@@ -1047,9 +1027,6 @@
     "iin": "636010",
     "version": "01",
     "subfileTypes": ["DL"],
-    "notes": [
-      "Public Florida specimen uses the legacy 19-byte header, numeric sex code, three-digit height, and a hyphenated postal code. These exceptions apply only to this observed variant."
-    ],
     "encoding": {
       "legacyHeader": true,
       "jurisdictionVersion": "",
@@ -1146,7 +1123,6 @@
     "iin": "636022",
     "version": "09",
     "subfileTypes": ["DL"],
-    "notes": ["Published Kansas specimen. The acquisition record documents its rehost."],
     "encoding": {
       "jurisdictionVersion": "00",
       "elementOrder": [
@@ -1220,7 +1196,6 @@
     "iin": "636030",
     "version": "05",
     "subfileTypes": ["DL"],
-    "notes": ["The published B and zero-date values are specific to this layout."],
     "encoding": {
       "jurisdictionVersion": "01",
       "elementOrder": [
@@ -1356,7 +1331,6 @@
     "iin": "636025",
     "version": "08",
     "subfileTypes": ["DL"],
-    "notes": ["Published layout with a documented ZP terminator correction."],
     "encoding": {
       "jurisdictionVersion": "00",
       "elementOrder": [
@@ -1438,7 +1412,6 @@
     "iin": "636005",
     "version": "01",
     "subfileTypes": ["DL"],
-    "notes": ["Retail specimen with a legacy header, separator and numeric sex code."],
     "encoding": {
       "legacyHeader": true,
       "jurisdictionVersion": "",
@@ -1521,9 +1494,6 @@
     "iin": "636008",
     "version": "08",
     "subfileTypes": ["DL"],
-    "notes": [
-      "Public rehost; DCF is 30 characters and face/barcode details disagree. This profile verifies source-layout parity only."
-    ],
     "encoding": {
       "jurisdictionVersion": "00",
       "elementOrder": [
@@ -1632,9 +1602,6 @@
     "iin": "636020",
     "version": "10",
     "subfileTypes": ["DL"],
-    "notes": [
-      "University-rehosted specimen; direct issuer barcode unavailable. Face and barcode dates differ. Source-layout parity only."
-    ],
     "encoding": {
       "jurisdictionVersion": "01",
       "elementOrder": [
@@ -1699,9 +1666,6 @@
     "iin": "636010",
     "version": "01",
     "subfileTypes": ["DL"],
-    "notes": [
-      "Rehosted public training template. Direct issuer source is unverified. Legacy numeric sex and hyphenated postal formatting apply only to this specimen profile."
-    ],
     "encoding": {
       "legacyHeader": true,
       "jurisdictionVersion": "",
@@ -1807,7 +1771,6 @@
     "iin": "636020",
     "version": "10",
     "subfileTypes": ["DL"],
-    "notes": ["Anonymized Colorado DL. Carries DCL and DCJ. DAU preserves the source unit’s case."],
     "encoding": {
       "jurisdictionVersion": "01",
       "elementOrder": [
@@ -1879,7 +1842,6 @@
     "iin": "636041",
     "version": "09",
     "subfileTypes": ["ID"],
-    "notes": ["Anonymized Maine ID only. Its ZM subfile is present even with an empty ZMA."],
     "encoding": {
       "jurisdictionVersion": "00",
       "elementOrder": [
@@ -1931,9 +1893,6 @@
     "iin": "636014",
     "version": "10",
     "subfileTypes": ["DL"],
-    "notes": [
-      "California DMV 2025 design test publication. ZCE is preserved as supplied verification data."
-    ],
     "encoding": {
       "jurisdictionVersion": "01",
       "elementOrder": [
@@ -2008,7 +1967,6 @@
     "iin": "636058",
     "version": "01",
     "subfileTypes": ["DL"],
-    "notes": ["2003-era Oklahoma DPS test back with a legacy header and padded privilege fields."],
     "encoding": {
       "jurisdictionVersion": "",
       "elementOrder": [
@@ -2065,9 +2023,6 @@
     "iin": "636015",
     "version": "03",
     "subfileTypes": ["DL"],
-    "notes": [
-      "Texas DPS 2009 brochure. The given names use DCT. The privilege fields and names retain the observed fixed-width space fill."
-    ],
     "encoding": {
       "jurisdictionVersion": "00",
       "elementOrder": [
@@ -2145,7 +2100,6 @@
     "iin": "636037",
     "version": "04",
     "subfileTypes": ["DL"],
-    "notes": [],
     "encoding": {
       "jurisdictionVersion": "00",
       "elementOrder": [
@@ -2236,7 +2190,6 @@
     "iin": "636011",
     "version": "09",
     "subfileTypes": ["DL"],
-    "notes": [],
     "encoding": {
       "jurisdictionVersion": "00",
       "elementOrder": [
@@ -2308,7 +2261,6 @@
     "iin": "636042",
     "version": "04",
     "subfileTypes": ["DL"],
-    "notes": [],
     "encoding": {
       "jurisdictionVersion": "00",
       "elementOrder": [
@@ -2382,7 +2334,6 @@
     "iin": "636061",
     "version": "09",
     "subfileTypes": ["DL"],
-    "notes": [],
     "encoding": {
       "jurisdictionVersion": "00",
       "elementOrder": [
@@ -2455,7 +2406,6 @@
     "iin": "636003",
     "version": "09",
     "subfileTypes": ["ID"],
-    "notes": [],
     "encoding": {
       "jurisdictionVersion": "00",
       "elementOrder": [
@@ -2509,7 +2459,6 @@
     "iin": "636032",
     "version": "10",
     "subfileTypes": ["DL"],
-    "notes": [],
     "encoding": {
       "jurisdictionVersion": "00",
       "elementOrder": [
@@ -2566,7 +2515,6 @@
     "iin": "636029",
     "version": "09",
     "subfileTypes": ["DL"],
-    "notes": [],
     "encoding": {
       "jurisdictionVersion": "03",
       "elementOrder": [
@@ -2630,7 +2578,6 @@
     "iin": "636038",
     "version": "01",
     "subfileTypes": ["DL"],
-    "notes": [],
     "encoding": {
       "jurisdictionVersion": "",
       "elementOrder": ["DAQ", "DAA", "DBB"],
@@ -2666,7 +2613,6 @@
     "iin": "636047",
     "version": "10",
     "subfileTypes": ["DL"],
-    "notes": [],
     "encoding": {
       "jurisdictionVersion": "01",
       "elementOrder": [
@@ -2730,7 +2676,6 @@
     "iin": "636019",
     "version": "05",
     "subfileTypes": ["DL"],
-    "notes": [],
     "encoding": {
       "jurisdictionVersion": "00",
       "elementOrder": [
@@ -2773,7 +2718,6 @@
     "iin": "636036",
     "version": "04",
     "subfileTypes": ["DL"],
-    "notes": ["DDA=B has unverified meaning. The published ZN lacks its final carriage return."],
     "encoding": {
       "jurisdictionVersion": "00",
       "elementOrder": [
@@ -2875,7 +2819,6 @@
     "iin": "636018",
     "version": "04",
     "subfileTypes": ["DL"],
-    "notes": ["The Iowa samples use a DDB date template."],
     "encoding": {
       "jurisdictionVersion": "00",
       "elementOrder": [
@@ -2963,7 +2906,6 @@
     "iin": "636050",
     "version": "04",
     "subfileTypes": ["DL"],
-    "notes": ["Temporary sample with invalid fields and directory."],
     "encoding": {
       "jurisdictionVersion": "00",
       "elementOrder": [
@@ -3041,9 +2983,6 @@
     "iin": "636049",
     "version": "03",
     "subfileTypes": ["DL"],
-    "notes": [
-      "DMV sample uses zero dates and placeholder values. The sample front depicts a different persona."
-    ],
     "encoding": {
       "jurisdictionVersion": "00",
       "elementOrder": [
@@ -3136,5 +3075,201 @@
     "optionalFields": ["DAC"],
     "excludedFields": [],
     "emitEmptyFields": ["DAU", "DCE", "DCK", "DCU"]
+  },
+  {
+    "id": "ma-rmv-2010-v03",
+    "state": "MA",
+    "iin": "636002",
+    "version": "03",
+    "subfileTypes": ["DL"],
+    "encoding": {
+      "jurisdictionVersion": "00",
+      "elementOrder": [
+        "DCA",
+        "DCB",
+        "DCD",
+        "DBA",
+        "DCS",
+        "DCT",
+        "DBD",
+        "DBB",
+        "DBC",
+        "DAY",
+        "DAU",
+        "DAG",
+        "DAH",
+        "DAI",
+        "DAJ",
+        "DAK",
+        "DAQ",
+        "DCF",
+        "DCG",
+        "DCH",
+        "DCK",
+        "DCU"
+      ],
+      "fieldWidths": {
+        "DCA": 4,
+        "DCB": 10,
+        "DCD": 5,
+        "DCS": 40,
+        "DCT": 80,
+        "DAY": 3,
+        "DAG": 35,
+        "DAH": 34,
+        "DAI": 20,
+        "DAK": 11,
+        "DAQ": 25,
+        "DCF": 25,
+        "DCK": 25,
+        "DCU": 5
+      },
+      "padPostalCode": false,
+      "omitFinalSeparator": false,
+      "jurisdictionSubfile": {
+        "type": "ZM",
+        "elements": [
+          {
+            "code": "ZMA",
+            "label": "ZMA (source element)"
+          },
+          {
+            "code": "ZMB",
+            "label": "ZMB (source element)"
+          },
+          {
+            "code": "ZMC",
+            "label": "ZMC (source element)"
+          },
+          {
+            "code": "ZMD",
+            "label": "ZMD (source element)"
+          },
+          {
+            "code": "ZME",
+            "label": "ZME (source element)"
+          },
+          {
+            "code": "ZMF",
+            "label": "ZMF (source element)"
+          },
+          {
+            "code": "ZMG",
+            "label": "ZMG (source element)"
+          },
+          {
+            "code": "ZMH",
+            "label": "ZMH (source element)"
+          },
+          {
+            "code": "ZMI",
+            "label": "ZMI (source element)"
+          }
+        ]
+      },
+      "preserveValueCase": ["DAU"]
+    },
+    "extraFields": [
+      {
+        "code": "DCT",
+        "label": "Given Names",
+        "type": "string",
+        "required": true,
+        "maxLength": 80
+      },
+      {
+        "code": "DCH",
+        "type": "string",
+        "label": "DCH (source edition)"
+      },
+      {
+        "code": "DCU",
+        "label": "Name Suffix",
+        "type": "string"
+      }
+    ],
+    "optionalFields": [],
+    "excludedFields": ["DAC"],
+    "emitEmptyFields": ["DAY", "DCU", "ZMC", "ZMD"]
+  },
+  {
+    "id": "ma-rmv-2016-v08",
+    "state": "MA",
+    "iin": "636002",
+    "version": "08",
+    "subfileTypes": ["DL"],
+    "encoding": {
+      "jurisdictionVersion": "00",
+      "elementOrder": [
+        "DCA",
+        "DCB",
+        "DCD",
+        "DBA",
+        "DCS",
+        "DAC",
+        "DAD",
+        "DBD",
+        "DBB",
+        "DBC",
+        "DAY",
+        "DAU",
+        "DAG",
+        "DAH",
+        "DAI",
+        "DAJ",
+        "DAK",
+        "DAQ",
+        "DCF",
+        "DCG",
+        "DDE",
+        "DDF",
+        "DDG",
+        "DCK",
+        "DCU",
+        "DDA",
+        "DDB",
+        "DDD",
+        "DDH",
+        "DDJ",
+        "DDK",
+        "DDL"
+      ],
+      "fieldWidths": {
+        "DAK": 11,
+        "DCF": 25
+      },
+      "padPostalCode": false,
+      "omitFinalSeparator": false,
+      "jurisdictionSubfile": {
+        "type": "ZM",
+        "elements": [
+          {
+            "code": "ZMA",
+            "label": "ZMA (source element)"
+          },
+          {
+            "code": "ZMB",
+            "label": "ZMB (source element)"
+          },
+          {
+            "code": "ZMC",
+            "label": "ZMC (source element)"
+          },
+          {
+            "code": "ZMD",
+            "label": "ZMD (source element)"
+          },
+          {
+            "code": "ZME",
+            "label": "ZME (source element)"
+          }
+        ]
+      },
+      "preserveValueCase": ["DAU"]
+    },
+    "extraFields": [],
+    "optionalFields": [],
+    "excludedFields": [],
+    "emitEmptyFields": []
   }
 ]

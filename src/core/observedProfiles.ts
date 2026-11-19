@@ -9,9 +9,8 @@ export interface ObservedEncodingProfile {
   iin: string;
   version: string;
   subfileTypes: Array<"DL" | "ID">;
-  notes: string[];
+  // The preview loads display notes separately from the wire rules.
   // Full source URLs and hashes live in observed-profile-provenance.json.
-  // The browser needs the wire rules and short qualifications only.
   encoding: Omit<JurisdictionEncodingProfile, "source" | "jurisdictionSubfile"> & {
     jurisdictionSubfile?: Pick<JurisdictionSubfileProfile, "type" | "elements">;
   };

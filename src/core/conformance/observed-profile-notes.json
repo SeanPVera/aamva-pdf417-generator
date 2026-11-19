@@ -1,0 +1,122 @@
+{
+  "va-2023-revision02": [
+    "Public specimen layout; this profile does not establish current issuance practice.",
+    "Published ID cards retain driving-privilege elements as NONE; modern generic ID schema omits them.",
+    "DDC=00000000 is retained as an observed absence sentinel."
+  ],
+  "va-2023-revision00": [
+    "Public specimen layout; this profile does not establish current issuance practice."
+  ],
+  "ga-2012-version06": [
+    "Public specimen layout; this profile does not establish current issuance practice."
+  ],
+  "ga-2013-interim": [
+    "Public specimen layout; this profile does not establish current issuance practice.",
+    "DDA=M occurs in the published historical source; modern F/N semantics are not inferred."
+  ],
+  "ga-2005-version03": [
+    "Public specimen layout; this profile does not establish current issuance practice.",
+    "The historical source uses DCT given names rather than DAC."
+  ],
+  "ne-2026-version11": [
+    "Public specimen layout; this profile does not establish current issuance practice.",
+    "The source carries DCL although CDS 2025 reserves that code. This profile records the conflict."
+  ],
+  "fl-2019-version09": [
+    "Public specimen layout; this profile does not establish current issuance practice.",
+    "The published barcode omits DAY. This is an explicit issuer-sample compatibility exception."
+  ],
+  "ny-2022-published": [
+    "Public specimen layout; this profile does not establish current issuance practice."
+  ],
+  "ms-public-driver-manual-v10": [
+    "Public SAMPLE layout in the Mississippi driver manual; current issuance adoption is not inferred."
+  ],
+  "wa-archived-edl-v08": [
+    "Archived government calibration specimen captured by Internet Archive on 2023-04-08; live source is unavailable. Current issuance layout is unverified."
+  ],
+  "fl-published-legacy-v01": [
+    "Public Florida specimen uses the legacy 19-byte header, numeric sex code, three-digit height, and a hyphenated postal code. These exceptions apply only to this observed variant."
+  ],
+  "ks-published-v09": [
+    "Government SAMPLE publication. Source bytes remain unchanged.",
+    "High-resolution copy rehosted by marcdacosta/clearid. Government document origin is corroborated by the Kansas State Library publication; original legislature URL now returns 404. The library copy has different file bytes and lower-resolution artwork."
+  ],
+  "mo-published-v05": [
+    "Government SAMPLE publication. Source bytes remain unchanged.",
+    "Historical DDA=B and DDB=00000000 are retained in an explicit compatibility profile. The meaning of B is unverified; the zero revision date is not treated as a known calendar date."
+  ],
+  "pa-published-v08": [
+    "Government SAMPLE publication. Source bytes remain unchanged.",
+    "Government publication PUB 802 (7-17), recovered through Internet Archive capture dated 2020-10-17. Live source paths are unavailable.",
+    "Source ZP contains an extra segment terminator before ZPD. The positive fixture will explicitly canonicalize that framing byte and update the directory length; raw source remains unchanged in intake."
+  ],
+  "sc-public-retailer-legacy-v01": [
+    "Public retailer specimen uses the historical 19-byte header and numeric sex code. Source 0x1c record separator and inconsistent directory are preserved in intake; the canonicalized fixture repairs only framing. Numeric sex interpretation remains scoped to the published specimen."
+  ],
+  "mt-2015-public-specimen-v08": [
+    "Public rehost; DCF is 30 characters and face/barcode details disagree. This profile verifies source-layout parity only."
+  ],
+  "co-2022-public-specimen-v10": [
+    "University-rehosted specimen; direct issuer barcode unavailable. Face and barcode dates differ. Source-layout parity only."
+  ],
+  "fl-public-training-legacy-v01": [
+    "Rehosted public training template. Direct issuer source is unverified. Legacy numeric sex and hyphenated postal formatting apply only to this specimen profile."
+  ],
+  "co-issued-v10": [
+    "Anonymized issued Colorado DL layout. Default CO generation is unchanged; this profile is opt-in via encodingProfileId.",
+    "Carries DCL (excluded by default CO rules) and DCJ; DAU unit left as typed via preserveValueCase."
+  ],
+  "me-issued-v09": [
+    "Anonymized issued Maine ID card layout. Default ME generation is unchanged; this profile is opt-in via encodingProfileId.",
+    "Observed on an identification card only; nothing here is evidence about Maine driver's licenses.",
+    "Writes the ZM subfile even when ZMA is empty, as the source card does."
+  ],
+  "ca-dmv-verification-v10": [
+    "California DMV 2025 design test publication. ZCE is preserved as supplied verification data."
+  ],
+  "ok-dps-manual-v01": [
+    "2003-era Oklahoma DPS test back with a legacy header and padded privilege fields."
+  ],
+  "tx-dps-2009-v03": [
+    "Texas DPS 2009 brochure. The given names use DCT. The privilege fields and names retain the observed fixed-width space fill."
+  ],
+  "in-public-specimen-v04": [
+    "The published specimen contains a printed date format in place of a date."
+  ],
+  "de-public-specimen-v09": [
+    "The published specimen contains a printed date format in place of a date."
+  ],
+  "sd-public-specimen-v04": [
+    "The published specimen contains a printed date format in place of a date."
+  ],
+  "wv-public-specimen-v09": [
+    "The published specimen contains a printed date format in place of a date."
+  ],
+  "md-mdot-sb87-v09-id": ["Observed Maryland ID layout. The shared fixture anonymizes six fields."],
+  "mi-public-specimen-v10": ["The retailer sample leaves seven required fields blank."],
+  "or-deq-sample-v09": ["Public v09 sample from the Oregon rebate program."],
+  "mn-dvs-2004-v01": [
+    "The 2004 DVS guide describes a three-field barcode. This historical profile matches that publication."
+  ],
+  "hi-honolulu-2026-v10": [
+    "The Honolulu brochure uses ZA for the subfile and ZH for its element prefixes."
+  ],
+  "gu-drt-sample-v05": [
+    "The published back has an Indiana address and a Guam issuer. The fixture restores its missing terminator and removes a vendor footer."
+  ],
+  "nj-training-previous-v04": [
+    "DDA=B has unverified meaning. The published ZN lacks its final carriage return."
+  ],
+  "ia-dot-mm353-v04": ["The Iowa samples use a DDB date template."],
+  "id-itd-2011-temporary-v04": ["Temporary sample with invalid fields and directory."],
+  "nv-dmv-ci-v03": [
+    "DMV sample uses zero dates and placeholder values. The sample front depicts a different persona."
+  ],
+  "ma-rmv-2010-v03": [
+    "The 2010–2016 RMV sample encodes given names as DCT and contains three spaces for mandatory eye color."
+  ],
+  "ma-rmv-2016-v08": [
+    "The RMV sample has date formats in DDH and DDJ and a duplicate separator before DCK."
+  ]
+}

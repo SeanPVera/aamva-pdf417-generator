@@ -41,6 +41,8 @@ The [archived Idaho Transportation Department publication](https://web.archive.o
 
 The [300 dpi Nevada DMV sample back](https://web.archive.org/web/20170113222345id_/http://dmvnv.com/images/adultback_300dpi.jpg) yields 564 bytes, v03 DL. The marked demonstration data include three zero dates, two placeholder colors and a blank mandatory height. Strict framing passes. An equal-width control replaces only those six values and the normal generator reproduces the control exactly. The sample front depicts a different fictitious identity. Nevada stays outside the passing count.
 
+The [Massachusetts RMV manual](https://www.mass.gov/files/documents/2018/03/21/Drivers_Manual.pdf) contains two independently recovered sample backs on page 168. The 631-byte v03 DL has a blank required eye color. The 621-byte v08 DL uses two literal age-threshold date masks and an extra separator. Three readers agreed after shared optical reconstruction. Field-level regression controls reproduce the rest of each source, with the extra separator and both affected directory values explicitly corrected in the v08 control. Massachusetts remains outside the passing count.
+
 ## Edition rules verified in the application
 
 Annex D permits unabbreviated hair colors in DAZ from v04 through v12. Those editions accept BROWN and the abbreviated value BRO, while Idaho’s patterned sample value remains invalid.

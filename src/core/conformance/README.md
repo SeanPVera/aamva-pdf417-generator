@@ -29,7 +29,8 @@ five canonicalized layouts. The [November 19 continuation](COVERAGE-2026-11-19-c
 identify the edition, document type, source fidelity, and outstanding evidence
 for each jurisdiction.
 
-Named variants live in `observed-profiles.json`, with separate source evidence
+Named variants live in `observed-profiles.json`. The preview loads their display
+notes from `observed-profile-notes.json`, with separate source evidence
 in `observed-profile-provenance.json`. Supply `encodingProfileId` to both schema
 selection and generation. A retained imported source can identify its matching
 profile in the UI; profile recognition does not establish issuer authenticity.
@@ -66,8 +67,8 @@ Current coverage — run any time, and printed in CI:
 npm run conformance:report
 ```
 
-The [published specimen intake](published/README.md) retains 65 distinct raw payloads
-from publications labelled for 33 jurisdictions. The intake separately records
+The [published specimen intake](published/README.md) retains 67 distinct raw payloads
+from publications labelled for 34 jurisdictions. The intake separately records
 Maryland’s anonymized fixture and hash-only exclusions. The coverage ledger records rejection reasons and any
 edits used for a canonicalized fixture.
 

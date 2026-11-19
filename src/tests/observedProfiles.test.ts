@@ -1,6 +1,7 @@
 import { publishedObservations } from "./support/publishedIntake";
 import { describe, expect, it } from "vitest";
 import intake from "../core/conformance/published/2026-10-25.json";
+import profileNotes from "../core/conformance/observed-profile-notes.json";
 import profileProvenance from "../core/conformance/observed-profile-provenance.json";
 import {
   OBSERVED_ENCODING_PROFILES,
@@ -23,6 +24,12 @@ const specimenDateFields: Record<string, string[]> = {
 };
 
 describe("public-source observed format variants", () => {
+  it("keeps a preview notes entry for every observed wire layout", () => {
+    expect(Object.keys(profileNotes).sort()).toEqual(
+      OBSERVED_ENCODING_PROFILES.map((p) => p.id).sort()
+    );
+  });
+
   for (const profile of OBSERVED_ENCODING_PROFILES) {
     for (const hash of profileProvenance.find((source) => source.id === profile.id)!
       .sourcePayloadHashes) {
@@ -68,6 +75,39 @@ describe("public-source observed format variants", () => {
           const expected = raw.slice(1, 22) + "DL00410516ZI05570055" + body + raw.slice(567);
           expect(encode({ ...decoded.data!, ...replacements })).toBe(expected);
           expect(validateAAMVAPayloadStructure(expected, true).ok).toBe(true);
+          return;
+        }
+        if (["ma-rmv-2010-v03", "ma-rmv-2016-v08"].includes(profile.id)) {
+          const raw = specimen.rawBytesLatin1;
+          expect(identifyObservedEncodingProfile(raw)).toBe(profile.id);
+          expect(validateAAMVAPayloadStructure(raw, true).ok).toBe(true);
+          const encode = (data: Record<string, string>) =>
+            generateAAMVAPayload(profile.state, profile.version, fields, data, {
+              encodingProfileId: profile.id
+            });
+          if (profile.id === "ma-rmv-2010-v03") {
+            expect(raw).toContain("\nDAY   \n");
+            expect(() => encode(decoded.data!)).toThrow(/mandatory fields.*DAY/i);
+            expect(encode({ ...decoded.data!, DAY: "BRO" })).toBe(
+              raw.replace("\nDAY   \n", "\nDAYBRO\n")
+            );
+          } else {
+            expect(raw.slice(21, 41)).toBe("DL00410526ZM05670054");
+            expect(raw.slice(470, 475)).toBe("\n\nDCK");
+            expect(() => encode(decoded.data!)).toThrow(/DDH.*DDJ/);
+            // The published primary subfile has an extra field separator. Removing
+            // it shortens DL and advances the start of ZM by one byte.
+            const expected = (
+              raw.slice(0, 21) +
+              "DL00410525ZM05660054" +
+              raw.slice(41, 471) +
+              raw.slice(472)
+            )
+              .replace("\nDDHMMDDCCYY", "\nDDH01121977")
+              .replace("\nDDJMMDDCCYY", "\nDDJ01121980");
+            expect(encode({ ...decoded.data!, DDH: "01121977", DDJ: "01121980" })).toBe(expected);
+            expect(validateAAMVAPayloadStructure(expected, true).ok).toBe(true);
+          }
           return;
         }
         if (profile.id === "nv-dmv-ci-v03") {
