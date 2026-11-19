@@ -133,6 +133,9 @@ const FIELD_CODE_TO_GROUP: Record<string, FieldGroupId> = {
   DBA: "license",
   DBD: "license",
   DDB: "license",
+  DDH: "license",
+  DDI: "license",
+  DDJ: "license",
   DDA: "license",
   DDK: "license",
   DDL: "license",
@@ -148,6 +151,7 @@ const FIELD_CODE_TO_GROUP: Record<string, FieldGroupId> = {
   DCA: "privileges",
   DCB: "privileges",
   DCD: "privileges",
+  DDC: "privileges",
   DCM: "privileges",
   DCN: "privileges",
   DCO: "privileges",
@@ -492,6 +496,7 @@ export const AAMVA_FIELD_LIMITS: Record<string, number> = {
   DDG: 1,
   DDA: 1,
   DDB: 8,
+  DDC: 8,
   DDK: 1,
   DDL: 1,
   DDD: 1,
@@ -561,11 +566,51 @@ export const AAMVA_STATE_EXCLUDED_FIELDS: Record<string, string[]> = {
   DC: ["DAX", "DCL"]
 };
 
-// The 2009 standard's DL subfile data-element set. The 2010, 2011, and 2012
-// revisions (versions 05, 06, 07) carry the same elements — those releases
-// revised card design and security requirements rather than the DL subfile —
-// so they share this array instead of duplicating it. Sharing the field object
-// references also keeps the `_inlineOptionSets` WeakMap warm across versions.
+// The 2009 through 2013 editions also recognize materially compliant cards.
+const LEGACY_COMPLIANCE_TYPE: AAMVAField = {
+  code: "DDA",
+  label: "REAL ID / Compliance Type",
+  type: "string",
+  options: [...AAMVA_FIELD_OPTIONS.DDA!, { value: "M", label: "M - Materially compliant" }]
+};
+
+// Annex D, Table D.4 defines DDC for DLs through 2020. The 2025 edition reserves it.
+const HAZMAT_EXPIRATION: AAMVAField = {
+  code: "DDC",
+  label: "HAZMAT Endorsement Expiration Date",
+  type: "date"
+};
+
+// In 2010, Annex D added the optional birthday thresholds for both DLs and IDs.
+const AGE_THRESHOLD_DATES: AAMVAField[] = [
+  { code: "DDH", label: "Under 18 Until", type: "date" },
+  { code: "DDI", label: "Under 19 Until", type: "date" },
+  { code: "DDJ", label: "Under 21 Until", type: "date" }
+];
+
+// Annex D, Table D.4 from 2009 through 2026 allows full hair colors or D20 abbreviations.
+const HAIR_COLOR: AAMVAField = {
+  code: "DAZ",
+  label: "Hair Color",
+  type: "string",
+  maxLength: 12,
+  options: [
+    ...AAMVA_FIELD_OPTIONS.DAZ!,
+    ...[
+      "BALD",
+      "BLACK",
+      "BLONDE",
+      "BROWN",
+      "GRAY",
+      "RED",
+      "AUBURN",
+      "SANDY",
+      "WHITE",
+      "UNKNOWN"
+    ].map((value) => ({ value, label: value }))
+  ]
+};
+
 const V04_FIELDS: AAMVAField[] = [
   { code: "DCA", label: "Vehicle Class", type: "string", required: true },
   { code: "DCB", label: "Restriction Codes", type: "string", required: true },
@@ -593,11 +638,20 @@ const V04_FIELDS: AAMVAField[] = [
   { code: "DDG", label: "Middle Name Truncation", type: "string", required: true },
   { code: "DCU", label: "Name Suffix", type: "string" },
   { code: "DAW", label: "Weight (pounds)", type: "string" },
-  { code: "DAZ", label: "Hair Color", type: "string" },
+  HAIR_COLOR,
   { code: "DCL", label: "Race/Ethnicity", type: "string" },
-  { code: "DDA", label: "REAL ID / Compliance Type", type: "string" },
-  { code: "DDB", label: "Card Revision Date", type: "date" }
+  LEGACY_COMPLIANCE_TYPE,
+  { code: "DDB", label: "Card Revision Date", type: "date" },
+  HAZMAT_EXPIRATION,
+  {
+    code: "DDD",
+    label: "Limited Duration Document Indicator",
+    type: "char",
+    options: [{ value: "1", label: "1 - Temporary lawful status" }]
+  }
 ];
+
+const V05_FIELDS: AAMVAField[] = [...V04_FIELDS, ...AGE_THRESHOLD_DATES];
 
 /**
  * The 2025 Card Design Standard, AAMVA version 11.
@@ -608,8 +662,8 @@ const V04_FIELDS: AAMVAField[] = [
  *
  *   - `DCL` (race/ethnicity) is gone. The standard now records it as
  *     "Placeholder for future data element", so the code is reserved rather
- *     than reused. The AKA name elements and the HAZMAT expiry went with it;
- *     none of those were in this table to begin with.
+ *     than reused. The AKA name elements and the HAZMAT endorsement expiry
+ *     are also reserved in this edition.
  *   - `DDM`/`DDN`/`DDO`/`DDP` are added: CDL, non-domiciled, enhanced
  *     credential, and permit indicators. Each is F1N and "either absent or"
  *     the value 1, which is why the option tables above carry a single entry.
@@ -622,7 +676,7 @@ const V04_FIELDS: AAMVAField[] = [
  * "can only be present if the CDL Indicator is present". That belongs in
  * `validateCrossFieldConsistency`.
  */
-const V11_FIELDS: AAMVAField[] = [
+const V11_BASE_FIELDS: AAMVAField[] = [
   { code: "DCA", label: "Vehicle Class", type: "string", required: true },
   { code: "DCB", label: "Restriction Codes", type: "string", required: true },
   { code: "DCD", label: "Endorsement Codes", type: "string", required: true },
@@ -649,7 +703,7 @@ const V11_FIELDS: AAMVAField[] = [
   { code: "DDG", label: "Middle Name Truncation", type: "string", required: true },
   { code: "DCU", label: "Name Suffix", type: "string" },
   { code: "DAW", label: "Weight (pounds)", type: "string" },
-  { code: "DAZ", label: "Hair Color", type: "string" },
+  HAIR_COLOR,
   { code: "DDA", label: "REAL ID / Compliance Type", type: "string" },
   { code: "DDB", label: "Card Revision Date", type: "date" },
   { code: "DDK", label: "Organ Donor Indicator", type: "string" },
@@ -663,7 +717,7 @@ const V11_FIELDS: AAMVAField[] = [
 
 // CDS 2026 Tables D.3 and D.4, printed pages 68-75. Reserved codes are omitted.
 const V12_FIELDS: AAMVAField[] = [
-  ...V11_FIELDS.map((field): AAMVAField => {
+  ...V11_BASE_FIELDS.map((field): AAMVAField => {
     if (field.code === "DAD") return { ...field, required: true };
     if (field.code === "DCG")
       return { ...field, options: [{ value: "USA", label: "USA - United States" }] };
@@ -672,26 +726,6 @@ const V12_FIELDS: AAMVAField[] = [
     if (["DDK", "DDL", "DDD"].includes(field.code))
       return { ...field, options: [{ value: "1", label: "1 - Present" }] };
     if (field.code === "DAW") return { ...field, fixedLength: 3, pattern: "^[0-9]{3}$" };
-    if (field.code === "DAZ")
-      return {
-        ...field,
-        maxLength: 12,
-        options: [
-          ...AAMVA_FIELD_OPTIONS.DAZ!,
-          ...[
-            "BALD",
-            "BLACK",
-            "BLONDE",
-            "BROWN",
-            "GRAY",
-            "RED",
-            "AUBURN",
-            "SANDY",
-            "WHITE",
-            "UNKNOWN"
-          ].map((value) => ({ value, label: value }))
-        ]
-      };
     return field;
   }),
   { code: "DCI", label: "Place of Birth", type: "string", maxLength: 33 },
@@ -740,9 +774,7 @@ const V12_FIELDS: AAMVAField[] = [
     maxLength: 3,
     pattern: "^[0-9]{3}$"
   },
-  { code: "DDH", label: "Under 18 Until", type: "date" },
-  { code: "DDI", label: "Under 19 Until", type: "date" },
-  { code: "DDJ", label: "Under 21 Until", type: "date" },
+  ...AGE_THRESHOLD_DATES,
   { code: "SIG", label: "Digital Signature", type: "string", maxLength: 80, opaque: true },
   { code: "SCV", label: "Signature Coverage", type: "string", opaque: true }
 ];
@@ -827,8 +859,7 @@ export const AAMVA_VERSIONS: Record<string, AAMVAVersionDef> = {
     name: "AAMVA DL/ID-2005 (Version 03)",
     fields: [
       { code: "DCS", label: "Customer Family Name", type: "string", required: true },
-      { code: "DAC", label: "Customer First Name", type: "string", required: true },
-      { code: "DAD", label: "Customer Middle Name", type: "string" },
+      { code: "DCT", label: "Customer Given Names", type: "string", required: true },
       { code: "DCU", label: "Name Suffix", type: "string" },
       { code: "DAG", label: "Address Street", type: "string", required: true },
       { code: "DAH", label: "Address Line 2", type: "string" },
@@ -859,15 +890,15 @@ export const AAMVA_VERSIONS: Record<string, AAMVAVersionDef> = {
   },
   "05": {
     name: "AAMVA DL/ID-2010 (Version 05)",
-    fields: V04_FIELDS
+    fields: V05_FIELDS
   },
   "06": {
     name: "AAMVA DL/ID-2011 (Version 06)",
-    fields: V04_FIELDS
+    fields: V05_FIELDS
   },
   "07": {
     name: "AAMVA DL/ID-2012 (Version 07)",
-    fields: V04_FIELDS
+    fields: V05_FIELDS
   },
   "08": {
     name: "AAMVA DL/ID-2013 (Version 08)",
@@ -898,10 +929,12 @@ export const AAMVA_VERSIONS: Record<string, AAMVAVersionDef> = {
       { code: "DDG", label: "Middle Name Truncation", type: "string", required: true },
       { code: "DCU", label: "Name Suffix", type: "string" },
       { code: "DAW", label: "Weight (pounds)", type: "string" },
-      { code: "DAZ", label: "Hair Color", type: "string" },
+      HAIR_COLOR,
       { code: "DCL", label: "Race/Ethnicity", type: "string" },
-      { code: "DDA", label: "REAL ID / Compliance Type", type: "string" },
+      LEGACY_COMPLIANCE_TYPE,
       { code: "DDB", label: "Card Revision Date", type: "date" },
+      HAZMAT_EXPIRATION,
+      ...AGE_THRESHOLD_DATES,
       { code: "DDK", label: "Organ Donor Indicator", type: "string" },
       { code: "DDL", label: "Veteran Indicator", type: "string" },
       { code: "DDD", label: "Limited Duration Document Indicator", type: "string" }
@@ -936,10 +969,12 @@ export const AAMVA_VERSIONS: Record<string, AAMVAVersionDef> = {
       { code: "DDG", label: "Middle Name Truncation", type: "string", required: true },
       { code: "DCU", label: "Name Suffix", type: "string" },
       { code: "DAW", label: "Weight (pounds)", type: "string" },
-      { code: "DAZ", label: "Hair Color", type: "string" },
+      HAIR_COLOR,
       { code: "DCL", label: "Race/Ethnicity", type: "string" },
       { code: "DDA", label: "REAL ID / Compliance Type", type: "string" },
       { code: "DDB", label: "Card Revision Date", type: "date" },
+      HAZMAT_EXPIRATION,
+      ...AGE_THRESHOLD_DATES,
       { code: "DDK", label: "Organ Donor Indicator", type: "string" },
       { code: "DDL", label: "Veteran Indicator", type: "string" },
       { code: "DDD", label: "Limited Duration Document Indicator", type: "string" }
@@ -974,10 +1009,12 @@ export const AAMVA_VERSIONS: Record<string, AAMVAVersionDef> = {
       { code: "DDG", label: "Middle Name Truncation", type: "string", required: true },
       { code: "DCU", label: "Name Suffix", type: "string" },
       { code: "DAW", label: "Weight (pounds)", type: "string" },
-      { code: "DAZ", label: "Hair Color", type: "string" },
+      HAIR_COLOR,
       { code: "DCL", label: "Race/Ethnicity", type: "string" },
       { code: "DDA", label: "REAL ID / Compliance Type", type: "string" },
       { code: "DDB", label: "Card Revision Date", type: "date" },
+      HAZMAT_EXPIRATION,
+      ...AGE_THRESHOLD_DATES,
       { code: "DDK", label: "Organ Donor Indicator", type: "string" },
       { code: "DDL", label: "Veteran Indicator", type: "string" },
       { code: "DDD", label: "Limited Duration Document Indicator", type: "string" }
@@ -985,7 +1022,7 @@ export const AAMVA_VERSIONS: Record<string, AAMVAVersionDef> = {
   },
   "11": {
     name: "AAMVA DL/ID-2025 (Version 11)",
-    fields: V11_FIELDS
+    fields: [...V11_BASE_FIELDS, ...AGE_THRESHOLD_DATES]
   },
   "12": {
     name: "AAMVA DL/ID-2026 (Version 12)",
@@ -1026,6 +1063,19 @@ export function getFieldsForVersion(v: string): AAMVAField[] {
   return AAMVA_VERSIONS[v]?.fields || [];
 }
 
+/** Earlier editor versions saved v03 given names as separate DAC and DAD fields. */
+export function withV03DraftGivenNames(
+  version: string,
+  fields: Record<string, string>
+): Record<string, string> {
+  if (version !== "03" || fields.DCT !== undefined || !fields.DAC) return fields;
+  // Remove only printable padding here. The encoder must still reject control bytes.
+  const first = fields.DAC.replace(/^ +| +$/g, "");
+  if (!first) return fields;
+  const middle = fields.DAD?.replace(/^ +| +$/g, "");
+  return { ...fields, DCT: middle ? first + " " + middle : first };
+}
+
 // Pre-built Sets of excluded field codes per state — avoids repeated Set construction.
 const _EXCLUDED_SETS: Readonly<Record<string, ReadonlySet<string>>> = Object.fromEntries(
   Object.entries(AAMVA_STATE_EXCLUDED_FIELDS).map(([k, v]) => [k, new Set(v)])
@@ -1037,6 +1087,37 @@ const _stateVersionFieldCache = new Map<string, AAMVAField[]>();
 
 /** Elements that exist only to carry driving privileges an ID card does not confer. */
 const DRIVING_PRIVILEGE_CODES = ["DCA", "DCB", "DCD"];
+
+/** Apply Annex D document-type rules before adding a named specimen's observed exceptions. */
+export function fieldsForDocumentType(
+  fields: AAMVAField[],
+  version: string,
+  subfileType: "DL" | "ID"
+): AAMVAField[] {
+  if (subfileType === "DL") return fields;
+  if (["10", "11", "12"].includes(version)) {
+    const dlOnly = [
+      ...DRIVING_PRIVILEGE_CODES,
+      "DDC",
+      "DDM",
+      "DDN",
+      "DDP",
+      "DCM",
+      "DCN",
+      "DCO",
+      "DCP",
+      "DCQ",
+      "DCR"
+    ];
+    return fields.filter((f) => !dlOnly.includes(f.code));
+  }
+  // Historical IL IDs carry privilege codes, while the v09 Maine ID omits them.
+  return fields
+    .filter((f) => f.code !== "DDC")
+    .map((f) =>
+      f.required && DRIVING_PRIVILEGE_CODES.includes(f.code) ? { ...f, required: false } : f
+    );
+}
 
 export function getFieldsForStateAndVersion(
   stateCode: string,
@@ -1086,35 +1167,7 @@ export function getFieldsForStateAndVersion(
     );
   }
 
-  // CDS 2020/2025 Table D.3 marks these three elements DL-only.
-  if (subfileType === "ID" && ["10", "11", "12"].includes(v)) {
-    result = result.filter(
-      (f) =>
-        ![
-          ...DRIVING_PRIVILEGE_CODES,
-          "DDM",
-          "DDN",
-          "DDP",
-          "DCM",
-          "DCN",
-          "DCO",
-          "DCP",
-          "DCQ",
-          "DCR"
-        ].includes(f.code)
-    );
-  } else if (subfileType === "ID") {
-    // The primary-source review the older editions were waiting on: an issued
-    // Maine ID card (AAMVA v09) omits all three, and the generator rejected it
-    // outright as missing mandatory fields. Those editions do still define the
-    // elements — Illinois's v09 ID vector carries them — so here they stop
-    // being demanded rather than being removed as in v10/v11. An ID card that
-    // carries a vehicle class can still say so; one that does not is no longer
-    // refused.
-    result = result.map((f) =>
-      f.required && DRIVING_PRIVILEGE_CODES.includes(f.code) ? { ...f, required: false } : f
-    );
-  }
+  result = fieldsForDocumentType(result, v, subfileType);
   if (profile) result = applyObservedFields(result, profile);
   _stateVersionFieldCache.set(cacheKey, result);
   return result;

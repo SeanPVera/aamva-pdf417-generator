@@ -49,7 +49,9 @@ describe("AAMVA conformance corpus", () => {
         const decoded = decodeAAMVAFormat(v.expectedBytes);
         expect(decoded.error).toBeUndefined();
         expect(decoded.data).toBeDefined();
-        expect(decoded.data?.["DAJ"]).toBe(v.state);
+        expect(decoded.data?.state).toBe(v.state);
+        // Historical MN omits the address state. The Guam specimen has an Indiana address.
+        expect(decoded.data?.["DAJ"]).toBe(v.input["DAJ"]);
       });
     });
   }

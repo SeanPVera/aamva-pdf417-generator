@@ -1,0 +1,56 @@
+{
+  "id": "gu-v05-dl-published-87c8726ccd39",
+  "state": "GU",
+  "version": "05",
+  "subfileType": "DL",
+  "encodingProfileId": "gu-drt-sample-v05",
+  "description": "Guam DRT vendor-marked specimen. The issuer IIN is Guam and the address jurisdiction is Indiana. The 260-byte source lacks its final subfile terminator and carries a 25-byte vendor sample message beyond the only directory entry. The 236-byte reference explicitly replaces that trailer with CR and increases the declared subfile length by one. All field values are preserved.",
+  "provenance": {
+    "tier": "published",
+    "fidelity": "canonicalized",
+    "source": "https://www.guamtax.com/notices/Guam_D500BrochureProd.pdf",
+    "capturedAt": "2026-11-19",
+    "verifiedBy": "Source-grid calibration without issuer or payload priors. ZXing-C++, Apple Vision ISO-8859-1 text, and Python PDF417Decoder agree on symbol-labeled optical grid. Conventional readers did not independently decode the untouched raster.",
+    "sourceSha256": "8d4083154f5a87d582d9c2d4df72976684cccdfb6e0e7397818be0a76d301700",
+    "payloadSha256": "87c8726ccd39d8d5d8cdcf1e7466d0d6e0eec698f15971e616f8fecb734ae12f",
+    "evidenceImageSha256": "eee64b55984d083510509ffb16eaf5f8061d8f40671e2b0dffc47bf7830a1bbe",
+    "notes": "Guam DRT vendor-marked specimen. The issuer IIN is Guam and the address jurisdiction is Indiana. The 260-byte source lacks its final subfile terminator and carries a 25-byte vendor sample message beyond the only directory entry. The 236-byte reference explicitly replaces that trailer with CR and increases the declared subfile length by one. All field values are preserved.",
+    "transformations": [
+      {
+        "offset": 27,
+        "removeLength": 4,
+        "insert": "0205"
+      },
+      {
+        "offset": 235,
+        "removeLength": 25,
+        "insert": "\r"
+      }
+    ]
+  },
+  "input": {
+    "DCA": "NONE",
+    "DCB": "NONE",
+    "DCD": "NONE",
+    "DBA": "10242016",
+    "DCS": "SAMPLE",
+    "DAC": "JOHN",
+    "DAD": "A",
+    "DBD": "10242012",
+    "DBB": "10201955",
+    "DBC": "2",
+    "DAY": "UNK",
+    "DAU": "6 in",
+    "DAG": "1111 SMITH STREET",
+    "DAI": "FORT WAYNE",
+    "DAJ": "IN",
+    "DAK": "468080000",
+    "DAQ": "434973519",
+    "DCF": "1000000",
+    "DCG": "USA",
+    "DDE": "N",
+    "DDF": "N",
+    "DDG": "N"
+  },
+  "expectedBytes": "@\n\u001e\rANSI 636019050001DL00310205DLDCANONE\nDCBNONE\nDCDNONE\nDBA10242016\nDCSSAMPLE\nDACJOHN\nDADA\nDBD10242012\nDBB10201955\nDBC2\nDAYUNK\nDAU6 in\nDAG1111 SMITH STREET\nDAIFORT WAYNE\nDAJIN\nDAK468080000\nDAQ434973519\nDCF1000000\nDCGUSA\nDDEN\nDDFN\nDDGN\r"
+}

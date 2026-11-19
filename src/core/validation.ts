@@ -66,8 +66,7 @@ export interface ValidationIssue {
    * something was genuinely wrong, red meant nothing.
    *
    * Count and colour these separately: `"empty"` is work remaining, `"invalid"`
-   * is a mistake. Cross-field issues are always `"invalid"` — they compare
-   * values that exist.
+   * is a mistake. Conditional requirements can also produce an empty-field issue.
    */
   kind: "empty" | "invalid";
 }
@@ -445,6 +444,21 @@ export function validateCrossFieldConsistency(
 
   // Single-pass Map built once; replaces 4 separate Array.find() calls.
   const dateFormats = buildDateFormatMap(fields);
+
+  // Annex D requires DDB when the card claims DHS compliance, including historical M.
+  if (
+    dateFormats.has("DDB") &&
+    (dataObj.DDA === "F" || dataObj.DDA === "M") &&
+    !dataObj.DDB?.trim()
+  ) {
+    issues.push({
+      code: "DDB",
+      label: "Card Revision Date",
+      kind: "empty",
+      severity: "error",
+      message: "DHS compliance (DDA=F or historical M) requires a card revision date (DDB)."
+    });
+  }
 
   const birthDate = dataObj.DBB
     ? parseAamvaDate(dataObj.DBB, dateFormats.get("DBB") ?? "MMDDYYYY")

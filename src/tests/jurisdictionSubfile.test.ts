@@ -459,14 +459,14 @@ describe("NY encoding profile", () => {
     expect([...seen].some((dcf) => /[A-Z]/.test(dcf))).toBe(true);
   });
 
-  test("DDD (limited duration indicator) is available on 08 and later only", () => {
-    for (const version of ["08", "09", "10"]) {
+  test("DDD (limited duration indicator) is available from v04", () => {
+    for (const version of ["04", "05", "06", "07", "08", "09", "10", "11", "12"]) {
       expect(
         getFieldsForStateAndVersion("NY", version).map((f) => f.code),
         `v${version}`
       ).toContain("DDD");
     }
-    for (const version of ["03", "04"]) {
+    for (const version of ["01", "02", "03"]) {
       expect(
         getFieldsForStateAndVersion("NY", version).map((f) => f.code),
         `v${version}`

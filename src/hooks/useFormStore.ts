@@ -7,7 +7,7 @@ import type { BadgeStats } from "../core/badges";
 import { seededFields } from "../core/derivedFields";
 import { validateImportedRecord } from "../core/importPayload";
 import { AAMVA_STATES } from "../core/states";
-import { isSupportedVersion } from "../core/schema";
+import { isSupportedVersion, withV03DraftGivenNames } from "../core/schema";
 
 // Persisted state intentionally excludes the AAMVA `fields` payload, so no PII
 // is ever written to disk. Only UI preferences (state, version, strict mode,
@@ -232,7 +232,9 @@ export const useFormStore = create<FormState>()(
             ? s.badgeStats.visitedStates
             : [...s.badgeStats.visitedStates, stateCode];
           const seeds = seededFields(stateCode, s.subfileType);
-          const nextFields = { ...s.fields };
+          const nextFields = {
+            ...(s.sourcePayload ? s.fields : withV03DraftGivenNames(version, s.fields))
+          };
           // Seeds never overwrite something the user typed.
           for (const [code, value] of Object.entries(seeds)) {
             if (!(s.fields[code] || "").trim()) nextFields[code] = value;
@@ -368,14 +370,13 @@ export const useFormStore = create<FormState>()(
         if (!checked.ok) throw new Error(checked.error);
         set((s) => {
           const { state: newState, version, subfileType, ...rest } = checked.data;
-          const newFields = Object.fromEntries(
-            Object.entries(rest).map(([k, v]) => [k, String(v)])
-          );
+          const nextVersion = version || s.version;
+          const newFields = sourcePayload ? rest : withV03DraftGivenNames(nextVersion, rest);
           const history = [...s._history, documentSnapshot(s)].slice(-HISTORY_LIMIT);
           const nextState = newState || s.state;
           return {
             state: nextState,
-            version: version || s.version,
+            version: nextVersion,
             subfileType: subfileType === "ID" || subfileType === "DL" ? subfileType : s.subfileType,
             recentStates:
               nextState === s.state ? s.recentStates : promoteRecent(s.recentStates, nextState),

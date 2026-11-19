@@ -2,7 +2,10 @@ import { AAMVA_STATES, isJurisdictionSupported } from "./states";
 import {
   AAMVA_VERSIONS,
   getFieldsForStateAndVersion,
+  fieldsForDocumentType,
   getMandatoryFields,
+  getFieldsForVersion,
+  withV03DraftGivenNames,
   AAMVAField
 } from "./schema";
 import {
@@ -23,6 +26,8 @@ export interface GenerateOptions {
   subfileType?: "DL" | "ID";
   /** Explicit public-source variant; never inferred from the selected state alone. */
   encodingProfileId?: string;
+  /** Raw source fields must be validated under their recorded element codes. */
+  sourceFields?: boolean;
 }
 
 /**
@@ -145,36 +150,25 @@ export function generateAAMVAPayload(
     version,
     subfileType
   );
-  if (observed) fields = getFieldsForStateAndVersion(stateCode, version, subfileType, observed.id);
+  fields = observed
+    ? getFieldsForStateAndVersion(stateCode, version, subfileType, observed.id)
+    : fieldsForDocumentType(fields, version, subfileType);
 
-  if (
-    subfileType === "ID" &&
-    ["10", "11", "12"].includes(version) &&
-    !observed?.retainDrivingFieldsOnId
-  ) {
-    fields = fields.filter(
-      (f) =>
-        ![
-          "DCA",
-          "DCB",
-          "DCD",
-          "DDM",
-          "DDN",
-          "DDP",
-          "DCM",
-          "DCN",
-          "DCO",
-          "DCP",
-          "DCQ",
-          "DCR"
-        ].includes(f.code)
-    );
+  // Embedded callers can still supply the field table shipped by the old v03 editor.
+  if (!observed && version === "03" && fields.some((field) => field.code === "DAC")) {
+    const givenNames = getFieldsForVersion(version).find((field) => field.code === "DCT")!;
+    const hasGivenNames = fields.some((field) => field.code === "DCT");
+    fields = fields
+      .filter((field) => field.code !== "DAD" && !(field.code === "DAC" && hasGivenNames))
+      .map((field) => (field.code === "DAC" ? givenNames : field));
   }
 
   // Work on a copy. This used to normalise and auto-fill the caller's object in
   // place, so generating a preview quietly rewrote the values the caller still
   // held — an undeclared side effect for a function that returns a string.
-  const dataObj: Record<string, string> = { ...inputData };
+  const dataObj = {
+    ...(observed || options.sourceFields ? inputData : withV03DraftGivenNames(version, inputData))
+  };
 
   if (!AAMVA_STATES[stateCode]) throw new Error(`Unknown state code: ${stateCode}`);
 

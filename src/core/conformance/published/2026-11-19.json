@@ -1,0 +1,467 @@
+{
+  "schemaVersion": 1,
+  "capturedAt": "2026-11-19",
+  "scope": "Public test and specimen barcodes. Source bytes come from PDF417 symbols independently of the application.",
+  "sources": [
+    {
+      "id": "ca-dmv-vcb",
+      "jurisdiction": "CA",
+      "sourceUrl": "https://www.dmv.ca.gov/portal/file/verifying-digital-signatures-on-california-dlid-documents-pdf/",
+      "resolvedUrl": "https://www.dmv.ca.gov/portal/file/verifying-digital-signatures-on-california-dlid-documents-pdf/",
+      "sha256": "ba52b1da468714d914196de1a845aaec2c83ed2e7265041c5c7c3d6670956b48",
+      "bytes": 314717,
+      "publisherClass": "government"
+    },
+    {
+      "id": "ok-search-2",
+      "jurisdiction": "OK",
+      "sourceUrl": "https://digitalprairie.ok.gov/digital/api/collection/stgovpub/id/5975/download",
+      "resolvedUrl": "https://digitalprairie.ok.gov/digital/api/collection/stgovpub/id/5975/download",
+      "sha256": "e007acb1fc73a1242635aba5884f7648a90ef90ae7d37713500576d8e5bbf12c",
+      "bytes": 1645114,
+      "publisherClass": "government"
+    },
+    {
+      "id": "tx-archive-0",
+      "jurisdiction": "TX",
+      "sourceUrl": "https://hf-files-oregon.s3.amazonaws.com/hdpgetacvideo_kb_attachments/2025/09-08/5fd6c745-a70f-42cf-bf10-17d7248cc0f8/Texas_DL_Sample.pdf",
+      "resolvedUrl": "https://hf-files-oregon.s3.amazonaws.com/hdpgetacvideo_kb_attachments/2025/09-08/5fd6c745-a70f-42cf-bf10-17d7248cc0f8/Texas_DL_Sample.pdf",
+      "sha256": "adca41293d9419cd56a4776552e2a065a0ee53aee0200a6398ccb26cec88c35c",
+      "bytes": 1901760,
+      "publisherClass": "scanner-vendor-rehost"
+    },
+    {
+      "id": "nh-publisher-original-38",
+      "jurisdiction": "NH",
+      "sourceUrl": "https://www.idscanner.com/wp-content/uploads/2025/02/NH_License_Back.jpg",
+      "resolvedUrl": "https://www.idscanner.com/wp-content/uploads/2025/02/NH_License_Back.jpg",
+      "sha256": "5ab09966207b6cb4cbfcef5281ce885362fe0c518500cbe420f27d6c042975ae",
+      "bytes": 53014,
+      "publisherClass": "scanner-vendor-rehost",
+      "publicationUrl": "https://www.idscanner.com/drivers-license-news/new-hampshire-drivers-license-update-whats-new/"
+    },
+    {
+      "id": "wv-reverse",
+      "jurisdiction": "WV",
+      "sourceUrl": "https://webapps.transportation.wv.gov/TWS/WVDOTDocumentStorageMigration/PDF/Transportation/DMV/DMVFormSearch/GENERAL_ID_Sheet_Details_Over_and_Under_21.pdf",
+      "resolvedUrl": "https://webapps.transportation.wv.gov/TWS/WVDOTDocumentStorageMigration/PDF/Transportation/DMV/DMVFormSearch/GENERAL_ID_Sheet_Details_Over_and_Under_21.pdf",
+      "sha256": "98123728df608fba697ccffa9f25afafe0ffa0d6499c2279cf51f56f428789cc",
+      "bytes": 3531710,
+      "publisherClass": "government"
+    }
+  ],
+  "payloads": [
+    {
+      "id": "ca-published-4d09012cc25c",
+      "jurisdiction": "CA",
+      "sourceId": "ca-dmv-vcb",
+      "sourceUrl": "https://www.dmv.ca.gov/portal/file/verifying-digital-signatures-on-california-dlid-documents-pdf/",
+      "sourceSha256": "ba52b1da468714d914196de1a845aaec2c83ed2e7265041c5c7c3d6670956b48",
+      "sourcePage": 2,
+      "acquisition": {
+        "sourceId": "ca-dmv-vcb",
+        "page": 2,
+        "xref": 503,
+        "method": "padded grayscale"
+      },
+      "byteLength": 548,
+      "sha256": "4d09012cc25c537226b9af6beb46d28e6c59f44fda7145fbaeaea9197bc94542",
+      "rawBytesLatin1": "@\n\u001e\rANSI 636014100102DL00410287ZC03280220DLDAQI8887059\nDCSFIVENINE\nDDEU\nDACTOMTEST\nDDFU\nDADNONE\nDDGU\nDCABM1\nDCBL80\nDCDNONE\nDBD08052025\nDBB01011980\nDBA01012030\nDBC1\nDAU070 IN\nDAYBLU\nDAG2415 1ST AVE 051\nDAISACRAMENTO\nDAJCA\nDAK958180000  \nDCF08/05/2025298TL/TLFD/30\nDCGUSA\nDAZBLN\nDAW200\nDCUIV\nDCK25217I88870590401\nDDAN\nDDB05202024\rZCZCABLU\nZCBBLN\nZCC\nZCD\nZCE2csdghoB2QXApgGCAQIYnYIYdhikGK6jGJwYphjEQRUYxhrmdn0HGLCiGJwYoBioRHX/cGAYtEEUGLalGJwYbBjMARjWGNwY2FhBephqE+tbyDCJM7XgRUzmFAY41xQu1cBinSYoLAAx/k6284STfQ0g1arQCtDpTWsqa96BLDbWzvj0R4JIrk/K5AAY2kEW\r",
+      "imageSha256": "80b45173accd2cce40cd58b8681fafebf20dedea3e0ba2bd475649685f04dcd0",
+      "imagePath": "4d09012cc25c537226b9af6beb46d28e6c59f44fda7145fbaeaea9197bc94542.png",
+      "rawPath": "4d09012cc25c537226b9af6beb46d28e6c59f44fda7145fbaeaea9197bc94542.bin",
+      "privacyReview": "Explicit DMV test credential.",
+      "independentDirectory": [
+        {
+          "type": "DL",
+          "offset": 41,
+          "length": 287
+        },
+        {
+          "type": "ZC",
+          "offset": 328,
+          "length": 220
+        }
+      ],
+      "independentExpectedFields": {
+        "DAQ": "I8887059",
+        "DCS": "FIVENINE",
+        "DDE": "U",
+        "DAC": "TOMTEST",
+        "DDF": "U",
+        "DAD": "NONE",
+        "DDG": "U",
+        "DCA": "BM1",
+        "DCB": "L80",
+        "DCD": "NONE",
+        "DBD": "08052025",
+        "DBB": "01011980",
+        "DBA": "01012030",
+        "DBC": "1",
+        "DAU": "070 IN",
+        "DAY": "BLU",
+        "DAG": "2415 1ST AVE 051",
+        "DAI": "SACRAMENTO",
+        "DAJ": "CA",
+        "DAK": "958180000",
+        "DCF": "08/05/2025298TL/TLFD/30",
+        "DCG": "USA",
+        "DAZ": "BLN",
+        "DAW": "200",
+        "DCU": "IV",
+        "DCK": "25217I88870590401",
+        "DDA": "N",
+        "DDB": "05202024",
+        "ZCA": "BLU",
+        "ZCB": "BLN",
+        "ZCC": "",
+        "ZCD": "",
+        "ZCE": "2csdghoB2QXApgGCAQIYnYIYdhikGK6jGJwYphjEQRUYxhrmdn0HGLCiGJwYoBioRHX/cGAYtEEUGLalGJwYbBjMARjWGNwY2FhBephqE+tbyDCJM7XgRUzmFAY41xQu1cBinSYoLAAx/k6284STfQ0g1arQCtDpTWsqa96BLDbWzvj0R4JIrk/K5AAY2kEW"
+      },
+      "decoderStatus": "accepted",
+      "encoderStatus": "source-exact",
+      "notes": "The California DMV labels the running example as test material. ZCE contains test cryptographic material. The source-byte comparison covers layout and preserves the published value.",
+      "capturedAt": "2026-11-19"
+    },
+    {
+      "id": "ca-published-d54b56657145",
+      "jurisdiction": "CA",
+      "sourceId": "ca-dmv-vcb",
+      "sourceUrl": "https://www.dmv.ca.gov/portal/file/verifying-digital-signatures-on-california-dlid-documents-pdf/",
+      "sourceSha256": "ba52b1da468714d914196de1a845aaec2c83ed2e7265041c5c7c3d6670956b48",
+      "sourcePage": 6,
+      "acquisition": {
+        "sourceId": "ca-dmv-vcb",
+        "page": 6,
+        "xref": 93,
+        "method": "padded grayscale"
+      },
+      "byteLength": 542,
+      "sha256": "d54b566571459b8510cf9fb58d9efc90106d10a5ac2ec643eac41315c1c57aee",
+      "rawBytesLatin1": "@\n\u001e\rANSI 636014100102DL00410281ZC03220220DLDAQI8889812\nDCSONETWO\nDDEU\nDACEERIETEST\nDDFU\nDADVON TWOMN\nDDGU\nDCAC\nDCBNONE\nDCDNONE\nDBD09042025\nDBB12121972\nDBA12122029\nDBC9\nDAU075 IN\nDAYBLU\nDAG2415 1ST AVE\nDAISACRAMENTO\nDAJCA\nDAK958180000  \nDCF09/04/2025796KP/12FD/29\nDCGUSA\nDAZBLN\nDAW159\nDCK25247I88898120401\nDDAN\nDDB05202024\rZCZCABLU\nZCBBLN\nZCC\nZCD\nZCE2csdghoB2QXApgGCAQIYnYIYdhikGK6jGJwYphjEQRUYxhrnDr7YGLCiGJwYoBioRHX/cGAYtEEUGLalGJwYbBjMARjWGNwY2FhBemJvZUdnBf+uJ1kK58r6AsaiKMDVR7OkfSWCdft/LTd9M0sgpUItYaZClwJUeX5s20C/bZJffuxHkFzcdUXRIXsY2kEW\r",
+      "imageSha256": "d3956cb1eab9f595f9bf8551490c23d4f35f4fa141f45b01be9058f8da723343",
+      "imagePath": "d54b566571459b8510cf9fb58d9efc90106d10a5ac2ec643eac41315c1c57aee.png",
+      "rawPath": "d54b566571459b8510cf9fb58d9efc90106d10a5ac2ec643eac41315c1c57aee.bin",
+      "privacyReview": "Explicit DMV test credential.",
+      "independentDirectory": [
+        {
+          "type": "DL",
+          "offset": 41,
+          "length": 281
+        },
+        {
+          "type": "ZC",
+          "offset": 322,
+          "length": 220
+        }
+      ],
+      "independentExpectedFields": {
+        "DAQ": "I8889812",
+        "DCS": "ONETWO",
+        "DDE": "U",
+        "DAC": "EERIETEST",
+        "DDF": "U",
+        "DAD": "VON TWOMN",
+        "DDG": "U",
+        "DCA": "C",
+        "DCB": "NONE",
+        "DCD": "NONE",
+        "DBD": "09042025",
+        "DBB": "12121972",
+        "DBA": "12122029",
+        "DBC": "9",
+        "DAU": "075 IN",
+        "DAY": "BLU",
+        "DAG": "2415 1ST AVE",
+        "DAI": "SACRAMENTO",
+        "DAJ": "CA",
+        "DAK": "958180000",
+        "DCF": "09/04/2025796KP/12FD/29",
+        "DCG": "USA",
+        "DAZ": "BLN",
+        "DAW": "159",
+        "DCK": "25247I88898120401",
+        "DDA": "N",
+        "DDB": "05202024",
+        "ZCA": "BLU",
+        "ZCB": "BLN",
+        "ZCC": "",
+        "ZCD": "",
+        "ZCE": "2csdghoB2QXApgGCAQIYnYIYdhikGK6jGJwYphjEQRUYxhrnDr7YGLCiGJwYoBioRHX/cGAYtEEUGLalGJwYbBjMARjWGNwY2FhBemJvZUdnBf+uJ1kK58r6AsaiKMDVR7OkfSWCdft/LTd9M0sgpUItYaZClwJUeX5s20C/bZJffuxHkFzcdUXRIXsY2kEW"
+      },
+      "decoderStatus": "accepted",
+      "encoderStatus": "source-exact",
+      "notes": "Appendix B of the California DMV guide labels this credential revoked. The bytes are a positive serialization fixture. The published revocation status is retained as test metadata.",
+      "capturedAt": "2026-11-19"
+    },
+    {
+      "id": "ok-published-b7174a9ba162",
+      "jurisdiction": "OK",
+      "sourceId": "ok-search-2",
+      "sourceUrl": "https://digitalprairie.ok.gov/digital/api/collection/stgovpub/id/5975/download",
+      "sourceSha256": "e007acb1fc73a1242635aba5884f7648a90ef90ae7d37713500576d8e5bbf12c",
+      "sourcePage": 19,
+      "acquisition": {
+        "sourceId": "ok-search-2",
+        "page": 19,
+        "xref": 51,
+        "method": "padded grayscale"
+      },
+      "byteLength": 237,
+      "sha256": "b7174a9ba162dc72d55c89766aced25401c3b7602efba16f61813618a4c8f2c5",
+      "rawBytesLatin1": "@\n\u001e\rANSI 6360580102DL00390184ZO02230014DLDAQ000011141\nDAATESTING,AL\nDAG4416 NW 59TH ST\nDAIOKLAHOMA CITY\nDAJOK\nDAK731121336  \nDARD   \nDAS          \nDAT     \nDBA20070930\nDBB19411101\nDBCF\nDBD20030827\nDAU504\nDAW115\nDAYGRN\nDBHY\rZOZOA03081895\r",
+      "imageSha256": "4b084760f4d5d0e1d530f536d52eda5f1aebfb6b19ded26c58590e7a780c6b20",
+      "imagePath": "b7174a9ba162dc72d55c89766aced25401c3b7602efba16f61813618a4c8f2c5.png",
+      "rawPath": "b7174a9ba162dc72d55c89766aced25401c3b7602efba16f61813618a4c8f2c5.bin",
+      "privacyReview": "State license illustration with encoded surname TESTING and a differently named SAMPLE front.",
+      "independentDirectory": [
+        {
+          "type": "DL",
+          "offset": 39,
+          "length": 184
+        },
+        {
+          "type": "ZO",
+          "offset": 223,
+          "length": 14
+        }
+      ],
+      "independentExpectedFields": {
+        "DAQ": "000011141",
+        "DAA": "TESTING,AL",
+        "DAG": "4416 NW 59TH ST",
+        "DAI": "OKLAHOMA CITY",
+        "DAJ": "OK",
+        "DAK": "731121336",
+        "DAR": "D",
+        "DAS": "",
+        "DAT": "",
+        "DBA": "20070930",
+        "DBB": "19411101",
+        "DBC": "F",
+        "DBD": "20030827",
+        "DAU": "504",
+        "DAW": "115",
+        "DAY": "GRN",
+        "DBH": "Y",
+        "ZOA": "03081895"
+      },
+      "decoderStatus": "accepted",
+      "encoderStatus": "source-exact",
+      "notes": "Oklahoma DPS manual, printed page 1-13. The back encodes a TESTING record. The adjacent front uses a different SAMPLE identity; the fixture describes the back only.",
+      "capturedAt": "2026-11-19"
+    },
+    {
+      "id": "tx-published-67b82bc50a6d",
+      "jurisdiction": "TX",
+      "sourceId": "tx-archive-0",
+      "sourceUrl": "https://hf-files-oregon.s3.amazonaws.com/hdpgetacvideo_kb_attachments/2025/09-08/5fd6c745-a70f-42cf-bf10-17d7248cc0f8/Texas_DL_Sample.pdf",
+      "sourceSha256": "adca41293d9419cd56a4776552e2a065a0ee53aee0200a6398ccb26cec88c35c",
+      "sourcePage": 1,
+      "acquisition": {
+        "sourceId": "tx-archive-0",
+        "page": 1,
+        "xref": 111,
+        "method": "padded grayscale"
+      },
+      "byteLength": 444,
+      "sha256": "67b82bc50a6d38efa8a464c368ec5bfc243000081f25656d45c5194e239e146f",
+      "rawBytesLatin1": "@\n\u001e\rANSI 636015030002DL00410388ZT04290015DLDCAAM  \nDCBFOPRY\nDCDPTXS \nDBA10302014\nDCSSAMPLE                                  \nDCTMATEO                                                                           \nDBD10302006\nDBB10301986\nDBC1\nDAYBLU\nDAU068 in\nDAG2120 OLD MAIN STREET               \nDAIANYTOWN             \nDAJTX\nDAK123450000  \nDAQ12345678                 \nDCF12345678900000000000     \nDCGUSA\nDCHNONE\nDAZBRO\nDCU     \n\rZTZTA140\nZTBW\n\r",
+      "imageSha256": "f05b95bf682d01e373574de2c6797e0bb76462b9045cbe2769be2c7a7d72a4d8",
+      "imagePath": "67b82bc50a6d38efa8a464c368ec5bfc243000081f25656d45c5194e239e146f.png",
+      "rawPath": "67b82bc50a6d38efa8a464c368ec5bfc243000081f25656d45c5194e239e146f.bin",
+      "privacyReview": "The sample brochure shows dummy adult and under-21 faces. The barcode encodes the printed SAMPLE surname and under-21 given name.",
+      "independentDirectory": [
+        {
+          "type": "DL",
+          "offset": 41,
+          "length": 388
+        },
+        {
+          "type": "ZT",
+          "offset": 429,
+          "length": 15
+        }
+      ],
+      "independentExpectedFields": {
+        "DCA": "AM",
+        "DCB": "FOPRY",
+        "DCD": "PTXS",
+        "DBA": "10302014",
+        "DCS": "SAMPLE",
+        "DCT": "MATEO",
+        "DBD": "10302006",
+        "DBB": "10301986",
+        "DBC": "1",
+        "DAY": "BLU",
+        "DAU": "068 in",
+        "DAG": "2120 OLD MAIN STREET",
+        "DAI": "ANYTOWN",
+        "DAJ": "TX",
+        "DAK": "123450000",
+        "DAQ": "12345678",
+        "DCF": "12345678900000000000",
+        "DCG": "USA",
+        "DCH": "NONE",
+        "DAZ": "BRO",
+        "DCU": "",
+        "ZTA": "140",
+        "ZTB": "W"
+      },
+      "decoderStatus": "accepted",
+      "encoderStatus": "source-exact",
+      "notes": "Texas DPS April 2009 brochure, published through a scanner vendor support attachment. The back encodes the under-21 SAMPLE identity shown on the sheet. The older v03 layout uses DCT for given names.",
+      "capturedAt": "2026-11-19"
+    },
+    {
+      "id": "nh-published-5e011c40bde2",
+      "jurisdiction": "NH",
+      "sourceId": "nh-publisher-original-38",
+      "sourceUrl": "https://www.idscanner.com/wp-content/uploads/2025/02/NH_License_Back.jpg",
+      "sourceSha256": "5ab09966207b6cb4cbfcef5281ce885362fe0c518500cbe420f27d6c042975ae",
+      "sourcePage": null,
+      "acquisition": {
+        "sourceId": "nh-publisher-original-38",
+        "object": "downloaded-image",
+        "method": "padded grayscale"
+      },
+      "byteLength": 485,
+      "sha256": "5e011c40bde26696f6a0f59fc29942f4a468164ef9121ba6ca2ce8b7dd9bccc1",
+      "rawBytesLatin1": "@\n\u001e\rANSI 636039100001DL00310485DLDAQNHL12345678\nDCSSAMPLEXYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXY\nDDEU\nDACJANICEXYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXY\nDDFU\nDADNONEXYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXY\nDDGU\nDCAD\nDCBNONEXYXYXYXYXYXY\nDCDNONEX\nDBD12232024\nDBB06232007\nDBA06232028\nDBC2\nDAU066 in\nDAYBRO\nDAG123 NORTH STREETXYXYXYXYXYXYXYXYXYXYXYXY\nDAHXYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXY\nDAICONCORDXYXYXYXYXYXYX\nDAJNH\nDAK033010000  \nDCF0123456789012345\nDCGUSA\nDCK0123456789012345\nDDAF\nDDB08302024\n\r",
+      "imageSha256": "7d446ab6af89862407aefee54dfbf8ac89a52e8819d33a87649868f518b4f1c1",
+      "imagePath": "5e011c40bde26696f6a0f59fc29942f4a468164ef9121ba6ca2ce8b7dd9bccc1.png",
+      "rawPath": "5e011c40bde26696f6a0f59fc29942f4a468164ef9121ba6ca2ce8b7dd9bccc1.bin",
+      "privacyReview": "Marked SAMPLE front; back carries SAMPLE and repeated XY test strings.",
+      "independentDirectory": [
+        {
+          "type": "DL",
+          "offset": 31,
+          "length": 485
+        }
+      ],
+      "independentExpectedFields": {
+        "DAQ": "NHL12345678",
+        "DCS": "SAMPLEXYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXY",
+        "DDE": "U",
+        "DAC": "JANICEXYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXY",
+        "DDF": "U",
+        "DAD": "NONEXYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXY",
+        "DDG": "U",
+        "DCA": "D",
+        "DCB": "NONEXYXYXYXYXYXY",
+        "DCD": "NONEX",
+        "DBD": "12232024",
+        "DBB": "06232007",
+        "DBA": "06232028",
+        "DBC": "2",
+        "DAU": "066 in",
+        "DAY": "BRO",
+        "DAG": "123 NORTH STREETXYXYXYXYXYXYXYXYXYXYXYXY",
+        "DAH": "XYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXY",
+        "DAI": "CONCORDXYXYXYXYXYXYX",
+        "DAJ": "NH",
+        "DAK": "033010000",
+        "DCF": "0123456789012345",
+        "DCG": "USA",
+        "DCK": "0123456789012345",
+        "DDA": "F",
+        "DDB": "08302024"
+      },
+      "decoderStatus": "rejected",
+      "encoderStatus": "malformed-directory",
+      "notes": "Published SAMPLE design rehost. The printed and encoded example differ. The single subfile length counts the entire payload. Even after correcting that boundary, DCB, DAG and DAH fail the configured field limits.",
+      "capturedAt": "2026-11-19"
+    },
+    {
+      "id": "wv-published-6efb1c3ee8f0",
+      "jurisdiction": "WV",
+      "sourceId": "wv-reverse",
+      "sourceUrl": "https://webapps.transportation.wv.gov/TWS/WVDOTDocumentStorageMigration/PDF/Transportation/DMV/DMVFormSearch/GENERAL_ID_Sheet_Details_Over_and_Under_21.pdf",
+      "sourceSha256": "98123728df608fba697ccffa9f25afafe0ffa0d6499c2279cf51f56f428789cc",
+      "sourcePage": 1,
+      "acquisition": {
+        "sourceId": "wv-reverse",
+        "page": 1,
+        "xref": 178,
+        "method": "2x cubic grayscale"
+      },
+      "byteLength": 407,
+      "sha256": "6efb1c3ee8f07964196f68df306913827fb1fa2382ae3719bd91fbeaaeae9272",
+      "rawBytesLatin1": "@\n\u001e\rANSI 636061090002DL00410348ZW03890018DLDAQW065789\nDCSLASTNAME\nDDEU\nDACFIRSTNAME\nDDFU\nDADMIDDLE\nDDGU\nDCAE\nDCBNONE\nDCDNONE\nDBD03192019\nDBB03192002\nDBA03192024\nDBC2\nDAU068 in\nDAYBLU\nDAG456 NORTH MAIN STREET\nDAIANYTOWN\nDAJWV\nDAK253171234  \nDCFA1234567890W1234567890B85\nDCGUSA\nDCUJR X1\nDAHAPT 2\nDCKA123456WVW6XM01\nDDAF\nDDBMMDDCCYY\nDDCMMDDCCYY\nDDD1\nDAW155\nDDH03192020\nDDJ03192023\nDDK1\nDDL1\n\rZWZWAY\nZWBY\nZWCY\n\r",
+      "imageSha256": "c6c81c1b24c7fed1a5632d48556646f54a467505367cd4119503f3656683e70b",
+      "imagePath": "6efb1c3ee8f07964196f68df306913827fb1fa2382ae3719bd91fbeaaeae9272.png",
+      "rawPath": "6efb1c3ee8f07964196f68df306913827fb1fa2382ae3719bd91fbeaaeae9272.bin",
+      "privacyReview": "Published DMV sample artwork with dummy names and a date template.",
+      "independentDirectory": [
+        {
+          "type": "DL",
+          "offset": 41,
+          "length": 348
+        },
+        {
+          "type": "ZW",
+          "offset": 389,
+          "length": 18
+        }
+      ],
+      "independentExpectedFields": {
+        "DAQ": "W065789",
+        "DCS": "LASTNAME",
+        "DDE": "U",
+        "DAC": "FIRSTNAME",
+        "DDF": "U",
+        "DAD": "MIDDLE",
+        "DDG": "U",
+        "DCA": "E",
+        "DCB": "NONE",
+        "DCD": "NONE",
+        "DBD": "03192019",
+        "DBB": "03192002",
+        "DBA": "03192024",
+        "DBC": "2",
+        "DAU": "068 in",
+        "DAY": "BLU",
+        "DAG": "456 NORTH MAIN STREET",
+        "DAI": "ANYTOWN",
+        "DAJ": "WV",
+        "DAK": "253171234",
+        "DCF": "A1234567890W1234567890B85",
+        "DCG": "USA",
+        "DCU": "JR X1",
+        "DAH": "APT 2",
+        "DCK": "A123456WVW6XM01",
+        "DDA": "F",
+        "DDB": "MMDDCCYY",
+        "DDC": "MMDDCCYY",
+        "DDD": "1",
+        "DAW": "155",
+        "DDH": "03192020",
+        "DDJ": "03192023",
+        "DDK": "1",
+        "DDL": "1",
+        "ZWA": "Y",
+        "ZWB": "Y",
+        "ZWC": "Y"
+      },
+      "decoderStatus": "accepted",
+      "encoderStatus": "field-rejected",
+      "notes": "West Virginia DMV card sample sheet. The wire document type is DL, although the sheet is labelled for ID cards. The literal card revision value MMDDCCYY fails date validation.",
+      "capturedAt": "2026-11-19"
+    }
+  ],
+  "reobservations": [
+    {
+      "sourceUrl": "https://digitalprairie.ok.gov/digital/api/collection/stgovpub/id/17924/download",
+      "sourceSha256": "d25905179fc0cc6fe3165005f5f7607ad4e525e9a534b0b6943bfeb879c30578",
+      "byteLength": 237,
+      "payloadSha256": "b7174a9ba162dc72d55c89766aced25401c3b7602efba16f61813618a4c8f2c5",
+      "acquisition": {
+        "sourceId": "ok-search-3",
+        "page": 18,
+        "xref": 61,
+        "method": "padded grayscale"
+      },
+      "notes": "Second archived Oklahoma DPS manual carries the same back. Counted once."
+    }
+  ]
+}

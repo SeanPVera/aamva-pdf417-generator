@@ -136,8 +136,8 @@ See [CONTRIBUTING.md](CONTRIBUTING.md), [CLAUDE.md](CLAUDE.md), and the [impleme
 
 MIT license — [LICENSE](LICENSE).
 
-## October 2026 conformance expansion
+## Conformance evidence
 
 Version 12 (AAMVA CDS 2026) is available for standards tests. Turn off Strict validation when selecting an edition outside the configured issuer profile. Issuer adoption remains unverified. Version 12 handles ISO-8859-1 barcode bytes, preserves opaque SIG/SCV values, and exposes signature canonicalization and supplied-key ECDSA verification through the core API. Editing a signed record requires a new signature from the key owner.
 
-The corpus has external fixtures for 15/55 jurisdictions, with 29 external references and explicit source fidelity. The separate v12 oracle covers DL and ID standards expectations for all 55 and does not add issuer coverage. See the [evidence matrix](docs/AAMVA_COMPLIANCE_MATRIX.md) for the full scope and open gaps.
+The corpus has 42 passing external references across 26 of 55 jurisdictions. Of those, 32 reproduce unmodified source bytes across 19 jurisdictions. The v12 standards tests cover DL and ID for all 55. Issuer-derived v12 examples remain open. See the [evidence matrix](docs/AAMVA_COMPLIANCE_MATRIX.md) and the [November 19 continuation](src/core/conformance/COVERAGE-2026-11-19-continuation.md).

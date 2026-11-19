@@ -79,7 +79,7 @@ test("reads a tilted licence barcode from the camera on a first visit", async ({
 
   await page.goto("/");
   await dismissTour(page);
-  await page.getByRole("button", { name: "Scan barcode", exact: true }).click();
+  await page.getByRole("button", { name: "scan", exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "Scan DL/ID Barcode" });
   await expect(dialog).toBeVisible();
 

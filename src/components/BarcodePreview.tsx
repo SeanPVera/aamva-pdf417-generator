@@ -3,10 +3,8 @@ import bwipjs from "bwip-js";
 import { Maximize2 } from "lucide-react";
 import { useFormStore } from "../hooks/useFormStore";
 import { getFieldsForStateAndVersion } from "../core/schema";
-import {
-  activeObservedEncodingProfile,
-  OBSERVED_ENCODING_PROFILES
-} from "../core/observedProfiles";
+import { activeObservedEncodingProfile } from "../core/observedProfiles";
+import observedNotes from "../core/conformance/observed-profile-notes.json";
 import { decodeAAMVA } from "../core/decoder";
 import { getValidationIssues } from "../core/validation";
 import { getQuickFixes, type QuickFix } from "../core/quickFix";
@@ -25,6 +23,7 @@ import { PreviewActions } from "./PreviewActions";
 import { useClerkVoice } from "../hooks/useClerkVoice";
 import { useToast } from "./Toast";
 
+const profileNotes: Readonly<Record<string, readonly string[]>> = observedNotes;
 const EXPORT_DPI = 300;
 
 const BWIP_OPTIONS = PDF417_ENCODER_OPTIONS;
@@ -480,9 +479,7 @@ export const BarcodePreview: React.FC<BarcodePreviewProps> = ({
           <details className="m-3 rounded border border-amber-300 p-3 text-sm">
             <summary>Using the scanned document's observed layout</summary>
             <p>{encodingProfileId}</p>
-            {OBSERVED_ENCODING_PROFILES.find(
-              (profile) => profile.id === encodingProfileId
-            )?.notes.map((note) => (
+            {profileNotes[encodingProfileId]?.map((note) => (
               <p key={note}>{note}</p>
             ))}
           </details>

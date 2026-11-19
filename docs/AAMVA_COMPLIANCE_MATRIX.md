@@ -1,12 +1,12 @@
 # AAMVA compliance evidence
 
-As of October 31, 2026, the implementation has passing external fixtures for **15/55 jurisdictions**, plus standards-based version 12 checks across all 55. The all-jurisdiction issuer-reference objective remains open. This is an implementation evidence matrix; certification has not been established.
+On November 19, 2026, 42 external reference layouts pass byte comparisons across **26/55 jurisdictions**. The public intake also preserves source defects. The qualifications below describe the scope of each check.
 
 | Check | Evidence | Limit |
 | --- | --- | --- |
 | IIN assignments | All 55 match the captured primary AAMVA registry | Default edition values remain application profile assumptions |
-| External byte comparisons | 29 references, 15 jurisdictions, 19 state/version/type combinations | 24 source-exact, 2 anonymized, 3 canonicalized |
-| Public observation intake | 41 unique decoded payloads from 24 jurisdictions | Source defects remain visible and excluded from passing claims |
+| External byte comparisons | 42 references, 26 jurisdictions, 30 state/version/type combinations | 32 unmodified source payloads across 19 jurisdictions, 5 anonymized, 5 canonicalized |
+| Public observation intake | 68 retained raw payloads, an anonymized Maryland observation and additional hash-only exclusions | Source defects remain visible and excluded from passing claims |
 | Version 12 | 2026 active fields, DL/ID applicability, Latin-1 wire bytes, SIG/SCV handling | Zero independently sourced issuer v12 references |
 | Independent normative oracle | Python-built v12 DL and ID expectations for every jurisdiction | Synthetic standards evidence |
 | Rendered symbols | ZXing read-back for corpus fixtures, default strict profiles, and all 110 v12 expectations | Ideal digital images; no device or printed-card certification |
@@ -14,10 +14,10 @@ As of October 31, 2026, the implementation has passing external fixtures for **1
 | Legacy decoding | v01 headers, observed separator, prefix space, directory drift, recorded source diagnostics | Strict validation preserves malformed-source rejection |
 | Preservation | Original corpus inputs and expected bytes retained; source framing transformations explicit | Anonymized and canonicalized layouts remain distinct from raw source parity |
 
-See the [55-jurisdiction coverage ledger and source qualifications](../src/core/conformance/COVERAGE-2026-10-31.md) and [machine-readable ledger](../src/core/conformance/coverage-ledger-2026-10-31.json). The [October 25 investigation](../src/core/conformance/COVERAGE-2026-10-25.md) remains a historical snapshot.
+See the [current continuation and eight source replays](../src/core/conformance/COVERAGE-2026-11-19-continuation.md), the [prior 55-jurisdiction coverage ledger and source qualifications](../src/core/conformance/COVERAGE-2026-11-19.md) and [machine-readable ledger](../src/core/conformance/coverage-ledger-2026-11-19.json). The [October 25 investigation](../src/core/conformance/COVERAGE-2026-10-25.md) remains a historical snapshot.
 
 Named observed encoding profiles apply only to their matching issuer, edition, and document type. They preserve unusual field order, fixed padding, empty elements, historical fields, and opaque jurisdiction subfiles without replacing generic defaults. Compatibility exceptions appear in their notes.
 
-Remaining evidence work includes passing source references for the other 40 jurisdictions, additional editions and ID cards within covered jurisdictions, signed issuer v12 payloads with trusted public certificates, scanner/device interoperability, and physical print assessment. The current corpus contains one ID combination, Virginia v10. A passing DL fixture establishes no ID layout.
+Twenty-nine jurisdictions still need a passing external fixture. Maine v09, Maryland v09 and Virginia v10 have ID references. Other editions and document types, signed issuer v12 payloads with trusted public certificates, scanner interoperability, and physical print quality remain open.
 
 Run `npm run conformance:report` for the current inventory, then `npm run test:run` and `npm run test:coverage` for exercised comparisons. Static validation, production build, formatting, and bundle budgets are separate release checks.

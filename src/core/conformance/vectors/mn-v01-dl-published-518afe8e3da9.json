@@ -1,0 +1,25 @@
+{
+  "id": "mn-v01-dl-published-518afe8e3da9",
+  "state": "MN",
+  "version": "01",
+  "subfileType": "DL",
+  "encodingProfileId": "mn-dvs-2004-v01",
+  "description": "Minnesota DPS Driver and Vehicle Services brochure, effective December 15, 2004, rehosted by the Minnesota Municipal Beverage Association. Page 2 specifies three contents for this barcode. This named historical layout carries those three elements and omits six fields required by the ordinary v01 DL schema.",
+  "provenance": {
+    "tier": "published",
+    "fidelity": "unmodified-source",
+    "source": "http://municipalbev.com/images/driverslicense.pdf",
+    "capturedAt": "2026-11-19",
+    "verifiedBy": "ZXing-C++ decoded the native page 2 image, xref 6, and a full-page render. Apple Vision independently returned the same 101 bytes via ISO-8859-1 text.",
+    "sourceSha256": "ce1701f81f6eb7da8c5487cf2f22409208361cc8e7bb7220511004c5c0b96f7c",
+    "payloadSha256": "518afe8e3da936983f283697317cc382d4eca4cf4220ff8fa469d339fdaf0d32",
+    "evidenceImageSha256": "a8b4e4e658fecd1bc42a861405ad2e718b4ac998f4110e9319821a308b94070f",
+    "notes": "Minnesota DPS Driver and Vehicle Services brochure, effective December 15, 2004, rehosted by the Minnesota Municipal Beverage Association. Page 2 specifies three contents for this barcode. This named historical layout carries those three elements and omits six fields required by the ordinary v01 DL schema."
+  },
+  "input": {
+    "DAQ": "D-616-603-235-374",
+    "DAA": "GAYLE ELIZABETH SAMPLE",
+    "DBB": "19580522"
+  },
+  "expectedBytes": "@\n\u001e\rANSI 6360380101DL00290072DLDAQD-616-603-235-374\nDAAGAYLE ELIZABETH SAMPLE          \nDBB19580522\n\r"
+}

@@ -9,14 +9,15 @@ export interface ObservedEncodingProfile {
   iin: string;
   version: string;
   subfileTypes: Array<"DL" | "ID">;
-  notes: string[];
+  // The preview loads display notes separately from the wire rules.
   // Full source URLs and hashes live in observed-profile-provenance.json.
-  // The browser needs the wire rules and short qualifications only.
   encoding: Omit<JurisdictionEncodingProfile, "source" | "jurisdictionSubfile"> & {
     jurisdictionSubfile?: Pick<JurisdictionSubfileProfile, "type" | "elements">;
   };
   extraFields: AAMVAField[];
   optionalFields: string[];
+  /** Groups of elements that were present together or absent together in source layouts. */
+  optionalOrderGroups?: string[][];
   excludedFields: string[];
   retainDrivingFieldsOnId?: boolean;
   emitEmptyFields: string[];
@@ -68,6 +69,17 @@ export function applyObservedFields(
   }));
 }
 
+function matchesElementOrder(
+  expected: string[],
+  actual: string[],
+  optionalGroups: string[][] = []
+): boolean {
+  const absent = optionalGroups
+    .filter((group) => group.every((code) => !actual.includes(code)))
+    .flat();
+  return actual.join(",") === expected.filter((code) => !absent.includes(code)).join(",");
+}
+
 /** Conservative layout recognition from byte framing, without using identity values. */
 export function identifyObservedEncodingProfile(payload: string): string | undefined {
   const header = readPayloadHeader(payload);
@@ -85,6 +97,14 @@ export function identifyObservedEncodingProfile(payload: string): string | undef
     .filter(Boolean);
   if (elements.some((element) => !/^[A-Z]{2}[A-Z0-9]/.test(element))) return undefined;
   const codes = elements.map((element) => element.slice(0, 3));
+  const secondary = entries[1];
+  const secondaryCodes = secondary
+    ? payload
+        .slice(secondary.start + 2, secondary.end)
+        .split(/[\r\n]+/)
+        .filter(Boolean)
+        .map((element) => element.slice(0, 3))
+    : [];
   const matches = OBSERVED_ENCODING_PROFILES.filter((profile) => {
     if (
       profile.version !== version ||
@@ -94,10 +114,21 @@ export function identifyObservedEncodingProfile(payload: string): string | undef
       return false;
     // Issuer identity is checked against the profile's retained source header.
     if (profile.iin !== payload.slice(header.start + 9, header.start + 15)) return false;
-    const order = profile.encoding.elementOrder ?? [];
-    // Exact order match: a stricter profile that only adds elements (e.g. CO
-    // issued with DCL) must not also claim a specimen that omits them.
-    if (codes.join(",") !== order.join(",")) return false;
+    const subfile = profile.encoding.jurisdictionSubfile;
+    if (entries.length !== (subfile ? 2 : 1) || secondary?.type !== subfile?.type) return false;
+    if (
+      subfile &&
+      !matchesElementOrder(
+        subfile.elements.map((element) => element.code),
+        secondaryCodes,
+        profile.optionalOrderGroups
+      )
+    )
+      return false;
+    if (
+      !matchesElementOrder(profile.encoding.elementOrder ?? [], codes, profile.optionalOrderGroups)
+    )
+      return false;
     for (const element of elements) {
       const width = profile.encoding.fieldWidths?.[element.slice(0, 3)];
       if (width !== undefined && element.length - 3 !== width) return false;
