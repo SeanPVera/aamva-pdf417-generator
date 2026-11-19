@@ -550,5 +550,19 @@
     "notes": [
       "RMV driver manual, government-hosted p168 back labeled 2016 to present. DDH and DDJ both contain MMDDCCYY rather than numeric dates."
     ]
+  },
+  {
+    "id": "wy-wydot-sample-v09",
+    "sourcePayloadHashes": ["391913d61bc620046f20c0c0d54ae48f82e97d9427ecaadb42303466994ac692"],
+    "sourceRecords": [
+      {
+        "url": "https://www.youtube.com/watch?v=DLI7RtJaPgI",
+        "sourceSha256": "bcae78e5e52931587cfd79279091427920e90eb43de67cff76af190ba19506e2",
+        "payloadSha256": "391913d61bc620046f20c0c0d54ae48f82e97d9427ecaadb42303466994ac692"
+      }
+    ],
+    "notes": [
+      "WYDOT March 2, 2020 public sample card in New Driver Licenses, source frame 567 (18.918900 s). One perspective transform corrected its orientation and left all printed symbol content intact."
+    ]
   }
 ]

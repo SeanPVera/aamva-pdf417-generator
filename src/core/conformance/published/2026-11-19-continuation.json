@@ -796,6 +796,64 @@
         "ZME": "M"
       },
       "notes": "RMV driver manual, government-hosted p168 back labeled 2016 to present. DDH and DDJ both contain MMDDCCYY rather than numeric dates. It also encodes an extra LF at 471, between DDG and DCK."
+    },
+    {
+      "id": "wy-published-391913d61bc6",
+      "jurisdiction": "WY",
+      "sourceUrl": "https://www.youtube.com/watch?v=DLI7RtJaPgI",
+      "sourceSha256": "bcae78e5e52931587cfd79279091427920e90eb43de67cff76af190ba19506e2",
+      "sourceFrame": 567,
+      "sourceTimeSeconds": "18.918900",
+      "byteLength": 310,
+      "sha256": "391913d61bc620046f20c0c0d54ae48f82e97d9427ecaadb42303466994ac692",
+      "rawBytesLatin1": "@\n\u001e\rANSI 636060090102DL00410254ZW02950015DLDAQ111496626\nDCSSAMPLE\nDDEU\nDACTINA\nDDFU\nDADA\nDDGU\nDCAC\nDCBB\nDCDNONE\nDBD01102020\nDBB11241985\nDBA11242025\nDBC2\nDAU063 in\nDAYBRO\nDAG123 ANYSTREET\nDAIANYTOWN\nDAJWY\nDAK820000000  \nDCF1000017722\nDCGUSA\nDCK1000017722\nDDAF\nDDB11142018\nDAZBRO\nDAW120\nDDK1\nDDL1\rZWZWA013102405\r",
+      "imageSha256": "a210fa364e2ad53c625515b63a94bc40607e66b9c7bea14483244692a4988c3e",
+      "privacyReview": "Continuous shot shows the listed WYDOT demonstration card flipped from front to reverse. SAMPLE, person name, expressly dummy address, numeric customer identifier, DOB and document identifier agree with the visible front or unobscured back fields. The photographer’s finger physically covers a small corner of the barcode, the optical readers return the published symbol after normal error correction. No source artwork was filled or reconstructed.",
+      "independentDirectory": [
+        {
+          "type": "DL",
+          "offset": 41,
+          "length": 254
+        },
+        {
+          "type": "ZW",
+          "offset": 295,
+          "length": 15
+        }
+      ],
+      "independentExpectedFields": {
+        "DAQ": "111496626",
+        "DCS": "SAMPLE",
+        "DDE": "U",
+        "DAC": "TINA",
+        "DDF": "U",
+        "DAD": "A",
+        "DDG": "U",
+        "DCA": "C",
+        "DCB": "B",
+        "DCD": "NONE",
+        "DBD": "01102020",
+        "DBB": "11241985",
+        "DBA": "11242025",
+        "DBC": "2",
+        "DAU": "063 in",
+        "DAY": "BRO",
+        "DAG": "123 ANYSTREET",
+        "DAI": "ANYTOWN",
+        "DAJ": "WY",
+        "DAK": "820000000",
+        "DCF": "1000017722",
+        "DCG": "USA",
+        "DCK": "1000017722",
+        "DDA": "F",
+        "DDB": "11142018",
+        "DAZ": "BRO",
+        "DAW": "120",
+        "DDK": "1",
+        "DDL": "1",
+        "ZWA": "013102405"
+      },
+      "notes": "WYDOT March 2, 2020 public sample card in New Driver Licenses, source frame 567 (18.918900 s). One perspective transform corrected its orientation and left all printed symbol content intact. Two optical readers decoded the same corrected source pixels: ZXing-C++ bytes and Apple Vision ISO-8859-1 payloadStringValue. Independent length, directory, field and hash checks precede application replay."
     }
   ],
   "reobservations": [

@@ -118,5 +118,8 @@
   ],
   "ma-rmv-2016-v08": [
     "The RMV sample has date formats in DDH and DDJ and a duplicate separator before DCK."
+  ],
+  "wy-wydot-sample-v09": [
+    "WYDOT March 2, 2020 public sample card in New Driver Licenses, source frame 567 (18.918900 s). One perspective transform corrected its orientation and left all printed symbol content intact."
   ]
 }

@@ -859,8 +859,7 @@ export const AAMVA_VERSIONS: Record<string, AAMVAVersionDef> = {
     name: "AAMVA DL/ID-2005 (Version 03)",
     fields: [
       { code: "DCS", label: "Customer Family Name", type: "string", required: true },
-      { code: "DAC", label: "Customer First Name", type: "string", required: true },
-      { code: "DAD", label: "Customer Middle Name", type: "string" },
+      { code: "DCT", label: "Customer Given Names", type: "string", required: true },
       { code: "DCU", label: "Name Suffix", type: "string" },
       { code: "DAG", label: "Address Street", type: "string", required: true },
       { code: "DAH", label: "Address Line 2", type: "string" },
@@ -1062,6 +1061,19 @@ export function getEffectiveMaxLength(field: AAMVAField): number | undefined {
 
 export function getFieldsForVersion(v: string): AAMVAField[] {
   return AAMVA_VERSIONS[v]?.fields || [];
+}
+
+/** Earlier editor versions saved v03 given names as separate DAC and DAD fields. */
+export function withV03DraftGivenNames(
+  version: string,
+  fields: Record<string, string>
+): Record<string, string> {
+  if (version !== "03" || fields.DCT !== undefined || !fields.DAC) return fields;
+  // Remove only printable padding here. The encoder must still reject control bytes.
+  const first = fields.DAC.replace(/^ +| +$/g, "");
+  if (!first) return fields;
+  const middle = fields.DAD?.replace(/^ +| +$/g, "");
+  return { ...fields, DCT: middle ? first + " " + middle : first };
 }
 
 // Pre-built Sets of excluded field codes per state — avoids repeated Set construction.

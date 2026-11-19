@@ -23,8 +23,8 @@ Only `published` and `issued` count as evidence about the outside world. The
 schema and the rules below are enforced by
 `src/tests/conformanceProvenance.test.ts`.
 
-The corpus has 41 passing external references in 25 of the 55 jurisdictions.
-They include 31 unmodified public payloads, five anonymized layouts, and
+The corpus has 42 passing external references in 26 of the 55 jurisdictions.
+They include 32 unmodified public payloads, five anonymized layouts, and
 five canonicalized layouts. The [November 19 continuation](COVERAGE-2026-11-19-continuation.md) and [preceding ledger](COVERAGE-2026-11-19.md)
 identify the edition, document type, source fidelity, and outstanding evidence
 for each jurisdiction.
@@ -67,8 +67,8 @@ Current coverage — run any time, and printed in CI:
 npm run conformance:report
 ```
 
-The [published specimen intake](published/README.md) retains 67 distinct raw payloads
-from publications labelled for 34 jurisdictions. The intake separately records
+The [published specimen intake](published/README.md) retains 68 distinct raw payloads
+from publications labelled for 35 jurisdictions. The intake separately records
 Maryland’s anonymized fixture and hash-only exclusions. The coverage ledger records rejection reasons and any
 edits used for a canonicalized fixture.
 

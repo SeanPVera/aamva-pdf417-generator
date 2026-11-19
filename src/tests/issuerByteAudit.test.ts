@@ -2,7 +2,10 @@ import { describe, expect, it } from "vitest";
 import { decodeAAMVAFormat, validateAAMVAPayloadStructure } from "../core/decoder";
 import { generateAAMVAPayload } from "../core/generator";
 import { buildSampleFill } from "../core/sampleFiller";
-import { getFieldsForStateAndVersion } from "../core/schema";
+import { getEffectiveMaxLength, getFieldsForStateAndVersion } from "../core/schema";
+import { useFormStore } from "../hooks/useFormStore";
+import { buildReadback } from "../hooks/useClerkVoice";
+import { buildExportBasename } from "../core/exportNaming";
 import southDakota from "../core/conformance/published/2026-10-25.json";
 import westVirginia from "../core/conformance/published/2026-11-19.json";
 
@@ -122,5 +125,85 @@ describe("Annex D checks from the matching-issuer source audit", () => {
     const unterminated = raw.slice(0, -1) + " ";
     expect(validateAAMVAPayloadStructure(unterminated, true).error).toMatch(/terminator in ZW/);
     expect(validateAAMVAPayloadStructure(unterminated).ok).toBe(true);
+  });
+});
+
+describe("2005 Table D.3 given names", () => {
+  it.each(["DL", "ID"] as const)("uses one required V80ANS field on a v03 %s", (type) => {
+    const fields = getFieldsForStateAndVersion("MA", "03", type);
+    const name = fields.find((f) => f.code === "DCT")!;
+    expect(name.required).toBe(true);
+    expect(getEffectiveMaxLength(name)).toBe(80);
+    expect(fields.map((f) => f.code)).not.toContain("DAC");
+    expect(fields.map((f) => f.code)).not.toContain("DAD");
+    const input = { ...buildSampleFill(fields, "MA"), DCT: "A".repeat(80) };
+    const generate = (data: Record<string, string>) =>
+      generateAAMVAPayload("MA", "03", fields, data, { subfileType: type });
+    expect(decodeAAMVAFormat(generate(input)).data?.DCT).toBe(input.DCT);
+    expect(() => generate({ ...input, DCT: "A".repeat(81) })).toThrow(/DCT/);
+    expect(() => generate({ ...input, DCT: "", DAC: "OLDER" })).toThrow(/DCT/);
+  });
+
+  it("preserves legacy first and middle input through both public field table shapes", () => {
+    const fields = getFieldsForStateAndVersion("MA", "03");
+    const legacy = fields.flatMap((field) =>
+      field.code === "DCT"
+        ? [
+            { ...field, code: "DAC", label: "Customer First Name" },
+            { ...field, code: "DAD", label: "Customer Middle Name", required: false }
+          ]
+        : [field]
+    );
+    const input = Object.freeze({ ...buildSampleFill(legacy, "MA"), DAC: " SKY ", DAD: " ROSE " });
+    for (const schema of [fields, legacy]) {
+      const generate = (record: Record<string, string>) =>
+        generateAAMVAPayload("MA", "03", schema, record);
+      const data = decodeAAMVAFormat(generate(input)).data!;
+      expect(data.DCT).toBe("SKY ROSE");
+      expect(data).not.toHaveProperty("DAC");
+      expect(data).not.toHaveProperty("DAD");
+      expect(decodeAAMVAFormat(generate({ ...input, DCT: "BETTY SUE" })).data?.DCT).toBe(
+        "BETTY SUE"
+      );
+      expect(() => generate({ ...input, DAD: "ROSE\n" })).toThrow(/DCT/);
+      expect(() => generateAAMVAPayload("MA", "03", schema, input, { sourceFields: true })).toThrow(
+        /DCT/
+      );
+    }
+    expect(input).not.toHaveProperty("DCT");
+  });
+
+  it("shows the migrated name on import and version changes while preserving the scan", () => {
+    const store = useFormStore.getState();
+    const previous = useFormStore.getState();
+    try {
+      const draft = { state: "MA", version: "03", DAC: "SKY", DAD: "ROSE" };
+      store.loadJson(draft);
+      expect(useFormStore.getState().fields.DCT).toBe("SKY ROSE");
+      store.loadJson({ ...draft, version: "04" });
+      expect(useFormStore.getState().fields.DCT).toBeUndefined();
+      store.setStateVersion("MA", "03");
+      expect(useFormStore.getState().fields.DCT).toBe("SKY ROSE");
+      store.undo();
+      expect(useFormStore.getState().version).toBe("04");
+      expect(useFormStore.getState().fields).not.toHaveProperty("DCT");
+      store.loadJson({ ...draft, DCT: "" });
+      expect(useFormStore.getState().fields.DCT).toBe("");
+      store.loadJson(draft, "original scan bytes");
+      store.setStateVersion("MA", "03");
+      expect(useFormStore.getState().sourcePayload).toBe("original scan bytes");
+      expect(useFormStore.getState().fields).not.toHaveProperty("DCT");
+    } finally {
+      useFormStore.setState(previous, true);
+    }
+  });
+
+  it("exposes the current combined name through readback and opt-in export", () => {
+    const fields = { DCS: "TEST", DCT: "SKY ROSE" };
+    expect(buildReadback(fields)).toContain("Given names. SKY ROSE.");
+    expect(buildExportBasename({ state: "MA", version: "03", fields, includeName: true })).toBe(
+      "MA_TEST_SKYROSE_DL"
+    );
+    expect(buildExportBasename({ state: "MA", version: "03", fields })).toBe("MA_DL_V03");
   });
 });

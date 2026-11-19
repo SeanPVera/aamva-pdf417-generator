@@ -3271,5 +3271,64 @@
     "optionalFields": [],
     "excludedFields": [],
     "emitEmptyFields": []
+  },
+  {
+    "id": "wy-wydot-sample-v09",
+    "state": "WY",
+    "iin": "636060",
+    "version": "09",
+    "subfileTypes": ["DL"],
+    "encoding": {
+      "jurisdictionVersion": "01",
+      "elementOrder": [
+        "DAQ",
+        "DCS",
+        "DDE",
+        "DAC",
+        "DDF",
+        "DAD",
+        "DDG",
+        "DCA",
+        "DCB",
+        "DCD",
+        "DBD",
+        "DBB",
+        "DBA",
+        "DBC",
+        "DAU",
+        "DAY",
+        "DAG",
+        "DAI",
+        "DAJ",
+        "DAK",
+        "DCF",
+        "DCG",
+        "DCK",
+        "DDA",
+        "DDB",
+        "DAZ",
+        "DAW",
+        "DDK",
+        "DDL"
+      ],
+      "fieldWidths": {
+        "DAK": 11
+      },
+      "preserveValueCase": ["DAU"],
+      "omitFinalSeparator": true,
+      "jurisdictionSubfile": {
+        "type": "ZW",
+        "elements": [
+          {
+            "code": "ZWA",
+            "label": "ZWA (source element)"
+          }
+        ]
+      }
+    },
+    "extraFields": [],
+    "optionalFields": [],
+    "excludedFields": [],
+    "emitEmptyFields": []
   }
 ]

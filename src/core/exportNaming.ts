@@ -46,7 +46,9 @@ export function buildExportBasename(input: ExportNameInput): string {
   if (includeName) {
     const combined = splitCombinedName(fields.DAA);
     const family = sanitizePart(fields.DCS || combined.family);
-    const given = sanitizePart(fields.DAC || combined.given);
+    const givenNames =
+      version === "02" || version === "03" ? (fields.DCT ?? fields.DAC) : fields.DAC;
+    const given = sanitizePart(givenNames || combined.given);
     if (family) parts.push(family);
     if (given) parts.push(given);
     parts.push(subfileType);

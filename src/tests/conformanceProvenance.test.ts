@@ -18,7 +18,7 @@ import {
  * Count each jurisdiction once, regardless of how many editions or sources
  * it contributes. Format coverage for other editions remains open.
  */
-const MIN_REAL_WORLD_JURISDICTIONS = 25;
+const MIN_REAL_WORLD_JURISDICTIONS = 26;
 
 describe("conformance vector provenance", () => {
   const vectors = loadVectors();
@@ -48,7 +48,7 @@ describe("conformance vector provenance", () => {
   it("keeps source-byte parity distinct from transformed layouts", () => {
     const report = computeCoverage(vectors, Object.keys(AAMVA_STATES));
     expect(report.byFidelity).toEqual({
-      "unmodified-source": 31,
+      "unmodified-source": 32,
       anonymized: 5,
       canonicalized: 5
     });
