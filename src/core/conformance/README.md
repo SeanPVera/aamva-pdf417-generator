@@ -66,7 +66,7 @@ Current coverage — run any time, and printed in CI:
 npm run conformance:report
 ```
 
-The [published specimen intake](published/README.md) retains 64 distinct raw payloads
+The [published specimen intake](published/README.md) retains 65 distinct raw payloads
 from publications labelled for 27 jurisdictions. Each manifest preserves the
 original decoded bytes. The coverage ledger records rejection reasons and any
 edits used for a canonicalized fixture.

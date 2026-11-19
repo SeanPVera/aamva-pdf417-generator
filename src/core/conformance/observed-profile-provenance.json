@@ -508,5 +508,19 @@
     "notes": [
       "Idaho Transportation Department summer 2011 temporary DL. The marked specimen uses test patterns and malformed directory entries. The separately authored layout projection replaces DAZ, DDB and DDC and repairs framing."
     ]
+  },
+  {
+    "id": "nv-dmv-ci-v03",
+    "sourcePayloadHashes": ["308f4979ff99871b4e7c6deeb2795c76cc081bfc4f132ae75bf420d4c320c4ff"],
+    "sourceRecords": [
+      {
+        "url": "https://web.archive.org/web/20170113222345id_/http://dmvnv.com/images/adultback_300dpi.jpg",
+        "sourceSha256": "ecb851f852673eaf601069c180789e5ad87a634f4f4a1c5ccab23248d45f5f0f",
+        "payloadSha256": "308f4979ff99871b4e7c6deeb2795c76cc081bfc4f132ae75bf420d4c320c4ff"
+      }
+    ],
+    "notes": [
+      "Published Nevada DMV central issuance test card reverse. The layout contains zero dates and demographic placeholders. The front illustration shows a separate SAMPLE persona."
+    ]
   }
 ]

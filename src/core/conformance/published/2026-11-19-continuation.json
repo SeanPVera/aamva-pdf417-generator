@@ -617,6 +617,61 @@
         "ZIE": "UNDER 21 UNTIL 06062013  "
       },
       "notes": "Iowa DOT MM353 under-21 temporary specimen, PDF page 2. The visibly marked SAMPLE card supplies the input values. Its optional DDB field contains the printed date template MMDDCCYY. Official historical origin http://www.iowadot.gov/centralissuance/MM353.pdf. Source-pixel scoring against the public PDF417 symbol alphabet and Reed-Solomon. The target payload was never supplied. 2012 first-generation xref60 and 2014 xref147 independently recovered the same payload; the 2012 interpretation needed 5 corrected codewords with 64 parity words. Apple Vision and ZXing-C++ agree on the inferred optical image. Gray-sampled region; source crop alone did not decode normally."
+    },
+    {
+      "id": "nv-published-308f4979ff99",
+      "jurisdiction": "NV",
+      "sourceUrl": "https://web.archive.org/web/20170113222345id_/http://dmvnv.com/images/adultback_300dpi.jpg",
+      "sourceSha256": "ecb851f852673eaf601069c180789e5ad87a634f4f4a1c5ccab23248d45f5f0f",
+      "sourcePage": 1,
+      "byteLength": 564,
+      "sha256": "308f4979ff99871b4e7c6deeb2795c76cc081bfc4f132ae75bf420d4c320c4ff",
+      "rawBytesLatin1": "@\n\u001e\rANSI 636049030002DL00410466ZN05070057DLDCABCDE\nDCBBCDEFJKLMW\nDCDHLPT \nDBA00000000\nDCSLASTNAME                                \nDCTFIRSTNAME                                                                       \nDBD00000000\nDBB00000000\nDBC1\nDAYAAA\nDAU      \nDAG123 ABCDEF DRIVE                   \nDAHAPT. 00                            \nDAIANYTOWN             \nDAJNV\nDAK123450000  \nDAQ123456789123             \nDCE \nDCF0000000000000012345671234\nDCGUSA\nDCHNONE\nDCK                         \nDAZABC\nDCU     \n\rZNZNAORGAN DONOR\nZNBREVISION DATE00000000\nZNC603\nZND180\n\r",
+      "imageSha256": "ecb851f852673eaf601069c180789e5ad87a634f4f4a1c5ccab23248d45f5f0f",
+      "privacyReview": "The archived state DMV identified the source as a press-quality sample reverse. Encoded family and given names are literal LASTNAME and FIRSTNAME, with ANYTOWN and patterned test numbers. DOB, issue, and expiry are all zero. Companion front explicitly names a SAMPLE persona and does not correspond to these template bytes. No obscured source fields were used.",
+      "independentDirectory": [
+        {
+          "type": "DL",
+          "offset": 41,
+          "length": 466
+        },
+        {
+          "type": "ZN",
+          "offset": 507,
+          "length": 57
+        }
+      ],
+      "independentExpectedFields": {
+        "DCA": "BCDE",
+        "DCB": "BCDEFJKLMW",
+        "DCD": "HLPT",
+        "DBA": "00000000",
+        "DCS": "LASTNAME",
+        "DCT": "FIRSTNAME",
+        "DBD": "00000000",
+        "DBB": "00000000",
+        "DBC": "1",
+        "DAY": "AAA",
+        "DAU": "",
+        "DAG": "123 ABCDEF DRIVE",
+        "DAH": "APT. 00",
+        "DAI": "ANYTOWN",
+        "DAJ": "NV",
+        "DAK": "123450000",
+        "DAQ": "123456789123",
+        "DCE": "",
+        "DCF": "0000000000000012345671234",
+        "DCG": "USA",
+        "DCH": "NONE",
+        "DCK": "",
+        "DAZ": "ABC",
+        "DCU": "",
+        "ZNA": "ORGAN DONOR",
+        "ZNB": "REVISION DATE00000000",
+        "ZNC": "603",
+        "ZND": "180"
+      },
+      "notes": "Published Nevada DMV central issuance test card reverse. The layout contains zero dates and demographic placeholders. The front illustration shows a separate SAMPLE persona."
     }
   ],
   "reobservations": [

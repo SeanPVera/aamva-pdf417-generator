@@ -39,6 +39,8 @@ The [archived Iowa DOT brochure, page 2](https://web.archive.org/web/20230530162
 
 The [archived Idaho Transportation Department publication](https://web.archive.org/web/20160416004158id_/http://itd.idaho.gov/dmv/driverservices/documents/CentralIssuanceBrochure.pdf) supplies a 622-byte temporary v04 DL. The original includes a leading space, conflicting directory boundaries, a patterned hair-color value, and two date templates. Two readers agreed on the original bytes. A 612-byte controlled projection verifies the remaining source layout. Idaho stays outside the passing count.
 
+The [300 dpi Nevada DMV sample back](https://web.archive.org/web/20170113222345id_/http://dmvnv.com/images/adultback_300dpi.jpg) yields 564 bytes, v03 DL. The marked demonstration data include three zero dates, two placeholder colors and a blank mandatory height. Strict framing passes. An equal-width control replaces only those six values and the normal generator reproduces the control exactly. The sample front depicts a different fictitious identity. Nevada stays outside the passing count.
+
 ## Edition rules verified in the application
 
 Annex D permits unabbreviated hair colors in DAZ from v04 through v12. Those editions accept BROWN and the abbreviated value BRO, while Idaho’s patterned sample value remains invalid.

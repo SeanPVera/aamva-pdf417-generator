@@ -70,6 +70,33 @@ describe("public-source observed format variants", () => {
           expect(validateAAMVAPayloadStructure(expected, true).ok).toBe(true);
           return;
         }
+        if (profile.id === "nv-dmv-ci-v03") {
+          const raw = specimen.rawBytesLatin1;
+          expect(identifyObservedEncodingProfile(raw)).toBe(profile.id);
+          expect(validateAAMVAPayloadStructure(raw, true).ok).toBe(true);
+          const encode = (data: Record<string, string>) =>
+            generateAAMVAPayload("NV", "03", fields, data, { encodingProfileId: profile.id });
+          expect(() => encode(decoded.data!)).toThrow(/mandatory fields.*DAU/i);
+          const input = { ...decoded.data! };
+          let expected = raw;
+          // The review located six fixed-width specimen placeholders on the wire.
+          const changes: Array<[string, number, string, string]> = [
+            ["DBA", 77, "00000000", "12312029"],
+            ["DBD", 217, "00000000", "01012020"],
+            ["DBB", 229, "00000000", "01011980"],
+            ["DAY", 246, "AAA", "BRO"],
+            ["DAU", 253, "      ", "064 IN"],
+            ["DAZ", 493, "ABC", "BRO"]
+          ];
+          for (const [code, offset, original, value] of changes) {
+            expect(raw.slice(offset - 3, offset + value.length)).toBe(code + original);
+            input[code] = value;
+            expected = expected.slice(0, offset) + value + expected.slice(offset + value.length);
+          }
+          expect(encode(input)).toBe(expected);
+          expect(validateAAMVAPayloadStructure(expected, true).ok).toBe(true);
+          return;
+        }
         if (profile.id === "mi-public-specimen-v10") {
           const raw = specimen.rawBytesLatin1;
           expect(identifyObservedEncodingProfile(raw)).toBe(profile.id);

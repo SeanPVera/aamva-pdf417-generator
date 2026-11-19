@@ -3034,5 +3034,107 @@
     "excludedFields": [],
     "emitEmptyFields": [],
     "preservePostalHyphen": true
+  },
+  {
+    "id": "nv-dmv-ci-v03",
+    "state": "NV",
+    "iin": "636049",
+    "version": "03",
+    "subfileTypes": ["DL"],
+    "notes": [
+      "DMV sample uses zero dates and placeholder values. The sample front depicts a different persona."
+    ],
+    "encoding": {
+      "jurisdictionVersion": "00",
+      "elementOrder": [
+        "DCA",
+        "DCB",
+        "DCD",
+        "DBA",
+        "DCS",
+        "DCT",
+        "DBD",
+        "DBB",
+        "DBC",
+        "DAY",
+        "DAU",
+        "DAG",
+        "DAH",
+        "DAI",
+        "DAJ",
+        "DAK",
+        "DAQ",
+        "DCE",
+        "DCF",
+        "DCG",
+        "DCH",
+        "DCK",
+        "DAZ",
+        "DCU"
+      ],
+      "fieldWidths": {
+        "DCD": 5,
+        "DCS": 40,
+        "DCT": 80,
+        "DAU": 6,
+        "DAG": 35,
+        "DAH": 35,
+        "DAI": 20,
+        "DAK": 11,
+        "DAQ": 25,
+        "DCE": 1,
+        "DCK": 25,
+        "DCU": 5
+      },
+      "padPostalCode": false,
+      "omitFinalSeparator": false,
+      "jurisdictionSubfile": {
+        "type": "ZN",
+        "elements": [
+          {
+            "code": "ZNA",
+            "label": "ZNA (opaque source element)"
+          },
+          {
+            "code": "ZNB",
+            "label": "ZNB (opaque source element)"
+          },
+          {
+            "code": "ZNC",
+            "label": "ZNC (opaque source element)"
+          },
+          {
+            "code": "ZND",
+            "label": "ZND (opaque source element)"
+          }
+        ]
+      }
+    },
+    "extraFields": [
+      {
+        "code": "DCT",
+        "label": "Given Names",
+        "type": "string",
+        "required": true
+      },
+      {
+        "code": "DCE",
+        "label": "DCE (source edition)",
+        "type": "string"
+      },
+      {
+        "code": "DCH",
+        "label": "DCH (source edition)",
+        "type": "string"
+      },
+      {
+        "code": "DCK",
+        "label": "DCK (source edition)",
+        "type": "string"
+      }
+    ],
+    "optionalFields": ["DAC"],
+    "excludedFields": [],
+    "emitEmptyFields": ["DAU", "DCE", "DCK", "DCU"]
   }
 ]

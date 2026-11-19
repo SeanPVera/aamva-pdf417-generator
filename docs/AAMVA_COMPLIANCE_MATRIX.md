@@ -6,7 +6,7 @@ On November 19, 2026, 41 external reference layouts pass byte comparisons across
 | --- | --- | --- |
 | IIN assignments | All 55 match the captured primary AAMVA registry | Default edition values remain application profile assumptions |
 | External byte comparisons | 41 references, 25 jurisdictions, 29 state/version/type combinations | 31 unmodified source payloads across 18 jurisdictions, 5 anonymized, 5 canonicalized |
-| Public observation intake | 64 retained raw payloads, an anonymized Maryland observation and additional hash-only exclusions | Source defects remain visible and excluded from passing claims |
+| Public observation intake | 65 retained raw payloads, an anonymized Maryland observation and additional hash-only exclusions | Source defects remain visible and excluded from passing claims |
 | Version 12 | 2026 active fields, DL/ID applicability, Latin-1 wire bytes, SIG/SCV handling | Zero independently sourced issuer v12 references |
 | Independent normative oracle | Python-built v12 DL and ID expectations for every jurisdiction | Synthetic standards evidence |
 | Rendered symbols | ZXing read-back for corpus fixtures, default strict profiles, and all 110 v12 expectations | Ideal digital images; no device or printed-card certification |
