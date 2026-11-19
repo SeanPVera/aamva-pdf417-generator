@@ -67,8 +67,8 @@ npm run conformance:report
 ```
 
 The [published specimen intake](published/README.md) retains 65 distinct raw payloads
-from publications labelled for 27 jurisdictions. Each manifest preserves the
-original decoded bytes. The coverage ledger records rejection reasons and any
+from publications labelled for 33 jurisdictions. The intake separately records
+Maryland’s anonymized fixture and hash-only exclusions. The coverage ledger records rejection reasons and any
 edits used for a canonicalized fixture.
 
 Version 12 uses the AAMVA 2026 field tables and supports Latin-1 wire bytes,

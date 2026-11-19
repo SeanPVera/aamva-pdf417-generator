@@ -12,7 +12,7 @@ The combined intake retains **65 unique raw public payloads** plus an anonymized
 
 ## Current comparison
 
-At the first November checkpoint, the application parsed 42 of the 47 published observations. The encoder reproduces 28 original payloads and matches two mechanically canonicalized layouts. Twelve inputs fail field validation, three have malformed framing, and two have publisher or content conflicts. The [November ledger](../coverage-ledger-2026-11-19.json) records each result. The dates in prior manifests identify the software checkpoint at acquisition.
+At the first November checkpoint, the application parsed 42 of the 47 published observations. The encoder reproduced 28 original payloads and matched two mechanically canonicalized layouts. Twelve inputs failed field validation, three had malformed framing, and two had publisher or content conflicts. The [November ledger](../coverage-ledger-2026-11-19.json) records each result. The dates in prior manifests identify the software checkpoint at acquisition.
 
 ## October 31 continuation
 
