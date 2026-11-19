@@ -32,8 +32,8 @@
     "octoberOpenJurisdictionsSearched": 40,
     "fetchRecords": 461,
     "distinctUrls": 425,
-    "distinctPdfAndImageFilesRetrieved": 264,
-    "distinctFilesWithExaminedRasters": 264,
+    "distinctPdfAndImageFilesRetrieved": 268,
+    "distinctFilesWithExaminedRasters": 268,
     "countingRule": "Source URL and file SHA-256 counts have different denominators. Large manuals were searched and selected pages scanned. Grouped scanner batches include repeated and transformed artwork."
   },
   "jurisdictions": [
@@ -53,7 +53,7 @@
       "novemberResearch": {
         "requests": 5,
         "uniqueUrls": 5,
-        "mediaSuccessfullyRead": 3,
+        "mediaSuccessfullyRead": 4,
         "requestsWithFindings": 0
       }
     },
