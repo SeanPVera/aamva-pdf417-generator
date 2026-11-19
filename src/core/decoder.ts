@@ -323,7 +323,9 @@ export function validateAAMVAPayloadStructure(
   for (const entry of entries) {
     if (strictMode && payload.slice(entry.start + 2, entry.end - 1).includes("\r"))
       return { ok: false, error: `Interior segment terminator in ${entry.type}` };
-    if ((entry.type === "DL" || entry.type === "ID") && payload[entry.end - 1] !== "\r") {
+    const requiresTerminator =
+      entry.type === "DL" || entry.type === "ID" || (strictMode && entry.type.startsWith("Z"));
+    if (requiresTerminator && payload[entry.end - 1] !== "\r") {
       return {
         ok: false,
         error: `Missing segment terminator in ${entry.type}; payload may be truncated`

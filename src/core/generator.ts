@@ -2,6 +2,7 @@ import { AAMVA_STATES, isJurisdictionSupported } from "./states";
 import {
   AAMVA_VERSIONS,
   getFieldsForStateAndVersion,
+  fieldsForDocumentType,
   getMandatoryFields,
   AAMVAField
 } from "./schema";
@@ -145,31 +146,9 @@ export function generateAAMVAPayload(
     version,
     subfileType
   );
-  if (observed) fields = getFieldsForStateAndVersion(stateCode, version, subfileType, observed.id);
-
-  if (
-    subfileType === "ID" &&
-    ["10", "11", "12"].includes(version) &&
-    !observed?.retainDrivingFieldsOnId
-  ) {
-    fields = fields.filter(
-      (f) =>
-        ![
-          "DCA",
-          "DCB",
-          "DCD",
-          "DDM",
-          "DDN",
-          "DDP",
-          "DCM",
-          "DCN",
-          "DCO",
-          "DCP",
-          "DCQ",
-          "DCR"
-        ].includes(f.code)
-    );
-  }
+  fields = observed
+    ? getFieldsForStateAndVersion(stateCode, version, subfileType, observed.id)
+    : fieldsForDocumentType(fields, version, subfileType);
 
   // Work on a copy. This used to normalise and auto-fill the caller's object in
   // place, so generating a preview quietly rewrote the values the caller still

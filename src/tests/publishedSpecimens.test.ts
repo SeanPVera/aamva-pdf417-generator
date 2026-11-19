@@ -1,8 +1,9 @@
-import { publishedObservations } from "./support/publishedIntake";
+import { anonymizedObservations, publishedObservations } from "./support/publishedIntake";
 import { createHash } from "node:crypto";
 import { describe, expect, it } from "vitest";
 
 import { decodeAAMVAFormat } from "../core/decoder";
+import { identifyObservedEncodingProfile } from "../core/observedProfiles";
 import intakeData from "../core/conformance/published/2026-10-25.json";
 import { loadVectors } from "./support/conformanceVectors";
 
@@ -51,6 +52,33 @@ describe("independently scanned published specimens", () => {
   it("promotes source bytes into positive vectors without changing their evidence", () => {
     const byHash = new Map(publishedObservations.map((specimen) => [specimen.sha256, specimen]));
     for (const vector of loadVectors().filter((entry) => entry.provenance.tier === "published")) {
+      if (vector.provenance.fidelity === "anonymized") {
+        const receipt = anonymizedObservations.find(
+          (entry) => entry.originalPayloadSha256 === vector.provenance.payloadSha256
+        );
+        expect(receipt, vector.id).toBeDefined();
+        const bytes = Buffer.from(vector.expectedBytes, "latin1");
+        expect(createHash("sha256").update(bytes).digest("hex")).toBe(
+          receipt!.anonymizedPayloadSha256
+        );
+        expect(receipt!.originalPayloadSha256).not.toBe(receipt!.anonymizedPayloadSha256);
+        expect(bytes.length).toBe(receipt!.bytes);
+        expect(vector.provenance.sourceSha256).toBe(receipt!.fileSha256);
+        expect(vector.provenance.evidenceImageSha256).toBe(receipt!.nativeImageSha256);
+        expect(vector.provenance.source).toBe(receipt!.sourceUrl);
+        expect(identifyObservedEncodingProfile(vector.expectedBytes)).toBe(
+          vector.encodingProfileId
+        );
+        let end = 0;
+        for (const span of receipt!.replacements) {
+          expect(span.start).toBeGreaterThanOrEqual(end + 3);
+          expect(vector.expectedBytes.slice(span.start - 3, span.start)).toBe(span.field);
+          expect(span.endExclusive - span.start).toBe(span.byteLength);
+          expect(vector.expectedBytes.slice(span.start, span.endExclusive)).toBe(span.replacement);
+          end = span.endExclusive;
+        }
+        continue;
+      }
       const source = byHash.get(vector.provenance.payloadSha256 ?? "");
       expect(source, `${vector.id}: source observation must remain in the intake`).toBeDefined();
       if (vector.provenance.fidelity === "canonicalized") {

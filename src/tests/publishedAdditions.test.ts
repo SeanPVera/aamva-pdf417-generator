@@ -1,4 +1,4 @@
-import { publishedObservations } from "./support/publishedIntake";
+import { anonymizedObservations, publishedObservations } from "./support/publishedIntake";
 import { createHash } from "node:crypto";
 import { describe, expect, it } from "vitest";
 import additions from "../core/conformance/published/2026-10-31.json";
@@ -75,6 +75,10 @@ describe("October 31 public-source acquisition", () => {
       OBSERVED_ENCODING_PROFILES.map((profile) => profile.id).sort()
     );
     for (const source of provenance) {
+      for (const hash of source.anonymizedSourcePayloadHashes ?? [])
+        expect(anonymizedObservations.some((entry) => entry.originalPayloadSha256 === hash)).toBe(
+          true
+        );
       for (const hash of source.sourcePayloadHashes)
         expect(publishedObservations.some((payload) => payload.sha256 === hash)).toBe(true);
       for (const record of source.sourceRecords)

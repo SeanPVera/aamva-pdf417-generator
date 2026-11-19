@@ -1,0 +1,130 @@
+{
+  "schemaVersion": 1,
+  "capturedAt": "2026-11-19",
+  "scope": "Anonymized public evidence and corroborating publications. Original sensitive values are represented by hashes.",
+  "payloads": [],
+  "reobservations": [
+    {
+      "jurisdiction": "NJ",
+      "sourceUrl": "https://www.nj.gov/mvc/pdf/about/advisories/advisory-2011-001.pdf",
+      "sourceSha256": "6e8f30d75a1f8a01f9fe70f034495044f6458f2e0495d474ef7fb11bb1597ff2",
+      "page": 2,
+      "xref": 41,
+      "payloadSha256": "0c47325e2b05c3161c970de4a67db73ebdd66b07edd9513ed09a4534f1d409ca",
+      "byteLength": 687,
+      "notes": "New Jersey MVC advisory 2011-001 reproduces the existing 687-byte specimen."
+    }
+  ],
+  "excludedObservations": [
+    {
+      "jurisdiction": "MS",
+      "sourceUrl": "https://www.driverservicebureau.dps.ms.gov/sites/default/files/2017-01/DLFlyer_v2.pdf",
+      "sourceSha256": "8020cb0f2df265812edfda25202d5976c59f382c4809ce47c4ff603f98b45937",
+      "page": 2,
+      "payloadSha256": "5b52f1dd72efe73fa906d03bc7468fecbb1850add5865989d221e222d28603eb",
+      "byteLength": 252,
+      "notes": "Two readers agreed. The legacy header carries the Mississippi IIN. The back differs from the sample fronts and dummy provenance remains unconfirmed. Hash-only record."
+    }
+  ],
+  "anonymizedObservations": [
+    {
+      "id": "md-mdot-sb87-2026-v09-id-anonymized",
+      "state": "MD",
+      "issuer": "636003",
+      "edition": "09",
+      "jurisdictionVersion": "00",
+      "documentType": "ID",
+      "sourceUrl": "https://mgaleg.maryland.gov/cmte_testimony/2026/jpr/1LwDcj7N3FMK5jv1NLPfB56SDDmzer7U7.pdf",
+      "publicationTitle": "MDOT Sample MD ID Product, Hearing for Senate Bill 87, January 21 2026",
+      "sourceAcquisition": "Google document preview derived from requested public URL",
+      "fileSha256": "cdac0f8b4436a8700ee01c82e05913ce0fa4e3a7adfd9c4b131e17cf425dc463",
+      "page": 3,
+      "xref": 28,
+      "nativeImageSha256": "b460fb81d726f276be2f041b98c4c133d61c858f403d27dc48dc2c3a9efd58cf",
+      "packet": {
+        "url": "https://mgaleg.maryland.gov/cmte_testimony/2026/jpr/32247_01202026_10816-302.pdf",
+        "fileSha256": "4f0c9200a90d6a666c34fba40120b1d8c1ad5e1bcaf4cef1af234c45de94fccb",
+        "page": 4,
+        "xref": 28,
+        "identicalEmbeddedImage": true
+      },
+      "originalPayloadSha256": "b43e685af2be035166a196e7d99b2249e8c1301cfca0794233d361a0306de3ce",
+      "anonymizedPayloadSha256": "e22b2ce5f115ebb7befc5b45a22cb47bc2dd34288fbc370d8dd5d4838970cfe8",
+      "bytes": 299,
+      "fidelity": "anonymized",
+      "sourceReaders": ["ZXing-C++ bytes", "Apple Vision payloadStringValue encoded ISO-8859-1"],
+      "privacyReview": "The issuer labels this MDOT Sample MD ID Product, visibly overprints SAMPLE, and supplies dummy segmented LASTNAME and TESTING values. The issuer obscured the customer number and street/address on its visible front. The reusable fixture masks the customer number, address, ZIP, document discriminator and inventory control number, keeping each byte span and identifier shape. The fixture retains the fabricated specimen names. No original bytes or reusable optical crop are included.",
+      "unchangedChecks": "All other byte positions and directory entries are identical to the independently decoded publication, with no separator changes. Byte offsets are zero based, end exclusive.",
+      "replacements": [
+        {
+          "field": "DAQ",
+          "start": 46,
+          "endExclusive": 60,
+          "byteLength": 14,
+          "replacement": "MD-00000000000"
+        },
+        {
+          "field": "DAG",
+          "start": 180,
+          "endExclusive": 198,
+          "byteLength": 18,
+          "replacement": "0000 SAMPLEPARK RD"
+        },
+        {
+          "field": "DAI",
+          "start": 202,
+          "endExclusive": 211,
+          "byteLength": 9,
+          "replacement": "SAMPLETON"
+        },
+        {
+          "field": "DAK",
+          "start": 221,
+          "endExclusive": 232,
+          "byteLength": 11,
+          "replacement": "000000000  "
+        },
+        {
+          "field": "DCF",
+          "start": 236,
+          "endExclusive": 245,
+          "byteLength": 9,
+          "replacement": "00000AA0A"
+        },
+        {
+          "field": "DCK",
+          "start": 256,
+          "endExclusive": 266,
+          "byteLength": 10,
+          "replacement": "0000000000"
+        }
+      ],
+      "sourceReplay": {
+        "documentType": "ID",
+        "state": "MD",
+        "edition": "09",
+        "payloadSha256": "b43e685af2be035166a196e7d99b2249e8c1301cfca0794233d361a0306de3ce",
+        "sourceBytes": 299,
+        "strictFraming": true,
+        "parsed": true,
+        "encoderProfile": "md-mdot-sb87-v09-id",
+        "encoderBytes": 299,
+        "replaySha256": "b43e685af2be035166a196e7d99b2249e8c1301cfca0794233d361a0306de3ce",
+        "sourceExact": true
+      },
+      "anonymizedReplay": {
+        "documentType": "ID",
+        "state": "MD",
+        "edition": "09",
+        "payloadSha256": "e22b2ce5f115ebb7befc5b45a22cb47bc2dd34288fbc370d8dd5d4838970cfe8",
+        "sourceBytes": 299,
+        "strictFraming": true,
+        "parsed": true,
+        "encoderProfile": "md-mdot-sb87-v09-id",
+        "encoderBytes": 299,
+        "replaySha256": "e22b2ce5f115ebb7befc5b45a22cb47bc2dd34288fbc370d8dd5d4838970cfe8",
+        "sourceExact": true
+      }
+    }
+  ]
+}

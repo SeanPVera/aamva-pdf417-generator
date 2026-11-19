@@ -2167,5 +2167,426 @@
     "optionalFields": [],
     "excludedFields": ["DAC"],
     "emitEmptyFields": ["DCU"]
+  },
+  {
+    "id": "in-public-specimen-v04",
+    "state": "IN",
+    "iin": "636037",
+    "version": "04",
+    "subfileTypes": ["DL"],
+    "notes": [],
+    "encoding": {
+      "jurisdictionVersion": "00",
+      "elementOrder": [
+        "DCA",
+        "DCB",
+        "DCD",
+        "DBA",
+        "DCS",
+        "DAC",
+        "DAD",
+        "DBD",
+        "DBB",
+        "DBC",
+        "DAY",
+        "DAU",
+        "DAG",
+        "DAH",
+        "DAI",
+        "DAJ",
+        "DAK",
+        "DAQ",
+        "DCF",
+        "DCG",
+        "DDE",
+        "DDF",
+        "DDG",
+        "DAZ",
+        "DCK",
+        "DCU",
+        "DAW",
+        "DDA",
+        "DDB",
+        "DDD"
+      ],
+      "fieldWidths": {
+        "DAG": 35,
+        "DAH": 35,
+        "DAI": 20,
+        "DAK": 11,
+        "DAQ": 25,
+        "DCF": 25,
+        "DAZ": 12,
+        "DCK": 25
+      },
+      "omitFinalSeparator": false,
+      "jurisdictionSubfile": {
+        "type": "ZI",
+        "elements": [
+          {
+            "code": "ZIA",
+            "label": "ZIA (source element)"
+          },
+          {
+            "code": "ZIB",
+            "label": "ZIB (source element)"
+          },
+          {
+            "code": "ZIC",
+            "label": "ZIC (source element)"
+          },
+          {
+            "code": "ZID",
+            "label": "ZID (source element)"
+          },
+          {
+            "code": "ZIE",
+            "label": "ZIE (source element)"
+          },
+          {
+            "code": "ZIF",
+            "label": "ZIF (source element)"
+          },
+          {
+            "code": "ZIG",
+            "label": "ZIG (source element)"
+          }
+        ]
+      }
+    },
+    "extraFields": [],
+    "optionalFields": [],
+    "excludedFields": [],
+    "emitEmptyFields": []
+  },
+  {
+    "id": "de-public-specimen-v09",
+    "state": "DE",
+    "iin": "636011",
+    "version": "09",
+    "subfileTypes": ["DL"],
+    "notes": [],
+    "encoding": {
+      "jurisdictionVersion": "00",
+      "elementOrder": [
+        "DAQ",
+        "DCS",
+        "DDE",
+        "DAC",
+        "DDF",
+        "DAD",
+        "DDG",
+        "DCA",
+        "DCB",
+        "DCD",
+        "DBD",
+        "DBB",
+        "DBA",
+        "DBC",
+        "DAU",
+        "DAY",
+        "DAG",
+        "DAI",
+        "DAJ",
+        "DAK",
+        "DCF",
+        "DCG",
+        "DCU",
+        "DAW",
+        "DAH",
+        "DCK",
+        "DDA",
+        "DDB",
+        "DDD",
+        "DDH",
+        "DDJ",
+        "DDK",
+        "DDL"
+      ],
+      "fieldWidths": {
+        "DAK": 11
+      },
+      "omitFinalSeparator": false,
+      "jurisdictionSubfile": {
+        "type": "ZD",
+        "elements": [
+          {
+            "code": "ZDA",
+            "label": "ZDA (source element)"
+          },
+          {
+            "code": "ZDB",
+            "label": "ZDB (source element)"
+          },
+          {
+            "code": "ZDC",
+            "label": "ZDC (source element)"
+          }
+        ]
+      },
+      "preserveValueCase": ["DAU"]
+    },
+    "extraFields": [],
+    "optionalFields": [],
+    "excludedFields": [],
+    "emitEmptyFields": ["ZDA", "ZDB", "ZDC"]
+  },
+  {
+    "id": "sd-public-specimen-v04",
+    "state": "SD",
+    "iin": "636042",
+    "version": "04",
+    "subfileTypes": ["DL"],
+    "notes": [],
+    "encoding": {
+      "jurisdictionVersion": "00",
+      "elementOrder": [
+        "DCA",
+        "DCB",
+        "DCD",
+        "DBA",
+        "DCS",
+        "DAC",
+        "DAD",
+        "DCU",
+        "DBD",
+        "DBB",
+        "DBC",
+        "DAY",
+        "DAU",
+        "DAG",
+        "DAI",
+        "DAJ",
+        "DAK",
+        "DAQ",
+        "DAW",
+        "DAZ",
+        "DCF",
+        "DCG",
+        "DDE",
+        "DDF",
+        "DDG",
+        "DCK",
+        "DDA",
+        "DDB",
+        "DDC",
+        "DDD"
+      ],
+      "fieldWidths": {
+        "DAK": 11,
+        "DAQ": 25,
+        "DAZ": 12
+      },
+      "omitFinalSeparator": false,
+      "jurisdictionSubfile": {
+        "type": "ZS",
+        "elements": [
+          {
+            "code": "ZSA",
+            "label": "ZSA (source element)"
+          },
+          {
+            "code": "ZSB",
+            "label": "ZSB (source element)"
+          },
+          {
+            "code": "ZSC",
+            "label": "ZSC (source element)"
+          },
+          {
+            "code": "ZSD",
+            "label": "ZSD (source element)"
+          }
+        ]
+      }
+    },
+    "extraFields": [],
+    "optionalFields": [],
+    "excludedFields": [],
+    "emitEmptyFields": []
+  },
+  {
+    "id": "wv-public-specimen-v09",
+    "state": "WV",
+    "iin": "636061",
+    "version": "09",
+    "subfileTypes": ["DL"],
+    "notes": [],
+    "encoding": {
+      "jurisdictionVersion": "00",
+      "elementOrder": [
+        "DAQ",
+        "DCS",
+        "DDE",
+        "DAC",
+        "DDF",
+        "DAD",
+        "DDG",
+        "DCA",
+        "DCB",
+        "DCD",
+        "DBD",
+        "DBB",
+        "DBA",
+        "DBC",
+        "DAU",
+        "DAY",
+        "DAG",
+        "DAI",
+        "DAJ",
+        "DAK",
+        "DCF",
+        "DCG",
+        "DCU",
+        "DAH",
+        "DCK",
+        "DDA",
+        "DDB",
+        "DDC",
+        "DDD",
+        "DAW",
+        "DDH",
+        "DDJ",
+        "DDK",
+        "DDL"
+      ],
+      "fieldWidths": {
+        "DAK": 11
+      },
+      "omitFinalSeparator": false,
+      "jurisdictionSubfile": {
+        "type": "ZW",
+        "elements": [
+          {
+            "code": "ZWA",
+            "label": "ZWA (source element)"
+          },
+          {
+            "code": "ZWB",
+            "label": "ZWB (source element)"
+          },
+          {
+            "code": "ZWC",
+            "label": "ZWC (source element)"
+          }
+        ]
+      },
+      "preserveValueCase": ["DAU"]
+    },
+    "extraFields": [],
+    "optionalFields": [],
+    "excludedFields": [],
+    "emitEmptyFields": []
+  },
+  {
+    "id": "md-mdot-sb87-v09-id",
+    "state": "MD",
+    "iin": "636003",
+    "version": "09",
+    "subfileTypes": ["ID"],
+    "notes": [],
+    "encoding": {
+      "jurisdictionVersion": "00",
+      "elementOrder": [
+        "DAQ",
+        "DCS",
+        "DDE",
+        "DAC",
+        "DDF",
+        "DAD",
+        "DDG",
+        "DBD",
+        "DBB",
+        "DBA",
+        "DBC",
+        "DAU",
+        "DAY",
+        "DAG",
+        "DAI",
+        "DAJ",
+        "DAK",
+        "DCF",
+        "DCG",
+        "DCK",
+        "DDA",
+        "DDB",
+        "DAW"
+      ],
+      "fieldWidths": {
+        "DAK": 11
+      },
+      "omitFinalSeparator": true,
+      "jurisdictionSubfile": {
+        "type": "ZM",
+        "elements": [
+          {
+            "code": "ZMA",
+            "label": "ZMA (source element)"
+          }
+        ]
+      },
+      "preserveValueCase": ["DAU"]
+    },
+    "extraFields": [],
+    "optionalFields": [],
+    "excludedFields": [],
+    "emitEmptyFields": []
+  },
+  {
+    "id": "mi-public-specimen-v10",
+    "state": "MI",
+    "iin": "636032",
+    "version": "10",
+    "subfileTypes": ["DL"],
+    "notes": [],
+    "encoding": {
+      "jurisdictionVersion": "00",
+      "elementOrder": [
+        "DAQ",
+        "DCS",
+        "DDE",
+        "DAC",
+        "DDF",
+        "DAD",
+        "DDG",
+        "DCA",
+        "DCB",
+        "DCD",
+        "DBD",
+        "DBB",
+        "DBA",
+        "DBC",
+        "DAU",
+        "DAY",
+        "DAG",
+        "DAI",
+        "DAJ",
+        "DAK",
+        "DCF",
+        "DCG",
+        "DCU",
+        "DCK",
+        "DDA",
+        "DDD",
+        "DDB"
+      ],
+      "fieldWidths": {
+        "DAK": 11
+      },
+      "omitFinalSeparator": false,
+      "jurisdictionSubfile": {
+        "type": "ZM",
+        "elements": [
+          {
+            "code": "ZMA",
+            "label": "ZMA (source element)"
+          }
+        ]
+      }
+    },
+    "extraFields": [],
+    "optionalFields": [],
+    "excludedFields": [],
+    "emitEmptyFields": ["DCA", "DCB", "DCD", "DAU", "DAY", "DCF", "DCG"]
   }
 ]

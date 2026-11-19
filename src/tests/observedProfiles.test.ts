@@ -11,12 +11,22 @@ import { generateAAMVAPayload } from "../core/generator";
 import { getFieldsForStateAndVersion } from "../core/schema";
 import { inspectPayload } from "../core/inspect";
 
+// These public layouts carry date-format text in place of date values. Independent
+// source bytes control every other byte of the comparison, including padding.
+const specimenDateFields: Record<string, string[]> = {
+  "de-public-specimen-v09": ["DDB"],
+  "in-public-specimen-v04": ["DDB"],
+  "ms-public-driver-manual-v10": ["DDB"],
+  "sd-public-specimen-v04": ["DDB", "DDC"],
+  "wv-public-specimen-v09": ["DDB", "DDC"]
+};
+
 describe("public-source observed format variants", () => {
   for (const profile of OBSERVED_ENCODING_PROFILES) {
     for (const hash of profileProvenance.find((source) => source.id === profile.id)!
       .sourcePayloadHashes) {
       const specimen = publishedObservations.find((payload) => payload.sha256 === hash)!;
-      it(`${profile.id} reproduces independently decoded ${hash.slice(0, 12)} bytes`, () => {
+      it(`${profile.id} checks the published wire layout ${hash.slice(0, 12)}`, () => {
         expect(specimen).toBeDefined();
         const decoded = decodeAAMVAFormat(specimen.rawBytesLatin1);
         expect(decoded.error).toBeUndefined();
@@ -27,14 +37,72 @@ describe("public-source observed format variants", () => {
           type,
           profile.id
         );
-        if (profile.id === "ms-public-driver-manual-v10") {
-          expect(decoded.data!.DDB).toBe("MMDDCCYY");
+        if (profile.id === "mi-public-specimen-v10") {
+          const raw = specimen.rawBytesLatin1;
+          expect(identifyObservedEncodingProfile(raw)).toBe(profile.id);
+          const encode = (values: Record<string, string>) =>
+            generateAAMVAPayload(profile.state, profile.version, fields, values, {
+              subfileType: type,
+              encodingProfileId: profile.id
+            });
+          expect(() => encode(decoded.data!)).toThrow(/Missing mandatory fields/);
+          // Replace only the seven intentionally empty spans. Grow the primary
+          // directory entry and advance ZM by exactly the length of the inserts.
+          const inserts = {
+            DCA: "C",
+            DCB: "NONE",
+            DCD: "NONE",
+            DAY: "BLU",
+            DAU: "070 IN",
+            DCF: "TEST1234",
+            DCG: "USA"
+          };
+          let expected = raw;
+          for (const [code, value] of Object.entries(inserts)) {
+            const marker = "\n" + code + "\n";
+            expect(expected.split(marker)).toHaveLength(2);
+            expected = expected.replace(marker, "\n" + code + value + "\n");
+          }
+          const growth = expected.length - raw.length;
+          const width4 = (n: number) => String(n).padStart(4, "0");
+          expect(raw.slice(21, 41)).toBe("DL00410243ZM02840009");
+          expected =
+            expected.slice(0, 27) +
+            width4(243 + growth) +
+            "ZM" +
+            width4(284 + growth) +
+            expected.slice(37);
+          expect(encode({ ...decoded.data!, ...inserts })).toBe(expected);
+          expect(validateAAMVAPayloadStructure(expected, true).ok).toBe(true);
+          return;
+        }
+        const dateFields = specimenDateFields[profile.id];
+        if (dateFields) {
+          expect(identifyObservedEncodingProfile(specimen.rawBytesLatin1)).toBe(profile.id);
+          for (const code of dateFields) expect(decoded.data![code]).toBe("MMDDCCYY");
           expect(() =>
             generateAAMVAPayload(profile.state, profile.version, fields, decoded.data!, {
               subfileType: type,
               encodingProfileId: profile.id
             })
           ).toThrow(/Card Revision Date/);
+          for (const numericDate of ["01012020", "12022021"]) {
+            const input = { ...decoded.data! };
+            let expected = specimen.rawBytesLatin1;
+            for (const code of dateFields) {
+              const marker = "\n" + code + "MMDDCCYY";
+              expect(expected.split(marker)).toHaveLength(2);
+              expected = expected.replace(marker, "\n" + code + numericDate);
+              input[code] = numericDate;
+            }
+            expect(
+              generateAAMVAPayload(profile.state, profile.version, fields, input, {
+                subfileType: type,
+                encodingProfileId: profile.id
+              })
+            ).toBe(expected);
+            expect(validateAAMVAPayloadStructure(expected, true).ok).toBe(true);
+          }
           return;
         }
         const result = generateAAMVAPayload(profile.state, profile.version, fields, decoded.data!, {

@@ -281,5 +281,86 @@
         "payloadSha256": "67b82bc50a6d38efa8a464c368ec5bfc243000081f25656d45c5194e239e146f"
       }
     ]
+  },
+  {
+    "id": "in-public-specimen-v04",
+    "sourcePayloadHashes": ["95100717baa042138cca2517b8628b0029f71f5b97d5610546bbe2699cbf0d1d"],
+    "sourceRecords": [
+      {
+        "url": "https://raw.githubusercontent.com/marcdacosta/clearid/master/example%20license%20barcodes/indiana.pdf",
+        "sourceSha256": "c90d1282187685169c5e4d4e85f10e6796ec1fd555f491408fe79791d5660d8f",
+        "payloadSha256": "95100717baa042138cca2517b8628b0029f71f5b97d5610546bbe2699cbf0d1d"
+      }
+    ],
+    "notes": [
+      "Marked public specimen. Its date placeholders fail validation. Wire layout verified separately with numeric test dates."
+    ]
+  },
+  {
+    "id": "de-public-specimen-v09",
+    "sourcePayloadHashes": ["a0b97b7910a78430d4a36c622f77a8c76106879e70b49f2906a9e4a8cb5733e5"],
+    "sourceRecords": [
+      {
+        "url": "https://dmv.de.gov/DriverServices/drivers_license/secureID/pdfs/SecureID_brochure.pdf",
+        "sourceSha256": "0a00b12b68b80e2e790f6766e6d0b2c4eadb9f86cef3fa34e1e978ca0ae5796a",
+        "payloadSha256": "a0b97b7910a78430d4a36c622f77a8c76106879e70b49f2906a9e4a8cb5733e5"
+      }
+    ],
+    "notes": [
+      "Marked public specimen. Its date placeholders fail validation. Wire layout verified separately with numeric test dates."
+    ]
+  },
+  {
+    "id": "sd-public-specimen-v04",
+    "sourcePayloadHashes": ["c34073702f5dad62ce0f24720b9b8bbd2dad36193fbcf0ea509fc622df06911b"],
+    "sourceRecords": [
+      {
+        "url": "https://www.sd.gov/sys_attachment.do?sys_id=9f254a244700e210a497127ba26d4378",
+        "sourceSha256": "204b92be01c8ab991b094e401fb9de57e8cda71c85ca3813f53a920e903b31c6",
+        "payloadSha256": "c34073702f5dad62ce0f24720b9b8bbd2dad36193fbcf0ea509fc622df06911b"
+      }
+    ],
+    "notes": [
+      "Marked public specimen. Its date placeholders fail validation. Wire layout verified separately with numeric test dates."
+    ]
+  },
+  {
+    "id": "wv-public-specimen-v09",
+    "sourcePayloadHashes": ["6efb1c3ee8f07964196f68df306913827fb1fa2382ae3719bd91fbeaaeae9272"],
+    "sourceRecords": [
+      {
+        "url": "https://webapps.transportation.wv.gov/TWS/WVDOTDocumentStorageMigration/PDF/Transportation/DMV/DMVFormSearch/GENERAL_ID_Sheet_Details_Over_and_Under_21.pdf",
+        "sourceSha256": "98123728df608fba697ccffa9f25afafe0ffa0d6499c2279cf51f56f428789cc",
+        "payloadSha256": "6efb1c3ee8f07964196f68df306913827fb1fa2382ae3719bd91fbeaaeae9272"
+      }
+    ],
+    "notes": [
+      "Marked public specimen. Its date placeholders fail validation. Wire layout verified separately with numeric test dates."
+    ]
+  },
+  {
+    "id": "md-mdot-sb87-v09-id",
+    "sourcePayloadHashes": [],
+    "sourceRecords": [],
+    "anonymizedSourcePayloadHashes": [
+      "b43e685af2be035166a196e7d99b2249e8c1301cfca0794233d361a0306de3ce"
+    ],
+    "notes": [
+      "Maryland MVA identification card presented in Senate Bill 87 testimony. The two subfiles terminate immediately after the final value. The ZMA element is opaque."
+    ]
+  },
+  {
+    "id": "mi-public-specimen-v10",
+    "sourcePayloadHashes": ["94fcb2b14bf14390062ef9158a7b277db5e44a43989629b156de73f1895bcdad"],
+    "sourceRecords": [
+      {
+        "url": "https://www.michigan.gov/cra/-/media/Project/Websites/cra/Link-Page/1_MI_D100_2DCalibratorSheet-Retailers.pdf",
+        "sourceSha256": "16527f6a8591feee4721b6e1ee26597ab389a3dec28e4dac2c0a0b3ad9c267e8",
+        "payloadSha256": "94fcb2b14bf14390062ef9158a7b277db5e44a43989629b156de73f1895bcdad"
+      }
+    ],
+    "notes": [
+      "Public Michigan retailer calibration sheet. Seven required values were blank in its barcode. The layout check supplies synthetic values for those seven fields."
+    ]
   }
 ]

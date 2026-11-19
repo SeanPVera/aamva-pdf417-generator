@@ -15,12 +15,33 @@ const directory = resolve(
   dirname(fileURLToPath(import.meta.url)),
   "../../core/conformance/published"
 );
-export const publishedObservations = readdirSync(directory)
+interface AnonymizedObservation {
+  originalPayloadSha256: string;
+  anonymizedPayloadSha256: string;
+  fileSha256: string;
+  nativeImageSha256: string;
+  sourceUrl: string;
+  bytes: number;
+  replacements: Array<{
+    field: string;
+    start: number;
+    endExclusive: number;
+    byteLength: number;
+    replacement: string;
+  }>;
+}
+
+interface IntakeManifest {
+  payloads: PublishedObservation[];
+  anonymizedObservations?: AnonymizedObservation[];
+}
+
+const manifests = readdirSync(directory)
   .filter((file) => file.endsWith(".json"))
   .sort()
-  .flatMap((file) => {
-    const manifest: { payloads: PublishedObservation[] } = JSON.parse(
-      readFileSync(resolve(directory, file), "utf8")
-    );
-    return manifest.payloads;
-  });
+  .map((file): IntakeManifest => JSON.parse(readFileSync(resolve(directory, file), "utf8")));
+
+export const publishedObservations = manifests.flatMap((manifest) => manifest.payloads);
+export const anonymizedObservations = manifests.flatMap(
+  (manifest) => manifest.anonymizedObservations ?? []
+);

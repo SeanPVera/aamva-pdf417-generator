@@ -23,10 +23,10 @@ Only `published` and `issued` count as evidence about the outside world. The
 schema and the rules below are enforced by
 `src/tests/conformanceProvenance.test.ts`.
 
-The corpus has 35 passing external references in 19 of the 55 jurisdictions.
-They include 28 unmodified public payloads, four anonymized issued layouts, and
-three canonicalized layouts. The [November 19 ledger](COVERAGE-2026-11-19.md)
-identifies the edition, document type, source fidelity, and outstanding evidence
+The corpus has 36 passing external references in 20 of the 55 jurisdictions.
+They include 28 unmodified public payloads, five anonymized layouts, and
+three canonicalized layouts. The [November 19 continuation](COVERAGE-2026-11-19-continuation.md) and [preceding ledger](COVERAGE-2026-11-19.md)
+identify the edition, document type, source fidelity, and outstanding evidence
 for each jurisdiction.
 
 Named variants live in `observed-profiles.json`, with separate source evidence

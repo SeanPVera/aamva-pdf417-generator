@@ -11,7 +11,7 @@ The combined intake retains **47 unique independently decoded public payloads fr
 
 ## Current comparison
 
-The application parses 42 of the 47 published observations. The encoder reproduces 28 original payloads and matches two mechanically canonicalized layouts. Twelve inputs fail field validation, three have malformed framing, and two have publisher or content conflicts. The [November ledger](../coverage-ledger-2026-11-19.json) records each result. The dates in prior manifests identify the software checkpoint at acquisition.
+At the first November checkpoint, the application parsed 42 of the 47 published observations. The encoder reproduces 28 original payloads and matches two mechanically canonicalized layouts. Twelve inputs fail field validation, three have malformed framing, and two have publisher or content conflicts. The [November ledger](../coverage-ledger-2026-11-19.json) records each result. The dates in prior manifests identify the software checkpoint at acquisition.
 
 ## October 31 continuation
 
@@ -41,3 +41,5 @@ npm run conformance:report
 ## Remaining evidence
 
 Thirty-six configured jurisdictions lack a passing external fixture. Additional editions and ID types remain open within the covered jurisdictions. The v12 normative oracle contains 110 independently assembled synthetic expectations and contributes zero external jurisdiction coverage. No signed issuer-derived v12 payload is verified.
+
+The [November continuation](2026-11-19-continuation.json) records Maryland v09 ID with separately hashed original and anonymized replays, an additional New Jersey publication of a known specimen, and the hash of a distinct Mississippi v01 observation. The Maryland exhibit obscures several fields on the front. The retained fixture replaces six fields with length-preserving values.
