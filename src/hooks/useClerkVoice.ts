@@ -3,6 +3,7 @@ import React from "react";
 /** Field codes worth reading aloud, in the order a clerk would say them. */
 const READ_ORDER = [
   "DCS",
+  "DCT",
   "DAC",
   "DAD",
   "DBB",
@@ -18,6 +19,7 @@ const READ_ORDER = [
 
 const LABELS: Record<string, string> = {
   DCS: "Family name",
+  DCT: "Given names",
   DAC: "First name",
   DAD: "Middle name",
   DBB: "Date of birth",

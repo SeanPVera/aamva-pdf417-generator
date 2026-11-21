@@ -2,7 +2,6 @@ import React from "react";
 import { SearchX, ChevronLeft, ChevronRight } from "lucide-react";
 import { Sidebar } from "./components/Sidebar";
 import { Header } from "./components/Header";
-import { WelcomeTour } from "./components/WelcomeTour";
 import { FieldInput } from "./components/FieldInput";
 import { FieldGroup, FIELD_GRID_CLASS } from "./components/FieldGroup";
 import { FieldFilters } from "./components/FieldFilters";
@@ -49,6 +48,9 @@ const BatchProcessor = React.lazy(() =>
 );
 // Modals that only ever appear on an explicit click. Keeping them out of the
 // initial chunk holds the first-paint JS inside its size budget.
+const WelcomeTour = React.lazy(() =>
+  import("./components/WelcomeTour").then((module) => ({ default: module.WelcomeTour }))
+);
 const ShortcutsModal = React.lazy(() =>
   import("./components/ShortcutsModal").then((module) => ({ default: module.ShortcutsModal }))
 );
@@ -326,9 +328,6 @@ function App() {
     window.addEventListener("paste", onPaste);
     return () => window.removeEventListener("paste", onPaste);
   }, [toast]);
-
-  // Help is opened explicitly, never over an active workspace.
-  const showTour = tourOpen;
 
   const handleCloseTour = React.useCallback(() => {
     setTourOpen(false);
@@ -911,7 +910,11 @@ function App() {
           <CompareView open={compareOpen} onClose={() => setCompareOpen(false)} />
         </React.Suspense>
       )}
-      <WelcomeTour open={showTour} onClose={handleCloseTour} />
+      {tourOpen && (
+        <React.Suspense fallback={null}>
+          <WelcomeTour open={tourOpen} onClose={handleCloseTour} />
+        </React.Suspense>
+      )}
       <MobileActionBar
         panel={mobilePanel}
         onPanelChange={setMobilePanel}

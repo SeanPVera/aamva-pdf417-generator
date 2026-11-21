@@ -1,18 +1,20 @@
 # Public specimen intake
 
-The combined intake retains **41 unique independently decoded public payloads across 24 jurisdictions**. Passing external source-layout coverage comes from `../vectors/`: 29 references across 15 of 55 jurisdictions, including 24 unmodified source matches. Twelve jurisdictions have an unmodified public source match. Issued anonymized and mechanically canonicalized references remain separately labelled.
+The combined intake retains **68 unique raw public payloads** plus an anonymized Maryland observation. The [passing corpus](../COVERAGE-2026-11-19-continuation.md) contains 42 external references across 26 of 55 jurisdictions. Thirty-two fixtures reproduce unmodified public source bytes across 19 jurisdictions.
 
 | Manifest | Unique payloads added | Scope |
 | --- | ---: | --- |
 | `2026-10-25.json` | 26 | Historical intake from 291 inspected images, 73 retained source documents, and 53 jurisdictions with visual additions |
 | `2026-10-31.json` | 9 | Additional public calibration sheets, brochures, archives, and qualified rehosts |
 | `2026-10-31-continuation.json` | 6 | Colorado, Montana, historical Florida, and negative Montana, California, and Illinois observations |
-
-The first two manifests remain byte-identical to the preceding checkpoint. Their recorded decoder and encoder outcomes describe that checkpoint. The current comparison appears in the [October 31 coverage ledger](../coverage-ledger-2026-10-31.json).
+| `2026-11-19.json` | 6 | Two California DMV tests, historical Oklahoma and Texas DL backs, and negative New Hampshire and West Virginia specimens |
+| `2026-11-19-continuation.json` | 21 | Additional raw specimens and recorded source defects, with a separate anonymized Maryland receipt |
 
 ## Current comparison
 
-The parser accepts 37 of the 41 observations. The encoder reproduces 24 original source payloads exactly and matches two explicitly canonicalized published layouts. Eleven source inputs fail field validation. Two observations have malformed framing and two have quarantined source conflicts. These outcomes account for all 41 observations; a failed specimen never increases passing coverage.
+At the first November checkpoint, the application parsed 42 of the 47 published observations. The encoder reproduced 28 original payloads and matched two mechanically canonicalized layouts. Twelve inputs failed field validation, three had malformed framing, and two had publisher or content conflicts. The [November ledger](../coverage-ledger-2026-11-19.json) records each result. The dates in prior manifests identify the software checkpoint at acquisition.
+
+## October 31 continuation
 
 The continuation promotes three reviewed unmodified source fixtures:
 
@@ -30,7 +32,7 @@ The negative Montana and California templates retain the literal `MMDDCCYY` revi
 
 The offline investigation packages retain approved specimen crops, binary payloads, hashes, source documents where reviewed, and acquisition receipts. Artwork remains outside public Git history while publisher reuse terms remain unreviewed. Existing Washington images retain their validation-aid purpose limitation.
 
-Source bytes are independently recovered by ZXing-C++ 3.1.1. Each shared crop must decode again to the same binary payload. Re-encoding a payload and reading it back is a separate check and supplies no independent issuer provenance.
+ZXing-C++ 3.1.1 recovered the source bytes. Apple Vision also read all six November specimen crops. Its decoded text encoded as ISO-8859-1 has the same SHA-256 as the ZXing-C++ bytes for each crop. Each shared crop must decode again to the same binary payload. Re-encoding a payload and reading it back is a separate check and supplies no independent issuer provenance.
 
 ```sh
 npm run test:run
@@ -39,4 +41,6 @@ npm run conformance:report
 
 ## Remaining evidence
 
-Forty configured jurisdictions lack a passing external fixture. Additional editions and ID types remain open within the covered jurisdictions. The v12 normative oracle contains 110 independently assembled synthetic expectations and contributes zero external jurisdiction coverage. No signed issuer-derived v12 payload is verified.
+Twenty-nine configured jurisdictions lack a passing external fixture. Additional editions and ID types remain open within the covered jurisdictions. The v12 normative oracle contains 110 independently assembled synthetic expectations and contributes zero external jurisdiction coverage. No signed issuer-derived v12 payload is verified.
+
+The [November continuation](2026-11-19-continuation.json) adds 21 raw observations from GU, HI, IA, ID, MA, MN, NJ, NV, OR, WY. It also records Maryland v09 ID with separately hashed original and anonymized replays, an additional New Jersey publication of a known specimen, and hash-only exclusions for further Mississippi and New Jersey observations. The Maryland exhibit obscures several fields on the front. The retained fixture replaces six fields with length-preserving values.

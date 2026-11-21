@@ -40,6 +40,11 @@
         "sourceSha256": "5b2335a9d181eb7ad9e6793ea5d1c35a0a0ed2e7698908b8b9570e09c351a2e8",
         "payloadSha256": "0c900e490239ed81c4b2ba4d87ff60b1856c36780bff37a07698f5352205db46"
       }
+    ],
+    "notes": [
+      "Public specimen layout; this profile does not establish current issuance practice.",
+      "Published ID cards retain driving-privilege elements as NONE; modern generic ID schema omits them.",
+      "DDC=00000000 is retained as an observed absence sentinel."
     ]
   },
   {
@@ -103,6 +108,10 @@
         "sourceSha256": "1af187a0786c41aa14a326870ab52ec998cd3b0a4419ccc29dded9fed4b5c9aa",
         "payloadSha256": "d9de456eceac29b3fde609c7b52c73de603580fdac203fc469bc8fec909a1402"
       }
+    ],
+    "notes": [
+      "Public specimen layout; this profile does not establish current issuance practice.",
+      "The source carries DCL although CDS 2025 reserves that code. This profile records the conflict."
     ]
   },
   {
@@ -114,6 +123,10 @@
         "sourceSha256": "990649b45ae430b0a5c8b8cdf2d313e3434c7aaae55176d05536daca2207c088",
         "payloadSha256": "b1981be3f0b3f21436845cbbdb9b908640572ba43c2a0edc48cc29b638c58ff1"
       }
+    ],
+    "notes": [
+      "Public specimen layout; this profile does not establish current issuance practice.",
+      "The published barcode omits DAY. This is an explicit issuer-sample compatibility exception."
     ]
   },
   {
@@ -163,6 +176,10 @@
         "sourceSha256": "d1fd565c8dfc55e2557e24669b22661b60b655afc8334ce297c92382bcf5fbf2",
         "payloadSha256": "982331e750a88459bbd31f7ca423a674d197e2f870582821494642a5f7db1aa0"
       }
+    ],
+    "notes": [
+      "Government SAMPLE publication. Source bytes remain unchanged.",
+      "High-resolution copy rehosted by marcdacosta/clearid. Government document origin is corroborated by the Kansas State Library publication; original legislature URL now returns 404. The library copy has different file bytes and lower-resolution artwork."
     ]
   },
   {
@@ -174,6 +191,10 @@
         "sourceSha256": "6a8d19a16c4419f466dc8d1ad6ea535557951412d6e8fc4132773c10eff5239e",
         "payloadSha256": "8d3a544800b4de415f72a6348748a11ce23f3bb15a58c099887af7572addbeb8"
       }
+    ],
+    "notes": [
+      "Government SAMPLE publication. Source bytes remain unchanged.",
+      "Historical DDA=B and DDB=00000000 are retained in an explicit compatibility profile. The meaning of B is unverified; the zero revision date is not treated as a known calendar date."
     ]
   },
   {
@@ -185,6 +206,11 @@
         "sourceSha256": "4dc287a84a72a26cc95e3696c6eb17bf324e707d99347e10db88f936d0ec60f3",
         "payloadSha256": "ffbde827c006e15246ef102f5c25e29de3e1c874bf81d734034181266a997895"
       }
+    ],
+    "notes": [
+      "Government SAMPLE publication. Source bytes remain unchanged.",
+      "Government publication PUB 802 (7-17), recovered through Internet Archive capture dated 2020-10-17. Live source paths are unavailable.",
+      "Source ZP contains an extra segment terminator before ZPD. The positive fixture will explicitly canonicalize that framing byte and update the directory length; raw source remains unchanged in intake."
     ]
   },
   {
@@ -196,6 +222,9 @@
         "sourceSha256": "972f1aae462e222e2135be607d8b7e70aa3cdd7ef9ebba6458ba8c2b259c96db",
         "payloadSha256": "1a6e922373c1c4d697ab75dcd047fa6a47ea94a09c9d696a1b1a23cd1fd433fc"
       }
+    ],
+    "notes": [
+      "Public retailer specimen uses the historical 19-byte header and numeric sex code. Source 0x1c record separator and inconsistent directory are preserved in intake; the canonicalized fixture repairs only framing. Numeric sex interpretation remains scoped to the published specimen."
     ]
   },
   {
@@ -234,11 +263,306 @@
   {
     "id": "co-issued-v10",
     "sourcePayloadHashes": [],
-    "sourceRecords": []
+    "sourceRecords": [],
+    "notes": [
+      "Anonymized issued Colorado DL layout. Default CO generation is unchanged; this profile is opt-in via encodingProfileId.",
+      "Carries DCL (excluded by default CO rules) and DCJ; DAU unit left as typed via preserveValueCase."
+    ]
   },
   {
     "id": "me-issued-v09",
     "sourcePayloadHashes": [],
-    "sourceRecords": []
+    "sourceRecords": [],
+    "notes": [
+      "Anonymized issued Maine ID card layout. Default ME generation is unchanged; this profile is opt-in via encodingProfileId.",
+      "Observed on an identification card only; nothing here is evidence about Maine driver's licenses.",
+      "Writes the ZM subfile even when ZMA is empty, as the source card does."
+    ]
+  },
+  {
+    "id": "ca-dmv-verification-v10",
+    "sourcePayloadHashes": [
+      "4d09012cc25c537226b9af6beb46d28e6c59f44fda7145fbaeaea9197bc94542",
+      "d54b566571459b8510cf9fb58d9efc90106d10a5ac2ec643eac41315c1c57aee"
+    ],
+    "sourceRecords": [
+      {
+        "url": "https://www.dmv.ca.gov/portal/file/verifying-digital-signatures-on-california-dlid-documents-pdf/",
+        "sourceSha256": "ba52b1da468714d914196de1a845aaec2c83ed2e7265041c5c7c3d6670956b48",
+        "payloadSha256": "4d09012cc25c537226b9af6beb46d28e6c59f44fda7145fbaeaea9197bc94542"
+      },
+      {
+        "url": "https://www.dmv.ca.gov/portal/file/verifying-digital-signatures-on-california-dlid-documents-pdf/",
+        "sourceSha256": "ba52b1da468714d914196de1a845aaec2c83ed2e7265041c5c7c3d6670956b48",
+        "payloadSha256": "d54b566571459b8510cf9fb58d9efc90106d10a5ac2ec643eac41315c1c57aee"
+      }
+    ]
+  },
+  {
+    "id": "ok-dps-manual-v01",
+    "sourcePayloadHashes": ["b7174a9ba162dc72d55c89766aced25401c3b7602efba16f61813618a4c8f2c5"],
+    "sourceRecords": [
+      {
+        "url": "https://digitalprairie.ok.gov/digital/api/collection/stgovpub/id/5975/download",
+        "sourceSha256": "e007acb1fc73a1242635aba5884f7648a90ef90ae7d37713500576d8e5bbf12c",
+        "payloadSha256": "b7174a9ba162dc72d55c89766aced25401c3b7602efba16f61813618a4c8f2c5"
+      }
+    ]
+  },
+  {
+    "id": "tx-dps-2009-v03",
+    "sourcePayloadHashes": ["67b82bc50a6d38efa8a464c368ec5bfc243000081f25656d45c5194e239e146f"],
+    "sourceRecords": [
+      {
+        "url": "https://hf-files-oregon.s3.amazonaws.com/hdpgetacvideo_kb_attachments/2025/09-08/5fd6c745-a70f-42cf-bf10-17d7248cc0f8/Texas_DL_Sample.pdf",
+        "sourceSha256": "adca41293d9419cd56a4776552e2a065a0ee53aee0200a6398ccb26cec88c35c",
+        "payloadSha256": "67b82bc50a6d38efa8a464c368ec5bfc243000081f25656d45c5194e239e146f"
+      }
+    ]
+  },
+  {
+    "id": "in-public-specimen-v04",
+    "sourcePayloadHashes": ["95100717baa042138cca2517b8628b0029f71f5b97d5610546bbe2699cbf0d1d"],
+    "sourceRecords": [
+      {
+        "url": "https://raw.githubusercontent.com/marcdacosta/clearid/master/example%20license%20barcodes/indiana.pdf",
+        "sourceSha256": "c90d1282187685169c5e4d4e85f10e6796ec1fd555f491408fe79791d5660d8f",
+        "payloadSha256": "95100717baa042138cca2517b8628b0029f71f5b97d5610546bbe2699cbf0d1d"
+      }
+    ],
+    "notes": [
+      "Marked public specimen. Its date placeholders fail validation. Wire layout verified separately with numeric test dates."
+    ]
+  },
+  {
+    "id": "de-public-specimen-v09",
+    "sourcePayloadHashes": ["a0b97b7910a78430d4a36c622f77a8c76106879e70b49f2906a9e4a8cb5733e5"],
+    "sourceRecords": [
+      {
+        "url": "https://dmv.de.gov/DriverServices/drivers_license/secureID/pdfs/SecureID_brochure.pdf",
+        "sourceSha256": "0a00b12b68b80e2e790f6766e6d0b2c4eadb9f86cef3fa34e1e978ca0ae5796a",
+        "payloadSha256": "a0b97b7910a78430d4a36c622f77a8c76106879e70b49f2906a9e4a8cb5733e5"
+      }
+    ],
+    "notes": [
+      "Marked public specimen. Its date placeholders fail validation. Wire layout verified separately with numeric test dates."
+    ]
+  },
+  {
+    "id": "sd-public-specimen-v04",
+    "sourcePayloadHashes": ["c34073702f5dad62ce0f24720b9b8bbd2dad36193fbcf0ea509fc622df06911b"],
+    "sourceRecords": [
+      {
+        "url": "https://www.sd.gov/sys_attachment.do?sys_id=9f254a244700e210a497127ba26d4378",
+        "sourceSha256": "204b92be01c8ab991b094e401fb9de57e8cda71c85ca3813f53a920e903b31c6",
+        "payloadSha256": "c34073702f5dad62ce0f24720b9b8bbd2dad36193fbcf0ea509fc622df06911b"
+      }
+    ],
+    "notes": [
+      "Marked public specimen. Its date placeholders fail validation. Wire layout verified separately with numeric test dates."
+    ]
+  },
+  {
+    "id": "wv-public-specimen-v09",
+    "sourcePayloadHashes": ["6efb1c3ee8f07964196f68df306913827fb1fa2382ae3719bd91fbeaaeae9272"],
+    "sourceRecords": [
+      {
+        "url": "https://webapps.transportation.wv.gov/TWS/WVDOTDocumentStorageMigration/PDF/Transportation/DMV/DMVFormSearch/GENERAL_ID_Sheet_Details_Over_and_Under_21.pdf",
+        "sourceSha256": "98123728df608fba697ccffa9f25afafe0ffa0d6499c2279cf51f56f428789cc",
+        "payloadSha256": "6efb1c3ee8f07964196f68df306913827fb1fa2382ae3719bd91fbeaaeae9272"
+      }
+    ],
+    "notes": [
+      "Marked public specimen. Its date placeholders fail validation. Wire layout verified separately with numeric test dates."
+    ]
+  },
+  {
+    "id": "md-mdot-sb87-v09-id",
+    "sourcePayloadHashes": [],
+    "sourceRecords": [],
+    "anonymizedSourcePayloadHashes": [
+      "b43e685af2be035166a196e7d99b2249e8c1301cfca0794233d361a0306de3ce"
+    ],
+    "notes": [
+      "Maryland MVA identification card presented in Senate Bill 87 testimony. The two subfiles terminate immediately after the final value. The ZMA element is opaque."
+    ]
+  },
+  {
+    "id": "mi-public-specimen-v10",
+    "sourcePayloadHashes": ["94fcb2b14bf14390062ef9158a7b277db5e44a43989629b156de73f1895bcdad"],
+    "sourceRecords": [
+      {
+        "url": "https://www.michigan.gov/cra/-/media/Project/Websites/cra/Link-Page/1_MI_D100_2DCalibratorSheet-Retailers.pdf",
+        "sourceSha256": "16527f6a8591feee4721b6e1ee26597ab389a3dec28e4dac2c0a0b3ad9c267e8",
+        "payloadSha256": "94fcb2b14bf14390062ef9158a7b277db5e44a43989629b156de73f1895bcdad"
+      }
+    ],
+    "notes": [
+      "Public Michigan retailer calibration sheet. Seven required values were blank in its barcode. The layout check supplies synthetic values for those seven fields."
+    ]
+  },
+  {
+    "id": "or-deq-sample-v09",
+    "sourcePayloadHashes": ["7989b4ca060a4850aa5abf9994f801d867fec4808cde3960c2e6e869fe63d078"],
+    "sourceRecords": [
+      {
+        "url": "https://evrebate.oregon.gov/sites/default/files/docs/SampleSupportingDocuments_OCVRP.pdf",
+        "sourceSha256": "ed094d80675f6d6be9ac0f720498e80882a330ebf904d737b5e7ee87c727dc45",
+        "payloadSha256": "7989b4ca060a4850aa5abf9994f801d867fec4808cde3960c2e6e869fe63d078"
+      }
+    ],
+    "notes": [
+      "Oregon DEQ Clean Vehicle Rebate Program sample supporting documents, PDF page 3. Both faces carry SAMPLE. A 16-row optical recovery read the native back image using the PDF417 symbol alphabet and error correction. Payload values were never supplied to the optical reader."
+    ]
+  },
+  {
+    "id": "mn-dvs-2004-v01",
+    "sourcePayloadHashes": ["518afe8e3da936983f283697317cc382d4eca4cf4220ff8fa469d339fdaf0d32"],
+    "sourceRecords": [
+      {
+        "url": "http://municipalbev.com/images/driverslicense.pdf",
+        "sourceSha256": "ce1701f81f6eb7da8c5487cf2f22409208361cc8e7bb7220511004c5c0b96f7c",
+        "payloadSha256": "518afe8e3da936983f283697317cc382d4eca4cf4220ff8fa469d339fdaf0d32"
+      }
+    ],
+    "notes": [
+      "Minnesota DPS Driver and Vehicle Services brochure, effective December 15, 2004, rehosted by the Minnesota Municipal Beverage Association. Page 2 specifies three contents for this barcode. This named historical layout carries those three elements and omits six fields required by the ordinary v01 DL schema."
+    ]
+  },
+  {
+    "id": "hi-honolulu-2026-v10",
+    "sourcePayloadHashes": ["383fc12f085b58a9edabb6cd0797dca1b84d22f129c85d9ae23121f9393573c1"],
+    "sourceRecords": [
+      {
+        "url": "https://www.honolulu.gov/csd/wp-content/uploads/sites/6/2026/02/HI-DLID-LeafletBrochure-v3b-Feb2026-onlineversion.pdf",
+        "sourceSha256": "e7ebfcfc8be2a0e3e4b0a64846dcb96081f74507ead2e18f3c37428bacaa1335",
+        "payloadSha256": "383fc12f085b58a9edabb6cd0797dca1b84d22f129c85d9ae23121f9393573c1"
+      }
+    ],
+    "notes": [
+      "Honolulu Department of Customer Services 2026 specimen. The v10 DL directory identifies the second subfile as ZA and its two elements as ZHA and ZHC."
+    ]
+  },
+  {
+    "id": "gu-drt-sample-v05",
+    "sourcePayloadHashes": ["87c8726ccd39d8d5d8cdcf1e7466d0d6e0eec698f15971e616f8fecb734ae12f"],
+    "sourceRecords": [
+      {
+        "url": "https://www.guamtax.com/notices/Guam_D500BrochureProd.pdf",
+        "sourceSha256": "8d4083154f5a87d582d9c2d4df72976684cccdfb6e0e7397818be0a76d301700",
+        "payloadSha256": "87c8726ccd39d8d5d8cdcf1e7466d0d6e0eec698f15971e616f8fecb734ae12f"
+      }
+    ],
+    "notes": [
+      "Guam DRT vendor-marked specimen. The issuer IIN is Guam and the address jurisdiction is Indiana. The 260-byte source lacks its final subfile terminator and carries a 25-byte vendor sample message beyond the only directory entry. The 236-byte reference explicitly replaces that trailer with CR and increases the declared subfile length by one. All field values are preserved."
+    ]
+  },
+  {
+    "id": "nj-training-previous-v04",
+    "sourcePayloadHashes": ["85d48944eb0ff4bfe8e2f0337c6cda9a483887a471718e05e81bb682e503d0c0"],
+    "sourceRecords": [
+      {
+        "url": "https://www.njlba.com/pdfs/NJDL-NEW%20LICENSE-TRAINING-2020.pdf",
+        "sourceSha256": "bdbfa3f3f1f3ebaa110b084714c40986bfc771a7c0105783fb17a7ff91ba566b",
+        "payloadSha256": "85d48944eb0ff4bfe8e2f0337c6cda9a483887a471718e05e81bb682e503d0c0"
+      }
+    ],
+    "notes": [
+      "NJLBA training deck, previous-format specimen, slide 5. The final ZN terminator is missing. The canonicalized fixture appends CR and increases its declared length by one. The observed v04 DDA value B is preserved as opaque. Nine separate 2019 MVC interim samples corroborate this issuer value. Its meaning is unconfirmed. Source DCB and DCD are padded to 20 and 8 bytes."
+    ],
+    "corroboration": "https://www.nj.gov/mvc/pdf/about/2019_04.pdf"
+  },
+  {
+    "id": "ia-dot-mm353-v04",
+    "sourcePayloadHashes": [
+      "da4b9807a81652f050fe200db8d67894772b59e7ce18613e2edeafb0c2ef36c9",
+      "04e1b591c47db185a5b1d8b1904a50d67bb121e6a48935762a0b7f78eaba15a4"
+    ],
+    "sourceRecords": [
+      {
+        "url": "https://web.archive.org/web/20230530162545id_/https://www.iowadot.gov/mvd/MM353.pdf",
+        "sourceSha256": "a21ddc25a20a54a84852ee7879dee14539d75a181cbf0b7ca04b2d63f5f1f1e3",
+        "payloadSha256": "da4b9807a81652f050fe200db8d67894772b59e7ce18613e2edeafb0c2ef36c9"
+      },
+      {
+        "url": "https://web.archive.org/web/20120313100627id_/http://www.iowadot.gov/centralissuance/MM353.pdf",
+        "sourceSha256": "95cd58551b80615057d0ee0324dbeb13640cda79c99272563881494ee329a7f9",
+        "payloadSha256": "04e1b591c47db185a5b1d8b1904a50d67bb121e6a48935762a0b7f78eaba15a4"
+      }
+    ],
+    "notes": [
+      "Iowa DOT MM353 public specimen, PDF page 2. The visibly marked SAMPLE card supplies the input values. Its optional DDB field contains the printed date template MMDDCCYY.",
+      "Iowa DOT MM353 under-21 temporary specimen, PDF page 2. The visibly marked SAMPLE card supplies the input values. Its optional DDB field contains the printed date template MMDDCCYY."
+    ]
+  },
+  {
+    "id": "id-itd-2011-temporary-v04",
+    "sourcePayloadHashes": ["2f5618232b36850d64f7e0deae374988f9846f40159509f1aaa597da7379371b"],
+    "sourceRecords": [
+      {
+        "url": "https://web.archive.org/web/20160416004158id_/http://itd.idaho.gov/dmv/driverservices/documents/CentralIssuanceBrochure.pdf",
+        "sourceSha256": "594236ff0cb801c25b5189d0abfd5bc483c7580d583c83169c41b1169ffaaa84",
+        "payloadSha256": "2f5618232b36850d64f7e0deae374988f9846f40159509f1aaa597da7379371b"
+      }
+    ],
+    "notes": [
+      "Idaho Transportation Department summer 2011 temporary DL. The marked specimen uses test patterns and malformed directory entries. The separately authored layout projection replaces DAZ, DDB and DDC and repairs framing."
+    ]
+  },
+  {
+    "id": "nv-dmv-ci-v03",
+    "sourcePayloadHashes": ["308f4979ff99871b4e7c6deeb2795c76cc081bfc4f132ae75bf420d4c320c4ff"],
+    "sourceRecords": [
+      {
+        "url": "https://web.archive.org/web/20170113222345id_/http://dmvnv.com/images/adultback_300dpi.jpg",
+        "sourceSha256": "ecb851f852673eaf601069c180789e5ad87a634f4f4a1c5ccab23248d45f5f0f",
+        "payloadSha256": "308f4979ff99871b4e7c6deeb2795c76cc081bfc4f132ae75bf420d4c320c4ff"
+      }
+    ],
+    "notes": [
+      "Published Nevada DMV central issuance test card reverse. The layout contains zero dates and demographic placeholders. The front illustration shows a separate SAMPLE persona."
+    ]
+  },
+  {
+    "id": "ma-rmv-2010-v03",
+    "sourcePayloadHashes": ["316bb85b7986e9251ae966f9fd9e1a1b4f0304619cc0d5e9920787f27c3a66de"],
+    "sourceRecords": [
+      {
+        "url": "https://www.mass.gov/files/documents/2018/03/21/Drivers_Manual.pdf",
+        "sourceSha256": "0fe1f42a66044414cecab3eace2de68edf1a90476727bbbe39449c8502124cb4",
+        "payloadSha256": "316bb85b7986e9251ae966f9fd9e1a1b4f0304619cc0d5e9920787f27c3a66de"
+      }
+    ],
+    "notes": [
+      "RMV driver manual, government-hosted p168 back labeled 2010 to 2016. DAY contains exactly three spaces. The common v03 table also expects DAC, while this independently published edition uses DCT for given names."
+    ]
+  },
+  {
+    "id": "ma-rmv-2016-v08",
+    "sourcePayloadHashes": ["ff990484420b4f5e7546f7a0b8b976b2659cab5275c0226a13649ee861d60879"],
+    "sourceRecords": [
+      {
+        "url": "https://www.mass.gov/files/documents/2018/03/21/Drivers_Manual.pdf",
+        "sourceSha256": "0fe1f42a66044414cecab3eace2de68edf1a90476727bbbe39449c8502124cb4",
+        "payloadSha256": "ff990484420b4f5e7546f7a0b8b976b2659cab5275c0226a13649ee861d60879"
+      }
+    ],
+    "notes": [
+      "RMV driver manual, government-hosted p168 back labeled 2016 to present. DDH and DDJ both contain MMDDCCYY rather than numeric dates."
+    ]
+  },
+  {
+    "id": "wy-wydot-sample-v09",
+    "sourcePayloadHashes": ["391913d61bc620046f20c0c0d54ae48f82e97d9427ecaadb42303466994ac692"],
+    "sourceRecords": [
+      {
+        "url": "https://www.youtube.com/watch?v=DLI7RtJaPgI",
+        "sourceSha256": "bcae78e5e52931587cfd79279091427920e90eb43de67cff76af190ba19506e2",
+        "payloadSha256": "391913d61bc620046f20c0c0d54ae48f82e97d9427ecaadb42303466994ac692"
+      }
+    ],
+    "notes": [
+      "WYDOT March 2, 2020 public sample card in New Driver Licenses, source frame 567 (18.918900 s). One perspective transform corrected its orientation and left all printed symbol content intact."
+    ]
   }
 ]

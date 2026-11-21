@@ -1,0 +1,40 @@
+{
+  "id": "ok-v01-dl-published-b7174a9ba162",
+  "state": "OK",
+  "version": "01",
+  "subfileType": "DL",
+  "encodingProfileId": "ok-dps-manual-v01",
+  "description": "Oklahoma DPS manual, printed page 1-13. The back encodes a TESTING record. The adjacent front uses a different SAMPLE identity; the fixture describes the back only.",
+  "provenance": {
+    "tier": "published",
+    "source": "https://digitalprairie.ok.gov/digital/api/collection/stgovpub/id/5975/download",
+    "capturedAt": "2026-11-19",
+    "verifiedBy": "ZXing-C++ 3.1.1 source-image read, independent directory and element inspection, and automated byte comparison.",
+    "fidelity": "unmodified-source",
+    "sourceSha256": "e007acb1fc73a1242635aba5884f7648a90ef90ae7d37713500576d8e5bbf12c",
+    "payloadSha256": "b7174a9ba162dc72d55c89766aced25401c3b7602efba16f61813618a4c8f2c5",
+    "evidenceImageSha256": "4b084760f4d5d0e1d530f536d52eda5f1aebfb6b19ded26c58590e7a780c6b20",
+    "notes": "PDF page 19. Oklahoma DPS manual, printed page 1-13. The back encodes a TESTING record. The adjacent front uses a different SAMPLE identity; the fixture describes the back only."
+  },
+  "input": {
+    "DAQ": "000011141",
+    "DAA": "TESTING,AL",
+    "DAG": "4416 NW 59TH ST",
+    "DAI": "OKLAHOMA CITY",
+    "DAJ": "OK",
+    "DAK": "731121336",
+    "DAR": "D",
+    "DAS": "",
+    "DAT": "",
+    "DBA": "20070930",
+    "DBB": "19411101",
+    "DBC": "F",
+    "DBD": "20030827",
+    "DAU": "504",
+    "DAW": "115",
+    "DAY": "GRN",
+    "DBH": "Y",
+    "ZOA": "03081895"
+  },
+  "expectedBytes": "@\n\u001e\rANSI 6360580102DL00390184ZO02230014DLDAQ000011141\nDAATESTING,AL\nDAG4416 NW 59TH ST\nDAIOKLAHOMA CITY\nDAJOK\nDAK731121336  \nDARD   \nDAS          \nDAT     \nDBA20070930\nDBB19411101\nDBCF\nDBD20030827\nDAU504\nDAW115\nDAYGRN\nDBHY\rZOZOA03081895\r"
+}

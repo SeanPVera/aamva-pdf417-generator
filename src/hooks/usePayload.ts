@@ -46,12 +46,23 @@ export function usePayload(): PayloadResult {
     subfileType
   );
 
+  const sourceFields = !!sourcePayload;
+
   // Identifies the inputs a result was produced from. Comparing the current
   // signature against the computed one derives staleness at render time, with
   // no setState in the effect body.
   const signature = React.useMemo(
-    () => JSON.stringify([state, version, strictMode, subfileType, fields, encodingProfileId]),
-    [state, version, strictMode, subfileType, fields, encodingProfileId]
+    () =>
+      JSON.stringify([
+        state,
+        version,
+        strictMode,
+        subfileType,
+        fields,
+        encodingProfileId,
+        sourceFields
+      ]),
+    [state, version, strictMode, subfileType, fields, encodingProfileId, sourceFields]
   );
 
   const [result, setResult] = React.useState<{
@@ -74,7 +85,8 @@ export function usePayload(): PayloadResult {
         const payload = generateAAMVAPayload(state, version, schemaFields, fields, {
           strictMode,
           subfileType,
-          encodingProfileId
+          encodingProfileId,
+          sourceFields
         });
         setResult({ payload, error: null, signature });
       } catch (err) {
@@ -83,7 +95,7 @@ export function usePayload(): PayloadResult {
     }, PAYLOAD_DEBOUNCE_MS);
 
     return () => window.clearTimeout(id);
-  }, [state, version, fields, strictMode, subfileType, signature, encodingProfileId]);
+  }, [state, version, fields, strictMode, subfileType, signature, encodingProfileId, sourceFields]);
 
   return {
     payload: result.payload,

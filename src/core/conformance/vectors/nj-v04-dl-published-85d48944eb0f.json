@@ -1,0 +1,63 @@
+{
+  "id": "nj-v04-dl-published-85d48944eb0f",
+  "state": "NJ",
+  "version": "04",
+  "subfileType": "DL",
+  "encodingProfileId": "nj-training-previous-v04",
+  "description": "NJLBA training deck, previous-format specimen, slide 5. The final ZN terminator is missing. The canonicalized fixture appends CR and increases its declared length by one. The observed v04 DDA value B is preserved as opaque. Nine separate 2019 MVC interim samples corroborate this issuer value. Its meaning is unconfirmed. Source DCB and DCD are padded to 20 and 8 bytes.",
+  "provenance": {
+    "tier": "published",
+    "fidelity": "canonicalized",
+    "source": "https://www.njlba.com/pdfs/NJDL-NEW%20LICENSE-TRAINING-2020.pdf",
+    "capturedAt": "2026-11-19",
+    "verifiedBy": "ZXing-C++ and Apple Vision agreed on the original 487 bytes. Compared the public training specimen with its printed dummy face and confirmed the historical compliance byte in nine MVC printout examples on pages 2 through 10 of its 2019 advisory.",
+    "sourceSha256": "bdbfa3f3f1f3ebaa110b084714c40986bfc771a7c0105783fb17a7ff91ba566b",
+    "payloadSha256": "85d48944eb0ff4bfe8e2f0337c6cda9a483887a471718e05e81bb682e503d0c0",
+    "evidenceImageSha256": "db094d94894c7cfad784a04b49ca95048eb8b31b32fe9cb7f1a09c5cb63a6b66",
+    "transformations": [
+      {
+        "offset": 37,
+        "removeLength": 4,
+        "insert": "0132"
+      },
+      {
+        "offset": 487,
+        "removeLength": 0,
+        "insert": "\r"
+      }
+    ],
+    "notes": "NJLBA training deck, previous-format specimen, slide 5. The final ZN terminator is missing. The canonicalized fixture appends CR and increases its declared length by one. The observed v04 DDA value B is preserved as opaque. Nine separate 2019 MVC interim samples corroborate this issuer value. Its meaning is unconfirmed. Source DCB and DCD are padded to 20 and 8 bytes."
+  },
+  "input": {
+    "DAQ": "N29632676304942",
+    "DCS": "NEWJERSEY",
+    "DDE": "U",
+    "DAC": "FORFUN",
+    "DDF": "U",
+    "DAD": "C",
+    "DDG": "U",
+    "DCA": "D",
+    "DCB": "Z",
+    "DCD": "NONE",
+    "DBD": "07202011",
+    "DBB": "04121994",
+    "DBA": "12312014",
+    "DBC": "1",
+    "DAU": "063 in",
+    "DAY": "BRO",
+    "DAG": "123 ANY STREET",
+    "DAI": "ANY TOWN",
+    "DAJ": "NJ",
+    "DAK": "086661784",
+    "DCF": "ST201120100000087",
+    "DCG": "USA",
+    "DDA": "B",
+    "DDB": "07232010",
+    "ZNA": "NM",
+    "ZNB": "11.00",
+    "ZNC": "CHG",
+    "ZNF": "BRN",
+    "ZNH": "88:ECXg4BvNkLtfQn9Zpvk0iUFGAJ/G0eAL1+Jb78/GCEkPrrU4EQqLvjLbHIym/O8QHC1GKxT9HqafZMsCkSfjXQ==;0220;"
+  },
+  "expectedBytes": "@\n\u001e\rANSI 636036040002DL00410315ZN03560132DLDAQN29632676304942          \nDCSNEWJERSEY\nDDEU\nDACFORFUN\nDDFU\nDADC\nDDGU\nDCAD     \nDCBZ                   \nDCDNONE    \nDBD07202011\nDBB04121994\nDBA12312014\nDBC1\nDAU063 in\nDAYBRO\nDAG123 ANY STREET                     \nDAIANY TOWN            \nDAJNJ\nDAK086661784  \nDCFST201120100000087        \nDCGUSA\nDDAB\nDDB07232010\rZNZNANM\nZNB11.00\nZNCCHG\nZNFBRN\nZNH88:ECXg4BvNkLtfQn9Zpvk0iUFGAJ/G0eAL1+Jb78/GCEkPrrU4EQqLvjLbHIym/O8QHC1GKxT9HqafZMsCkSfjXQ==;0220;\r"
+}

@@ -105,19 +105,18 @@ describe("payload inspection", () => {
   });
 
   test("flags elements this build's field table does not define", () => {
-    // DDH ("under 18 until") is a real AAMVA element this build has no entry
-    // for. Splicing one in is how a card carrying it would read.
+    // Use an unassigned identifier to exercise the unknown-element path.
     const base = generateCT(CT_RECORD);
-    const spliced = base.replace("DDB02102017\n", "DDB02102017\nDDH01012008\n");
+    const spliced = base.replace("DDB02102017\n", "DDB02102017\nQQQ01012008\n");
     const relengthed =
       spliced.substring(0, 27) +
       String(parseInt(spliced.substring(27, 31), 10) + 12).padStart(4, "0") +
       spliced.substring(31);
 
     const inspection = inspectPayload(relengthed).inspection!;
-    expect(inspection.unknownCodes).toEqual(["DDH"]);
+    expect(inspection.unknownCodes).toEqual(["QQQ"]);
     expect(inspection.subfiles[0]!.unaccountedBytes).toBe(0);
-    expect(inspection.elements.find((e) => e.code === "DDH")!.value).toBe("01012008");
+    expect(inspection.elements.find((e) => e.code === "QQQ")!.value).toBe("01012008");
     expect(summarizeAnomalies(inspection)).toContain("outside the field table");
   });
 

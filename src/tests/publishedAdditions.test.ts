@@ -1,8 +1,8 @@
+import { anonymizedObservations, publishedObservations } from "./support/publishedIntake";
 import { createHash } from "node:crypto";
 import { describe, expect, it } from "vitest";
 import additions from "../core/conformance/published/2026-10-31.json";
 import original from "../core/conformance/published/2026-10-25.json";
-import continuation from "../core/conformance/published/2026-10-31-continuation.json";
 import provenance from "../core/conformance/observed-profile-provenance.json";
 import { OBSERVED_ENCODING_PROFILES } from "../core/observedProfiles";
 import { decodeAAMVAFormat } from "../core/decoder";
@@ -74,13 +74,17 @@ describe("October 31 public-source acquisition", () => {
     expect(provenance.map((source) => source.id).sort()).toEqual(
       OBSERVED_ENCODING_PROFILES.map((profile) => profile.id).sort()
     );
-    const observations = [...original.payloads, ...additions.payloads, ...continuation.payloads];
     for (const source of provenance) {
+      for (const hash of source.anonymizedSourcePayloadHashes ?? [])
+        expect(anonymizedObservations.some((entry) => entry.originalPayloadSha256 === hash)).toBe(
+          true
+        );
       for (const hash of source.sourcePayloadHashes)
-        expect(observations.some((payload) => payload.sha256 === hash)).toBe(true);
+        expect(publishedObservations.some((payload) => payload.sha256 === hash)).toBe(true);
       for (const record of source.sourceRecords)
         expect(
-          observations.find((payload) => payload.sha256 === record.payloadSha256)?.sourceSha256
+          publishedObservations.find((payload) => payload.sha256 === record.payloadSha256)
+            ?.sourceSha256
         ).toBe(record.sourceSha256);
     }
   });
