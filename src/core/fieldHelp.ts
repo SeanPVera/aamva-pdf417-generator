@@ -5,7 +5,7 @@
  */
 export const FIELD_HELP: Record<string, string> = {
   SIG: "CDS 2026 signature: exactly 80 ASCII85 characters representing a 64-byte ECDSA P-256 r||s signature. Case is significant. Editing signed data requires signing it again. Verification with a supplied key does not establish issuer certificate trust.",
-  SCV: "Signature Coverage: comma-separated signed element IDs, a semicolon, then unsigned IDs. Every present element must appear once. SCV and SIG must be signed. Omit SCV when the signature covers every element.",
+  SCV: "Signature Coverage: comma-separated signed element IDs, a semicolon, then unsigned IDs. Every present element must appear once. SCV and SIG are always signed and may be left out of both lists. Omit SCV when the signature covers every element.",
   DCF:
     "Document Discriminator — a per-card unique ID printed on the credential. " +
     "Use the Gen button to produce a state-correct value automatically.",

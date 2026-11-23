@@ -71,9 +71,12 @@ export function validateSignatureElements(elements: Record<string, string>): str
     decodeSignatureAscii85(elements.SIG!);
     if (!hasCoverage) return undefined;
     const { signed, unsigned } = parseSignatureCoverage(elements.SCV!);
-    if (!signed.includes("SCV") || !signed.includes("SIG"))
-      return "SCV must declare SCV and SIG as signed";
-    const declared = new Set([...signed, ...unsigned]);
+    // B.6.2.2(c) always signs SCV, and B.6.2.1 always signs SIG's zeroed
+    // placeholder. CDS 2026 D.13 leaves both out of its declaration, so absence
+    // means signed; declaring either unsigned contradicts the standard.
+    if (unsigned.includes("SCV") || unsigned.includes("SIG"))
+      return "SCV cannot declare SCV or SIG as unsigned";
+    const declared = new Set([...signed, ...unsigned, "SIG", "SCV"]);
     const present = Object.keys(elements).filter((code) => /^[A-Z]{2}[A-Z0-9]$/.test(code));
     const missing = present.filter((code) => !declared.has(code));
     const absent = [...declared].filter((code) => !present.includes(code));
