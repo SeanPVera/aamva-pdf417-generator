@@ -179,11 +179,17 @@ describe("CDS 2026 version 12 normative behavior (synthetic tests)", () => {
     expect(validateSignatureElements({ SCV: "SCV;" })).toMatch(/requires/);
     const base = { SIG: "0".repeat(80), SCV: "SIG,SCV,DAQ;DCF", DAQ: "123", DCF: "abc" };
     expect(validateSignatureElements(base)).toBeUndefined();
+    // CDS 2026 D.13 declares neither SIG nor SCV; both are then implicitly signed.
+    for (const SCV of ["DAQ;DCF", "SCV,DAQ;DCF", "SIG,DAQ;DCF"]) {
+      expect(validateSignatureElements({ ...base, SCV })).toBeUndefined();
+    }
     for (const SCV of [
       "SIG,SCV;",
       "SIG,SCV,DAQ;DAQ,DCF",
       "SIG,SCV,DAQ,DAY;DCF",
       "SIG,DAQ;SCV,DCF",
+      "DAQ;SCV,DCF",
+      "SCV,DAQ;SIG,DCF",
       "SIG,SCV,DAQ;DCF;"
     ]) {
       expect(validateSignatureElements({ ...base, SCV })).toBeTruthy();
@@ -253,6 +259,23 @@ describe("CDS 2026 version 12 normative behavior (synthetic tests)", () => {
     expect(
       (await verifyAamvaSignature(payload.replace("DCSDOE", "DCSROE"), key)).signatureValid
     ).toBe(false);
+  });
+  it("signs SIG and SCV implicitly when the declaration omits them, as CDS 2026 D.13 does", async () => {
+    const ordinary = decodeAAMVAFormat(build()).data!;
+    const codes = Object.keys(ordinary).filter((code) => /^[A-Z]{2}[A-Z0-9]$/.test(code));
+    const SCV = codes.filter((code) => code !== "DCF").join(",") + ";DCF";
+    const placeholder = build({ SIG: "0".repeat(80), SCV });
+    const canonical = placeholder.replace(/DCF[^\n\r]*\n/, "");
+    expect(canonicalizeAamvaSignature(placeholder)).toBe(canonical);
+    expect(canonical).toContain("SCV" + SCV);
+    expect(canonical).toContain("SIG" + "0".repeat(80));
+    const payload = independentlySign(placeholder, canonical);
+    const key = await publicKey();
+    expect((await verifyAamvaSignature(payload, key)).signatureValid).toBe(true);
+    // Moving an element into the unsigned list must break the signature over SCV.
+    const tampered = payload.replace("SCV" + SCV, "SCV" + SCV.replace("DCS,", "") + ",DCS");
+    expect(tampered).not.toBe(payload);
+    expect((await verifyAamvaSignature(tampered, key)).signatureValid).toBe(false);
   });
   it("covers signed padding across subfiles and omits a final unsigned CR-delimited element", async () => {
     const coverage = "DCS,SIG,SCV,ZAA;DCF,ZAB";
